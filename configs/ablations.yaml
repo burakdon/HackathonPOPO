@@ -1,0 +1,41 @@
+# Ablations (eval/ablations.py), all on held-out test patients with the full-evaluation protocol.
+#   uv run python -m eval.ablations --config configs/ablations.yaml
+seed: 0
+n_patients: 200
+cohorts: [mild_anomic, moderate_broca, severe]
+bootstrap_samples: 1000
+metrics: [time_in_band, control_error, learning_gain, probe_lift, quit]
+oracle: {tolerance: 0.06, cue_cost: 0.03, tier_bonus: 0.01, cue_only_after_error: true}
+
+base_policies:
+  - {key: fixed, label: "fixed (tier 2)", type: fixed, tier: 2}
+  - {key: staircase, label: "staircase", type: staircase}
+  - {key: contextual_bandit, label: "contextual bandit", type: logistic_bandit}
+  - {key: ppo_proxy, label: "PPO, proxy reward", type: ppo, models: [models/ppo_seed0.zip, models/ppo_seed1.zip, models/ppo_seed2.zip]}
+  - {key: ppo_sim, label: "PPO, simulation objective (trained at peak 0.85)", type: ppo, models: [models/ppo_privileged_seed0.zip, models/ppo_privileged_seed1.zip, models/ppo_privileged_seed2.zip]}
+  - {key: oracle, label: "oracle (privileged)", type: oracle}
+
+# 1. Where does learning peak? The simulator's learning peak is an assumption (0.85 mirrors the 85%
+#    rule). Every policy is evaluated under each peak. In addition, PPO is retrained AT each peak
+#    ("matched"): with the simulation objective (which still contains the -|p - 0.85| control term)
+#    and with the learning-only objective (no 85% target at all).
+learning_peak:
+  peaks: [0.5, 0.7, 0.85]
+  matched:
+    - {key: ppo_sim_matched, label: "PPO, simulation objective, retrained at this peak",
+       models: "models/ppo_privileged_{tag}seed{seed}.zip", tag_085: ""}
+    - {key: ppo_learning_matched, label: "PPO, learning-only objective, retrained at this peak",
+       models: "models/ppo_privileged_learning_{tag}seed{seed}.zip", tag_085: "peak0.85_"}
+
+# 2. Dropout on vs off (base policies).
+dropout: [true, false]
+
+# 3. Reward variants for PPO (3 seeds each), evaluated with dropout on.
+reward_variants:
+  - {key: band_only, label: "band only", models: "models/ppo_band_only_seed{seed}.zip"}
+  - {key: band_climb, label: "band + climb", models: "models/ppo_band_climb_seed{seed}.zip"}
+  - {key: full, label: "full proxy", models: "models/ppo_seed{seed}.zip"}
+  - {key: full_probe, label: "full proxy + probe", models: "models/ppo_full_probe_seed{seed}.zip"}
+  - {key: privileged, label: "simulation objective", models: "models/ppo_privileged_seed{seed}.zip"}
+seeds: [0, 1, 2]
+output_dir: results

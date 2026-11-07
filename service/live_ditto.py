@@ -1,133 +1,101 @@
-"""Live DITTO loop for the agent service: clinician overrides in, tuned policy swapped in live.
+"""Live DITTO-style update of one session's PPO policy from the overrides logged in that session.
 
-    dashboard override  --POST /override-->  runs/overrides.jsonl   (demonstrations)
-    agent choice shown, not overridden --POST /update-->  runs/accepted.jsonl   (anchors)
-    POST /ditto/train   --> DITTO on the BASE policy with all demonstrations so far
-                        --> the tuned policy replaces the live one (agent == "ppo")
-    POST /ditto/reset   --> back to the base policy
-
-Training always starts from the base policy (never from the previously tuned one), so calling
-/ditto/train twice with the same overrides gives the same policy instead of compounding updates.
+Used by POST /learn_from_overrides. One round of agents/ditto.py against the frozen base model:
+demonstrations = this session's clinician overrides; anchors = this session's accepted choices (the
+agent acted and the clinician did not override) plus the base policy's own decisions on a few
+validation patients (collected once and cached), excluding states of the types the clinician
+overrode. Sized to run in a few seconds on CPU.
 """
 from __future__ import annotations
 
-import threading
 import time
+from collections import defaultdict
 
 import numpy as np
 from sb3_contrib import MaskablePPO
 
-from agents.ditto import action_probs, ditto
-from agents.ppo import PPOPolicy
+from agents.ditto import Demo, action_probs, ditto
 from agents.selection import clinical_gate
-from core.config import ClinicalConfig, load_yaml, resolve
-from core.masks import ACTION_CUES, ACTION_TIERS, action_mask
+from core.config import ClinicalConfig, LiveDittoConfig
+from core.masks import ACTION_CUES, action_index, action_mask
 from core.observation import ObservationBuilder
-from core.schema import Action, State
-from envs.aphasia_env import EnvConfig, load_env_config
+from core.schema import Action, State, StateTypeChange
+
+CUE_OF = np.array(ACTION_CUES)
 
 
-def _describe(i: int) -> dict:
-    return {"tier": int(ACTION_TIERS[i]), "cue": ACTION_CUES[i]}
+def state_type(last_error: str | None) -> str:
+    if last_error is None:
+        return "at the start of a session"
+    if last_error == "correct":
+        return "after a correct answer"
+    return "after a no-response" if last_error == "no_response" else f"after a {last_error} error"
 
 
 class LiveDitto:
-    """Holds the base and the currently served PPO policy; thread-safe swap."""
+    def __init__(self, base: MaskablePPO, clinical: ClinicalConfig, env_cfg, cfg: LiveDittoConfig) -> None:
+        self.base, self.clinical, self.env_cfg, self.cfg = base, clinical, env_cfg, cfg
+        self.obs = ObservationBuilder(clinical, env_cfg.history, env_cfg.nominal_trials, env_cfg.rt_cap_s)
+        self._pool: list[dict] | None = None
 
-    def __init__(self, base_model_path: str, ditto_config: str, clinical: ClinicalConfig,
-                 env_cfg: EnvConfig | None = None) -> None:
-        self.clinical, self.env_cfg = clinical, env_cfg or load_env_config()
-        self.cfg = load_yaml(ditto_config)
-        self.base_path = base_model_path
-        self.policy = PPOPolicy(base_model_path, clinical, self.env_cfg)    # the object every session shares
-        self.base_model: MaskablePPO = self.policy.model
-        self.obs = ObservationBuilder(clinical, self.env_cfg.history, self.env_cfg.nominal_trials, self.env_cfg.rt_cap_s)
-        self.tuned = False
-        self.last_report: dict | None = None
-        self._sim_states: list[dict] | None = None
-        self._lock = threading.Lock()
+    def pool(self) -> list[dict]:
+        """The base policy's decision states on validation patients (cached after the first call)."""
+        if self._pool is None:
+            from envs.aphasia_env import AphasiaEnv
+            from train.ditto_ppo import collect_states
+            env = AphasiaEnv(cohort="population", split="val")
+            self._pool = collect_states(self.base, env, range(self.cfg.anchor_pool_patients))
+        return self._pool
 
-    # ---- anchors ----
-    def _mask(self, state: State) -> np.ndarray:
-        m = action_mask(state.current_tier, self.clinical.approved_cues, self.clinical.max_tier_step)
-        return clinical_gate(state, m, self.env_cfg.cue_only_after_error)
+    def encode(self, state: State) -> tuple[np.ndarray, np.ndarray]:
+        mask = action_mask(state.current_tier, self.clinical.approved_cues, self.clinical.max_tier_step)
+        return self.obs(state), clinical_gate(state, mask, self.env_cfg.cue_only_after_error)
 
-    def _simulated_states(self) -> list[dict]:
-        if self._sim_states is None:
-            rng = self.cfg.get("live", {}).get("sim_anchor_patients") or [0, 0]
-            if rng[1] > rng[0]:
-                from envs.aphasia_env import AphasiaEnv
-                from train.ditto_ppo import collect_states
-                self._sim_states = collect_states(self.base_model, AphasiaEnv(cohort="population", split="val"),
-                                                  range(*rng))
-            else:
-                self._sim_states = []
-        return self._sim_states
-
-    def anchors(self, accepted: list[dict], override_records: list[dict]) -> tuple[list, dict]:
-        real = []
-        for rec in accepted:
-            st = State(**rec["state"])
-            real.append((self.obs(st), self._mask(st)))
-        # Leave out simulated states in the same context as an override (same last error type, or
-        # "no error" if the override followed a correct answer): the preference may apply there.
-        contexts = set()
-        for rec in override_records:
-            trials = rec["state"].get("last_trials") or []
-            contexts.add(trials[-1]["error_type"] if trials else None)
-        sim = [(s["obs"], s["mask"]) for s in self._simulated_states() if s["last_error"] not in contexts]
-        return real + sim, {"accepted": len(real), "simulated": len(sim)}
-
-    # ---- train / reset ----
-    def train(self, override_records: list[dict], accepted: list[dict], variant: str | None = None) -> dict:
-        from train.ditto_ppo import demos_from_records
-        demos, skipped = demos_from_records(override_records, self.clinical, self.env_cfg)
-        if not demos:
-            raise ValueError(f"no usable overrides ({len(skipped)} skipped: the policy cannot produce that "
-                             f"action under the clinical mask)" if skipped else "no overrides logged yet")
-        anchors, n_anchor = self.anchors(accepted, override_records)
-        c = self.cfg
-        variant = variant or c.get("live", {}).get("variant", "paper")
-        kw = dict(anchors=anchors, anchor_weight=c["anchor_weight"])
-        if variant == "paper":
-            p = c["paper"]
-            kw.update(sft_steps=p["sft_steps"], mixture=p["mixture"], batch_size=p["batch_size"])
-        elif variant != "legacy":
-            raise ValueError(f"unknown variant {variant!r} (paper | legacy)")
+    def learn(self, overrides: list[tuple[State, Action]], accepted: list[State]) -> tuple[MaskablePPO, dict]:
         t0 = time.time()
-        tuned, log = ditto(self.base_model, demos, c["rounds"], c["samples_per_state"], c["beta"],
-                           c["learning_rate"], c["gradient_steps_per_round"], c["seed"], **kw)
-        obs, masks = np.stack([d.obs for d in demos]), np.stack([d.mask for d in demos])
-        before = action_probs(self.base_model, obs, masks)
-        after = action_probs(tuned, obs, masks)
-        per_override = [{"clinician": _describe(d.action), "base_choice": _describe(int(before[k].argmax())),
-                         "tuned_choice": _describe(int(after[k].argmax())),
-                         "p_clinician_before": round(float(before[k, d.action]), 3),
-                         "p_clinician_after": round(float(after[k, d.action]), 3)}
-                        for k, d in enumerate(demos)]
-        report = {"variant": variant, "n_overrides_used": len(demos), "n_overrides_skipped": len(skipped),
-                  "n_anchors": n_anchor, "seconds": round(time.time() - t0, 2),
-                  "agreement_before": float(np.mean([before[k].argmax() == d.action for k, d in enumerate(demos)])),
-                  "agreement_after": float(np.mean([after[k].argmax() == d.action for k, d in enumerate(demos)])),
-                  "rounds": log, "per_override": per_override}
-        out = resolve("runs/ppo_ditto_live.zip")
-        out.parent.mkdir(parents=True, exist_ok=True)
-        tuned.save(str(out), exclude=["tensorboard_log"])
-        report["saved_to"] = str(out.relative_to(resolve(".")))
-        with self._lock:
-            self.policy.model = tuned
-            self.tuned = True
-            self.last_report = report
-        return report
+        demos, types, skipped = [], defaultdict(list), 0
+        for state, a in overrides:
+            obs, mask = self.encode(state)
+            i = action_index(a.tier, a.cue)
+            if not mask[i]:
+                skipped += 1
+                continue
+            demos.append(Demo(obs, mask, i))
+            last = state.last_trials[-1].error_type if state.last_trials else None
+            types[(state_type(last), a.cue)].append(i)
+        if not demos:
+            raise ValueError("no usable overrides in this session")
+        pool = self.pool()
+        # A state type the clinician has overridden (e.g. "after a sound error") no longer counts as
+        # accepted: anchors keep only states of other types, so the preference can generalise within
+        # its type while everything else stays pinned to the base policy.
+        overridden_types = {t for t, _ in types}
+        last_type = lambda s: state_type(s.last_trials[-1].error_type if s.last_trials else None)
+        anchors = ([self.encode(s) for s in accepted if last_type(s) not in overridden_types]
+                   + [(p["obs"], p["mask"]) for p in pool if state_type(p["last_error"]) not in overridden_types])
+        c = self.cfg
+        tuned, _ = ditto(self.base, demos, c.rounds, c.samples_per_state, c.beta, c.learning_rate,
+                         c.gradient_steps, c.seed, anchors=anchors, anchor_weight=c.anchor_weight)
 
-    def reset(self) -> None:
-        with self._lock:
-            self.policy.model = self.base_model
-            self.tuned = False
-
-    def label(self) -> str:
-        return "ppo+ditto" if self.tuned else "ppo"
-
-
-def same_action(a: Action, b: Action) -> bool:
-    return a.tier == b.tier and a.cue == b.cue
+        by_type = []
+        for (stype, cue), idx in types.items():
+            sel = [p for p in pool if state_type(p["last_error"]) == stype
+                   and p["mask"][[action_index(t, cue) for t in (1, 2, 3)]].any()]
+            if sel:
+                o, m = np.stack([p["obs"] for p in sel]), np.stack([p["mask"] for p in sel])
+                is_cue = CUE_OF == cue
+                before = float(action_probs(self.base, o, m)[:, is_cue].sum(1).mean())
+                after = float(action_probs(tuned, o, m)[:, is_cue].sum(1).mean())
+            else:
+                before = after = float("nan")
+            by_type.append(StateTypeChange(state_type=stype, clinician_cue=cue, n_overrides=len(idx),
+                                           n_eval_states=len(sel), p_before=before, p_after=after))
+        others = [p for p in pool if state_type(p["last_error"]) not in overridden_types]
+        if others:
+            o, m = np.stack([p["obs"] for p in others]), np.stack([p["mask"] for p in others])
+            unchanged = float(np.mean(action_probs(self.base, o, m).argmax(1) == action_probs(tuned, o, m).argmax(1)))
+        else:
+            unchanged = float("nan")
+        return tuned, {"n_overrides": len(demos), "n_skipped": skipped, "n_anchor_states": len(anchors),
+                       "seconds": round(time.time() - t0, 2), "by_state_type": by_type,
+                       "other_states_unchanged": unchanged}

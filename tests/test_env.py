@@ -109,3 +109,8 @@ def test_privileged_terms_only_in_privileged_variant():
     priv, proxy = _episode_terms("privileged"), _episode_terms("full")
     assert priv["control"] < 0 and priv["learning"] > 0 and priv["probe_p"] > 0 and priv["band"] == 0
     assert proxy["control"] == proxy["learning"] == proxy["probe_p"] == 0 and proxy["band"] > 0
+
+
+def test_learning_only_variant_has_no_control_term():
+    t = _episode_terms("privileged_learning")
+    assert t["control"] == 0 and t["learning"] > 0 and t["probe_p"] > 0 and t["band"] == 0

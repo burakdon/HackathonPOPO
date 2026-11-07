@@ -1,0 +1,42 @@
+# Full evaluation (eval/compare.py). One command reproduces every number and figure:
+#   uv run python -m eval.compare --config configs/eval.yaml
+seed: 0
+n_patients: 200                 # held-out TEST patients per cohort (never used in training or tuning)
+cohorts: [mild_anomic, moderate_broca, severe]
+dropout: true                   # patient dropout as in configs/sim.yaml (results with it off: ablations)
+bootstrap_samples: 2000         # percentile bootstrap over patients, 95% intervals
+
+# Policies, in the fixed order used for colours in the figures.
+policies:
+  - {key: fixed, label: "fixed (tier 2)", type: fixed, tier: 2}
+  - {key: staircase, label: "staircase", type: staircase}
+  - {key: contextual_bandit, label: "contextual bandit", type: logistic_bandit}
+  - {key: ppo_proxy, label: "PPO, proxy reward", type: ppo, models: [models/ppo_seed0.zip, models/ppo_seed1.zip, models/ppo_seed2.zip]}
+  - {key: ppo_sim, label: "PPO, simulation objective", type: ppo, models: [models/ppo_privileged_seed0.zip, models/ppo_privileged_seed1.zip, models/ppo_privileged_seed2.zip]}
+  - {key: oracle, label: "oracle (privileged)", type: oracle}
+
+# Oracle selection rule (same form as the bandits').
+oracle: {tolerance: 0.06, cue_cost: 0.03, tier_bonus: 0.01, cue_only_after_error: true}
+
+# Metrics reported (eval/metrics.py). `pct_of_oracle` metrics are also reported as % of the oracle.
+metrics: [time_in_band, control_error, learning_gain, probe_recall, probe_lift, quit, frustration_events, mean_tier, accuracy]
+pct_of_oracle: [learning_gain, probe_lift]
+
+# Paired differences (A - B on the same patients), bootstrap 95% CI.
+paired:
+  - [ppo_sim, fixed]
+  - [ppo_proxy, fixed]
+  - [contextual_bandit, fixed]
+  - [ppo_sim, ppo_proxy]
+  - [ppo_sim, contextual_bandit]
+  - [ppo_sim, oracle]
+
+# Simplified slide figure (results/pitch_severe.png): one cohort, three policies, two metrics.
+pitch:
+  cohort: severe
+  policies:
+    - {key: fixed, label: "Fixed difficulty"}
+    - {key: staircase, label: "Staircase"}
+    - {key: ppo_proxy, label: "Our agent"}     # the live demo agent (configs/service.yaml)
+
+output_dir: results

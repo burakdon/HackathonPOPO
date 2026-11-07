@@ -112,6 +112,158 @@ def plot_variant_curves(variants: dict[str, list[Path]], out: Path, title: str) 
     plt.close(fig)
 
 
+def _legend_top(fig, handles, labels, ncol=3) -> None:
+    fig.legend(handles, labels, loc="upper right", ncol=ncol, frameon=False, fontsize=8.5, labelcolor=INK_2)
+
+
+def plot_comparison_bars(cfg: dict, csv_path: Path, out: Path) -> None:
+    """Grouped bars (cohort groups, one bar per policy) with 95% bootstrap CI whiskers, one panel per
+    metric. Lower is better for control error and quit rate; higher for learning gain and probe lift."""
+    with open(csv_path) as f:
+        rows = list(csv.DictReader(f))
+    get = {(r["cohort"], r["policy"], r["metric"]): r for r in rows}
+    panels = [("control_error", "True control error |p - 0.85| (lower is better)", 1.0),
+              ("learning_gain", "Learning gain over the item bank, x100 (higher is better)", 100.0),
+              ("probe_lift", "Probe lift: recall gain on review items, x100 (higher is better)", 100.0),
+              ("quit", "Sessions abandoned (lower is better)", 1.0)]
+    cohorts, policies = cfg["cohorts"], cfg["policies"]
+    n = len(policies)
+    width = 0.8 / n
+    fig, axes = plt.subplots(2, 2, figsize=(11, 7), facecolor=SURFACE)
+    for ax, (metric, title, sc) in zip(axes.flat, panels):
+        for j, (p, color) in enumerate(zip(policies, SERIES + ["#52514e"])):
+            xs = np.arange(len(cohorts)) - 0.4 + width * (j + 0.5)
+            means = np.array([sc * float(get[(c, p["key"], metric)]["mean"]) for c in cohorts])
+            lo = np.array([sc * float(get[(c, p["key"], metric)]["ci_low"]) for c in cohorts])
+            hi = np.array([sc * float(get[(c, p["key"], metric)]["ci_high"]) for c in cohorts])
+            ax.bar(xs, means, width=width * 0.88, color=color, label=p["label"], edgecolor=SURFACE, linewidth=1.0)
+            ax.errorbar(xs, means, yerr=[means - lo, hi - means], fmt="none", ecolor=INK_2, elinewidth=0.8, capsize=1.5)
+        ax.set_xticks(np.arange(len(cohorts)))
+        ax.set_xticklabels([c.replace("_", " ") for c in cohorts], fontsize=8.5, color=INK_2)
+        _style(ax, title, "")
+        ax.axhline(0, color=AXIS, linewidth=0.8)
+    handles, labels = axes.flat[0].get_legend_handles_labels()
+    _legend_top(fig, handles, labels)
+    fig.suptitle("Policy comparison on held-out simulated patients", x=0.01, ha="left", fontsize=11, color=INK)
+    fig.text(0.01, 0.005, f"{cfg['n_patients']} held-out patients per cohort, mean with 95% bootstrap CI; "
+             "PPO averaged over 3 training seeds per patient; the oracle reads the hidden patient state.",
+             fontsize=8, color=MUTED)
+    fig.tight_layout(rect=(0, 0.03, 1, 0.9))
+    fig.savefig(out, dpi=150, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def plot_rolling_accuracy(cfg: dict, ev: dict, out: Path) -> None:
+    """Rolling accuracy (last `window` trials) vs trial number, mean over patients (and seeds) with a
+    light 95% band, the 75-90% target band shaded. Sessions that ended early drop out of later trials."""
+    cohorts, policies, W = cfg["cohorts"], cfg["policies"], ev["window"]
+    fig, axes = plt.subplots(1, len(cohorts), figsize=(12, 4.2), facecolor=SURFACE, sharey=True)
+    x = np.arange(W, ev["n_trials"] + 1)
+    for ax, cohort in zip(np.atleast_1d(axes), cohorts):
+        ax.axhspan(0.75, 0.90, color=GRID, alpha=0.6, linewidth=0, label="target band 75-90%")
+        for p, color in zip(policies, SERIES + ["#52514e"]):
+            curves = ev["curves"][(cohort, p["key"])]
+            mean = np.nanmean(curves, axis=0)
+            n = np.sum(~np.isnan(curves), axis=0)
+            se = np.nanstd(curves, axis=0) / np.sqrt(np.maximum(n, 1))
+            ax.fill_between(x, mean - 1.96 * se, mean + 1.96 * se, color=color, alpha=0.12, linewidth=0)
+            ax.plot(x, mean, color=color, linewidth=2.0, label=p["label"])
+        _style(ax, cohort.replace("_", " "), "rolling accuracy (last 8 trials)" if ax is np.atleast_1d(axes)[0] else "")
+        ax.set_xlabel("trial", fontsize=9, color=INK_2)
+        ax.set_ylim(0.2, 1.02)
+    handles, labels = np.atleast_1d(axes)[0].get_legend_handles_labels()
+    _legend_top(fig, handles, labels, ncol=4)
+    fig.suptitle("Rolling accuracy over the session", x=0.01, ha="left", fontsize=11, color=INK)
+    fig.text(0.01, 0.005, f"{cfg['n_patients']} held-out patients per cohort; lines = mean, light bands = 95% CI; "
+             "includes review probes; sessions that were abandoned drop out of later trials.", fontsize=8, color=MUTED)
+    fig.tight_layout(rect=(0, 0.04, 1, 0.82))
+    fig.savefig(out, dpi=150, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def plot_learning_peak_ablation(rows: list[dict], cfg: dict, out: Path) -> None:
+    """Learning gain vs the simulator's learning-peak assumption, one panel per cohort, one line per
+    policy (fixed categorical order), 95% CI whiskers."""
+    rows = [r for r in rows if r["ablation"] == "learning_peak" and r["metric"] == "learning_gain"]
+    peaks = sorted({float(r["setting"]) for r in rows})
+    pols = list(dict.fromkeys((r["policy"], r["label"]) for r in rows))
+    cohorts = cfg["cohorts"]
+    fig, axes = plt.subplots(1, len(cohorts), figsize=(12, 4.3), facecolor=SURFACE)
+    colors = SERIES + ["#52514e", "#0b0b0b"]   # matched PPO variants in neutral inks, dashed / dotted
+    for ax, cohort in zip(np.atleast_1d(axes), cohorts):
+        for (key, label), color in zip(pols, colors):
+            pts = sorted(((float(r["setting"]), r) for r in rows if r["cohort"] == cohort and r["policy"] == key),
+                         key=lambda t: t[0])
+            if not pts:
+                continue
+            x = [p for p, _ in pts]
+            y = np.array([100 * r["mean"] for _, r in pts])
+            lo = np.array([100 * r["ci_low"] for _, r in pts])
+            hi = np.array([100 * r["ci_high"] for _, r in pts])
+            style = {"ppo_sim_matched": "--", "ppo_learning_matched": ":"}.get(key, "-")
+            ax.errorbar(x, y, yerr=[y - lo, hi - y], color=color, linestyle=style, linewidth=2.0, marker="o",
+                        markersize=5, capsize=2, label=label)
+        _style(ax, cohort.replace("_", " "), "learning gain x100" if ax is np.atleast_1d(axes)[0] else "")
+        ax.set_xticks(peaks)
+        ax.set_xlabel("simulator learning peak (p at which practice teaches most)", fontsize=8.5, color=INK_2)
+    handles, labels = np.atleast_1d(axes)[0].get_legend_handles_labels()
+    _legend_top(fig, handles, labels, ncol=3)
+    fig.suptitle("Ablation: where does learning peak?", x=0.01, ha="left", fontsize=11, color=INK)
+    fig.text(0.01, 0.005, f"{cfg['n_patients']} held-out patients per cohort, mean with 95% bootstrap CI. Dashed / "
+             "dotted: PPO retrained at each peak on the simulation objective / the learning-only objective.",
+             fontsize=8, color=MUTED)
+    fig.tight_layout(rect=(0, 0.04, 1, 0.8))
+    fig.savefig(out, dpi=150, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def plot_pitch(cfg: dict, csv_path: Path, out: Path) -> None:
+    """Slide figure: one cohort, a few policies, two panels (sessions abandoned; learning gain), large
+    fonts, mean with 95% CI and the value printed on each bar. Our agent in the accent colour,
+    baselines in neutral grey."""
+    pc = cfg["pitch"]
+    with open(csv_path) as f:
+        rows = {(r["cohort"], r["policy"], r["metric"]): r for r in csv.DictReader(f)}
+    keys = [p["key"] for p in pc["policies"]]
+    labels = [p["label"] for p in pc["policies"]]
+    colors = ["#b5b3ab"] * (len(keys) - 1) + [SERIES[0]]
+    panels = [("quit", "Sessions abandoned", 100.0, "%", "{:.0f}%"),
+              ("learning_gain", "Naming improvement per session", 100.0, "percentage points", "+{:.1f}")]
+    plt.rcParams.update({"font.size": 15})
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.6), facecolor=SURFACE)
+    for ax, (metric, title, sc, unit, fmt) in zip(axes, panels):
+        m = np.array([sc * float(rows[(pc["cohort"], k, metric)]["mean"]) for k in keys])
+        lo = np.array([sc * float(rows[(pc["cohort"], k, metric)]["ci_low"]) for k in keys])
+        hi = np.array([sc * float(rows[(pc["cohort"], k, metric)]["ci_high"]) for k in keys])
+        x = np.arange(len(keys))
+        ax.bar(x, m, width=0.62, color=colors, edgecolor=SURFACE, linewidth=2)
+        ax.errorbar(x, m, yerr=[m - lo, hi - m], fmt="none", ecolor=INK_2, elinewidth=1.4, capsize=5)
+        for xi, (v, h) in enumerate(zip(m, hi)):
+            ax.text(xi, h + 0.03 * max(hi), fmt.format(v), ha="center", va="bottom", fontsize=20, color=INK,
+                    fontweight="bold" if xi == len(keys) - 1 else "normal")
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels, fontsize=16, color=INK)
+        ax.set_ylim(0, max(hi) * 1.25)
+        ax.set_facecolor(SURFACE)
+        ax.set_title(title, loc="left", fontsize=19, color=INK, pad=12)
+        ax.set_ylabel(unit, fontsize=13, color=INK_2)
+        ax.tick_params(axis="y", colors=MUTED, labelsize=12)
+        ax.tick_params(axis="x", length=0)
+        ax.grid(True, axis="y", color=GRID, linewidth=0.8)
+        ax.set_axisbelow(True)
+        for side in ("top", "right", "left"):
+            ax.spines[side].set_visible(False)
+        ax.spines["bottom"].set_color(AXIS)
+    fig.suptitle("Severe aphasia (simulated patients)", x=0.01, ha="left", fontsize=22, color=INK)
+    fig.text(0.01, 0.01, f"{cfg['n_patients']} held-out simulated patients; mean with 95% CI. Naming improvement = increase "
+             "in the probability of naming a word without a hint, averaged over the word list. Simulation only, not a "
+             "clinical result.", fontsize=10.5, color=MUTED)
+    fig.tight_layout(rect=(0, 0.05, 1, 0.92))
+    fig.savefig(out, dpi=200, facecolor=SURFACE)
+    plt.close(fig)
+    plt.rcParams.update(plt.rcParamsDefault)
+
+
 VARIANT_LABELS = {"full": "proxy reward", "full_probe": "proxy + probe reward", "privileged": "privileged reward"}
 
 

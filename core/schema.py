@@ -109,10 +109,6 @@ class UpdateRequest(BaseModel):
     outcome: Outcome
     probe: bool = Field(default=False, description="True if this trial was a review probe; the agent does "
                                                    "not learn from trials it did not choose")
-    reviewed: bool = Field(default=False, description="True if a clinician was watching this trial on the dashboard "
-                                                      "and could have overridden it. Only reviewed, non-overridden "
-                                                      "agent choices are logged as accepted (DITTO anchors); "
-                                                      "unsupervised home practice is never treated as approval")
 
 
 class NextTrial(BaseModel):
@@ -125,6 +121,32 @@ class NextTrial(BaseModel):
     cue: Cue
     probe: bool
     rationale: str | None = None
+
+
+class LearnRequest(BaseModel):
+    """POST /learn_from_overrides body."""
+
+    model_config = _LENIENT
+    session_id: str = Field(min_length=1, max_length=128)
+
+
+class StateTypeChange(BaseModel):
+    state_type: str                 # e.g. "after a sound error"
+    clinician_cue: str              # the cue the clinician chose in overrides of this state type
+    n_overrides: int
+    n_eval_states: int              # reference states of this type where that cue is allowed
+    p_before: float                 # mean probability of choosing that cue, before
+    p_after: float                  # ... and after the update
+
+
+class LearnResult(BaseModel):
+    session_id: str
+    n_overrides: int
+    n_skipped: int                  # overrides whose clinician action is not allowed in its state
+    n_anchor_states: int
+    seconds: float
+    by_state_type: list[StateTypeChange]
+    other_states_unchanged: float   # share of other reference states whose top action is unchanged
 
 
 class OverrideRequest(BaseModel):

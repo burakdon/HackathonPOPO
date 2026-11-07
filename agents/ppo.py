@@ -22,9 +22,11 @@ from envs.aphasia_env import EnvConfig
 class PPOPolicy:
     name = "ppo"
 
-    def __init__(self, model_path: str | Path, clinical: ClinicalConfig, env_cfg: EnvConfig,
+    def __init__(self, model: str | Path | MaskablePPO, clinical: ClinicalConfig, env_cfg: EnvConfig,
                  deterministic: bool = True) -> None:
-        self.model = MaskablePPO.load(str(resolve(model_path)), device="cpu")
+        # Accepts a path or an already-loaded model, so the service can share one model across
+        # sessions (the policy keeps no per-session state) and hot-swap a tuned copy for one session.
+        self.model = model if isinstance(model, MaskablePPO) else MaskablePPO.load(str(resolve(model)), device="cpu")
         self.clinical, self.env_cfg, self.deterministic = clinical, env_cfg, deterministic
         self.obs = ObservationBuilder(clinical, env_cfg.history, env_cfg.nominal_trials, env_cfg.rt_cap_s)
 

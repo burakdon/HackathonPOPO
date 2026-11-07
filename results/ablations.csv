@@ -1,0 +1,616 @@
+ablation,setting,cohort,policy,label,metric,mean,ci_low,ci_high
+learning_peak,0.5,mild_anomic,fixed,fixed (tier 2),time_in_band,0.5423027690700105,0.5136963166144201,0.5718357823928945
+learning_peak,0.5,mild_anomic,fixed,fixed (tier 2),control_error,0.05198186582881157,0.04996325269693825,0.0543158656956019
+learning_peak,0.5,mild_anomic,fixed,fixed (tier 2),learning_gain,0.0020312348676903387,0.00175007843602301,0.002333991623828515
+learning_peak,0.5,mild_anomic,fixed,fixed (tier 2),probe_lift,0.0017702180228947773,0.0014726547697547884,0.002094971404328225
+learning_peak,0.5,mild_anomic,fixed,fixed (tier 2),quit,0.01,0.0,0.025
+learning_peak,0.5,mild_anomic,staircase,staircase,time_in_band,0.795067920585162,0.7771798589341693,0.8114221525600837
+learning_peak,0.5,mild_anomic,staircase,staircase,control_error,0.13789426359429943,0.1352616848213477,0.14064021043422378
+learning_peak,0.5,mild_anomic,staircase,staircase,learning_gain,0.012214416788437064,0.011370659461437805,0.013035249111501336
+learning_peak,0.5,mild_anomic,staircase,staircase,probe_lift,0.00817578961854748,0.00712622330986527,0.00931258810495378
+learning_peak,0.5,mild_anomic,staircase,staircase,quit,0.005,0.0,0.015
+learning_peak,0.5,mild_anomic,contextual_bandit,contextual bandit,time_in_band,0.5225013061650993,0.49465438871473355,0.549857040229885
+learning_peak,0.5,mild_anomic,contextual_bandit,contextual bandit,control_error,0.08177863019600135,0.07977895124264685,0.08395029382959421
+learning_peak,0.5,mild_anomic,contextual_bandit,contextual bandit,learning_gain,0.0026955410653636603,0.0023423383223547065,0.0030893675187752497
+learning_peak,0.5,mild_anomic,contextual_bandit,contextual bandit,probe_lift,0.001120107179185494,0.0009065505023479214,0.0013827390999294935
+learning_peak,0.5,mild_anomic,contextual_bandit,contextual bandit,quit,0.01,0.0,0.025
+learning_peak,0.5,mild_anomic,ppo_proxy,"PPO, proxy reward",time_in_band,0.8677272727272728,0.8549469696969697,0.8798535353535354
+learning_peak,0.5,mild_anomic,ppo_proxy,"PPO, proxy reward",control_error,0.12826947626485816,0.1263543683705921,0.13018716551338735
+learning_peak,0.5,mild_anomic,ppo_proxy,"PPO, proxy reward",learning_gain,0.007969871771709913,0.00742463604942972,0.008575213587457367
+learning_peak,0.5,mild_anomic,ppo_proxy,"PPO, proxy reward",probe_lift,0.005235595325473226,0.004446407358453379,0.006039699775940901
+learning_peak,0.5,mild_anomic,ppo_proxy,"PPO, proxy reward",quit,0.0,0.0,0.0
+learning_peak,0.5,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.4351349703935911,0.40964731365377915,0.45974936868686866
+learning_peak,0.5,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.07791135750793218,0.07576823098713163,0.08012675824724046
+learning_peak,0.5,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.0010885311609979743,0.0009413603548879025,0.0012558741930577392
+learning_peak,0.5,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.0008287529598170522,0.0006886016694481017,0.0009752145784382468
+learning_peak,0.5,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.005,0.0,0.013333333333333332
+learning_peak,0.5,mild_anomic,oracle,oracle (privileged),time_in_band,0.5468482236154649,0.5163248106060606,0.5735544670846395
+learning_peak,0.5,mild_anomic,oracle,oracle (privileged),control_error,0.053661100688789674,0.0513571474357175,0.056162186662609255
+learning_peak,0.5,mild_anomic,oracle,oracle (privileged),learning_gain,0.002255513511664186,0.0019626081377255365,0.0025595361904423
+learning_peak,0.5,mild_anomic,oracle,oracle (privileged),probe_lift,0.001936669978471383,0.0016522602283872568,0.002261015547045564
+learning_peak,0.5,mild_anomic,oracle,oracle (privileged),quit,0.01,0.0,0.025
+learning_peak,0.5,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",time_in_band,0.5413161790316963,0.5149507249216301,0.5682502068094741
+learning_peak,0.5,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",control_error,0.06600974493443366,0.06409409143555485,0.06778766082677995
+learning_peak,0.5,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",learning_gain,0.0020198423630321555,0.001791232432223602,0.0022612829445784804
+learning_peak,0.5,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",probe_lift,0.0022054215139943765,0.0018949764677359312,0.0025174313770468075
+learning_peak,0.5,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",quit,0.005,0.0,0.011666666666666667
+learning_peak,0.5,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",time_in_band,0.4023386084971897,0.3793759834370647,0.42667318740438304
+learning_peak,0.5,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",control_error,0.19974911595639316,0.19469960173277173,0.20429411524289465
+learning_peak,0.5,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",learning_gain,0.022276046381285157,0.02109316237868794,0.023489548061681954
+learning_peak,0.5,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",probe_lift,0.02573450513378539,0.02383444602070893,0.027963172512228702
+learning_peak,0.5,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",quit,0.021666666666666664,0.00829166666666667,0.03833333333333333
+learning_peak,0.5,moderate_broca,fixed,fixed (tier 2),time_in_band,0.5111801948051948,0.48409880952380946,0.5357939123376623
+learning_peak,0.5,moderate_broca,fixed,fixed (tier 2),control_error,0.11861674411937852,0.11218713369732634,0.12476227905304584
+learning_peak,0.5,moderate_broca,fixed,fixed (tier 2),learning_gain,0.026157341458767552,0.02430606210774697,0.027957370055827054
+learning_peak,0.5,moderate_broca,fixed,fixed (tier 2),probe_lift,0.027358823061142835,0.025182677632533894,0.029578606234566856
+learning_peak,0.5,moderate_broca,fixed,fixed (tier 2),quit,0.03,0.01,0.055
+learning_peak,0.5,moderate_broca,staircase,staircase,time_in_band,0.5753993506493507,0.5512535984848486,0.5993088474025974
+learning_peak,0.5,moderate_broca,staircase,staircase,control_error,0.15683528228883517,0.15167006233217548,0.1615069647172174
+learning_peak,0.5,moderate_broca,staircase,staircase,learning_gain,0.021209156337038158,0.019693486938894347,0.022546692708438912
+learning_peak,0.5,moderate_broca,staircase,staircase,probe_lift,0.015018255802655414,0.013464703777402156,0.016586201474902345
+learning_peak,0.5,moderate_broca,staircase,staircase,quit,0.03,0.01,0.055
+learning_peak,0.5,moderate_broca,contextual_bandit,contextual bandit,time_in_band,0.6248398268398269,0.6019567099567099,0.6503035714285714
+learning_peak,0.5,moderate_broca,contextual_bandit,contextual bandit,control_error,0.07708018472010311,0.07421553969672001,0.0799725579686023
+learning_peak,0.5,moderate_broca,contextual_bandit,contextual bandit,learning_gain,0.012262831898469216,0.0111570439448029,0.01334499607045961
+learning_peak,0.5,moderate_broca,contextual_bandit,contextual bandit,probe_lift,0.008781170582113031,0.007701994552138764,0.009977427291416636
+learning_peak,0.5,moderate_broca,contextual_bandit,contextual bandit,quit,0.015,0.0,0.035
+learning_peak,0.5,moderate_broca,ppo_proxy,"PPO, proxy reward",time_in_band,0.8140909090909091,0.795604797979798,0.8312638888888889
+learning_peak,0.5,moderate_broca,ppo_proxy,"PPO, proxy reward",control_error,0.1107130887404018,0.10784785682742466,0.11358160462454231
+learning_peak,0.5,moderate_broca,ppo_proxy,"PPO, proxy reward",learning_gain,0.012744692302860012,0.011910519411336352,0.013636169404345132
+learning_peak,0.5,moderate_broca,ppo_proxy,"PPO, proxy reward",probe_lift,0.008895087843384702,0.007990953844246626,0.009784704058241897
+learning_peak,0.5,moderate_broca,ppo_proxy,"PPO, proxy reward",quit,0.0016666666666666666,0.0,0.005
+learning_peak,0.5,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.6346031746031746,0.6173713924963925,0.6536971500721501
+learning_peak,0.5,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.0647688613139812,0.06260514720114663,0.06711397279264221
+learning_peak,0.5,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.010316038125716787,0.009384277985358973,0.011393846367981677
+learning_peak,0.5,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.009584018558453502,0.00850099922226532,0.010800283326744257
+learning_peak,0.5,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.003333333333333333,0.0,0.008333333333333333
+learning_peak,0.5,moderate_broca,oracle,oracle (privileged),time_in_band,0.5953030303030303,0.5710530303030303,0.6184848484848485
+learning_peak,0.5,moderate_broca,oracle,oracle (privileged),control_error,0.04448632471435788,0.04346887221048321,0.04566072849690414
+learning_peak,0.5,moderate_broca,oracle,oracle (privileged),learning_gain,0.0061472954685897665,0.005509166656356869,0.0067258462503594985
+learning_peak,0.5,moderate_broca,oracle,oracle (privileged),probe_lift,0.004255697592375361,0.003775278112713451,0.004861997534930136
+learning_peak,0.5,moderate_broca,oracle,oracle (privileged),quit,0.0,0.0,0.0
+learning_peak,0.5,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",time_in_band,0.6218596681096681,0.6030707521645022,0.6414154040404041
+learning_peak,0.5,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",control_error,0.09422904590092258,0.09045170063088882,0.097873787007447
+learning_peak,0.5,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",learning_gain,0.01801968132917862,0.016754255616617416,0.019375006174477738
+learning_peak,0.5,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",probe_lift,0.018882877188280172,0.01734734100852121,0.02039134527414818
+learning_peak,0.5,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",quit,0.005,0.0,0.011666666666666665
+learning_peak,0.5,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",time_in_band,0.30992838096551867,0.28824334117891637,0.33120831517264937
+learning_peak,0.5,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",control_error,0.23736122025484555,0.22892873773002126,0.24667231914065132
+learning_peak,0.5,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",learning_gain,0.03002657354955413,0.02866275324678256,0.031550541546999614
+learning_peak,0.5,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",probe_lift,0.03095645742531349,0.029004928130387787,0.03315954815788053
+learning_peak,0.5,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",quit,0.05333333333333333,0.03166666666666666,0.07833333333333332
+learning_peak,0.5,severe,fixed,fixed (tier 2),time_in_band,0.026653976005878176,0.017539106726606725,0.03653868509208183
+learning_peak,0.5,severe,fixed,fixed (tier 2),control_error,0.4982191474626982,0.48827880964512527,0.5080475152924793
+learning_peak,0.5,severe,fixed,fixed (tier 2),learning_gain,0.026682497876118455,0.023123711931006805,0.03034572689940428
+learning_peak,0.5,severe,fixed,fixed (tier 2),probe_lift,0.04140491774908228,0.0371427543791861,0.04605792755080268
+learning_peak,0.5,severe,fixed,fixed (tier 2),quit,0.705,0.639875,0.765
+learning_peak,0.5,severe,staircase,staircase,time_in_band,0.12761086739323135,0.10991790970697489,0.14514265237738713
+learning_peak,0.5,severe,staircase,staircase,control_error,0.32860339446672654,0.3199825808277524,0.33698491417056786
+learning_peak,0.5,severe,staircase,staircase,learning_gain,0.040611624945779246,0.038016689047406536,0.04307165868427089
+learning_peak,0.5,severe,staircase,staircase,probe_lift,0.0427082609117698,0.04032514055350718,0.0453363090008733
+learning_peak,0.5,severe,staircase,staircase,quit,0.235,0.18,0.295
+learning_peak,0.5,severe,contextual_bandit,contextual bandit,time_in_band,0.25622535760882226,0.23362416484996817,0.28033648217802143
+learning_peak,0.5,severe,contextual_bandit,contextual bandit,control_error,0.27183982264911,0.2635572943114591,0.2810124813043959
+learning_peak,0.5,severe,contextual_bandit,contextual bandit,learning_gain,0.03757169898848845,0.035234253164673913,0.039697403802219366
+learning_peak,0.5,severe,contextual_bandit,contextual bandit,probe_lift,0.039887512258351146,0.037384714279579734,0.04233469419203363
+learning_peak,0.5,severe,contextual_bandit,contextual bandit,quit,0.16,0.11,0.21
+learning_peak,0.5,severe,ppo_proxy,"PPO, proxy reward",time_in_band,0.34616683897470346,0.3170401394324748,0.3723000896647636
+learning_peak,0.5,severe,ppo_proxy,"PPO, proxy reward",control_error,0.23219979894303208,0.2246289425839016,0.23929357238325033
+learning_peak,0.5,severe,ppo_proxy,"PPO, proxy reward",learning_gain,0.03711545093703674,0.035028737662137925,0.039281574099079244
+learning_peak,0.5,severe,ppo_proxy,"PPO, proxy reward",probe_lift,0.03938236574872142,0.037034943883392506,0.04164643217597929
+learning_peak,0.5,severe,ppo_proxy,"PPO, proxy reward",quit,0.085,0.051625,0.125
+learning_peak,0.5,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.3098997468620231,0.28482763378133424,0.33698908803052824
+learning_peak,0.5,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.2408426877667251,0.23257867763213622,0.2489097737302812
+learning_peak,0.5,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.03861190431979133,0.03629486580416537,0.0405926982893946
+learning_peak,0.5,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.04179181687744497,0.03932025545624544,0.04428240383763492
+learning_peak,0.5,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.11833333333333332,0.08166666666666667,0.1567083333333333
+learning_peak,0.5,severe,oracle,oracle (privileged),time_in_band,0.3830775915261209,0.35454872009118327,0.4121477452694363
+learning_peak,0.5,severe,oracle,oracle (privileged),control_error,0.2063042315115893,0.19934042562753612,0.21309143508285458
+learning_peak,0.5,severe,oracle,oracle (privileged),learning_gain,0.036290940025557425,0.03428147804268132,0.03834864347185111
+learning_peak,0.5,severe,oracle,oracle (privileged),probe_lift,0.039413745127728356,0.03707190669081569,0.04181799330917685
+learning_peak,0.5,severe,oracle,oracle (privileged),quit,0.055,0.025,0.0851249999999999
+learning_peak,0.5,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",time_in_band,0.17560231706158652,0.1552682958133086,0.19519403709013883
+learning_peak,0.5,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",control_error,0.3258790470436981,0.3173751298139686,0.33440647493462755
+learning_peak,0.5,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",learning_gain,0.03662511253904965,0.034281947850929397,0.03913171334483283
+learning_peak,0.5,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",probe_lift,0.0391205460198521,0.036418751309792635,0.0419040037412404
+learning_peak,0.5,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",quit,0.195,0.14833333333333332,0.24504166666666663
+learning_peak,0.5,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",time_in_band,0.060362474565860004,0.050009448147273775,0.07113466183038002
+learning_peak,0.5,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",control_error,0.39353907267902266,0.3856320249349616,0.4015628326116498
+learning_peak,0.5,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",learning_gain,0.03325277791818006,0.030789138779021816,0.03561694609160637
+learning_peak,0.5,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",probe_lift,0.03683359677702424,0.03430367685106214,0.039904762165723195
+learning_peak,0.5,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",quit,0.24666666666666665,0.19829166666666667,0.29666666666666663
+learning_peak,0.7,mild_anomic,fixed,fixed (tier 2),time_in_band,0.5128409090909091,0.4836287878787878,0.5435615530303031
+learning_peak,0.7,mild_anomic,fixed,fixed (tier 2),control_error,0.056205438279390944,0.054078446123704,0.05829951338364284
+learning_peak,0.7,mild_anomic,fixed,fixed (tier 2),learning_gain,0.015053317752898648,0.014015753898938324,0.016197515527187324
+learning_peak,0.7,mild_anomic,fixed,fixed (tier 2),probe_lift,0.013012092708683252,0.01193393131677577,0.014134927156159076
+learning_peak,0.7,mild_anomic,fixed,fixed (tier 2),quit,0.005,0.0,0.015
+learning_peak,0.7,mild_anomic,staircase,staircase,time_in_band,0.8004545454545454,0.7816666666666667,0.8177272727272729
+learning_peak,0.7,mild_anomic,staircase,staircase,control_error,0.13666946094248286,0.1340700020496275,0.1393424962583061
+learning_peak,0.7,mild_anomic,staircase,staircase,learning_gain,0.02201863337753326,0.020963337470981776,0.023097965965405514
+learning_peak,0.7,mild_anomic,staircase,staircase,probe_lift,0.015614965232228962,0.014380892386447054,0.01689161604891942
+learning_peak,0.7,mild_anomic,staircase,staircase,quit,0.0,0.0,0.0
+learning_peak,0.7,mild_anomic,contextual_bandit,contextual bandit,time_in_band,0.5153800940438871,0.4872332810867294,0.5439015151515152
+learning_peak,0.7,mild_anomic,contextual_bandit,contextual bandit,control_error,0.08325270282616903,0.0812444449521702,0.08517371131821895
+learning_peak,0.7,mild_anomic,contextual_bandit,contextual bandit,learning_gain,0.012178244945809406,0.011298604504070301,0.01304105264838509
+learning_peak,0.7,mild_anomic,contextual_bandit,contextual bandit,probe_lift,0.006517511059631458,0.005862394323203639,0.007243665934626829
+learning_peak,0.7,mild_anomic,contextual_bandit,contextual bandit,quit,0.01,0.0,0.025
+learning_peak,0.7,mild_anomic,ppo_proxy,"PPO, proxy reward",time_in_band,0.8664646464646465,0.8533825757575757,0.8785896464646465
+learning_peak,0.7,mild_anomic,ppo_proxy,"PPO, proxy reward",control_error,0.12819417817197049,0.12634598034473396,0.12998489997167875
+learning_peak,0.7,mild_anomic,ppo_proxy,"PPO, proxy reward",learning_gain,0.015075583965007456,0.014284288753482567,0.015864836064835214
+learning_peak,0.7,mild_anomic,ppo_proxy,"PPO, proxy reward",probe_lift,0.009675421509055855,0.008750567257867874,0.010590796294390527
+learning_peak,0.7,mild_anomic,ppo_proxy,"PPO, proxy reward",quit,0.0,0.0,0.0
+learning_peak,0.7,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.42255050505050507,0.3980681818181818,0.44785921717171717
+learning_peak,0.7,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.08025679750897403,0.07826536121807151,0.08230967090738622
+learning_peak,0.7,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.009472387269365796,0.008697822993577391,0.010260681452877108
+learning_peak,0.7,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.006773030642270641,0.006126063895865469,0.007530116360285759
+learning_peak,0.7,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.003333333333333333,0.0,0.01
+learning_peak,0.7,mild_anomic,oracle,oracle (privileged),time_in_band,0.5166287878787879,0.48598106060606067,0.5425577651515152
+learning_peak,0.7,mild_anomic,oracle,oracle (privileged),control_error,0.057890591564923925,0.055617740398667986,0.06035593652645628
+learning_peak,0.7,mild_anomic,oracle,oracle (privileged),learning_gain,0.01527154140512744,0.014217649031162155,0.016314609980178366
+learning_peak,0.7,mild_anomic,oracle,oracle (privileged),probe_lift,0.013130242574457229,0.01199905061595175,0.01435506197276538
+learning_peak,0.7,mild_anomic,oracle,oracle (privileged),quit,0.005,0.0,0.015
+learning_peak,0.7,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",time_in_band,0.5103282828282828,0.48522664141414135,0.5384602272727272
+learning_peak,0.7,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",control_error,0.058961287177177704,0.05687259776029922,0.06109024466563165
+learning_peak,0.7,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",learning_gain,0.014361543347435479,0.013299405190271249,0.01541736782042528
+learning_peak,0.7,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",probe_lift,0.01188153208536445,0.010915526733145522,0.012942081212183982
+learning_peak,0.7,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",quit,0.003333333333333333,0.0,0.01
+learning_peak,0.7,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",time_in_band,0.5663762626262627,0.5421830808080808,0.5907727272727272
+learning_peak,0.7,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",control_error,0.0663069832411853,0.06411204380843714,0.06827336813568745
+learning_peak,0.7,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",learning_gain,0.01561888715175344,0.014530295870602387,0.016625995969574973
+learning_peak,0.7,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",probe_lift,0.012955793068603408,0.011860991493855791,0.014020950907699982
+learning_peak,0.7,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",quit,0.003333333333333333,0.0,0.01
+learning_peak,0.7,moderate_broca,fixed,fixed (tier 2),time_in_band,0.5314805194805196,0.5053979978354978,0.5580318993506495
+learning_peak,0.7,moderate_broca,fixed,fixed (tier 2),control_error,0.10119861224515994,0.09428668257694452,0.1084251745853402
+learning_peak,0.7,moderate_broca,fixed,fixed (tier 2),learning_gain,0.05170270872088386,0.04962599592803232,0.05391533174570899
+learning_peak,0.7,moderate_broca,fixed,fixed (tier 2),probe_lift,0.053149687332061664,0.0507492873360438,0.05545467055524522
+learning_peak,0.7,moderate_broca,fixed,fixed (tier 2),quit,0.02,0.005,0.04
+learning_peak,0.7,moderate_broca,staircase,staircase,time_in_band,0.5879967532467533,0.5644294913419913,0.6122441829004328
+learning_peak,0.7,moderate_broca,staircase,staircase,control_error,0.1538561759409961,0.14919057480945425,0.1588166034395013
+learning_peak,0.7,moderate_broca,staircase,staircase,learning_gain,0.03687853348246031,0.0353803228785917,0.03860144221250969
+learning_peak,0.7,moderate_broca,staircase,staircase,probe_lift,0.0274000057019949,0.025730882908520835,0.02917596850185466
+learning_peak,0.7,moderate_broca,staircase,staircase,quit,0.035,0.01,0.065
+learning_peak,0.7,moderate_broca,contextual_bandit,contextual bandit,time_in_band,0.6245367965367966,0.6011477272727274,0.6468260822510823
+learning_peak,0.7,moderate_broca,contextual_bandit,contextual bandit,control_error,0.07341605119573176,0.07084050644257685,0.07615023658536256
+learning_peak,0.7,moderate_broca,contextual_bandit,contextual bandit,learning_gain,0.03437185410269313,0.032514885645812903,0.03616927615194462
+learning_peak,0.7,moderate_broca,contextual_bandit,contextual bandit,probe_lift,0.02432320383057712,0.022638889297551652,0.02617479997956427
+learning_peak,0.7,moderate_broca,contextual_bandit,contextual bandit,quit,0.01,0.0,0.025
+learning_peak,0.7,moderate_broca,ppo_proxy,"PPO, proxy reward",time_in_band,0.8245454545454547,0.8096464646464646,0.841060606060606
+learning_peak,0.7,moderate_broca,ppo_proxy,"PPO, proxy reward",control_error,0.11046630694116648,0.10753793146688462,0.11334847958362529
+learning_peak,0.7,moderate_broca,ppo_proxy,"PPO, proxy reward",learning_gain,0.0291133902990989,0.02778363347515539,0.030561892196348677
+learning_peak,0.7,moderate_broca,ppo_proxy,"PPO, proxy reward",probe_lift,0.020792995113326197,0.019443999601915892,0.022236641754063927
+learning_peak,0.7,moderate_broca,ppo_proxy,"PPO, proxy reward",quit,0.0,0.0,0.0
+learning_peak,0.7,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.6312698412698413,0.6132770562770562,0.6506089466089466
+learning_peak,0.7,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.06138514423224198,0.05941893377975716,0.06353352548484119
+learning_peak,0.7,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.03255327949704224,0.03081175889778777,0.034329875647790796
+learning_peak,0.7,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.02694514375989231,0.025107312039344763,0.028856781514002748
+learning_peak,0.7,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.003333333333333333,0.0,0.008333333333333333
+learning_peak,0.7,moderate_broca,oracle,oracle (privileged),time_in_band,0.5890909090909091,0.5625568181818182,0.6127272727272728
+learning_peak,0.7,moderate_broca,oracle,oracle (privileged),control_error,0.0432344284800309,0.0423976756076602,0.044141725617158005
+learning_peak,0.7,moderate_broca,oracle,oracle (privileged),learning_gain,0.029061485955634448,0.027717167326858284,0.030421475836005133
+learning_peak,0.7,moderate_broca,oracle,oracle (privileged),probe_lift,0.02070326658891502,0.01916670045935802,0.022308554591161753
+learning_peak,0.7,moderate_broca,oracle,oracle (privileged),quit,0.0,0.0,0.0
+learning_peak,0.7,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",time_in_band,0.6045353535353535,0.583989898989899,0.6249532828282829
+learning_peak,0.7,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",control_error,0.08075038922987375,0.07687276745209579,0.08445138997991318
+learning_peak,0.7,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",learning_gain,0.0441895901138861,0.04224557356815501,0.04623350945501412
+learning_peak,0.7,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",probe_lift,0.042289421627605066,0.03994532669861489,0.044674942567335195
+learning_peak,0.7,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",quit,0.0016666666666666666,0.0,0.005
+learning_peak,0.7,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",time_in_band,0.5751298701298702,0.5532454906204907,0.5969000721500721
+learning_peak,0.7,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",control_error,0.09899538162286366,0.09408239194205957,0.10352372628487626
+learning_peak,0.7,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",learning_gain,0.046999375173880226,0.04490829810510145,0.04888549077874563
+learning_peak,0.7,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",probe_lift,0.04526217724842561,0.042992032632717433,0.047591504142351686
+learning_peak,0.7,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",quit,0.006666666666666666,0.0,0.015041666666666629
+learning_peak,0.7,severe,fixed,fixed (tier 2),time_in_band,0.021241530953268334,0.013618757157770348,0.030125754985503624
+learning_peak,0.7,severe,fixed,fixed (tier 2),control_error,0.5121163515519404,0.5030102245454395,0.5223904245726415
+learning_peak,0.7,severe,fixed,fixed (tier 2),learning_gain,0.007099648355837791,0.005960574809401883,0.00839773634555705
+learning_peak,0.7,severe,fixed,fixed (tier 2),probe_lift,0.012348506591911251,0.010872378532340623,0.013977764736575141
+learning_peak,0.7,severe,fixed,fixed (tier 2),quit,0.74,0.68,0.8
+learning_peak,0.7,severe,staircase,staircase,time_in_band,0.12545626408136998,0.10841396593878351,0.14487717820889065
+learning_peak,0.7,severe,staircase,staircase,control_error,0.3318604760314128,0.32298514560219127,0.34089630248114683
+learning_peak,0.7,severe,staircase,staircase,learning_gain,0.03208627177820551,0.029640226979924994,0.034410467514255576
+learning_peak,0.7,severe,staircase,staircase,probe_lift,0.03528407521504178,0.03326194837280994,0.03734563818717914
+learning_peak,0.7,severe,staircase,staircase,quit,0.26,0.204875,0.325
+learning_peak,0.7,severe,contextual_bandit,contextual bandit,time_in_band,0.24813823639670105,0.22420495667320012,0.272638348454271
+learning_peak,0.7,severe,contextual_bandit,contextual bandit,control_error,0.27312088721359196,0.2639144049726824,0.2826803682611342
+learning_peak,0.7,severe,contextual_bandit,contextual bandit,learning_gain,0.03544623721053778,0.032779130916149785,0.037851381594808636
+learning_peak,0.7,severe,contextual_bandit,contextual bandit,probe_lift,0.03632952539028439,0.03422094358822175,0.03842319861507782
+learning_peak,0.7,severe,contextual_bandit,contextual bandit,quit,0.16,0.11,0.21
+learning_peak,0.7,severe,ppo_proxy,"PPO, proxy reward",time_in_band,0.34935991557403,0.3224886476410773,0.3774455158711972
+learning_peak,0.7,severe,ppo_proxy,"PPO, proxy reward",control_error,0.2304827742324902,0.22300443070950746,0.23810012179107043
+learning_peak,0.7,severe,ppo_proxy,"PPO, proxy reward",learning_gain,0.03890591754409636,0.036700753200704504,0.04116542258122134
+learning_peak,0.7,severe,ppo_proxy,"PPO, proxy reward",probe_lift,0.04152479886005513,0.039321683209013504,0.043848555643700375
+learning_peak,0.7,severe,ppo_proxy,"PPO, proxy reward",quit,0.09,0.056625,0.12666666666666668
+learning_peak,0.7,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.3114981951126452,0.2840691711569429,0.3397863238548181
+learning_peak,0.7,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.23922118560179534,0.2300362159431893,0.24818235374645994
+learning_peak,0.7,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.040276140671695944,0.03801621517975952,0.04257440311823417
+learning_peak,0.7,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.04232451088191173,0.04003010756290253,0.04446704227457271
+learning_peak,0.7,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.11166666666666666,0.075,0.14833333333333332
+learning_peak,0.7,severe,oracle,oracle (privileged),time_in_band,0.38460789455642397,0.35470579451186063,0.41452558189359656
+learning_peak,0.7,severe,oracle,oracle (privileged),control_error,0.2041051372245517,0.19681624418743307,0.21165053095657899
+learning_peak,0.7,severe,oracle,oracle (privileged),learning_gain,0.040533661423924616,0.0380543340221412,0.04306954448364658
+learning_peak,0.7,severe,oracle,oracle (privileged),probe_lift,0.04356571900975312,0.04096392145888868,0.045995841683348006
+learning_peak,0.7,severe,oracle,oracle (privileged),quit,0.055,0.029875000000000006,0.09
+learning_peak,0.7,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",time_in_band,0.24754355487746144,0.22266428339662742,0.27061558595644813
+learning_peak,0.7,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",control_error,0.2823590822561847,0.27308617960418524,0.2910663344873458
+learning_peak,0.7,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",learning_gain,0.03595642420992851,0.03354821395179349,0.03822059174831001
+learning_peak,0.7,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",probe_lift,0.03467780635592029,0.03262355196757261,0.036727338340800296
+learning_peak,0.7,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",quit,0.13666666666666663,0.09333333333333332,0.17833333333333332
+learning_peak,0.7,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",time_in_band,0.1975822963908317,0.17597366502452977,0.2215109717496445
+learning_peak,0.7,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",control_error,0.3100015281173929,0.29992344929133147,0.32041954272600615
+learning_peak,0.7,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",learning_gain,0.0324399811881131,0.03003532959098193,0.034713509260770915
+learning_peak,0.7,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",probe_lift,0.030810438276844706,0.028788115109270408,0.03278151739639873
+learning_peak,0.7,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",quit,0.19,0.14,0.23670833333333327
+learning_peak,0.85,mild_anomic,fixed,fixed (tier 2),time_in_band,0.461780303030303,0.432717803030303,0.4899659090909091
+learning_peak,0.85,mild_anomic,fixed,fixed (tier 2),control_error,0.06619892972815637,0.0640255113071092,0.06851704088084373
+learning_peak,0.85,mild_anomic,fixed,fixed (tier 2),learning_gain,0.03530579421540569,0.033678266226045334,0.03685334671132391
+learning_peak,0.85,mild_anomic,fixed,fixed (tier 2),probe_lift,0.0283837334484392,0.026927468239335825,0.029909034855286745
+learning_peak,0.85,mild_anomic,fixed,fixed (tier 2),quit,0.005,0.0,0.015
+learning_peak,0.85,mild_anomic,staircase,staircase,time_in_band,0.8092929292929293,0.7924204545454545,0.8247045454545454
+learning_peak,0.85,mild_anomic,staircase,staircase,control_error,0.13724183524730937,0.1346078629130769,0.13978849317784328
+learning_peak,0.85,mild_anomic,staircase,staircase,learning_gain,0.03063654984706714,0.02944615945141427,0.031888084869954224
+learning_peak,0.85,mild_anomic,staircase,staircase,probe_lift,0.02292105309636769,0.021591190103126393,0.02423309940192968
+learning_peak,0.85,mild_anomic,staircase,staircase,quit,0.005,0.0,0.015
+learning_peak,0.85,mild_anomic,contextual_bandit,contextual bandit,time_in_band,0.4817019331243469,0.4573404192789968,0.5084102664576803
+learning_peak,0.85,mild_anomic,contextual_bandit,contextual bandit,control_error,0.08758785352081624,0.0856581288438615,0.08963175878459732
+learning_peak,0.85,mild_anomic,contextual_bandit,contextual bandit,learning_gain,0.030006106704301837,0.02864051471871193,0.03150078109224589
+learning_peak,0.85,mild_anomic,contextual_bandit,contextual bandit,probe_lift,0.01613882194697912,0.014986741660952058,0.017257343681702224
+learning_peak,0.85,mild_anomic,contextual_bandit,contextual bandit,quit,0.01,0.0,0.025
+learning_peak,0.85,mild_anomic,ppo_proxy,"PPO, proxy reward",time_in_band,0.8634343434343434,0.8507070707070707,0.8755593434343436
+learning_peak,0.85,mild_anomic,ppo_proxy,"PPO, proxy reward",control_error,0.12920136678525404,0.12722601191889638,0.131046010013405
+learning_peak,0.85,mild_anomic,ppo_proxy,"PPO, proxy reward",learning_gain,0.026124919766645233,0.02510973552110672,0.02720188114814701
+learning_peak,0.85,mild_anomic,ppo_proxy,"PPO, proxy reward",probe_lift,0.017083303614628988,0.016193885051393034,0.018123738840363186
+learning_peak,0.85,mild_anomic,ppo_proxy,"PPO, proxy reward",quit,0.0,0.0,0.0
+learning_peak,0.85,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.3961868686868687,0.36939141414141413,0.42315340909090904
+learning_peak,0.85,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.08706748151446338,0.08523353258192018,0.08895520500167758
+learning_peak,0.85,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.027670201972801046,0.026227135662620336,0.029069454525554993
+learning_peak,0.85,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.017394034248330234,0.01629077846041867,0.01851840671149726
+learning_peak,0.85,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.003333333333333333,0.0,0.01
+learning_peak,0.85,mild_anomic,oracle,oracle (privileged),time_in_band,0.46875,0.44086363636363635,0.4986003787878788
+learning_peak,0.85,mild_anomic,oracle,oracle (privileged),control_error,0.06756648174863499,0.06526156035649897,0.06997963289215389
+learning_peak,0.85,mild_anomic,oracle,oracle (privileged),learning_gain,0.035256349657931334,0.0337398492877403,0.03669425468602699
+learning_peak,0.85,mild_anomic,oracle,oracle (privileged),probe_lift,0.02841426207663134,0.026927140929771488,0.029785864931918316
+learning_peak,0.85,mild_anomic,oracle,oracle (privileged),quit,0.005,0.0,0.015
+learning_peak,0.85,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",time_in_band,0.3961868686868687,0.3697209595959595,0.42316414141414144
+learning_peak,0.85,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",control_error,0.08706748151446338,0.08506538000893055,0.08905103104052142
+learning_peak,0.85,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",learning_gain,0.027670201972801046,0.02632821120523988,0.029015918843778212
+learning_peak,0.85,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",probe_lift,0.017394034248330234,0.01620627451773612,0.01855293965035332
+learning_peak,0.85,mild_anomic,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",quit,0.003333333333333333,0.0,0.013333333333333332
+learning_peak,0.85,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",time_in_band,0.4497979797979798,0.42170959595959595,0.47924368686868685
+learning_peak,0.85,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",control_error,0.07669688344457977,0.07471376234280487,0.07860872464932442
+learning_peak,0.85,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",learning_gain,0.03155427035890405,0.03003051307575746,0.03298131170025299
+learning_peak,0.85,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",probe_lift,0.022215543131489622,0.020888095837692713,0.023545153984856744
+learning_peak,0.85,mild_anomic,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",quit,0.0,0.0,0.0
+learning_peak,0.85,moderate_broca,fixed,fixed (tier 2),time_in_band,0.5178441558441559,0.490501920995671,0.5445612012987012
+learning_peak,0.85,moderate_broca,fixed,fixed (tier 2),control_error,0.10971878772646462,0.10245383354722094,0.11742149927870947
+learning_peak,0.85,moderate_broca,fixed,fixed (tier 2),learning_gain,0.04555707474441435,0.043527043672363215,0.04754044528490333
+learning_peak,0.85,moderate_broca,fixed,fixed (tier 2),probe_lift,0.04397745095225228,0.04222683485364755,0.0456806556049328
+learning_peak,0.85,moderate_broca,fixed,fixed (tier 2),quit,0.02,0.005,0.04
+learning_peak,0.85,moderate_broca,staircase,staircase,time_in_band,0.5927099567099567,0.5674921536796537,0.617385037878788
+learning_peak,0.85,moderate_broca,staircase,staircase,control_error,0.155429064190698,0.15032649683609486,0.16040838323906906
+learning_peak,0.85,moderate_broca,staircase,staircase,learning_gain,0.0399104260539383,0.038431748865227926,0.04127533974845738
+learning_peak,0.85,moderate_broca,staircase,staircase,probe_lift,0.03023228417041895,0.028878403933650834,0.03161372522935627
+learning_peak,0.85,moderate_broca,staircase,staircase,quit,0.035,0.015,0.06
+learning_peak,0.85,moderate_broca,contextual_bandit,contextual bandit,time_in_band,0.6154458874458875,0.5917048701298702,0.6388008658008658
+learning_peak,0.85,moderate_broca,contextual_bandit,contextual bandit,control_error,0.07428348254053035,0.07175425393593167,0.07699956953908955
+learning_peak,0.85,moderate_broca,contextual_bandit,contextual bandit,learning_gain,0.04681011310176166,0.04511462387251108,0.04850317799605987
+learning_peak,0.85,moderate_broca,contextual_bandit,contextual bandit,probe_lift,0.031362417200351766,0.02990953110245748,0.032808270966079585
+learning_peak,0.85,moderate_broca,contextual_bandit,contextual bandit,quit,0.01,0.0,0.025
+learning_peak,0.85,moderate_broca,ppo_proxy,"PPO, proxy reward",time_in_band,0.8324242424242425,0.8167638888888888,0.8493964646464646
+learning_peak,0.85,moderate_broca,ppo_proxy,"PPO, proxy reward",control_error,0.11212217072804814,0.10934266157734357,0.1149017279633194
+learning_peak,0.85,moderate_broca,ppo_proxy,"PPO, proxy reward",learning_gain,0.041958942926676276,0.04051459745974213,0.04353028565461417
+learning_peak,0.85,moderate_broca,ppo_proxy,"PPO, proxy reward",probe_lift,0.02945964592705987,0.028109284155986677,0.030795173166253523
+learning_peak,0.85,moderate_broca,ppo_proxy,"PPO, proxy reward",quit,0.0,0.0,0.0
+learning_peak,0.85,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.6172294372294372,0.598231240981241,0.6360842352092352
+learning_peak,0.85,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.06534439366706268,0.0633232192606504,0.06767935434001093
+learning_peak,0.85,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.04767070644461846,0.04603984769804719,0.04936205967680197
+learning_peak,0.85,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.03428540902820906,0.03278589970350326,0.03564977830875195
+learning_peak,0.85,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.003333333333333333,0.0,0.008333333333333333
+learning_peak,0.85,moderate_broca,oracle,oracle (privileged),time_in_band,0.5907575757575758,0.5662121212121213,0.6146969696969697
+learning_peak,0.85,moderate_broca,oracle,oracle (privileged),control_error,0.047819651716503285,0.046812746112184146,0.04888365694224995
+learning_peak,0.85,moderate_broca,oracle,oracle (privileged),learning_gain,0.05073123222228725,0.04907500233406479,0.0525895416952169
+learning_peak,0.85,moderate_broca,oracle,oracle (privileged),probe_lift,0.03327218904305797,0.03178896528077829,0.03486663783688851
+learning_peak,0.85,moderate_broca,oracle,oracle (privileged),quit,0.0,0.0,0.0
+learning_peak,0.85,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",time_in_band,0.6172294372294372,0.5978753607503607,0.6360189393939393
+learning_peak,0.85,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",control_error,0.06534439366706268,0.06327536310897261,0.06740604566580324
+learning_peak,0.85,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",learning_gain,0.04767070644461846,0.046096524294425165,0.04930640091750833
+learning_peak,0.85,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",probe_lift,0.03428540902820906,0.03270809382383217,0.03584304493693726
+learning_peak,0.85,moderate_broca,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",quit,0.003333333333333333,0.0,0.009999999999999998
+learning_peak,0.85,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",time_in_band,0.6313636363636362,0.6115075757575757,0.6488926767676767
+learning_peak,0.85,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",control_error,0.07141160808999068,0.06917564963024952,0.0737555698353868
+learning_peak,0.85,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",learning_gain,0.047671086981703976,0.046037335086887794,0.04923639888911562
+learning_peak,0.85,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",probe_lift,0.03672052314657709,0.03514126533378269,0.03822579835139101
+learning_peak,0.85,moderate_broca,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",quit,0.0,0.0,0.0
+learning_peak,0.85,severe,fixed,fixed (tier 2),time_in_band,0.02026204109446813,0.0127471483481744,0.028412211774438933
+learning_peak,0.85,severe,fixed,fixed (tier 2),control_error,0.51645843303833,0.5071551102251066,0.5252484112248338
+learning_peak,0.85,severe,fixed,fixed (tier 2),learning_gain,0.001086153644717504,0.0008724885899665665,0.0013096246073195724
+learning_peak,0.85,severe,fixed,fixed (tier 2),probe_lift,0.002218711180455052,0.0018794447942983743,0.002587338765624002
+learning_peak,0.85,severe,fixed,fixed (tier 2),quit,0.77,0.705,0.825
+learning_peak,0.85,severe,staircase,staircase,time_in_band,0.10795623234461597,0.09176828266721376,0.12461229135215886
+learning_peak,0.85,severe,staircase,staircase,control_error,0.34212129954107867,0.33349354231271267,0.35090047917905914
+learning_peak,0.85,severe,staircase,staircase,learning_gain,0.012717727338465332,0.011492319822634284,0.014006923226677546
+learning_peak,0.85,severe,staircase,staircase,probe_lift,0.01493991801509257,0.01381198100675735,0.016024522705505768
+learning_peak,0.85,severe,staircase,staircase,quit,0.295,0.235,0.355
+learning_peak,0.85,severe,contextual_bandit,contextual bandit,time_in_band,0.23683141821488285,0.21018626878314117,0.2600377023139171
+learning_peak,0.85,severe,contextual_bandit,contextual bandit,control_error,0.28368172745434217,0.27385388814238676,0.2927971256656441
+learning_peak,0.85,severe,contextual_bandit,contextual bandit,learning_gain,0.01711477113243457,0.01562626150166334,0.018575792678749915
+learning_peak,0.85,severe,contextual_bandit,contextual bandit,probe_lift,0.017816070311378197,0.016469520336404156,0.01901609582215078
+learning_peak,0.85,severe,contextual_bandit,contextual bandit,quit,0.17,0.12,0.225
+learning_peak,0.85,severe,ppo_proxy,"PPO, proxy reward",time_in_band,0.32916574983638597,0.30200885525652954,0.35716041307415586
+learning_peak,0.85,severe,ppo_proxy,"PPO, proxy reward",control_error,0.23961033777388507,0.23163350185559486,0.247693474711338
+learning_peak,0.85,severe,ppo_proxy,"PPO, proxy reward",learning_gain,0.020798580658225277,0.019159370760583497,0.022392548563380073
+learning_peak,0.85,severe,ppo_proxy,"PPO, proxy reward",probe_lift,0.022585946568518242,0.021180452832606125,0.024131451681085023
+learning_peak,0.85,severe,ppo_proxy,"PPO, proxy reward",quit,0.09833333333333333,0.06333333333333332,0.1383333333333333
+learning_peak,0.85,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.2903244244388745,0.26549873733913854,0.319998711435564
+learning_peak,0.85,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.2511980807572961,0.24245578082515246,0.2601147189792084
+learning_peak,0.85,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.020392190646297645,0.018876548575404443,0.02209102212462635
+learning_peak,0.85,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.0219730350714838,0.020538484099224322,0.02339963950301777
+learning_peak,0.85,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.125,0.08666666666666666,0.165
+learning_peak,0.85,severe,oracle,oracle (privileged),time_in_band,0.37157759152612085,0.34142135823735087,0.40050264594474155
+learning_peak,0.85,severe,oracle,oracle (privileged),control_error,0.21383026697937602,0.20682139649296982,0.22043515268030228
+learning_peak,0.85,severe,oracle,oracle (privileged),learning_gain,0.022737118527050133,0.02107373204272376,0.02430601402899651
+learning_peak,0.85,severe,oracle,oracle (privileged),probe_lift,0.02505622396240822,0.023509890430383505,0.02666626525064786
+learning_peak,0.85,severe,oracle,oracle (privileged),quit,0.07,0.04,0.105
+learning_peak,0.85,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",time_in_band,0.2903244244388745,0.2652857937861135,0.3167001830948841
+learning_peak,0.85,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",control_error,0.2511980807572961,0.24249996830464624,0.25990192975289206
+learning_peak,0.85,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",learning_gain,0.020392190646297645,0.01885067074862669,0.02199152218594206
+learning_peak,0.85,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",probe_lift,0.0219730350714838,0.02059515012256296,0.023333880426621732
+learning_peak,0.85,severe,ppo_sim_matched,"PPO, simulation objective, retrained at this peak",quit,0.125,0.08833333333333332,0.165
+learning_peak,0.85,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",time_in_band,0.27315002539177524,0.24755664081607692,0.3004893701667805
+learning_peak,0.85,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",control_error,0.26603349277456717,0.25717780435831644,0.27517288835209697
+learning_peak,0.85,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",learning_gain,0.018990342399040343,0.017483055986808813,0.020601226415477777
+learning_peak,0.85,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",probe_lift,0.019663210938635985,0.01833609753139454,0.020925699130787793
+learning_peak,0.85,severe,ppo_learning_matched,"PPO, learning-only objective, retrained at this peak",quit,0.14666666666666664,0.105,0.19833333333333328
+dropout,on,mild_anomic,fixed,fixed (tier 2),time_in_band,0.461780303030303,0.43226515151515144,0.48844886363636364
+dropout,on,mild_anomic,fixed,fixed (tier 2),control_error,0.06619892972815637,0.06422954438222046,0.06838274128381473
+dropout,on,mild_anomic,fixed,fixed (tier 2),learning_gain,0.03530579421540569,0.033732523892180184,0.036865337472602164
+dropout,on,mild_anomic,fixed,fixed (tier 2),probe_lift,0.0283837334484392,0.026993577786480788,0.029755805434416055
+dropout,on,mild_anomic,fixed,fixed (tier 2),quit,0.005,0.0,0.015
+dropout,on,mild_anomic,staircase,staircase,time_in_band,0.8092929292929293,0.7927777777777777,0.8254583333333333
+dropout,on,mild_anomic,staircase,staircase,control_error,0.13724183524730937,0.13484814972006307,0.13985466174389377
+dropout,on,mild_anomic,staircase,staircase,learning_gain,0.03063654984706714,0.02945446408262428,0.0318509269875314
+dropout,on,mild_anomic,staircase,staircase,probe_lift,0.02292105309636769,0.021758294282689397,0.02413970026032385
+dropout,on,mild_anomic,staircase,staircase,quit,0.005,0.0,0.015
+dropout,on,mild_anomic,contextual_bandit,contextual bandit,time_in_band,0.4817019331243469,0.45434391327063733,0.5086312695924765
+dropout,on,mild_anomic,contextual_bandit,contextual bandit,control_error,0.08758785352081624,0.08553897389491263,0.08949806408580398
+dropout,on,mild_anomic,contextual_bandit,contextual bandit,learning_gain,0.030006106704301837,0.0286168112990959,0.03143263013719653
+dropout,on,mild_anomic,contextual_bandit,contextual bandit,probe_lift,0.01613882194697912,0.014989732708532768,0.01721764463632693
+dropout,on,mild_anomic,contextual_bandit,contextual bandit,quit,0.01,0.0,0.025
+dropout,on,mild_anomic,ppo_proxy,"PPO, proxy reward",time_in_band,0.8634343434343434,0.8510088383838383,0.8749558080808081
+dropout,on,mild_anomic,ppo_proxy,"PPO, proxy reward",control_error,0.12920136678525404,0.12744178526386712,0.13117953873655028
+dropout,on,mild_anomic,ppo_proxy,"PPO, proxy reward",learning_gain,0.026124919766645233,0.025068046937525946,0.027142511280259966
+dropout,on,mild_anomic,ppo_proxy,"PPO, proxy reward",probe_lift,0.017083303614628988,0.016078426438673153,0.018021711114956058
+dropout,on,mild_anomic,ppo_proxy,"PPO, proxy reward",quit,0.0,0.0,0.0
+dropout,on,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.3961868686868687,0.36949431818181816,0.4233604797979798
+dropout,on,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.08706748151446338,0.08504888140605718,0.0890942573925864
+dropout,on,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.027670201972801046,0.0264143882282659,0.029054523870785432
+dropout,on,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.017394034248330234,0.016178788943080422,0.018556489058188685
+dropout,on,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.003333333333333333,0.0,0.01
+dropout,on,mild_anomic,oracle,oracle (privileged),time_in_band,0.46875,0.43742329545454534,0.49968276515151516
+dropout,on,mild_anomic,oracle,oracle (privileged),control_error,0.06756648174863499,0.06525572633524428,0.06976126684486708
+dropout,on,mild_anomic,oracle,oracle (privileged),learning_gain,0.035256349657931334,0.03379241501182006,0.03681329043620895
+dropout,on,mild_anomic,oracle,oracle (privileged),probe_lift,0.02841426207663134,0.027039888579778026,0.030023807066948474
+dropout,on,mild_anomic,oracle,oracle (privileged),quit,0.005,0.0,0.015
+dropout,on,moderate_broca,fixed,fixed (tier 2),time_in_band,0.5178441558441559,0.4925705357142857,0.5455146103896105
+dropout,on,moderate_broca,fixed,fixed (tier 2),control_error,0.10971878772646462,0.1020276077286418,0.11725209759554474
+dropout,on,moderate_broca,fixed,fixed (tier 2),learning_gain,0.04555707474441435,0.0436791080308434,0.047452277937760995
+dropout,on,moderate_broca,fixed,fixed (tier 2),probe_lift,0.04397745095225228,0.04206323668244969,0.0458022308481944
+dropout,on,moderate_broca,fixed,fixed (tier 2),quit,0.02,0.005,0.04
+dropout,on,moderate_broca,staircase,staircase,time_in_band,0.5927099567099567,0.5680644209956711,0.6167989448051948
+dropout,on,moderate_broca,staircase,staircase,control_error,0.155429064190698,0.15013823812502303,0.16040231375942224
+dropout,on,moderate_broca,staircase,staircase,learning_gain,0.0399104260539383,0.038511384916648336,0.041313814119195325
+dropout,on,moderate_broca,staircase,staircase,probe_lift,0.03023228417041895,0.028971808209616933,0.031420626676241056
+dropout,on,moderate_broca,staircase,staircase,quit,0.035,0.014875000000000006,0.065
+dropout,on,moderate_broca,contextual_bandit,contextual bandit,time_in_band,0.6154458874458875,0.5931428571428572,0.6380916666666667
+dropout,on,moderate_broca,contextual_bandit,contextual bandit,control_error,0.07428348254053035,0.07169991177131674,0.07698241668647095
+dropout,on,moderate_broca,contextual_bandit,contextual bandit,learning_gain,0.04681011310176166,0.0451725333870972,0.048711740973757585
+dropout,on,moderate_broca,contextual_bandit,contextual bandit,probe_lift,0.031362417200351766,0.029937410458759327,0.03283391236951385
+dropout,on,moderate_broca,contextual_bandit,contextual bandit,quit,0.01,0.0,0.025
+dropout,on,moderate_broca,ppo_proxy,"PPO, proxy reward",time_in_band,0.8324242424242425,0.8151994949494951,0.8487891414141415
+dropout,on,moderate_broca,ppo_proxy,"PPO, proxy reward",control_error,0.11212217072804814,0.10923714575635594,0.11500558193951009
+dropout,on,moderate_broca,ppo_proxy,"PPO, proxy reward",learning_gain,0.041958942926676276,0.040427671438255895,0.043565716564553145
+dropout,on,moderate_broca,ppo_proxy,"PPO, proxy reward",probe_lift,0.02945964592705987,0.028098934448464997,0.03079344244296511
+dropout,on,moderate_broca,ppo_proxy,"PPO, proxy reward",quit,0.0,0.0,0.0
+dropout,on,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.6172294372294372,0.5978744588744589,0.6363239538239538
+dropout,on,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.06534439366706268,0.06330715066704429,0.0675327934005488
+dropout,on,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.04767070644461846,0.04588665592401065,0.04923816220551882
+dropout,on,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.03428540902820906,0.032788341401229014,0.03578634108506316
+dropout,on,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.003333333333333333,0.0,0.008333333333333333
+dropout,on,moderate_broca,oracle,oracle (privileged),time_in_band,0.5907575757575758,0.5672689393939395,0.614094696969697
+dropout,on,moderate_broca,oracle,oracle (privileged),control_error,0.047819651716503285,0.04679889137359398,0.048841726340731806
+dropout,on,moderate_broca,oracle,oracle (privileged),learning_gain,0.05073123222228725,0.049091138135316625,0.05248784875739102
+dropout,on,moderate_broca,oracle,oracle (privileged),probe_lift,0.03327218904305797,0.03170128278942293,0.03469299145621947
+dropout,on,moderate_broca,oracle,oracle (privileged),quit,0.0,0.0,0.0
+dropout,on,severe,fixed,fixed (tier 2),time_in_band,0.02026204109446813,0.013348734753207116,0.02940014451207008
+dropout,on,severe,fixed,fixed (tier 2),control_error,0.51645843303833,0.5078844221344632,0.5253633909027349
+dropout,on,severe,fixed,fixed (tier 2),learning_gain,0.001086153644717504,0.0008832224260909292,0.0013238915067130402
+dropout,on,severe,fixed,fixed (tier 2),probe_lift,0.002218711180455052,0.0018570509055751416,0.0026101453434287532
+dropout,on,severe,fixed,fixed (tier 2),quit,0.77,0.71,0.83
+dropout,on,severe,staircase,staircase,time_in_band,0.10795623234461597,0.09156273632480905,0.12380331785094877
+dropout,on,severe,staircase,staircase,control_error,0.34212129954107867,0.3324709988676592,0.3516071509464883
+dropout,on,severe,staircase,staircase,learning_gain,0.012717727338465332,0.011440721348497638,0.013995801140180075
+dropout,on,severe,staircase,staircase,probe_lift,0.01493991801509257,0.01379110488125201,0.016109137917046677
+dropout,on,severe,staircase,staircase,quit,0.295,0.235,0.36
+dropout,on,severe,contextual_bandit,contextual bandit,time_in_band,0.23683141821488285,0.21372005387486107,0.2622173330356198
+dropout,on,severe,contextual_bandit,contextual bandit,control_error,0.28368172745434217,0.2743483078812096,0.29318430240996973
+dropout,on,severe,contextual_bandit,contextual bandit,learning_gain,0.01711477113243457,0.015765377954020186,0.018663245470258737
+dropout,on,severe,contextual_bandit,contextual bandit,probe_lift,0.017816070311378197,0.016611487053535035,0.019128320549831622
+dropout,on,severe,contextual_bandit,contextual bandit,quit,0.17,0.12,0.225
+dropout,on,severe,ppo_proxy,"PPO, proxy reward",time_in_band,0.32916574983638597,0.30265350938519897,0.357204596799194
+dropout,on,severe,ppo_proxy,"PPO, proxy reward",control_error,0.23961033777388507,0.23189846377574655,0.24773856835966052
+dropout,on,severe,ppo_proxy,"PPO, proxy reward",learning_gain,0.020798580658225277,0.019130467778397102,0.022302454573071655
+dropout,on,severe,ppo_proxy,"PPO, proxy reward",probe_lift,0.022585946568518242,0.02130272060432586,0.024004345800208046
+dropout,on,severe,ppo_proxy,"PPO, proxy reward",quit,0.09833333333333333,0.06,0.1366666666666667
+dropout,on,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.2903244244388745,0.2648303573844574,0.3158158634722173
+dropout,on,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.2511980807572961,0.2423768377181487,0.2593212045376872
+dropout,on,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.020392190646297645,0.018743220533176633,0.022032266954745604
+dropout,on,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.0219730350714838,0.020586377562481026,0.02339201295906957
+dropout,on,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.125,0.08833333333333332,0.168375
+dropout,on,severe,oracle,oracle (privileged),time_in_band,0.37157759152612085,0.34438903314822433,0.3991004914815576
+dropout,on,severe,oracle,oracle (privileged),control_error,0.21383026697937602,0.20637873167219697,0.22157804022258612
+dropout,on,severe,oracle,oracle (privileged),learning_gain,0.022737118527050133,0.02104809764626142,0.024551808647256736
+dropout,on,severe,oracle,oracle (privileged),probe_lift,0.02505622396240822,0.023489925874602614,0.026521143225213525
+dropout,on,severe,oracle,oracle (privileged),quit,0.07,0.04,0.105
+dropout,off,mild_anomic,fixed,fixed (tier 2),time_in_band,0.4596969696969697,0.431969696969697,0.48774242424242426
+dropout,off,mild_anomic,fixed,fixed (tier 2),control_error,0.06621809406420341,0.06411299597337813,0.06848228299536868
+dropout,off,mild_anomic,fixed,fixed (tier 2),learning_gain,0.035374099080787855,0.033924395927559935,0.036945110158298794
+dropout,off,mild_anomic,fixed,fixed (tier 2),probe_lift,0.028423725874613788,0.027089955053448644,0.029787459987543286
+dropout,off,mild_anomic,fixed,fixed (tier 2),quit,0.0,0.0,0.0
+dropout,off,mild_anomic,staircase,staircase,time_in_band,0.8098484848484848,0.7925719696969697,0.8254583333333333
+dropout,off,mild_anomic,staircase,staircase,control_error,0.1371813406947555,0.13472457529152504,0.13952415595527276
+dropout,off,mild_anomic,staircase,staircase,learning_gain,0.030732641282680016,0.029622905370370885,0.0318833733000841
+dropout,off,mild_anomic,staircase,staircase,probe_lift,0.02298166019909556,0.021773761158004425,0.024296718482455976
+dropout,off,mild_anomic,staircase,staircase,quit,0.0,0.0,0.0
+dropout,off,mild_anomic,contextual_bandit,contextual bandit,time_in_band,0.47924242424242425,0.45181439393939393,0.5025757575757575
+dropout,off,mild_anomic,contextual_bandit,contextual bandit,control_error,0.08761159821942645,0.08547458249145173,0.08955063052855289
+dropout,off,mild_anomic,contextual_bandit,contextual bandit,learning_gain,0.030066431602058633,0.028711449141807267,0.031385846064785186
+dropout,off,mild_anomic,contextual_bandit,contextual bandit,probe_lift,0.016155959755988217,0.015054745753260197,0.01729667634477433
+dropout,off,mild_anomic,contextual_bandit,contextual bandit,quit,0.0,0.0,0.0
+dropout,off,mild_anomic,ppo_proxy,"PPO, proxy reward",time_in_band,0.8634343434343434,0.8506515151515152,0.8755063131313132
+dropout,off,mild_anomic,ppo_proxy,"PPO, proxy reward",control_error,0.12920136678525404,0.12722218765891813,0.1310837119712974
+dropout,off,mild_anomic,ppo_proxy,"PPO, proxy reward",learning_gain,0.026124919766645233,0.025046679826313194,0.027161652368159223
+dropout,off,mild_anomic,ppo_proxy,"PPO, proxy reward",probe_lift,0.017083303614628988,0.01613449708683018,0.017992522718010405
+dropout,off,mild_anomic,ppo_proxy,"PPO, proxy reward",quit,0.0,0.0,0.0
+dropout,off,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.39479797979797987,0.36999747474747474,0.4230871212121211
+dropout,off,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.08707530380991728,0.08509494777811781,0.08906341244977761
+dropout,off,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.027710468172101592,0.026441878181207985,0.029035509777374287
+dropout,off,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.017411414513036853,0.01627910846132282,0.018603660171005062
+dropout,off,mild_anomic,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.0,0.0,0.0
+dropout,off,mild_anomic,oracle,oracle (privileged),time_in_band,0.46666666666666673,0.4371098484848484,0.49757954545454536
+dropout,off,mild_anomic,oracle,oracle (privileged),control_error,0.06758564608468202,0.06530261448810697,0.07013755547681498
+dropout,off,mild_anomic,oracle,oracle (privileged),learning_gain,0.03532465452331351,0.033804522750968145,0.036913102881048765
+dropout,off,mild_anomic,oracle,oracle (privileged),probe_lift,0.028454254502805924,0.026970760581318552,0.029870956843757873
+dropout,off,mild_anomic,oracle,oracle (privileged),quit,0.0,0.0,0.0
+dropout,off,moderate_broca,fixed,fixed (tier 2),time_in_band,0.5193939393939394,0.4925719696969697,0.5448522727272727
+dropout,off,moderate_broca,fixed,fixed (tier 2),control_error,0.10972933174521664,0.10231734670084897,0.11689421460885416
+dropout,off,moderate_broca,fixed,fixed (tier 2),learning_gain,0.04586671446644528,0.044162787593033354,0.04778539548601788
+dropout,off,moderate_broca,fixed,fixed (tier 2),probe_lift,0.044180876819149416,0.04241916424201358,0.045856638926537956
+dropout,off,moderate_broca,fixed,fixed (tier 2),quit,0.0,0.0,0.0
+dropout,off,moderate_broca,staircase,staircase,time_in_band,0.5933333333333333,0.568935606060606,0.6190946969696969
+dropout,off,moderate_broca,staircase,staircase,control_error,0.15543255349097992,0.150732300563352,0.16007909690377087
+dropout,off,moderate_broca,staircase,staircase,learning_gain,0.040280813626796606,0.038958778799745346,0.041608247477374426
+dropout,off,moderate_broca,staircase,staircase,probe_lift,0.030333260010701548,0.02898910977071483,0.031723820124213445
+dropout,off,moderate_broca,staircase,staircase,quit,0.0,0.0,0.0
+dropout,off,moderate_broca,contextual_bandit,contextual bandit,time_in_band,0.615,0.5901477272727274,0.6369734848484849
+dropout,off,moderate_broca,contextual_bandit,contextual bandit,control_error,0.07420777622026384,0.07162965761318396,0.07680935173434988
+dropout,off,moderate_broca,contextual_bandit,contextual bandit,learning_gain,0.04698235079438093,0.04536613505686314,0.048546241268734226
+dropout,off,moderate_broca,contextual_bandit,contextual bandit,probe_lift,0.03140834215770281,0.029962624330531224,0.03290585112533684
+dropout,off,moderate_broca,contextual_bandit,contextual bandit,quit,0.0,0.0,0.0
+dropout,off,moderate_broca,ppo_proxy,"PPO, proxy reward",time_in_band,0.8324242424242425,0.8162601010101009,0.8475290404040404
+dropout,off,moderate_broca,ppo_proxy,"PPO, proxy reward",control_error,0.11212217072804814,0.10924727093364021,0.11497102264647814
+dropout,off,moderate_broca,ppo_proxy,"PPO, proxy reward",learning_gain,0.041958942926676276,0.04044625991666874,0.04354524570385412
+dropout,off,moderate_broca,ppo_proxy,"PPO, proxy reward",probe_lift,0.02945964592705987,0.02805563835817051,0.030914436077441824
+dropout,off,moderate_broca,ppo_proxy,"PPO, proxy reward",quit,0.0,0.0,0.0
+dropout,off,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.6171212121212121,0.5971704545454546,0.6362626262626262
+dropout,off,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.06533328143734413,0.06330181053829857,0.06742501686018426
+dropout,off,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.047679202651904576,0.04598646853269124,0.04934041169984297
+dropout,off,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.03428896441206739,0.03276100578067908,0.035769956454250094
+dropout,off,moderate_broca,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.0,0.0,0.0
+dropout,off,moderate_broca,oracle,oracle (privileged),time_in_band,0.5907575757575758,0.5662121212121213,0.6140946969696971
+dropout,off,moderate_broca,oracle,oracle (privileged),control_error,0.047819651716503285,0.04687716606034808,0.04888091767831308
+dropout,off,moderate_broca,oracle,oracle (privileged),learning_gain,0.05073123222228725,0.04906653186151302,0.05243206534853571
+dropout,off,moderate_broca,oracle,oracle (privileged),probe_lift,0.03327218904305797,0.03174698382102469,0.03489813086459349
+dropout,off,moderate_broca,oracle,oracle (privileged),quit,0.0,0.0,0.0
+dropout,off,severe,fixed,fixed (tier 2),time_in_band,0.022121212121212118,0.014238636363636365,0.03015530303030303
+dropout,off,severe,fixed,fixed (tier 2),control_error,0.5551362170297318,0.5456706205083358,0.565494702239072
+dropout,off,severe,fixed,fixed (tier 2),learning_gain,0.0013048100474741403,0.0010743475133221164,0.0015423107265998572
+dropout,off,severe,fixed,fixed (tier 2),probe_lift,0.002090833261015632,0.001757178114040392,0.002450198952099891
+dropout,off,severe,fixed,fixed (tier 2),quit,0.0,0.0,0.0
+dropout,off,severe,staircase,staircase,time_in_band,0.10772727272727273,0.09256818181818181,0.12272727272727274
+dropout,off,severe,staircase,staircase,control_error,0.3529461998601224,0.34355107978610006,0.36261513198908496
+dropout,off,severe,staircase,staircase,learning_gain,0.013807935829240829,0.012635826068116071,0.015050313111014077
+dropout,off,severe,staircase,staircase,probe_lift,0.015064480892001157,0.014051694159388192,0.016153124096812625
+dropout,off,severe,staircase,staircase,quit,0.0,0.0,0.0
+dropout,off,severe,contextual_bandit,contextual bandit,time_in_band,0.2446969696969697,0.22150757575757574,0.26697727272727273
+dropout,off,severe,contextual_bandit,contextual bandit,control_error,0.282153266976224,0.2727838722017256,0.29100979416013706
+dropout,off,severe,contextual_bandit,contextual bandit,learning_gain,0.018312681055639487,0.01691706576496193,0.019733242603287043
+dropout,off,severe,contextual_bandit,contextual bandit,probe_lift,0.018512850733298246,0.01727810022765145,0.019879116106608346
+dropout,off,severe,contextual_bandit,contextual bandit,quit,0.0,0.0,0.0
+dropout,off,severe,ppo_proxy,"PPO, proxy reward",time_in_band,0.3324747474747475,0.3058068181818182,0.36111111111111116
+dropout,off,severe,ppo_proxy,"PPO, proxy reward",control_error,0.24150595377259132,0.2327590986976267,0.24934644533381684
+dropout,off,severe,ppo_proxy,"PPO, proxy reward",learning_gain,0.021390401527258067,0.019890505112541864,0.022911624868219852
+dropout,off,severe,ppo_proxy,"PPO, proxy reward",probe_lift,0.022913614254549294,0.021460841473854533,0.0243512168163383
+dropout,off,severe,ppo_proxy,"PPO, proxy reward",quit,0.0,0.0,0.0
+dropout,off,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",time_in_band,0.2969191919191919,0.2715151515151515,0.3227828282828283
+dropout,off,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",control_error,0.252113932438237,0.24360023930310448,0.26058986220788655
+dropout,off,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",learning_gain,0.021331983777432416,0.019677135867910794,0.022977473241381913
+dropout,off,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",probe_lift,0.02240572318604519,0.021030043887023873,0.023836267809553745
+dropout,off,severe,ppo_sim,"PPO, simulation objective (trained at peak 0.85)",quit,0.0,0.0,0.0
+dropout,off,severe,oracle,oracle (privileged),time_in_band,0.375,0.3477272727272727,0.40334090909090903
+dropout,off,severe,oracle,oracle (privileged),control_error,0.21507971022057693,0.20717992283527611,0.2230715569241881
+dropout,off,severe,oracle,oracle (privileged),learning_gain,0.02319553919621411,0.02154703935826941,0.024845153478961806
+dropout,off,severe,oracle,oracle (privileged),probe_lift,0.025370197267292473,0.02378744861451736,0.02690006678535746
+dropout,off,severe,oracle,oracle (privileged),quit,0.0,0.0,0.0
+reward_variant,dropout on,mild_anomic,ppo_band_only,"PPO, band only",time_in_band,0.878838383838384,0.8665656565656567,0.8904558080808082
+reward_variant,dropout on,mild_anomic,ppo_band_only,"PPO, band only",control_error,0.1334066222374451,0.13157105185843693,0.13530531352758038
+reward_variant,dropout on,mild_anomic,ppo_band_only,"PPO, band only",learning_gain,0.025201301615973518,0.02419340406455861,0.026244938940551216
+reward_variant,dropout on,mild_anomic,ppo_band_only,"PPO, band only",probe_lift,0.01617173435409011,0.015239181899461322,0.017157049553648693
+reward_variant,dropout on,mild_anomic,ppo_band_only,"PPO, band only",quit,0.0,0.0,0.0
+reward_variant,dropout on,mild_anomic,ppo_band_climb,"PPO, band + climb",time_in_band,0.875,0.863179292929293,0.8866186868686868
+reward_variant,dropout on,mild_anomic,ppo_band_climb,"PPO, band + climb",control_error,0.1277535587975662,0.12572776126048718,0.12967098720183903
+reward_variant,dropout on,mild_anomic,ppo_band_climb,"PPO, band + climb",learning_gain,0.02631819332748377,0.02528285289137951,0.027398795120698545
+reward_variant,dropout on,mild_anomic,ppo_band_climb,"PPO, band + climb",probe_lift,0.017846052110608794,0.016739186855991944,0.018796896831153175
+reward_variant,dropout on,mild_anomic,ppo_band_climb,"PPO, band + climb",quit,0.0,0.0,0.0
+reward_variant,dropout on,mild_anomic,ppo_full,"PPO, full proxy",time_in_band,0.8634343434343434,0.8505492424242425,0.8750025252525252
+reward_variant,dropout on,mild_anomic,ppo_full,"PPO, full proxy",control_error,0.12920136678525404,0.12719881678960268,0.13110362009605497
+reward_variant,dropout on,mild_anomic,ppo_full,"PPO, full proxy",learning_gain,0.026124919766645233,0.024982248936352196,0.02717232537138173
+reward_variant,dropout on,mild_anomic,ppo_full,"PPO, full proxy",probe_lift,0.017083303614628988,0.01609227901170694,0.01808580726606888
+reward_variant,dropout on,mild_anomic,ppo_full,"PPO, full proxy",quit,0.0,0.0,0.0
+reward_variant,dropout on,mild_anomic,ppo_full_probe,"PPO, full proxy + probe",time_in_band,0.8624747474747474,0.8498926767676768,0.8752032828282829
+reward_variant,dropout on,mild_anomic,ppo_full_probe,"PPO, full proxy + probe",control_error,0.12468066375724769,0.12274781074731307,0.12683002762125534
+reward_variant,dropout on,mild_anomic,ppo_full_probe,"PPO, full proxy + probe",learning_gain,0.027276787497629327,0.026212447096611597,0.028342336915974597
+reward_variant,dropout on,mild_anomic,ppo_full_probe,"PPO, full proxy + probe",probe_lift,0.017251231646881596,0.01629651479775284,0.018167582846778083
+reward_variant,dropout on,mild_anomic,ppo_full_probe,"PPO, full proxy + probe",quit,0.0,0.0,0.0
+reward_variant,dropout on,mild_anomic,ppo_privileged,"PPO, simulation objective",time_in_band,0.3961868686868687,0.3683573232323233,0.4210107323232323
+reward_variant,dropout on,mild_anomic,ppo_privileged,"PPO, simulation objective",control_error,0.08706748151446338,0.08507747350858663,0.08902608769782823
+reward_variant,dropout on,mild_anomic,ppo_privileged,"PPO, simulation objective",learning_gain,0.027670201972801046,0.0262612433583686,0.02893976498587893
+reward_variant,dropout on,mild_anomic,ppo_privileged,"PPO, simulation objective",probe_lift,0.017394034248330234,0.01632954810669211,0.018513451628927206
+reward_variant,dropout on,mild_anomic,ppo_privileged,"PPO, simulation objective",quit,0.003333333333333333,0.0,0.01
+reward_variant,dropout on,moderate_broca,ppo_band_only,"PPO, band only",time_in_band,0.836969696969697,0.8193939393939393,0.8534356060606061
+reward_variant,dropout on,moderate_broca,ppo_band_only,"PPO, band only",control_error,0.11664673427045104,0.11401126485438588,0.11939412673907812
+reward_variant,dropout on,moderate_broca,ppo_band_only,"PPO, band only",learning_gain,0.0404929288582702,0.03890318211128365,0.0420099838922886
+reward_variant,dropout on,moderate_broca,ppo_band_only,"PPO, band only",probe_lift,0.027899370639613362,0.02667041828500568,0.029127815302634318
+reward_variant,dropout on,moderate_broca,ppo_band_only,"PPO, band only",quit,0.0016666666666666666,0.0,0.005
+reward_variant,dropout on,moderate_broca,ppo_band_climb,"PPO, band + climb",time_in_band,0.8410567210567211,0.8246361693861695,0.8566085858585857
+reward_variant,dropout on,moderate_broca,ppo_band_climb,"PPO, band + climb",control_error,0.11295181362105126,0.11052130727069763,0.11539542771439336
+reward_variant,dropout on,moderate_broca,ppo_band_climb,"PPO, band + climb",learning_gain,0.04107482075011938,0.03950703363931398,0.042560410542733226
+reward_variant,dropout on,moderate_broca,ppo_band_climb,"PPO, band + climb",probe_lift,0.029292940906255636,0.028057610487086063,0.030536652196780752
+reward_variant,dropout on,moderate_broca,ppo_band_climb,"PPO, band + climb",quit,0.0016666666666666666,0.0,0.005
+reward_variant,dropout on,moderate_broca,ppo_full,"PPO, full proxy",time_in_band,0.8324242424242425,0.8150505050505052,0.8489962121212121
+reward_variant,dropout on,moderate_broca,ppo_full,"PPO, full proxy",control_error,0.11212217072804814,0.10929949070108225,0.11492050814462085
+reward_variant,dropout on,moderate_broca,ppo_full,"PPO, full proxy",learning_gain,0.041958942926676276,0.04046843213160919,0.04344893836885547
+reward_variant,dropout on,moderate_broca,ppo_full,"PPO, full proxy",probe_lift,0.02945964592705987,0.028086357985095955,0.0308086601896772
+reward_variant,dropout on,moderate_broca,ppo_full,"PPO, full proxy",quit,0.0,0.0,0.0
+reward_variant,dropout on,moderate_broca,ppo_full_probe,"PPO, full proxy + probe",time_in_band,0.8209090909090909,0.803939393939394,0.8379823232323231
+reward_variant,dropout on,moderate_broca,ppo_full_probe,"PPO, full proxy + probe",control_error,0.1109460958791085,0.10799294661350554,0.11382257935048357
+reward_variant,dropout on,moderate_broca,ppo_full_probe,"PPO, full proxy + probe",learning_gain,0.04193728721604614,0.040422809143368,0.043549657518401015
+reward_variant,dropout on,moderate_broca,ppo_full_probe,"PPO, full proxy + probe",probe_lift,0.029412304033109248,0.028110829094858885,0.03075815676459302
+reward_variant,dropout on,moderate_broca,ppo_full_probe,"PPO, full proxy + probe",quit,0.0,0.0,0.0
+reward_variant,dropout on,moderate_broca,ppo_privileged,"PPO, simulation objective",time_in_band,0.6172294372294372,0.598640873015873,0.6360928932178932
+reward_variant,dropout on,moderate_broca,ppo_privileged,"PPO, simulation objective",control_error,0.06534439366706268,0.06341232319343423,0.06747985812535305
+reward_variant,dropout on,moderate_broca,ppo_privileged,"PPO, simulation objective",learning_gain,0.04767070644461846,0.04594514107758424,0.04935615946406257
+reward_variant,dropout on,moderate_broca,ppo_privileged,"PPO, simulation objective",probe_lift,0.03428540902820906,0.032824549497484604,0.03596643925976833
+reward_variant,dropout on,moderate_broca,ppo_privileged,"PPO, simulation objective",quit,0.003333333333333333,0.0,0.008333333333333333
+reward_variant,dropout on,severe,ppo_band_only,"PPO, band only",time_in_band,0.3230153585402945,0.29576222507127237,0.3518700329561743
+reward_variant,dropout on,severe,ppo_band_only,"PPO, band only",control_error,0.2449674516017724,0.23669129620486473,0.25320796216810876
+reward_variant,dropout on,severe,ppo_band_only,"PPO, band only",learning_gain,0.02035747046631295,0.018873353019231667,0.02187474697477027
+reward_variant,dropout on,severe,ppo_band_only,"PPO, band only",probe_lift,0.022077641535560365,0.020607223078661502,0.023548546014244786
+reward_variant,dropout on,severe,ppo_band_only,"PPO, band only",quit,0.09833333333333333,0.06166666666666666,0.135
+reward_variant,dropout on,severe,ppo_band_climb,"PPO, band + climb",time_in_band,0.32743206087036014,0.3002771986973314,0.35561938694978185
+reward_variant,dropout on,severe,ppo_band_climb,"PPO, band + climb",control_error,0.2491927072327649,0.2409236045063337,0.2572767863519642
+reward_variant,dropout on,severe,ppo_band_climb,"PPO, band + climb",learning_gain,0.020122022089739476,0.018581497930417364,0.02168162159165675
+reward_variant,dropout on,severe,ppo_band_climb,"PPO, band + climb",probe_lift,0.021554902508567002,0.020267789584170925,0.02280107464002531
+reward_variant,dropout on,severe,ppo_band_climb,"PPO, band + climb",quit,0.09333333333333332,0.06,0.13004166666666664
+reward_variant,dropout on,severe,ppo_full,"PPO, full proxy",time_in_band,0.32916574983638597,0.3006473316727053,0.3552265272207368
+reward_variant,dropout on,severe,ppo_full,"PPO, full proxy",control_error,0.23961033777388507,0.23222144074597198,0.24763865461565732
+reward_variant,dropout on,severe,ppo_full,"PPO, full proxy",learning_gain,0.020798580658225277,0.019218033787986206,0.022406278510895727
+reward_variant,dropout on,severe,ppo_full,"PPO, full proxy",probe_lift,0.022585946568518242,0.021218900929164355,0.024028461845003055
+reward_variant,dropout on,severe,ppo_full,"PPO, full proxy",quit,0.09833333333333333,0.06166666666666666,0.14
+reward_variant,dropout on,severe,ppo_full_probe,"PPO, full proxy + probe",time_in_band,0.3182847875468162,0.2917748316861571,0.3440338324735052
+reward_variant,dropout on,severe,ppo_full_probe,"PPO, full proxy + probe",control_error,0.24580547461358093,0.23761405688083848,0.254127734588898
+reward_variant,dropout on,severe,ppo_full_probe,"PPO, full proxy + probe",learning_gain,0.0203319301434176,0.018821074824511765,0.02190264711599917
+reward_variant,dropout on,severe,ppo_full_probe,"PPO, full proxy + probe",probe_lift,0.021898880663559543,0.020596212202942263,0.0233821039816002
+reward_variant,dropout on,severe,ppo_full_probe,"PPO, full proxy + probe",quit,0.10333333333333332,0.06666666666666667,0.1383333333333333
+reward_variant,dropout on,severe,ppo_privileged,"PPO, simulation objective",time_in_band,0.2903244244388745,0.26286995883278647,0.31479977813107607
+reward_variant,dropout on,severe,ppo_privileged,"PPO, simulation objective",control_error,0.2511980807572961,0.2423497426661454,0.2602025857836303
+reward_variant,dropout on,severe,ppo_privileged,"PPO, simulation objective",learning_gain,0.020392190646297645,0.018727376261063054,0.021888002557899938
+reward_variant,dropout on,severe,ppo_privileged,"PPO, simulation objective",probe_lift,0.0219730350714838,0.020549663627112778,0.023368231011234017
+reward_variant,dropout on,severe,ppo_privileged,"PPO, simulation objective",quit,0.125,0.08666666666666666,0.165

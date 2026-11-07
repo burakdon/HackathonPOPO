@@ -1,13 +1,35 @@
 # FastAPI agent service. Paths are relative to the repo root.
-# Live agent: logistic_bandit (contextual Bayesian logistic Thompson sampling, fitted prior) or
-# beta_bandit (non-contextual fallback), which both learn online per session, or ppo (the trained
-# MaskablePPO policy in ppo_model), which POST /ditto/train can tune from clinician overrides and
-# hot-swap live. Override per run with the AGENT env var:  AGENT=ppo uv run uvicorn service.app:app
-agent: logistic_bandit
+# Live agent:
+#   ppo              MaskablePPO; reacts to the person through its observation history (last 8
+#                    trials) and does not update its weights during a session.
+#   logistic_bandit  contextual Bayesian logistic Thompson sampling with the fitted prior; learns
+#                    online per session (fallback).
+#   beta_bandit      non-contextual Thompson sampling (simple fallback).
+# Live demo choice (scripts/judge_demo.py, see README "Live agent"): the PROXY-reward PPO, because
+# with a healthy judge it visibly climbs to tier 3 on success and backs off with cues after errors.
+# Fallbacks: models/ppo_privileged_seed0.zip (better on the true objective in simulation, but stays on
+# tier 1 with a healthy judge), then agent: logistic_bandit.
+agent: ppo
 ppo_model: models/ppo_seed0.zip
 clinical_config: configs/clinical.yaml
 bandit_config: configs/bandit.yaml
 logistic_bandit_config: configs/logistic_bandit.yaml
+
+# POST /learn_from_overrides: one DITTO-style round (with anchors) on this session's overrides,
+# then hot-swap that session's PPO policy. Anchors = this session's accepted (not overridden)
+# choices plus the base policy's own decisions on `anchor_pool_patients` validation patients
+# (collected once, on the first call). Sized to finish in a few seconds on CPU.
+# One round of 300 gradient steps at lr 0.002 moved P(first sound | after a sound error) from 0.09
+# to 0.94 from 10 realistic overrides in ~0.3 s, leaving all other state types unchanged.
+live_ditto:
+  rounds: 1
+  gradient_steps: 300
+  learning_rate: 0.002
+  beta: 0.5
+  samples_per_state: 8
+  anchor_weight: 5.0
+  anchor_pool_patients: 30
+  seed: 0
 
 # Requests without a session_id share this session (backward compatibility with the original
 # State JSON). The frontend should always send a session_id.
@@ -16,11 +38,6 @@ default_session_id: default
 # Clinician overrides are appended here as JSON lines; this file is the DITTO training input.
 # Lives under runs/ (gitignored) because it is produced during live demos.
 overrides_path: runs/overrides.jsonl
-
-# Agent choices the clinician saw and did NOT override (implicit acceptances): the anchors that
-# stop DITTO from changing behaviour the clinician was happy with. Written by POST /update.
-accepted_path: runs/accepted.jsonl
-ditto_config: configs/ditto.yaml
 
 # Origins allowed to call the service from a browser (Vite dev server defaults).
 cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]

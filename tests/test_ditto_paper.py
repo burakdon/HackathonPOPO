@@ -1,7 +1,6 @@
-"""Paper-variant DITTO, the SFT baseline, override masking, and the live DITTO loop in the service."""
+"""Paper-variant DITTO, the SFT behaviour-cloning baseline and offline override masking."""
 import numpy as np
 import pytest
-from fastapi.testclient import TestClient
 
 from core.config import resolve
 from tests.conftest import EXAMPLE_STATE
@@ -88,63 +87,3 @@ def test_override_after_a_correct_answer_with_a_cue_is_skipped():
                      "clinician_action": {"tier": 2, "cue": "semantic"}}
     demos, skipped = demos_from_records([ok, after_correct], load_clinical(), load_env_config())
     assert len(demos) == 1 and skipped == [after_correct]
-
-
-# ---- service ----
-@pytest.fixture
-def ppo_client(tmp_path):
-    from service.app import create_app
-    return TestClient(create_app(agent="ppo", overrides_path=tmp_path / "o.jsonl", accepted_path=tmp_path / "a.jsonl"))
-
-
-def _state(k, trials=None):
-    return {**EXAMPLE_STATE, "session_id": "s1", "trial_count": k,
-            "last_trials": trials if trials is not None else EXAMPLE_STATE["last_trials"]}
-
-
-def test_only_reviewed_non_overridden_choices_are_logged_as_accepted(ppo_client, tmp_path):
-    c = ppo_client
-    outcome = {"correct": True, "error_type": "correct", "response_time": 2.0}
-    a0 = c.post("/act", json=_state(0)).json()
-    assert c.post("/update", json={"state": _state(0), "action": a0, "outcome": outcome}).json()["accepted_logged"] is False
-    a1 = c.post("/act", json=_state(1)).json()
-    assert c.post("/update", json={"state": _state(1), "action": a1, "outcome": outcome,
-                                   "reviewed": True}).json()["accepted_logged"] is True
-    a2 = c.post("/act", json=_state(2)).json()
-    other = {"tier": a2["tier"], "cue": "semantic" if a2["cue"] != "semantic" else "first_letter"}
-    c.post("/override", json={"state": _state(2), "agent_action": a2, "clinician_action": other})
-    assert c.post("/update", json={"state": _state(2), "action": other, "outcome": outcome,
-                                   "reviewed": True}).json()["accepted_logged"] is False
-    assert c.get("/ditto/status").json()["n_accepted"] == 1
-
-
-def test_ditto_train_adopts_the_override_and_reset_restores_the_base(ppo_client):
-    c = ppo_client
-    assert c.post("/ditto/train").status_code == 400                       # no overrides yet
-    a = c.post("/act", json=_state(0)).json()
-    target = {"tier": a["tier"], "cue": "semantic" if a["cue"] != "semantic" else "first_letter"}
-    c.post("/override", json={"state": _state(0), "agent_action": a, "clinician_action": target})
-    rep = c.post("/ditto/train").json()
-    assert rep["n_overrides_used"] == 1 and rep["agreement_after"] == 1.0
-    assert c.get("/health").json()["agent"] == "ppo+ditto"
-    now = c.post("/act", json=_state(0)).json()
-    assert (now["tier"], now["cue"]) == (target["tier"], target["cue"])
-    c.post("/ditto/reset")
-    back = c.post("/act", json=_state(0)).json()
-    assert (back["tier"], back["cue"]) == (a["tier"], a["cue"]) and c.get("/health").json()["agent"] == "ppo"
-
-
-def test_ditto_endpoints_need_the_ppo_agent(tmp_path):
-    from service.app import create_app
-    c = TestClient(create_app(agent="logistic_bandit", overrides_path=tmp_path / "o.jsonl"))
-    assert c.post("/ditto/train").status_code == 409
-    assert c.get("/ditto/status").json()["live_ditto_available"] is False
-
-
-def test_live_demo_script_end_to_end(tmp_path):
-    from scripts.ditto_live_demo import run_demo
-    from service.app import create_app
-    c = TestClient(create_app(agent="ppo", overrides_path=tmp_path / "o.jsonl", accepted_path=tmp_path / "a.jsonl"))
-    res = run_demo(c, n_overrides=3, n_eval=4)
-    assert res["taught"]["overrides"] == 3 and res["train"]["agreement_after"] == 1.0
-    assert res["after"]["follow_rate"] > res["before"]["follow_rate"]
