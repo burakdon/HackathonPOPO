@@ -1,0 +1,18 @@
+# Secrets: never commit. Copy .env.example to .env and fill in locally.
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Training artifacts and live-session data (overrides from demos live under runs/)
+runs/
+*.ckpt
+checkpoints/
+
+.DS_Store

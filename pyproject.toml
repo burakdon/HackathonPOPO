@@ -1,0 +1,25 @@
+[project]
+name = "aphasia-trainer-rl"
+version = "0.1.0"
+description = "RL therapist agent for an aphasia picture-naming practice trainer (Triangle AI Hackathon)"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "numpy>=1.26,<3",
+    "pydantic>=2.6,<3",
+    "pyyaml>=6.0",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.uv]
+package = false
