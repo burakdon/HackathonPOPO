@@ -6,7 +6,10 @@ from fastapi.testclient import TestClient
 from core.config import resolve
 from service.app import create_app
 
-pytestmark = pytest.mark.skipif(not resolve("models/ppo_privileged_seed0.zip").exists(), reason="model missing")
+from core.config import load_service
+
+LIVE_MODEL = load_service().ppo_model
+pytestmark = pytest.mark.skipif(not resolve(LIVE_MODEL).exists(), reason="model missing")
 
 
 def realistic_sound_error_states(n: int) -> list[dict]:
@@ -14,7 +17,7 @@ def realistic_sound_error_states(n: int) -> list[dict]:
     patients outside the service's anchor pool (patients 0-29)."""
     from sb3_contrib import MaskablePPO
     from envs.aphasia_env import AphasiaEnv
-    model = MaskablePPO.load(str(resolve("models/ppo_privileged_seed0.zip")), device="cpu")
+    model = MaskablePPO.load(str(resolve(LIVE_MODEL)), device="cpu")
     env, out, k = AphasiaEnv(cohort="moderate_broca", split="val"), [], 100
     while len(out) < n:
         obs, _ = env.reset(options={"patient_index": k})

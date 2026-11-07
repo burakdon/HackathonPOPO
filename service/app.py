@@ -82,8 +82,12 @@ def create_app(config_path: str | Path | None = None,
                overrides_path: str | Path | None = None,
                agent: str | None = None) -> FastAPI:
     cfg = load_service(config_path or os.environ.get("AGENT_SERVICE_CONFIG", "configs/service.yaml"))
+    # Optional overrides (e.g. to run several agents side by side): argument, then environment variable.
+    agent = agent or os.environ.get("AGENT_SERVICE_AGENT")
     if agent:
         cfg = cfg.model_copy(update={"agent": agent})
+    if os.environ.get("AGENT_SERVICE_PPO_MODEL"):
+        cfg = cfg.model_copy(update={"ppo_model": os.environ["AGENT_SERVICE_PPO_MODEL"]})
     clinical = load_clinical(cfg.clinical_config)
     overrides_file = resolve(overrides_path or cfg.overrides_path)
 

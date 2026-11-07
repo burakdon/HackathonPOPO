@@ -31,4 +31,12 @@ paired:
   - [ppo_sim, contextual_bandit]
   - [ppo_sim, oracle]
 
+# Simplified slide figure (results/pitch_severe.png): one cohort, three policies, two metrics.
+pitch:
+  cohort: severe
+  policies:
+    - {key: fixed, label: "Fixed difficulty"}
+    - {key: staircase, label: "Staircase"}
+    - {key: ppo_proxy, label: "Our agent"}     # the live demo agent (configs/service.yaml)
+
 output_dir: results

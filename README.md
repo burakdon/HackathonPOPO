@@ -38,10 +38,10 @@ Implemented and tested (149 tests, `uv run pytest`):
   item difficulty from word frequency and length, patient-specific cue responsiveness, error types,
   fatigue with recovery, learning with a configurable peak, patient dropout after failure streaks,
   and review probes. The item bank is a placeholder.
-- Therapist agents: MaskablePPO trained on the simulation-only objective (the default live agent),
-  a contextual Bayesian logistic Thompson-sampling bandit with a prior fitted on simulated training
-  patients (live fallback), a Beta-Bernoulli Thompson bandit, and fixed-difficulty and staircase
-  baselines.
+- Therapist agents: MaskablePPO trained on the observable proxy reward (the live demo agent, chosen
+  for visible adaptation to a healthy user), MaskablePPO trained on the simulation-only objective and
+  the contextual Bayesian logistic Thompson-sampling bandit (live fallbacks), a Beta-Bernoulli
+  Thompson bandit, and fixed-difficulty and staircase baselines.
 - Trained agent: a Gymnasium environment with clinical action masks and a decomposed reward, and
   MaskablePPO trained on simulated patients with three rewards (observable proxy, proxy + review-probe
   bonus, privileged simulator-only objective), 3 seeds each, learning curves on held-out patients.
@@ -75,6 +75,8 @@ uv run python -m train.train_ppo --reward full_probe    # proxy + review-probe b
 uv run python -m train.train_ppo --reward privileged    # simulator-only objective (reference)
 uv run python -m eval.plots                     # learning curves -> results/learning_curves.png
 uv run python -m train.ditto_ppo                # DITTO-style tuning from overrides -> results/ditto_report.md
+uv run python -m scripts.validate_live_ditto     # live override learning on fresh states
+uv run python -m scripts.judge_demo --url http://localhost:8000 --name live   # healthy-judge check
 uv run python -m eval.compare --config configs/eval.yaml   # full evaluation -> results/
 uv run python -m scripts.sanity_table --dropout on --out results/sanity_dropout_on.md
 uv run python -m scripts.sanity_table --dropout off --out results/sanity_dropout_off.md
@@ -215,13 +217,32 @@ patients, excluding the state types the clinician overrode. It takes well under 
 (~0.3 s for 10 overrides; the first call also collects the anchor pool, about 1 s). The response
 reports, for each overridden state type (for example `"after a sound error"`), the mean probability
 of choosing the clinician's cue in reference states of that type before and after, and the share of
-other reference states whose top action is unchanged. Example with 10 overrides "after a sound
-error, use first_sound" collected from states the policy actually visits: `p_before` 0.09,
-`p_after` 0.94, `other_states_unchanged` 1.00; the session then chose first_sound in held-out
-sound-error states. Errors: 409 if the live agent is not PPO, 400 if the session has no overrides.
+other reference states whose top action is unchanged. Example on the live agent with 10 overrides
+"after a sound error, use first_sound" collected from states the policy actually visits: `p_before`
+0.35, `p_after` 0.91, `other_states_unchanged` 1.00 (0.5 s); the session then chose first_sound in
+held-out sound-error states. Validation on fresh states: see the DITTO section. Errors: 409 if the live agent is not PPO, 400 if the session has no overrides.
 Demo flow: play a few trials, override the cue a handful of times on the dashboard, call this
 endpoint, and continue: the next similar states get the clinician's choice.
 Interactive API docs: `http://localhost:8000/docs` while the service runs.
+
+## Demo script
+
+Start the service (`uv run uvicorn service.app:app --host 0.0.0.0 --port 8000`; `GET /health` should
+report `"agent": "ppo"`). Use one `session_id` per demo, e.g. `"demo-judge"`. Each step below is one
+or more API calls; the right column is what the clinician dashboard should show.
+
+| step | API calls | dashboard shows |
+|---|---|---|
+| 1. Naming | `POST /next_trial` with the State (`trial_count` 0, `current_tier` 1, empty `last_trials`); the judge names the picture; `POST /update` with the outcome and `"probe": false`. Repeat. | The picture, the chosen tier and cue (`none`), the agent's `rationale`; the tier timeline and rolling accuracy with the 75-90% band. After 5-7 correct answers the tier climbs to 2, then 3. |
+| 2. Cue after an error | The judge gives a wrong answer (or none) on purpose, 2-3 times in a row; keep calling `POST /next_trial` and `POST /update`. | The agent steps the tier down and offers a cue (e.g. first letter), with the rationale; error types appear in the breakdown. After the judge recovers, the tier climbs back. |
+| 3. Review probe | Every 5th trial `POST /next_trial` returns `"probe": true` (a word practised earlier, `cue: "none"`); `POST /update` with `"probe": true`. | A "review, no hint" label on that trial; the current tier is unchanged; probe results are tallied as "recalled without a hint". |
+| 4. Override | On a trial right after a sound error, the clinician presses override and picks the first-sound cue (same tier): `POST /override` with `state`, `agent_action`, `clinician_action`; show the clinician's cue; `POST /update` with the clinician's action. Repeat on a few such trials (10 give a strong effect; fewer give a smaller one). | The override is marked on the timeline; the override count increases. |
+| 5. Learn from the clinician | `POST /learn_from_overrides` with `{"session_id": "demo-judge"}` (well under a second). | "After a sound error: P(first sound) 0.35 -> 0.9x; other behaviour unchanged ~98-100%" from the response (`by_state_type`, `other_states_unchanged`). |
+| 6. The agent now makes the clinician's choice | Continue the session; after the next sound error `POST /next_trial` returns the first-sound cue without an override. | The cue matches the clinician's earlier choice; no override was needed. |
+
+Fallback if the live agent misbehaves: set `ppo_model: models/ppo_privileged_seed0.zip` or
+`agent: logistic_bandit` in `configs/service.yaml` and restart (`/learn_from_overrides` needs a PPO
+agent).
 
 ## Problem formulation
 
@@ -310,12 +331,26 @@ in the environment, that alternating tiers 1 and 2 scores less than holding tier
   practised words, so a policy that practises only easy words gets easy probes. An earlier draft
   that rewarded the true p on probes indeed drove the agent to tier 1.
 
-**Live agent.** The service serves the PPO policy trained on the simulation-only objective
-(`models/ppo_privileged_seed0.zip`, seed 0, chosen without looking at test results); the contextual
-bandit is the configurable fallback (`configs/service.yaml`). The policy does not update its weights
-during a session: it reacts to the person through its observation (the last 8 trials). It is
-conservative: it holds the true p near the learning peak rather than climbing tiers, so in a short
-demo it changes tier less than the proxy-trained policy (mean tier on mild patients 1.54 vs 1.81).
+**Live agent.** A live demo is played by a healthy person who answers almost everything correctly,
+which is far outside the simulated patient population. `scripts/judge_demo.py` plays three scripted
+"judges" through the HTTP API (`/next_trial` + `/update`, review probes included) against each
+candidate agent, 30 trials each:
+
+| judge | PPO, proxy reward | PPO, simulation objective | contextual bandit |
+|---|---|---|---|
+| always correct | climbs to tier 3 by trial 7 and stays (mean tier 2.54) | stays on tier 1 (mean 1.04) | wanders between tiers 1-3 (7 tier changes, mean 1.96) |
+| ~90% correct | reaches tier 3 by trial 16, drops a tier with a cue after errors (mean 1.88) | stays on tier 1 | tiers 1-2, cues after errors (mean 1.75) |
+| 3 errors in a row at trial 12 | tier 3 -> 2 with a first-letter cue -> 1, then back up to tier 3 within 8 trials | stays on tier 1, one cue | tier 2 -> 1, then oscillates 1-2 |
+
+**We serve the proxy-reward PPO live** (`models/ppo_seed0.zip`, seed 0): it is the only agent whose
+behaviour shows the intended adaptation to a healthy user (climb on success, back off with a cue
+after errors, climb again). The simulation-objective PPO is better on the true objective in
+simulation but stays on tier 1 for a healthy user, because in its training population tier 1 is
+usually close to the target; it and the contextual bandit are configured fallbacks
+(`configs/service.yaml`). Trade-off, stated plainly: in simulation the proxy-reward policy partly
+games the 8-trial band (Results); it is chosen for legible live behaviour, not because it is the best
+policy on the simulated objective. The policies do not update their weights during a session; they
+react through their observation (the last 8 trials).
 
 **Training.** 3 seeds x 1.5M steps per reward, CPU, about 3 minutes per run. Learning curves are
 measured on 64 fixed validation patients disjoint from both the training and the test patients. All
@@ -368,6 +403,9 @@ share of sessions abandoned. Bold = best non-oracle policy for that metric.
 | severe | oracle (privileged) | 0.37 | 0.214 [0.206, 0.222] | 2.27 [2.11, 2.44] | 0.58 | 2.51 [2.35, 2.67] | 0.07 |
 
 ![Policy comparison](results/comparison.png)
+
+A simplified slide version (severe cohort; fixed difficulty, staircase and the live agent; sessions
+abandoned and naming improvement) is generated by the same command: [`results/pitch_severe.png`](results/pitch_severe.png).
 
 ![Rolling accuracy](results/rolling_accuracy.png)
 
@@ -515,6 +553,24 @@ states, leaves states after other errors essentially unchanged, and keeps 99% of
 identical; time in band, control error, learning gain and probe recall on the three test cohorts are
 unchanged within noise. The anchors are our addition to DITTO and are only as good as the assumption
 that a non-override means acceptance.
+
+**Live endpoint, validated on fresh states.** The settings of `POST /learn_from_overrides` (one round,
+300 gradient steps, learning rate 0.002) were chosen by looking at override and evaluation states from
+validation patients 100+ of the moderate cohort. To check them honestly,
+`scripts/validate_live_ditto.py` repeats the update 5 times with 10 overrides each from *different*
+validation patients (1000+) and evaluates on states from yet other patients (2000+), for both PPO
+models and two cohorts ([`results/live_ditto_validation.md`](results/live_ditto_validation.md)):
+
+| model | cohort | P(clinician's cue) after a sound error, before -> after | top action = clinician's cue, before -> after | other state types, top action unchanged |
+|---|---|---|---|---|
+| PPO, proxy reward (live agent) | moderate Broca's | 0.35 -> 0.97 ± 0.01 | 0.37 -> 0.98 ± 0.01 | 0.98 |
+| PPO, proxy reward (live agent) | population | 0.37 -> 0.91 ± 0.10 | 0.37 -> 0.93 ± 0.09 | 0.97 |
+| PPO, simulation objective | moderate Broca's | 0.03 -> 0.90 ± 0.02 | 0.02 -> 0.92 ± 0.01 | 1.00 |
+| PPO, simulation objective | population | 0.04 -> 0.84 ± 0.05 | 0.04 -> 0.89 ± 0.04 | 0.99 |
+
+The effect holds on fresh states (top action switches in 89-98% of matching states, ± over the 5
+override sets). For the live agent 2-3% of other state types change their top action, slightly more
+than the 0% seen on the states used for tuning. Each update takes about 0.33 s on CPU.
 
 ## Known limitations
 - With an 8-trial window, rolling accuracy only takes values k/8, so the [0.75, 0.90] band means
