@@ -1,0 +1,32 @@
+# Clinical constants shared by agents, reward, metrics and the service.
+# Values to be validated clinically; change them here, never in code.
+
+# Target accuracy band for rolling accuracy over the last `window` trials (from the project spec).
+# NOTE: with window = 8, rolling accuracy only takes values k/8, so this band admits exactly
+# 6/8 = 0.75 and 7/8 = 0.875. See README "Known limitations".
+band: [0.75, 0.90]
+
+# Point target inside the band. Inspired by Wilson et al. 2019 (optimal error rate ~15.9% for
+# gradient-descent learners). A theoretical result, not shown for aphasia.
+target: 0.85
+
+window: 8
+
+# Hard constraint (enforced as an action mask, not a penalty): tier may change by at most this
+# many steps between consecutive trials.
+max_tier_step: 1
+
+# Cues the supervising SLP has approved for this deployment. "none" must always be present so
+# the action mask is never empty.
+approved_cues: [none, first_sound, first_letter, sentence_frame, semantic]
+
+# Ordinal cue strength used for the cue-cost term and the cue-efficiency metric.
+# ASSUMPTION (ported from docs/scaffold/rl_starter.py, to be validated clinically): phonemic cues are the
+# strongest single cue, orthographic (first letter) the weakest. Direction consistent with
+# phonemic cues showing larger immediate effects than semantic cues (Meteyard & Bose 2018).
+cue_strength:
+  none: 0
+  first_letter: 1
+  sentence_frame: 2
+  semantic: 2
+  first_sound: 3
