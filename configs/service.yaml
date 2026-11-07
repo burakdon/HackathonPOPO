@@ -13,6 +13,22 @@ clinical_config: configs/clinical.yaml
 bandit_config: configs/bandit.yaml
 logistic_bandit_config: configs/logistic_bandit.yaml
 
+# POST /learn_from_overrides: one DITTO-style round (with anchors) on this session's overrides,
+# then hot-swap that session's PPO policy. Anchors = this session's accepted (not overridden)
+# choices plus the base policy's own decisions on `anchor_pool_patients` validation patients
+# (collected once, on the first call). Sized to finish in a few seconds on CPU.
+# One round of 300 gradient steps at lr 0.002 moved P(first sound | after a sound error) from 0.09
+# to 0.94 from 10 realistic overrides in ~0.3 s, leaving all other state types unchanged.
+live_ditto:
+  rounds: 1
+  gradient_steps: 300
+  learning_rate: 0.002
+  beta: 0.5
+  samples_per_state: 8
+  anchor_weight: 5.0
+  anchor_pool_patients: 30
+  seed: 0
+
 # Requests without a session_id share this session (backward compatibility with the original
 # State JSON). The frontend should always send a session_id.
 default_session_id: default

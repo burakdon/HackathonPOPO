@@ -130,6 +130,7 @@ returns HTTP 422 with a precise error on any violation.
    `current_tier` means the tier of the last trial the **agent** chose (probes do not change it).
 4. New endpoint `POST /next_trial` returns the complete next trial (word, image, tier, cue, probe)
    using the shared item-selection rule below, so the frontend does not have to implement it.
+5. New endpoint `POST /learn_from_overrides` (live demo of learning from the clinician, below).
 
 ### State
 ```json
@@ -189,6 +190,7 @@ Parameters live in [`configs/sim.yaml`](configs/sim.yaml) (`review_probes`: `eve
 | POST | `/act` | `State` | `Action` |
 | POST | `/update` | `{"state": State, "action": Action, "outcome": Outcome, "probe": false}` | `{"status": "ok", "session_id": "...", "agent_updated": bool}` |
 | POST | `/override` | `{"state": State, "agent_action": Action, "clinician_action": Action, "note": "optional"}` | `{"status": "stored", "session_id": "...", "n_overrides": n}` |
+| POST | `/learn_from_overrides` | `{"session_id": "..."}` | `{"n_overrides", "n_skipped", "n_anchor_states", "seconds", "by_state_type": [{"state_type", "clinician_cue", "n_overrides", "n_eval_states", "p_before", "p_after"}], "other_states_unchanged"}` |
 
 Session loop for the frontend:
 1. `POST /next_trial` with the current `State` (or apply the rule above yourself and call `/act`
@@ -202,6 +204,21 @@ Session loop for the frontend:
    its tier. Repeat.
 
 Overrides are stored as JSON lines in `runs/overrides.jsonl` (the input to `train/ditto_ppo.py --overrides`).
+
+**Live learning from overrides (`POST /learn_from_overrides`, PPO agent only).** Runs one
+DITTO-style round (see the DITTO section) on the overrides logged **in this session**, then swaps in
+the tuned policy **for this session only** (other sessions and the base model are unchanged).
+Anchors are this session's accepted choices plus the base policy's own decisions on 30 validation
+patients, excluding the state types the clinician overrode. It takes well under a second on CPU
+(~0.3 s for 10 overrides; the first call also collects the anchor pool, about 1 s). The response
+reports, for each overridden state type (for example `"after a sound error"`), the mean probability
+of choosing the clinician's cue in reference states of that type before and after, and the share of
+other reference states whose top action is unchanged. Example with 10 overrides "after a sound
+error, use first_sound" collected from states the policy actually visits: `p_before` 0.09,
+`p_after` 0.94, `other_states_unchanged` 1.00; the session then chose first_sound in held-out
+sound-error states. Errors: 409 if the live agent is not PPO, 400 if the session has no overrides.
+Demo flow: play a few trials, override the cue a handful of times on the dashboard, call this
+endpoint, and continue: the next similar states get the clinician's choice.
 Interactive API docs: `http://localhost:8000/docs` while the service runs.
 
 ## Problem formulation
