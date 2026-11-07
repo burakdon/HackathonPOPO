@@ -23,6 +23,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from core.config import load_yaml, resolve
 from core.reward import load_reward
 from envs.aphasia_env import AphasiaEnv
+from sim.config import load_sim
 
 
 def evaluate_policy_on(model: MaskablePPO, env: AphasiaEnv, n_patients: int) -> dict[str, float]:
@@ -80,11 +81,16 @@ class ValidationCurve(BaseCallback):
             w.writerows(self.rows)
 
 
-def train_one(seed: int, cfg: dict, timesteps: int, reward_variant: str, tag: str) -> None:
+def train_one(seed: int, cfg: dict, timesteps: int, reward_variant: str, tag: str,
+              learning_peak: float | None = None) -> None:
     torch.set_num_threads(1)
     torch.manual_seed(seed)
     reward_cfg = load_reward(variant=reward_variant)
-    venv = make_vec_env(lambda: AphasiaEnv(cohort="population", split="train", root_seed=seed, reward_cfg=reward_cfg),
+    sim_cfg = load_sim()
+    if learning_peak is not None:   # learning-peak ablation: train in a simulator whose learning peaks elsewhere
+        sim_cfg = sim_cfg.model_copy(update={"learning": sim_cfg.learning.model_copy(update={"peak": learning_peak})})
+    venv = make_vec_env(lambda: AphasiaEnv(cohort="population", split="train", root_seed=seed, reward_cfg=reward_cfg,
+                                           sim_cfg=sim_cfg),
                         n_envs=cfg["n_envs"], seed=seed, vec_env_cls=DummyVecEnv)
     out = resolve(cfg["output_dir"]) / f"{tag}seed_{seed}"
     out.mkdir(parents=True, exist_ok=True)
@@ -95,7 +101,7 @@ def train_one(seed: int, cfg: dict, timesteps: int, reward_variant: str, tag: st
         clip_range=cfg["clip_range"], ent_coef=cfg["ent_coef"],
         policy_kwargs={"net_arch": list(cfg["net_arch"])},
     )
-    val_env = AphasiaEnv(cohort="population", split="val", root_seed=0, reward_cfg=reward_cfg)
+    val_env = AphasiaEnv(cohort="population", split="val", root_seed=0, reward_cfg=reward_cfg, sim_cfg=sim_cfg)
     curve = ValidationCurve(val_env, cfg["eval_freq"], cfg["eval_patients"], out / "val_curve.csv")
     t0 = time.time()
     print(f"seed {seed}: training {timesteps} steps (reward={reward_variant})", flush=True)
@@ -113,10 +119,13 @@ def main() -> None:
     ap.add_argument("--seeds", type=int, nargs="+", default=cfg["seeds"])
     ap.add_argument("--timesteps", type=int, default=cfg["total_timesteps"])
     ap.add_argument("--reward", default=load_reward().variant, help="reward variant (ablation)")
+    ap.add_argument("--learning-peak", type=float, default=None, help="simulator learning peak (ablation)")
     args = ap.parse_args()
     tag = "" if args.reward == load_reward().variant else f"{args.reward}_"
+    if args.learning_peak is not None:
+        tag += f"peak{args.learning_peak:g}_"
     for s in args.seeds:
-        train_one(s, cfg, args.timesteps, args.reward, tag)
+        train_one(s, cfg, args.timesteps, args.reward, tag, args.learning_peak)
 
 
 if __name__ == "__main__":

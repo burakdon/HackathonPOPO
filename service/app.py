@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from agents.base import Policy
@@ -25,7 +25,8 @@ from agents.beta_bandit import BetaThompsonBandit
 from agents.logistic_bandit import LogisticThompsonBandit
 from core.config import load_beta_bandit, load_clinical, load_logistic_bandit, load_service, resolve
 from core.masks import action_mask
-from core.schema import Action, NextTrial, OverrideRequest, State, UpdateRequest
+from core.schema import (Action, LearnRequest, LearnResult, NextTrial, OverrideRequest, State,
+                         UpdateRequest)
 from sim.config import load_sim
 from sim.items import ItemSelector, load_items
 
@@ -52,12 +53,24 @@ class SessionStore:
     def __len__(self) -> int:
         return len(self._agents)
 
+    def replace(self, session_id: str, agent: Policy) -> None:
+        with self._lock:
+            self._agents[session_id] = agent
+
     def lock(self) -> threading.Lock:
         return self._lock
 
 
 def agent_factory(agent: str, cfg, clinical):
     """session_id -> fresh agent for that session, seeded deterministically from the session id."""
+    if agent == "ppo":
+        from sb3_contrib import MaskablePPO
+
+        from agents.ppo import PPOPolicy
+        from envs.aphasia_env import load_env_config
+        env_cfg = load_env_config()
+        shared = MaskablePPO.load(str(resolve(cfg.ppo_model)), device="cpu")   # loaded once, read-only
+        return lambda sid: PPOPolicy(shared, clinical, env_cfg)
     if agent == "logistic_bandit":
         lcfg = load_logistic_bandit(cfg.logistic_bandit_config)
         return lambda sid: LogisticThompsonBandit(lcfg, clinical, seed=session_seed(lcfg.seed, sid))
@@ -75,6 +88,17 @@ def create_app(config_path: str | Path | None = None,
     overrides_file = resolve(overrides_path or cfg.overrides_path)
 
     store = SessionStore(agent_factory(cfg.agent, cfg, clinical))
+    # Per-session log for live learning: states the agent acted on, and clinician overrides.
+    acted: dict[str, list[State]] = {}
+    overrides_log: dict[str, list[tuple[State, Action]]] = {}
+    live = None
+    if cfg.agent == "ppo":
+        from sb3_contrib import MaskablePPO
+
+        from envs.aphasia_env import load_env_config
+        from service.live_ditto import LiveDitto
+        live = LiveDitto(MaskablePPO.load(str(resolve(cfg.ppo_model)), device="cpu"), clinical,
+                         load_env_config(), cfg.live_ditto)
     # Item bank and review-probe rule shared with the simulator, for POST /next_trial.
     sim_cfg = load_sim()
     bank = load_items(sim_cfg.items)
@@ -98,10 +122,13 @@ def create_app(config_path: str | Path | None = None,
 
     @app.post("/act", response_model=Action)
     def act(state: State) -> Action:
-        agent = store.get(sid(state))
+        session = sid(state)
+        agent = store.get(session)
         mask = action_mask(state.current_tier, clinical.approved_cues, clinical.max_tier_step)
         with store.lock():
-            return agent.act(state, mask)
+            action = agent.act(state, mask)
+            acted.setdefault(session, []).append(state)
+        return action
 
     @app.post("/next_trial", response_model=NextTrial)
     def next_trial(state: State) -> NextTrial:
@@ -136,6 +163,24 @@ def create_app(config_path: str | Path | None = None,
             agent.update(req.state, req.action, req.outcome)
         return {"status": "ok", "session_id": session, "agent_updated": True}
 
+    @app.post("/learn_from_overrides", response_model=LearnResult)
+    def learn_from_overrides(req: LearnRequest) -> LearnResult:
+        """One DITTO-style round on this session's overrides; hot-swaps this session's policy only."""
+        if live is None:
+            raise HTTPException(409, "live learning requires the ppo agent (configs/service.yaml)")
+        logged = overrides_log.get(req.session_id, [])
+        if not logged:
+            raise HTTPException(400, "no overrides logged in this session")
+        overridden = {s.trial_count for s, _ in logged}
+        accepted = [s for s in acted.get(req.session_id, []) if s.trial_count not in overridden]
+        try:
+            tuned, report = live.learn(logged, accepted)
+        except ValueError as e:
+            raise HTTPException(400, str(e)) from e
+        from agents.ppo import PPOPolicy
+        store.replace(req.session_id, PPOPolicy(tuned, clinical, live.env_cfg))
+        return LearnResult(session_id=req.session_id, **report)
+
     @app.post("/override")
     def override(req: OverrideRequest) -> dict:
         record = {
@@ -146,6 +191,7 @@ def create_app(config_path: str | Path | None = None,
             "clinician_action": req.clinician_action.model_dump(),
             "note": req.note,
         }
+        overrides_log.setdefault(record["session_id"], []).append((req.state, req.clinician_action))
         with write_lock:
             overrides_file.parent.mkdir(parents=True, exist_ok=True)
             with open(overrides_file, "a") as f:

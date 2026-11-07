@@ -30,6 +30,7 @@ class RewardTerms(BaseModel):
     cue_waste: bool
     probe: bool = False
     privileged: bool = False
+    control: bool = True       # within the privileged terms: include -|p_true - target| (the 85% assumption)
 
 
 class PrivilegedWeights(BaseModel):

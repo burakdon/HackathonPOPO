@@ -86,12 +86,26 @@ class LogisticBanditConfig(BaseModel):
         return self
 
 
+class LiveDittoConfig(BaseModel):
+    model_config = _STRICT
+    rounds: int = Field(ge=1)
+    gradient_steps: int = Field(ge=1)
+    learning_rate: float = Field(gt=0.0)
+    beta: float = Field(gt=0.0)
+    samples_per_state: int = Field(ge=1)
+    anchor_weight: float = Field(ge=0.0)
+    anchor_pool_patients: int = Field(ge=1)
+    seed: int
+
+
 class ServiceConfig(BaseModel):
     model_config = _STRICT
-    agent: Literal["logistic_bandit", "beta_bandit"]
+    agent: Literal["ppo", "logistic_bandit", "beta_bandit"]
     clinical_config: str
     bandit_config: str
     logistic_bandit_config: str
+    ppo_model: str
+    live_ditto: LiveDittoConfig
     default_session_id: str = Field(min_length=1)
     overrides_path: str
     cors_origins: list[str] = Field(default_factory=list)
