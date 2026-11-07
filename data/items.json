@@ -1,0 +1,507 @@
+{
+ "version": "items-v1",
+ "note": "Prototype picture bank. Tiers are prototype settings chosen by the team (rough word frequency/length), not clinically validated difficulty. Hints are team-authored (AI-drafted) and should be reviewed. Images: Twemoji, CC BY 4.0.",
+ "items": [
+  {
+   "exercise_id": "ex-cat",
+   "image_path": "images/cat.svg",
+   "preferred_name": "cat",
+   "accepted_alternatives": [
+    "kitty",
+    "kitten"
+   ],
+   "tier": 1,
+   "cues": {
+    "first_sound": "It starts with the sound “k…”",
+    "first_letter": "It starts with the letter C.",
+    "sentence_frame": "A pet that says meow is a ___.",
+    "semantic": "A small furry pet that purrs."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f408",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f408.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-dog",
+   "image_path": "images/dog.svg",
+   "preferred_name": "dog",
+   "accepted_alternatives": [
+    "puppy",
+    "doggy"
+   ],
+   "tier": 1,
+   "cues": {
+    "first_sound": "It starts with the sound “d…”",
+    "first_letter": "It starts with the letter D.",
+    "sentence_frame": "A pet that barks is a ___.",
+    "semantic": "A pet that wags its tail and fetches sticks."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f415",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f415.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-apple",
+   "image_path": "images/apple.svg",
+   "preferred_name": "apple",
+   "accepted_alternatives": [],
+   "tier": 1,
+   "cues": {
+    "first_sound": "It starts with the sound “a…”",
+    "first_letter": "It starts with the letter A.",
+    "sentence_frame": "An ___ a day keeps the doctor away.",
+    "semantic": "A round red or green fruit that grows on trees."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f34e",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f34e.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-house",
+   "image_path": "images/house.svg",
+   "preferred_name": "house",
+   "accepted_alternatives": [
+    "home"
+   ],
+   "tier": 1,
+   "cues": {
+    "first_sound": "It starts with the sound “h…”",
+    "first_letter": "It starts with the letter H.",
+    "sentence_frame": "A family lives in a ___.",
+    "semantic": "A building where people live."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f3e0",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f3e0.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-car",
+   "image_path": "images/car.svg",
+   "preferred_name": "car",
+   "accepted_alternatives": [
+    "automobile"
+   ],
+   "tier": 1,
+   "cues": {
+    "first_sound": "It starts with the sound “k…”",
+    "first_letter": "It starts with the letter C.",
+    "sentence_frame": "You drive a ___ on the road.",
+    "semantic": "It has four wheels and you drive it."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f697",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f697.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-tree",
+   "image_path": "images/tree.svg",
+   "preferred_name": "tree",
+   "accepted_alternatives": [],
+   "tier": 1,
+   "cues": {
+    "first_sound": "It starts with the sound “tr…”",
+    "first_letter": "It starts with the letter T.",
+    "sentence_frame": "Birds build nests in a ___.",
+    "semantic": "It is tall, has leaves and a trunk."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f333",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f333.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-fish",
+   "image_path": "images/fish.svg",
+   "preferred_name": "fish",
+   "accepted_alternatives": [],
+   "tier": 1,
+   "cues": {
+    "first_sound": "It starts with the sound “f…”",
+    "first_letter": "It starts with the letter F.",
+    "sentence_frame": "It swims in the sea; it's a ___.",
+    "semantic": "An animal with fins that lives in water."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f41f",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f41f.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-key",
+   "image_path": "images/key.svg",
+   "preferred_name": "key",
+   "accepted_alternatives": [],
+   "tier": 1,
+   "cues": {
+    "first_sound": "It starts with the sound “k…”",
+    "first_letter": "It starts with the letter K.",
+    "sentence_frame": "You unlock the door with a ___.",
+    "semantic": "A small metal thing that opens a lock."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f511",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f511.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-banana",
+   "image_path": "images/banana.svg",
+   "preferred_name": "banana",
+   "accepted_alternatives": [],
+   "tier": 2,
+   "cues": {
+    "first_sound": "It starts with the sound “b…”",
+    "first_letter": "It starts with the letter B.",
+    "sentence_frame": "Monkeys love to eat a ___.",
+    "semantic": "A long yellow fruit you peel."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f34c",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f34c.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-chair",
+   "image_path": "images/chair.svg",
+   "preferred_name": "chair",
+   "accepted_alternatives": [],
+   "tier": 2,
+   "cues": {
+    "first_sound": "It starts with the sound “ch…”",
+    "first_letter": "It starts with the letter C.",
+    "sentence_frame": "You sit down on a ___.",
+    "semantic": "Furniture with four legs and a back, for sitting."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1fa91",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1fa91.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-bicycle",
+   "image_path": "images/bicycle.svg",
+   "preferred_name": "bicycle",
+   "accepted_alternatives": [
+    "bike"
+   ],
+   "tier": 2,
+   "cues": {
+    "first_sound": "It starts with the sound “b…”",
+    "first_letter": "It starts with the letter B.",
+    "sentence_frame": "You pedal a ___.",
+    "semantic": "It has two wheels and pedals."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f6b2",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f6b2.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-umbrella",
+   "image_path": "images/umbrella.svg",
+   "preferred_name": "umbrella",
+   "accepted_alternatives": [
+    "brolly"
+   ],
+   "tier": 2,
+   "cues": {
+    "first_sound": "It starts with the sound “u…”",
+    "first_letter": "It starts with the letter U.",
+    "sentence_frame": "When it rains you open an ___.",
+    "semantic": "It keeps you dry in the rain."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "2602",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/2602.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-rabbit",
+   "image_path": "images/rabbit.svg",
+   "preferred_name": "rabbit",
+   "accepted_alternatives": [
+    "bunny"
+   ],
+   "tier": 2,
+   "cues": {
+    "first_sound": "It starts with the sound “r…”",
+    "first_letter": "It starts with the letter R.",
+    "sentence_frame": "A ___ has long ears and hops.",
+    "semantic": "A small animal with long ears that eats carrots."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f407",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f407.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-glasses",
+   "image_path": "images/glasses.svg",
+   "preferred_name": "glasses",
+   "accepted_alternatives": [
+    "spectacles",
+    "eyeglasses"
+   ],
+   "tier": 2,
+   "cues": {
+    "first_sound": "It starts with the sound “gl…”",
+    "first_letter": "It starts with the letter G.",
+    "sentence_frame": "You wear ___ to see better.",
+    "semantic": "You wear them on your nose to help you see."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f453",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f453.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-carrot",
+   "image_path": "images/carrot.svg",
+   "preferred_name": "carrot",
+   "accepted_alternatives": [],
+   "tier": 2,
+   "cues": {
+    "first_sound": "It starts with the sound “k…”",
+    "first_letter": "It starts with the letter C.",
+    "sentence_frame": "Rabbits like to eat a ___.",
+    "semantic": "An orange vegetable that grows in the ground."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f955",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f955.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-hammer",
+   "image_path": "images/hammer.svg",
+   "preferred_name": "hammer",
+   "accepted_alternatives": [],
+   "tier": 2,
+   "cues": {
+    "first_sound": "It starts with the sound “h…”",
+    "first_letter": "It starts with the letter H.",
+    "sentence_frame": "You hit a nail with a ___.",
+    "semantic": "A tool for hitting nails."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f528",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f528.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-kangaroo",
+   "image_path": "images/kangaroo.svg",
+   "preferred_name": "kangaroo",
+   "accepted_alternatives": [],
+   "tier": 3,
+   "cues": {
+    "first_sound": "It starts with the sound “k…”",
+    "first_letter": "It starts with the letter K.",
+    "sentence_frame": "An Australian animal that hops is a ___.",
+    "semantic": "An animal from Australia that carries its baby in a pouch."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f998",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f998.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-octopus",
+   "image_path": "images/octopus.svg",
+   "preferred_name": "octopus",
+   "accepted_alternatives": [],
+   "tier": 3,
+   "cues": {
+    "first_sound": "It starts with the sound “o…”",
+    "first_letter": "It starts with the letter O.",
+    "sentence_frame": "A sea animal with eight arms is an ___.",
+    "semantic": "A sea creature with eight arms."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f419",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f419.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-anchor",
+   "image_path": "images/anchor.svg",
+   "preferred_name": "anchor",
+   "accepted_alternatives": [],
+   "tier": 3,
+   "cues": {
+    "first_sound": "It starts with the sound “a…”",
+    "first_letter": "It starts with the letter A.",
+    "sentence_frame": "Sailors drop the ___ to stop the ship.",
+    "semantic": "A heavy metal object that keeps a ship in place."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "2693",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/2693.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-helicopter",
+   "image_path": "images/helicopter.svg",
+   "preferred_name": "helicopter",
+   "accepted_alternatives": [
+    "chopper"
+   ],
+   "tier": 3,
+   "cues": {
+    "first_sound": "It starts with the sound “h…”",
+    "first_letter": "It starts with the letter H.",
+    "sentence_frame": "It flies with spinning blades; it's a ___.",
+    "semantic": "An aircraft with a big spinning rotor on top."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f681",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f681.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-microscope",
+   "image_path": "images/microscope.svg",
+   "preferred_name": "microscope",
+   "accepted_alternatives": [],
+   "tier": 3,
+   "cues": {
+    "first_sound": "It starts with the sound “m…”",
+    "first_letter": "It starts with the letter M.",
+    "sentence_frame": "Scientists see tiny things with a ___.",
+    "semantic": "A lab instrument that makes tiny things look big."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f52c",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f52c.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-giraffe",
+   "image_path": "images/giraffe.svg",
+   "preferred_name": "giraffe",
+   "accepted_alternatives": [],
+   "tier": 3,
+   "cues": {
+    "first_sound": "It starts with the sound “j…”",
+    "first_letter": "It starts with the letter G.",
+    "sentence_frame": "The animal with the longest neck is a ___.",
+    "semantic": "A tall animal with a very long neck and spots."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f992",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f992.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-pretzel",
+   "image_path": "images/pretzel.svg",
+   "preferred_name": "pretzel",
+   "accepted_alternatives": [],
+   "tier": 3,
+   "cues": {
+    "first_sound": "It starts with the sound “pr…”",
+    "first_letter": "It starts with the letter P.",
+    "sentence_frame": "A twisted salty snack is a ___.",
+    "semantic": "A twisted baked snack, often salty."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f968",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f968.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  },
+  {
+   "exercise_id": "ex-cactus",
+   "image_path": "images/cactus.svg",
+   "preferred_name": "cactus",
+   "accepted_alternatives": [],
+   "tier": 3,
+   "cues": {
+    "first_sound": "It starts with the sound “k…”",
+    "first_letter": "It starts with the letter C.",
+    "sentence_frame": "A spiky desert plant is a ___.",
+    "semantic": "A spiky plant that grows in the desert."
+   },
+   "source": {
+    "name": "Twemoji 15.1.0",
+    "codepoint": "1f335",
+    "url": "https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f335.svg",
+    "license": "CC BY 4.0",
+    "attribution": "Copyright Twitter Inc. and other contributors"
+   }
+  }
+ ]
+}

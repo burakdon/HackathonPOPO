@@ -36,7 +36,8 @@ class ObservationBuilder:
             obs[base] = 1.0
             obs[base + 1 + TIERS.index(t.tier)] = 1.0
             obs[base + 1 + len(TIERS) + CUES.index(t.cue)] = 1.0
-            obs[base + 1 + len(TIERS) + len(CUES) + ERROR_TYPES.index(t.error_type)] = 1.0
+            if t.error_type in ERROR_TYPES:      # "unclassified": an error of unknown kind, no slot
+                obs[base + 1 + len(TIERS) + len(CUES) + ERROR_TYPES.index(t.error_type)] = 1.0
             obs[base + PER_TRIAL - 2] = min(t.response_time, self.rt_cap_s) / self.rt_cap_s
             obs[base + PER_TRIAL - 1] = float(t.probe)
         ctx = context(state, self.clinical.window, self.nominal_trials)

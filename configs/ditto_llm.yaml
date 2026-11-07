@@ -1,0 +1,39 @@
+# DITTO adaptation of a small language model to demonstrator A's decisions (training/ditto.py).
+# Base model, revision and prompt settings come from configs/practice.yaml so training and serving
+# can never disagree.
+practice_config: configs/practice.yaml
+demonstrations: data/demonstrations/demonstrator_a_v1.jsonl
+seed: 0
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.0          # 0 so log-probabilities are deterministic in the DPO loss (the reference disables dropout too)
+  target_modules: [q_proj, k_proj, v_proj, o_proj]
+
+# Stage 1: brief supervised adaptation on the training demonstrations (reference: SFT with an early
+# stop on the loss). Loss = mean token cross-entropy on the answer tokens only.
+sft:
+  max_steps: 30
+  batch_size: 4
+  learning_rate: 2.0e-4
+  stop_loss: 0.15       # stop once the mean loss of the last batch is below this
+
+# Stage 2: DITTO. Each round samples alternatives from the current policy, builds demonstration-
+# grounded comparisons (expert / replay / intermodel, as in the reference implementation), and runs
+# DPO against the fixed SFT adapter as the reference policy.
+ditto:
+  rounds: 3
+  samples_per_prompt: 6
+  temperature: 1.0
+  top_k: 50
+  steps_per_round: 15
+  batch_size: 4
+  learning_rate: 5.0e-5
+  beta: 0.1
+  # Mixture of comparison types per round, as fractions of n_prompts * rescale_batch pairs
+  # (reference defaults: 0.7 / 0.2 / 0.1, rescale 3).
+  frac_expert: 0.7
+  frac_replay: 0.2
+  frac_intermodel: 0.1
+  rescale_batch: 3
