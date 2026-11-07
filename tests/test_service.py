@@ -101,3 +101,18 @@ def test_full_session_replays_identically(overrides):
             actions.append((a["tier"], a["cue"]))
         return actions
     assert play() == play()
+
+
+@pytest.mark.parametrize("origin,allowed", [
+    ("http://localhost:5173", True),
+    ("http://192.168.1.23:5173", True),     # another laptop on the same Wi-Fi
+    ("http://10.0.0.7:5173", True),
+    ("http://172.20.4.1:5173", True),
+    ("http://evil.example.com", False),
+    ("http://192.168.1.23:8080", False),    # not the Vite dev port
+    ("http://172.32.0.1:5173", False),      # outside the 172.16/12 private block
+])
+def test_cors_preflight(client, origin, allowed):
+    r = client.options("/act", headers={"Origin": origin, "Access-Control-Request-Method": "POST",
+                                        "Access-Control-Request-Headers": "content-type"})
+    assert (r.headers.get("access-control-allow-origin") == origin) == allowed

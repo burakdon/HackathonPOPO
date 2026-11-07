@@ -65,6 +65,7 @@ class ServiceConfig(BaseModel):
     default_session_id: str = Field(min_length=1)
     overrides_path: str
     cors_origins: list[str] = Field(default_factory=list)
+    cors_origin_regex: str | None = None
 
 
 def resolve(path: str | Path) -> Path:

@@ -1,6 +1,6 @@
 """FastAPI agent service the frontend calls.
 
-Run:  uv run uvicorn service.app:app --port 8000
+Run:  uv run uvicorn service.app:app --host 0.0.0.0 --port 8000   (0.0.0.0: reachable from the LAN)
 
 One online-learning agent instance per session_id, held in memory. Each session's random seed
 is derived deterministically from (config seed, session_id), so replaying the same requests
@@ -67,6 +67,7 @@ def create_app(config_path: str | Path | None = None,
 
     app = FastAPI(title="Aphasia Trainer agent service", version="0.1.0")
     app.add_middleware(CORSMiddleware, allow_origins=cfg.cors_origins,
+                       allow_origin_regex=cfg.cors_origin_regex,
                        allow_methods=["*"], allow_headers=["*"])
     app.state.store = store
     app.state.clinical = clinical

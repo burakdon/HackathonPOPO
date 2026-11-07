@@ -13,3 +13,8 @@ overrides_path: runs/overrides.jsonl
 
 # Origins allowed to call the service from a browser (Vite dev server defaults).
 cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+# Also allow a Vite dev server (port 5173) on any private-network address, so another laptop on
+# the same Wi-Fi can call the service when it runs with --host 0.0.0.0. Set to null to disable.
+# Trade-off: convenient for the demo; tighten to explicit origins for anything beyond a LAN.
+cors_origin_regex: '^http://(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+):5173$'

@@ -27,9 +27,10 @@ simulated patients, and demonstrations from clinician overrides.
 
 ## Status
 
-Implemented and tested (33 tests, `uv run pytest`):
+Implemented and tested (40 tests, `uv run pytest`):
 - Agent service (FastAPI) implementing the agreed State/Action interface, with one online-learning
-  agent per session and clinician overrides logged for later training.
+  agent per session, clinician overrides logged for later training, and CORS for a frontend on the
+  local network.
 - Therapist agent: a Beta-Bernoulli Thompson-sampling bandit over the 15 (tier, cue) actions, with
   clinical constraints enforced as action masks.
 - End-to-end smoke test: a simple simulated patient plays a full session over HTTP.
@@ -47,9 +48,15 @@ In progress or planned:
 ```bash
 uv sync                                         # Python 3.11 env from uv.lock
 uv run pytest                                   # test suite
-uv run uvicorn service.app:app --port 8000      # agent service
+uv run uvicorn service.app:app --host 0.0.0.0 --port 8000   # agent service, reachable on the LAN
 uv run python -m scripts.service_smoke --url http://localhost:8000   # 40-trial session over HTTP
 ```
+
+**Frontend on another laptop:** run the service with `--host 0.0.0.0`, find this machine's LAN IP
+(`ipconfig getifaddr en0` on macOS) and call `http://<that-ip>:8000`. CORS allows the Vite dev server
+(port 5173) on localhost and on any private-network address (`cors_origins` / `cors_origin_regex` in
+[`configs/service.yaml`](configs/service.yaml)). The macOS firewall may ask to allow incoming
+connections for Python the first time.
 
 ## Repository layout
 
