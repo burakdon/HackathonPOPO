@@ -217,6 +217,53 @@ def plot_learning_peak_ablation(rows: list[dict], cfg: dict, out: Path) -> None:
     plt.close(fig)
 
 
+def plot_pitch(cfg: dict, csv_path: Path, out: Path) -> None:
+    """Slide figure: one cohort, a few policies, two panels (sessions abandoned; learning gain), large
+    fonts, mean with 95% CI and the value printed on each bar. Our agent in the accent colour,
+    baselines in neutral grey."""
+    pc = cfg["pitch"]
+    with open(csv_path) as f:
+        rows = {(r["cohort"], r["policy"], r["metric"]): r for r in csv.DictReader(f)}
+    keys = [p["key"] for p in pc["policies"]]
+    labels = [p["label"] for p in pc["policies"]]
+    colors = ["#b5b3ab"] * (len(keys) - 1) + [SERIES[0]]
+    panels = [("quit", "Sessions abandoned", 100.0, "%", "{:.0f}%"),
+              ("learning_gain", "Naming improvement per session", 100.0, "percentage points", "+{:.1f}")]
+    plt.rcParams.update({"font.size": 15})
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.6), facecolor=SURFACE)
+    for ax, (metric, title, sc, unit, fmt) in zip(axes, panels):
+        m = np.array([sc * float(rows[(pc["cohort"], k, metric)]["mean"]) for k in keys])
+        lo = np.array([sc * float(rows[(pc["cohort"], k, metric)]["ci_low"]) for k in keys])
+        hi = np.array([sc * float(rows[(pc["cohort"], k, metric)]["ci_high"]) for k in keys])
+        x = np.arange(len(keys))
+        ax.bar(x, m, width=0.62, color=colors, edgecolor=SURFACE, linewidth=2)
+        ax.errorbar(x, m, yerr=[m - lo, hi - m], fmt="none", ecolor=INK_2, elinewidth=1.4, capsize=5)
+        for xi, (v, h) in enumerate(zip(m, hi)):
+            ax.text(xi, h + 0.03 * max(hi), fmt.format(v), ha="center", va="bottom", fontsize=20, color=INK,
+                    fontweight="bold" if xi == len(keys) - 1 else "normal")
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels, fontsize=16, color=INK)
+        ax.set_ylim(0, max(hi) * 1.25)
+        ax.set_facecolor(SURFACE)
+        ax.set_title(title, loc="left", fontsize=19, color=INK, pad=12)
+        ax.set_ylabel(unit, fontsize=13, color=INK_2)
+        ax.tick_params(axis="y", colors=MUTED, labelsize=12)
+        ax.tick_params(axis="x", length=0)
+        ax.grid(True, axis="y", color=GRID, linewidth=0.8)
+        ax.set_axisbelow(True)
+        for side in ("top", "right", "left"):
+            ax.spines[side].set_visible(False)
+        ax.spines["bottom"].set_color(AXIS)
+    fig.suptitle("Severe aphasia (simulated patients)", x=0.01, ha="left", fontsize=22, color=INK)
+    fig.text(0.01, 0.01, f"{cfg['n_patients']} held-out simulated patients; mean with 95% CI. Naming improvement = increase "
+             "in the probability of naming a word without a hint, averaged over the word list. Simulation only, not a "
+             "clinical result.", fontsize=10.5, color=MUTED)
+    fig.tight_layout(rect=(0, 0.05, 1, 0.92))
+    fig.savefig(out, dpi=200, facecolor=SURFACE)
+    plt.close(fig)
+    plt.rcParams.update(plt.rcParamsDefault)
+
+
 VARIANT_LABELS = {"full": "proxy reward", "full_probe": "proxy + probe reward", "privileged": "privileged reward"}
 
 

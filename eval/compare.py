@@ -12,6 +12,7 @@ Outputs (results/):
   comparison.md            readable tables
   comparison.png           bars with CIs: true control error, learning gain, probe lift, quit rate
   rolling_accuracy.png     rolling accuracy vs trial, the 75-90% band shaded
+  pitch_severe.png         simplified slide figure (severe cohort, three policies, two metrics)
 """
 from __future__ import annotations
 
@@ -208,9 +209,11 @@ def main() -> None:
     t0 = time.time()
     ev = evaluate(cfg)
     summarise(cfg, ev, out)
-    from eval.plots import plot_comparison_bars, plot_rolling_accuracy
+    from eval.plots import plot_comparison_bars, plot_pitch, plot_rolling_accuracy
     plot_comparison_bars(cfg, out / "comparison.csv", out / "comparison.png")
     plot_rolling_accuracy(cfg, ev, out / "rolling_accuracy.png")
+    if "pitch" in cfg:
+        plot_pitch(cfg, out / "comparison.csv", out / "pitch_severe.png")
     print(f"done in {time.time() - t0:.0f}s -> {out}/comparison.csv, comparison.md, paired_differences.csv, "
           f"comparison.png, rolling_accuracy.png")
 
