@@ -60,3 +60,13 @@ def test_ablation_variants_switch_terms(clinical, variant, active):
     ep = r.episode(trace, start_tier=1)
     for term in ("band", "climb", "frustration", "cue_waste"):
         assert (ep[term] != 0.0) == (term in active), (variant, term, ep)
+
+
+def test_probe_bonus_only_for_correct_probes_in_probe_variant(clinical):
+    with_probe = ProxyReward(load_reward(variant="full_probe"), clinical)
+    without = ProxyReward(load_reward(variant="full"), clinical)
+    probe_ok = {"outcome": True, "tier": 2, "cue": "none", "probe": True}
+    probe_fail = {"outcome": False, "tier": 2, "cue": "none", "probe": True}
+    assert with_probe.step([tr(True), probe_ok])["probe"] == 1.0
+    assert with_probe.step([tr(True), probe_fail])["probe"] == 0.0
+    assert without.step([tr(True), probe_ok])["probe"] == 0.0

@@ -32,6 +32,7 @@ def session_metrics(result: SessionResult, clinical: ClinicalConfig) -> dict[str
         frustration += int(streak == 3)   # each run of >= 3 failures counts once
     tiers = np.array([t["tier"] for t in trace])
     correct_cue_strength = [clinical.cue_strength[t["cue"]] for t in trace if t["outcome"]]
+    probes = [t for t in trace if t.get("probe")]
     return {
         "time_in_band": float(np.mean((roll >= lo) & (roll <= hi))) if len(roll) else 0.0,
         "accuracy": float(np.mean(outcomes)),
@@ -45,12 +46,21 @@ def session_metrics(result: SessionResult, clinical: ClinicalConfig) -> dict[str
         "control_error": float(np.mean([abs(t["p_true"] - clinical.target) for t in trace])),
         "n_trials": float(len(trace)),
         "quit": float(result.quit),
+        # Objective: later naming without hints. Unassisted recall on review probes (observable);
+        # mean true p on probes (sim-only); probe lift = improvement of the probed items' uncued
+        # recall since session start (sim-only; not inflated by practising only easy items).
+        # NaN if no probe happened.
+        "probe_recall": float(np.mean([t["outcome"] for t in probes])) if probes else float("nan"),
+        "probe_p": float(np.mean([t["p_true"] for t in probes])) if probes else float("nan"),
+        "probe_lift": float(np.mean([t["probe_lift"] for t in probes])) if probes else float("nan"),
+        "n_probes": float(len(probes)),
     }
 
 
 def mean_ci(values: list[float] | np.ndarray, z: float = 1.96) -> tuple[float, float]:
-    """Mean and normal-approximation 95% CI half-width. (Bootstrap CIs come with eval/compare.py.)"""
+    """Mean and normal-approximation 95% CI half-width over non-NaN values."""
     v = np.asarray(values, dtype=float)
+    v = v[~np.isnan(v)]
     if len(v) < 2:
         return float(v.mean()), float("nan")
     return float(v.mean()), float(z * v.std(ddof=1) / np.sqrt(len(v)))

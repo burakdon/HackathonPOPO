@@ -36,10 +36,15 @@ def evaluate_policy_on(model: MaskablePPO, env: AphasiaEnv, n_patients: int) -> 
             obs, r, done, _, info = env.step(int(a))
             ret += r
         trace = info["result"].trace
+        agent = [t for t in trace if not t.get("probe")]
+        probes = [t for t in trace if t.get("probe")]
         rows.append({"return": ret, "time_in_band": info["time_in_band"], "learning_gain": info["learning_gain"],
-                     "control_error": float(np.mean([abs(t["p_true"] - env.clinical.target) for t in trace])),
-                     "mean_tier": float(np.mean([t["tier"] for t in trace]))})
-    return {k: float(np.mean([r[k] for r in rows])) for k in rows[0]}
+                     "control_error": float(np.mean([abs(t["p_true"] - env.clinical.target) for t in agent])),
+                     "mean_tier": float(np.mean([t["tier"] for t in agent])),
+                     "probe_recall": float(np.mean([t["outcome"] for t in probes])) if probes else np.nan,
+                     "probe_p": float(np.mean([t["p_true"] for t in probes])) if probes else np.nan,
+                     "probe_lift": float(np.mean([t["probe_lift"] for t in probes])) if probes else np.nan})
+    return {k: float(np.nanmean([r[k] for r in rows])) for k in rows[0]}
 
 
 class ValidationCurve(BaseCallback):
@@ -57,7 +62,8 @@ class ValidationCurve(BaseCallback):
             if k != "timesteps":
                 self.logger.record(f"val/{k}", v)
         print(f"  [{self.num_timesteps:>8}] val return {m['return']:6.2f}  in band {m['time_in_band']:.2f}  "
-              f"|p-.85| {m['control_error']:.3f}  gain {100 * m['learning_gain']:.2f}  mean tier {m['mean_tier']:.2f}",
+              f"|p-.85| {m['control_error']:.3f}  gain {100 * m['learning_gain']:.2f}  mean tier {m['mean_tier']:.2f}  "
+              f"probe p {m['probe_p']:.3f}  lift {100 * m['probe_lift']:.2f}",
               flush=True)
 
     def _on_step(self) -> bool:

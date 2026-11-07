@@ -78,6 +78,16 @@ dropout:
   base: 0.0
   streak_gain: 0.05
 
+# Review probes (objective: better later naming WITHOUT hints). Every `every`-th trial, if an
+# eligible item exists, the session revisits a previously practised item with no cue; the agent does
+# not choose it. Eligible: practised earlier in this session (not as a probe) and not shown in the
+# last `min_gap` trials. Choice: fewest probes so far this session, then the item first practised
+# earliest. Probe trials count toward n_trials and are scored like any other trial.
+review_probes:
+  enabled: true
+  every: 5
+  min_gap: 3
+
 session:
   n_trials: 40
   # ASSUMPTION: sessions start on the easiest tier (low-error start), so adaptive agents must earn

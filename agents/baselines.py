@@ -30,12 +30,12 @@ class FixedPolicy:
 
 class StaircasePolicy:
     """Up one tier after 2 consecutive correct answers at the current tier, down one after an error.
-    Never cues. Converges to ~70.7% correct for a fixed difficulty-accuracy curve (Levitt 1971)."""
+    Review probes (not chosen by the policy) are ignored. Never cues. Converges to ~70.7% correct for a fixed difficulty-accuracy curve (Levitt 1971)."""
 
     name = "staircase"
 
     def act(self, state: State, mask: np.ndarray) -> Action:
-        last = state.last_trials
+        last = [t for t in state.last_trials if not t.probe]   # react only to its own trials
         tier = state.current_tier
         if last and not last[-1].outcome:
             tier, why = max(1, tier - 1), "error on the last trial: step down"

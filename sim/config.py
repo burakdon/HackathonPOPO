@@ -72,6 +72,13 @@ class DropoutConfig(BaseModel):
     streak_gain: float = Field(ge=0.0)
 
 
+class ProbeConfig(BaseModel):
+    model_config = _STRICT
+    enabled: bool
+    every: int = Field(ge=2)
+    min_gap: int = Field(ge=1)
+
+
 class SessionConfig(BaseModel):
     model_config = _STRICT
     n_trials: int = Field(ge=1)
@@ -103,6 +110,7 @@ class SimConfig(BaseModel):
     errors: dict = Field(default_factory=dict)
     response_time: ResponseTimeConfig
     dropout: DropoutConfig
+    review_probes: ProbeConfig
     session: SessionConfig
     parameters: list[str]
     population: dict[str, ParamDist]

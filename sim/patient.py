@@ -70,6 +70,7 @@ class SimPatient:
         err = np.array([params.phon_impair, params.sem_impair, params.omission_bias])
         self._error_cdf = np.cumsum(err / err.sum())
         self._learn_norm = self._expected_gain_max()
+        self.initial_retrieval = self.retrieval_probabilities().copy()   # per item, at session start
 
     # ---- hidden-state queries (oracle and metrics only) ----
     def logit(self, item: int, cue: str) -> float:

@@ -29,9 +29,12 @@ from sim.population import make_patients
 from sim.session import run_session
 
 COLUMNS = [("time_in_band", "in band", 2), ("accuracy", "acc", 2), ("mean_tier", "mean tier", 2),
-           ("frac_tier1", "% tier1", 2), ("learning_gain", "gain x100", 2), ("learn_eff", "learn eff.", 2),
-           ("control_error", "|p-.85|", 3), ("frustration_events", "frustr.", 2), ("quit", "quit", 2),
-           ("n_trials", "trials", 1)]
+           ("learning_gain", "gain x100", 2), ("learn_eff", "learn eff.", 2), ("control_error", "\\|p-0.85\\|", 3),
+           ("probe_recall", "probe recall", 2), ("probe_lift", "probe lift x100", 2),
+           ("frustration_events", "frustr.", 2), ("quit", "quit", 2), ("n_trials", "trials", 1)]
+SCALE_100 = {"learning_gain", "probe_lift"}
+PPO_VARIANTS = {"full": "PPO (proxy reward)", "full_probe": "PPO (proxy + probe reward)",
+                "privileged": "PPO (privileged reward)"}
 
 
 def learning_efficiency(trace: list[dict], cfg, clinical) -> float:
@@ -49,8 +52,8 @@ def main() -> None:
     ap.add_argument("--sessions", type=int, default=50)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--dropout", choices=["on", "off"], default="on")
-    ap.add_argument("--ppo-models", nargs="*", default=["models/ppo_seed0.zip", "models/ppo_seed1.zip",
-                                                          "models/ppo_seed2.zip"])
+    ap.add_argument("--ppo-variants", nargs="*", default=list(PPO_VARIANTS))
+    ap.add_argument("--ppo-seeds", nargs="*", type=int, default=[0, 1, 2])
     ap.add_argument("--out", default=None, help="also write the table to this markdown file")
     args = ap.parse_args()
 
@@ -64,13 +67,16 @@ def main() -> None:
         "Beta bandit": [lambda k: BetaThompsonBandit(beta_cfg, clinical, seed=args.seed * 100_000 + k)],
         "contextual bandit": [lambda k: LogisticThompsonBandit(logit_cfg, clinical, seed=args.seed * 100_000 + k)],
     }
-    ppo_paths = [p for p in args.ppo_models if resolve(p).exists()]
-    if ppo_paths:
-        from agents.ppo import PPOPolicy
-        from envs.aphasia_env import load_env_config
-        env_cfg = load_env_config()
-        ppo_policies = [PPOPolicy(p, clinical, env_cfg) for p in ppo_paths]
-        makers[f"PPO ({len(ppo_paths)} seeds)"] = [lambda k, pol=pol: pol for pol in ppo_policies]
+    for variant in args.ppo_variants:
+        tag = "" if variant == "full" else f"{variant}_"
+        paths = [f"models/ppo_{tag}seed{s}.zip" for s in args.ppo_seeds]
+        paths = [p for p in paths if resolve(p).exists()]
+        if paths:
+            from agents.ppo import PPOPolicy
+            from envs.aphasia_env import load_env_config
+            env_cfg = load_env_config()
+            pols = [PPOPolicy(p, clinical, env_cfg) for p in paths]
+            makers[f"{PPO_VARIANTS[variant]}, {len(paths)} seeds"] = [lambda k, pol=pol: pol for pol in pols]
 
     lines = [f"PRELIMINARY: {args.sessions} held-out patients per cohort, {cfg.session.n_trials} trials, start tier "
              f"{cfg.session.start_tier}, dropout {args.dropout}; mean ± 95% CI over patients (normal approx.)", "",
@@ -89,10 +95,10 @@ def main() -> None:
                     m = session_metrics(res, clinical)
                     m["learn_eff"] = learning_efficiency(res.trace, cfg, clinical)
                     runs.append(m)
-                per_patient.append({k: float(np.mean([r[k] for r in runs])) for k in runs[0]})
+                per_patient.append({k: float(np.nanmean([r[k] for r in runs])) for k in runs[0]})
             cells = []
             for key, _, nd in COLUMNS:
-                vals = np.array([r[key] for r in per_patient]) * (100 if key == "learning_gain" else 1)
+                vals = np.array([r[key] for r in per_patient]) * (100 if key in SCALE_100 else 1)
                 m, h = mean_ci(vals)
                 cells.append(f"{m:.{nd}f} ± {h:.{nd}f}")
             line = f"| {cohort} | {name} | " + " | ".join(cells) + " |"

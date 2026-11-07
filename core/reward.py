@@ -17,7 +17,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from core.config import ClinicalConfig, load_yaml
 
 _STRICT = ConfigDict(extra="forbid")
-TERMS = ("band", "climb", "frustration", "cue_waste")
+OBSERVABLE_TERMS = ("band", "climb", "frustration", "cue_waste", "probe")
+PRIVILEGED_TERMS = ("control", "learning", "probe_p")     # computed by the environment (sim-only)
+TERMS = OBSERVABLE_TERMS + PRIVILEGED_TERMS
 
 
 class RewardTerms(BaseModel):
@@ -26,6 +28,15 @@ class RewardTerms(BaseModel):
     climb: bool
     frustration: bool
     cue_waste: bool
+    probe: bool = False
+    privileged: bool = False
+
+
+class PrivilegedWeights(BaseModel):
+    model_config = _STRICT
+    control_weight: float = Field(ge=0.0)
+    learning_weight: float = Field(ge=0.0)
+    probe_weight: float = Field(ge=0.0)
 
 
 class RewardConfig(BaseModel):
@@ -38,6 +49,8 @@ class RewardConfig(BaseModel):
     frustration_penalty: float = Field(ge=0.0)
     cue_waste_penalty: float = Field(ge=0.0)
     heavy_cue_strength: int = Field(ge=1)
+    probe_bonus: float = Field(ge=0.0)
+    privileged: PrivilegedWeights
 
     @property
     def terms(self) -> RewardTerms:
@@ -80,6 +93,8 @@ class ProxyReward:
                 streak += 1
             if streak >= 3:
                 out["frustration"] = -cfg.frustration_penalty
+        if terms.probe and trace[t].get("probe") and trace[t]["outcome"]:
+            out["probe"] = cfg.probe_bonus
         if terms.cue_waste and t >= 1:
             prev, cur = trace[t - 1], trace[t]
             if (cur["outcome"] and cur["cue"] == "none" and prev["outcome"]

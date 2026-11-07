@@ -88,3 +88,24 @@ def test_tier_oscillation_does_not_beat_holding_a_tier():
     r_hold, r_osc = _mean_return(hold), _mean_return(oscillate)
     print(f"mean return: hold tier 2 = {r_hold:.2f}, oscillate 1<->2 = {r_osc:.2f}")
     assert r_osc <= r_hold
+
+
+def _episode_terms(variant, n=5):
+    from core.reward import TERMS, load_reward
+    env = AphasiaEnv(cohort="mild_anomic", split="val", reward_cfg=load_reward(variant=variant))
+    totals = dict.fromkeys(TERMS, 0.0)
+    for k in range(n):
+        env.reset(options={"patient_index": k})
+        done = False
+        while not done:
+            a = int(np.flatnonzero(env.action_masks())[0])
+            _, _, done, _, info = env.step(a)
+            for key, v in info["reward_terms"].items():
+                totals[key] += v
+    return totals
+
+
+def test_privileged_terms_only_in_privileged_variant():
+    priv, proxy = _episode_terms("privileged"), _episode_terms("full")
+    assert priv["control"] < 0 and priv["learning"] > 0 and priv["probe_p"] > 0 and priv["band"] == 0
+    assert proxy["control"] == proxy["learning"] == proxy["probe_p"] == 0 and proxy["band"] > 0

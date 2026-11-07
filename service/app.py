@@ -25,7 +25,9 @@ from agents.beta_bandit import BetaThompsonBandit
 from agents.logistic_bandit import LogisticThompsonBandit
 from core.config import load_beta_bandit, load_clinical, load_logistic_bandit, load_service, resolve
 from core.masks import action_mask
-from core.schema import Action, OverrideRequest, State, UpdateRequest
+from core.schema import Action, NextTrial, OverrideRequest, State, UpdateRequest
+from sim.config import load_sim
+from sim.items import ItemSelector, load_items
 
 
 def session_seed(base_seed: int, session_id: str) -> int:
@@ -73,6 +75,10 @@ def create_app(config_path: str | Path | None = None,
     overrides_file = resolve(overrides_path or cfg.overrides_path)
 
     store = SessionStore(agent_factory(cfg.agent, cfg, clinical))
+    # Item bank and review-probe rule shared with the simulator, for POST /next_trial.
+    sim_cfg = load_sim()
+    bank = load_items(sim_cfg.items)
+    selectors: dict[str, ItemSelector] = {}
     write_lock = threading.Lock()
 
     app = FastAPI(title="Aphasia Trainer agent service", version="0.1.0")
@@ -97,13 +103,38 @@ def create_app(config_path: str | Path | None = None,
         with store.lock():
             return agent.act(state, mask)
 
+    @app.post("/next_trial", response_model=NextTrial)
+    def next_trial(state: State) -> NextTrial:
+        """The whole next trial in one call: a review probe if one is due (chosen by the shared rule,
+        no cue), otherwise the agent's tier and cue plus the item chosen within that tier. Call it
+        once per trial, then POST /update with `probe` set as returned."""
+        session = sid(state)
+        with store.lock():
+            if session not in selectors:
+                selectors[session] = ItemSelector(bank, np.random.default_rng(session_seed(0, session)),
+                                                  sim_cfg.review_probes)
+            sel = selectors[session]
+            sel.t = state.trial_count          # keep the selector's clock in step with the app
+            if sel.probe_due():
+                i = sel.next_probe()
+                return NextTrial(word=bank.words[i], image_file=bank.image_files[i], tier=int(bank.tier[i]),
+                                 cue="none", probe=True,
+                                 rationale=f"Review probe: unassisted recall of a word practised earlier.")
+        action = act(state)
+        with store.lock():
+            i = sel.next(action.tier)
+        return NextTrial(word=bank.words[i], image_file=bank.image_files[i], tier=action.tier, cue=action.cue,
+                         probe=False, rationale=action.rationale)
+
     @app.post("/update")
     def update(req: UpdateRequest) -> dict:
         session = sid(req.state)
+        if req.probe:      # review probes are not the agent's choice: nothing to learn from
+            return {"status": "ok", "session_id": session, "agent_updated": False}
         agent = store.get(session)
         with store.lock():
             agent.update(req.state, req.action, req.outcome)
-        return {"status": "ok", "session_id": session}
+        return {"status": "ok", "session_id": session, "agent_updated": True}
 
     @app.post("/override")
     def override(req: OverrideRequest) -> dict:
