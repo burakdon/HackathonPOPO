@@ -45,6 +45,7 @@ class BetaBanditConfig(BaseModel):
     prior: dict[int, tuple[float, float]]
     tier_bonus: float = Field(ge=0.0)
     cue_cost: float = Field(ge=0.0)
+    tolerance: float = Field(ge=0.0, le=0.5)
     discount: float = Field(gt=0.0, le=1.0)
     cue_only_after_error: bool
 
@@ -57,11 +58,40 @@ class BetaBanditConfig(BaseModel):
         return self
 
 
+class LogisticBanditConfig(BaseModel):
+    model_config = _STRICT
+    seed: int
+    # If set, the prior (mean vector + full covariance) is loaded from this generated file
+    # (train/fit_bandit_prior.py) and prior_mean / prior_var are only the fallback.
+    prior_file: str | None = None
+    prior_mean: dict[str, float]
+    prior_var: dict[Literal["action", "context", "interaction"], float]
+    process_noise: float = Field(ge=0.0)
+    tolerance: float = Field(ge=0.0, le=0.5)
+    cue_cost: float = Field(ge=0.0)
+    tier_bonus: float = Field(ge=0.0)
+    cue_only_after_error: bool
+    nominal_trials: int = Field(ge=1)
+    rt_center_s: float
+    rt_scale_s: float = Field(gt=0.0)
+
+    @model_validator(mode="after")
+    def _check(self) -> "LogisticBanditConfig":
+        if set(self.prior_var) != {"action", "context", "interaction"} or min(self.prior_var.values()) <= 0:
+            raise ValueError("prior_var needs positive action, context and interaction entries")
+        from agents.logistic_bandit import FEATURES  # local import: avoids a core -> agents cycle at import time
+        unknown = set(self.prior_mean) - set(FEATURES)
+        if unknown:
+            raise ValueError(f"prior_mean has unknown features {sorted(unknown)}")
+        return self
+
+
 class ServiceConfig(BaseModel):
     model_config = _STRICT
-    agent: Literal["beta_bandit"]
+    agent: Literal["logistic_bandit", "beta_bandit"]
     clinical_config: str
     bandit_config: str
+    logistic_bandit_config: str
     default_session_id: str = Field(min_length=1)
     overrides_path: str
     cors_origins: list[str] = Field(default_factory=list)
@@ -85,6 +115,10 @@ def load_clinical(path: str | Path = "configs/clinical.yaml") -> ClinicalConfig:
 
 def load_beta_bandit(path: str | Path = "configs/bandit.yaml") -> BetaBanditConfig:
     return BetaBanditConfig(**load_yaml(path))
+
+
+def load_logistic_bandit(path: str | Path = "configs/logistic_bandit.yaml") -> LogisticBanditConfig:
+    return LogisticBanditConfig(**load_yaml(path))
 
 
 def load_service(path: str | Path = "configs/service.yaml") -> ServiceConfig:

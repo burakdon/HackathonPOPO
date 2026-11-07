@@ -11,9 +11,11 @@ prior:
   2: [2.0, 2.0]
   3: [1.0, 3.0]
 
-# Score = -|sampled p - target| + tier_bonus * tier - cue_cost * cue_strength.
-# ASSUMPTION: small tie-breakers so that, among arms equally close to target, the agent prefers
-# harder items and weaker cues. Values from the scaffold.
+# Selection rule (agents/selection.py): among arms whose sampled p is within `tolerance` of the
+# target, take the highest tier, then the weakest cue (fixes the tier-1 coasting seen in 1a).
+# Otherwise the arm closest to target, with small tie-breaks for harder tiers and weaker cues.
+# ASSUMPTION: tie-break values from the scaffold; tolerance tuned by hand.
+tolerance: 0.06
 tier_bonus: 0.01
 cue_cost: 0.03
 

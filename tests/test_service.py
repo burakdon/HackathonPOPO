@@ -14,15 +14,21 @@ def overrides(tmp_path):
     return tmp_path / "overrides.jsonl"
 
 
-@pytest.fixture
-def client(overrides):
-    return TestClient(create_app(overrides_path=overrides))
+@pytest.fixture(params=["logistic_bandit", "beta_bandit"])
+def client(overrides, request):
+    """Every service test runs against both live agents."""
+    return TestClient(create_app(overrides_path=overrides, agent=request.param))
+
+
+def posterior(agent) -> np.ndarray:
+    """Agent-agnostic snapshot of the learned state, for isolation checks."""
+    return agent.mu.copy() if hasattr(agent, "mu") else agent.posterior_mean().copy()
 
 
 def test_health(client):
     r = client.get("/health")
     assert r.status_code == 200
-    assert r.json() == {"status": "ok", "agent": "beta_bandit", "active_sessions": 0}
+    assert r.json() == {"status": "ok", "agent": client.app.state.agent, "active_sessions": 0}
 
 
 def test_act_returns_valid_action_for_contract_example(client):
@@ -54,14 +60,14 @@ def test_update_changes_only_its_own_session(client):
     b_state = {**EXAMPLE_STATE, "session_id": "B"}
     client.post("/act", json=a_state)
     client.post("/act", json=b_state)
-    b_before = store.get("B").posterior_mean().copy()
+    b_before = posterior(store.get("B"))
     for _ in range(10):
         r = client.post("/update", json={
             "state": a_state, "action": {"tier": 2, "cue": "none"},
             "outcome": {"correct": True, "error_type": "correct", "response_time": 1.2}})
         assert r.status_code == 200 and r.json()["session_id"] == "A"
-    assert not np.allclose(store.get("A").posterior_mean(), b_before)
-    assert np.allclose(store.get("B").posterior_mean(), b_before)
+    assert not np.allclose(posterior(store.get("A")), b_before)
+    assert np.allclose(posterior(store.get("B")), b_before)
     assert client.get("/health").json()["active_sessions"] == 2
 
 
@@ -83,10 +89,11 @@ def test_override_appends_jsonl(client, overrides):
     assert rows[1]["state"]["last_trials"][0]["word"] == "cat"
 
 
-def test_full_session_replays_identically(overrides):
+@pytest.mark.parametrize("agent", ["logistic_bandit", "beta_bandit"])
+def test_full_session_replays_identically(overrides, agent):
     """Same session_id + same requests -> same actions, across two independent app instances."""
     def play():
-        c = TestClient(create_app(overrides_path=overrides))
+        c = TestClient(create_app(overrides_path=overrides, agent=agent))
         tier, hist, actions = 2, [], []
         for k in range(40):
             st = {"session_id": "replay", "last_trials": hist[-10:], "current_tier": tier,

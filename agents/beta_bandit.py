@@ -17,13 +17,16 @@ Changes from the scaffold, and why:
    sampling) instead of only the arm just pulled, so stale estimates fade uniformly.
 4. Samples are drawn for all 15 arms every call, so the random stream consumed per call does not
    depend on the mask; same seed + same inputs gives the same actions.
+5. Selection uses the shared progression rule (agents/selection.py): among arms within tolerance of
+   target, the highest tier and weakest cue win, so the bandit no longer coasts on an easy tier.
 """
 from __future__ import annotations
 
 import numpy as np
 
+from agents.selection import clinical_gate, describe, select_action
 from core.config import BetaBanditConfig, ClinicalConfig
-from core.masks import ACTION_CUES, ACTION_TIERS, action_index, no_cue_mask
+from core.masks import ACTION_CUES, ACTION_TIERS, action_index
 from core.schema import Action, Outcome, State
 
 
@@ -38,30 +41,17 @@ class BetaThompsonBandit:
         self.alpha = self.prior_alpha.copy()
         self.beta = self.prior_beta.copy()
         self._strength = np.array([clinical.cue_strength[c] for c in ACTION_CUES], dtype=float)
-        self._no_cue = no_cue_mask()
 
     def posterior_mean(self) -> np.ndarray:
         return self.alpha / (self.alpha + self.beta)
 
     def act(self, state: State, mask: np.ndarray) -> Action:
-        allowed = mask.copy()
-        last_correct = not state.last_trials or state.last_trials[-1].outcome
-        if self.cfg.cue_only_after_error and last_correct:
-            allowed &= self._no_cue
-        if not allowed.any():
-            raise ValueError("action mask leaves no allowed action")
-
+        allowed = clinical_gate(state, mask, self.cfg.cue_only_after_error)
         samples = self.rng.beta(self.alpha, self.beta)
-        score = (-np.abs(samples - self.clinical.target)
-                 + self.cfg.tier_bonus * ACTION_TIERS
-                 - self.cfg.cue_cost * self._strength)
-        score[~allowed] = -np.inf
-        i = int(np.argmax(score))
-        tier, cue = int(ACTION_TIERS[i]), ACTION_CUES[i]
-        rationale = (f"Sampled p(correct)={samples[i]:.2f} for tier {tier} with cue '{cue}', "
-                     f"closest allowed arm to the {self.clinical.target:.0%} target "
-                     f"(posterior mean {self.posterior_mean()[i]:.2f}).")
-        return Action(tier=tier, cue=cue, rationale=rationale)
+        i, progressive = select_action(samples, allowed, self._strength, self.clinical.target,
+                                       self.cfg.tolerance, self.cfg.cue_cost, self.cfg.tier_bonus)
+        return Action(tier=int(ACTION_TIERS[i]), cue=ACTION_CUES[i],
+                      rationale=describe(i, samples[i], self.clinical.target, progressive, "sampled"))
 
     def update(self, state: State, action: Action, outcome: Outcome) -> None:
         d = self.cfg.discount

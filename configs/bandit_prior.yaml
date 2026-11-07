@@ -1,0 +1,15 @@
+# Empirical-Bayes prior for the contextual logistic bandit (train/fit_bandit_prior.py).
+# Fitted ONLY on the training split of the broad population; evaluation cohorts are never used.
+seed: 1234
+n_patients: 300
+sessions_per_patient: 6
+trials_per_session: 40
+# Per-patient MAP fits are regularised toward the hand-set prior in configs/logistic_bandit.yaml.
+newton_iterations: 30
+# Prior covariance = inflation * ((1 - shrinkage) * sample_cov + shrinkage * diag(sample_cov)).
+# Shrinkage toward the diagonal stabilises a 17x17 covariance estimated from 300 patients;
+# inflation > 1 keeps the prior humble so a live person's data dominates quickly. ASSUMPTION: values.
+shrinkage: 0.5
+inflation: 1.5
+min_variance: 0.01
+output: configs/logistic_bandit_prior.yaml
