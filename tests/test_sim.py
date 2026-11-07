@@ -56,15 +56,15 @@ def test_fatigue_lowers_p_correct_over_a_session(env):
 
 
 def test_same_seed_gives_identical_results(env):
-    from agents.beta_bandit import BetaThompsonBandit
-    from core.config import load_beta_bandit
+    from agents.logistic_bandit import LogisticThompsonBandit
+    from core.config import load_logistic_bandit
     from sim.session import run_session
     cfg, clinical, bank = env
 
     def play(seed):
         spec = make_patients(cfg, "population", "train", 1, seed)[0]
         patient, selector = spec.build(bank, cfg, clinical)
-        r = run_session(BetaThompsonBandit(load_beta_bandit(), clinical, seed), patient, selector, cfg, clinical)
+        r = run_session(LogisticThompsonBandit(load_logistic_bandit(), clinical, seed), patient, selector, cfg, clinical)
         return [(t["word"], t["tier"], t["cue"], t["outcome"], t["error_type"], t["response_time"]) for t in r.trace]
 
     assert play(3) == play(3)

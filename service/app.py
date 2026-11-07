@@ -22,7 +22,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from agents.base import Policy
 from agents.beta_bandit import BetaThompsonBandit
-from core.config import load_beta_bandit, load_clinical, load_service, resolve
+from agents.logistic_bandit import LogisticThompsonBandit
+from core.config import load_beta_bandit, load_clinical, load_logistic_bandit, load_service, resolve
 from core.masks import action_mask
 from core.schema import Action, OverrideRequest, State, UpdateRequest
 
@@ -53,16 +54,25 @@ class SessionStore:
         return self._lock
 
 
+def agent_factory(agent: str, cfg, clinical):
+    """session_id -> fresh agent for that session, seeded deterministically from the session id."""
+    if agent == "logistic_bandit":
+        lcfg = load_logistic_bandit(cfg.logistic_bandit_config)
+        return lambda sid: LogisticThompsonBandit(lcfg, clinical, seed=session_seed(lcfg.seed, sid))
+    bcfg = load_beta_bandit(cfg.bandit_config)
+    return lambda sid: BetaThompsonBandit(bcfg, clinical, seed=session_seed(bcfg.seed, sid))
+
+
 def create_app(config_path: str | Path | None = None,
-               overrides_path: str | Path | None = None) -> FastAPI:
+               overrides_path: str | Path | None = None,
+               agent: str | None = None) -> FastAPI:
     cfg = load_service(config_path or os.environ.get("AGENT_SERVICE_CONFIG", "configs/service.yaml"))
+    if agent:
+        cfg = cfg.model_copy(update={"agent": agent})
     clinical = load_clinical(cfg.clinical_config)
-    bandit_cfg = load_beta_bandit(cfg.bandit_config)
     overrides_file = resolve(overrides_path or cfg.overrides_path)
 
-    store = SessionStore(
-        lambda sid: BetaThompsonBandit(bandit_cfg, clinical, seed=session_seed(bandit_cfg.seed, sid))
-    )
+    store = SessionStore(agent_factory(cfg.agent, cfg, clinical))
     write_lock = threading.Lock()
 
     app = FastAPI(title="Aphasia Trainer agent service", version="0.1.0")
@@ -70,6 +80,7 @@ def create_app(config_path: str | Path | None = None,
                        allow_origin_regex=cfg.cors_origin_regex,
                        allow_methods=["*"], allow_headers=["*"])
     app.state.store = store
+    app.state.agent = cfg.agent
     app.state.clinical = clinical
 
     def sid(state: State) -> str:

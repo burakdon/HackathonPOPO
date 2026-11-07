@@ -1,7 +1,10 @@
 # FastAPI agent service. Paths are relative to the repo root.
-agent: beta_bandit
+# Live agent: logistic_bandit (contextual Bayesian logistic Thompson sampling, fitted prior) or
+# beta_bandit (non-contextual fallback). Both learn online per session.
+agent: logistic_bandit
 clinical_config: configs/clinical.yaml
 bandit_config: configs/bandit.yaml
+logistic_bandit_config: configs/logistic_bandit.yaml
 
 # Requests without a session_id share this session (backward compatibility with the original
 # State JSON). The frontend should always send a session_id.

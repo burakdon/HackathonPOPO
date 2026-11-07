@@ -1,0 +1,46 @@
+# Contextual Bayesian logistic Thompson bandit (agents/logistic_bandit.py).
+
+seed: 0
+
+# Empirical-Bayes prior fitted on simulated TRAINING patients (train/fit_bandit_prior.py,
+# configs/bandit_prior.yaml). In the preliminary sanity table it lowered true control error on all
+# three cohorts vs the hand-set prior. Set to null to use the hand-set prior below instead.
+prior_file: configs/logistic_bandit_prior.yaml
+
+# HAND-SET WEAK PRIOR (fallback, and the regulariser for the per-patient fits): encodes only
+# "harder tiers are harder, cues help a bit". bias = logit(0.85) at tier 1 without a cue.
+# Prior mean of the weights (log-odds scale); unlisted features default to 0.
+prior_mean:
+  bias: 1.7
+  tier2: -1.0
+  tier3: -2.5
+  cue_first_sound: 0.6
+  cue_first_letter: 0.3
+  cue_sentence_frame: 0.3
+  cue_semantic: 0.3
+
+# Prior variance per feature block. Wide on action effects so a person's own data dominates within
+# a few dozen trials; narrower on context and interaction terms, which are second-order.
+prior_var:
+  action: 1.0
+  context: 0.5
+  interaction: 0.25
+
+# Random-walk process noise added to the covariance diagonal before each update. Lets the
+# posterior track fatigue and within-session learning. ASSUMPTION: tuned by hand.
+process_noise: 0.002
+
+# Selection rule (agents/selection.py): among actions with sampled p within `tolerance` of the
+# target, take the highest tier, then the weakest cue. Otherwise closest to target, with these
+# small tie-breaks.
+tolerance: 0.06
+cue_cost: 0.03
+tier_bonus: 0.01
+
+# Same clinical rule as the scaffold: offer a cue only right after an error.
+cue_only_after_error: true
+
+# Feature scaling. nominal_trials normalises session progress; RT is centred and scaled.
+nominal_trials: 40
+rt_center_s: 3.0
+rt_scale_s: 2.0
