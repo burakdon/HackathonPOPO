@@ -14,7 +14,7 @@ def overrides(tmp_path):
     return tmp_path / "overrides.jsonl"
 
 
-@pytest.fixture(params=["logistic_bandit", "beta_bandit"])
+@pytest.fixture(params=["ppo", "logistic_bandit", "beta_bandit"])
 def client(overrides, request):
     """Every service test runs against both live agents."""
     return TestClient(create_app(overrides_path=overrides, agent=request.param))
@@ -55,6 +55,8 @@ def test_invalid_bodies_rejected_with_422(client):
 
 
 def test_update_changes_only_its_own_session(client):
+    if client.app.state.agent == "ppo":
+        pytest.skip("the PPO agent keeps no learned per-session state")
     store = client.app.state.store
     a_state = {**EXAMPLE_STATE, "session_id": "A"}
     b_state = {**EXAMPLE_STATE, "session_id": "B"}
@@ -89,7 +91,7 @@ def test_override_appends_jsonl(client, overrides):
     assert rows[1]["state"]["last_trials"][0]["word"] == "cat"
 
 
-@pytest.mark.parametrize("agent", ["logistic_bandit", "beta_bandit"])
+@pytest.mark.parametrize("agent", ["ppo", "logistic_bandit", "beta_bandit"])
 def test_full_session_replays_identically(overrides, agent):
     """Same session_id + same requests -> same actions, across two independent app instances."""
     def play():

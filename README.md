@@ -38,9 +38,10 @@ Implemented and tested (128 tests, `uv run pytest`):
   item difficulty from word frequency and length, patient-specific cue responsiveness, error types,
   fatigue with recovery, learning with a configurable peak, patient dropout after failure streaks,
   and review probes. The item bank is a placeholder.
-- Therapist agents: a contextual Bayesian logistic Thompson-sampling bandit with a prior fitted on
-  simulated training patients (the live agent), a Beta-Bernoulli Thompson bandit, and fixed-difficulty
-  and staircase baselines.
+- Therapist agents: MaskablePPO trained on the simulation-only objective (the default live agent),
+  a contextual Bayesian logistic Thompson-sampling bandit with a prior fitted on simulated training
+  patients (live fallback), a Beta-Bernoulli Thompson bandit, and fixed-difficulty and staircase
+  baselines.
 - Trained agent: a Gymnasium environment with clinical action masks and a decomposed reward, and
   MaskablePPO trained on simulated patients with three rewards (observable proxy, proxy + review-probe
   bonus, privileged simulator-only objective), 3 seeds each, learning curves on held-out patients.
@@ -247,7 +248,7 @@ and decide from the State JSON only.
 
 - **Fixed difficulty** (worksheets today) and **2-up/1-down staircase** (Levitt 1971).
 - **Beta-Bernoulli Thompson bandit**: 15 independent arms, ported from the scaffold and bug-fixed.
-- **Contextual Bayesian logistic Thompson bandit** (the live agent): `p(correct) = sigmoid(w . phi)`
+- **Contextual Bayesian logistic Thompson bandit** (live fallback; learns online per session): `p(correct) = sigmoid(w . phi)`
   with 17 features (tier, cue, recent accuracy, fail streak, progress, response time, and last error
   type x cue family; the simulator does not yet model that interaction, see below). Posterior updated online with the closed-form Laplace/extended-Kalman step,
   with random-walk process noise so it tracks fatigue and learning. Weights are shared across
@@ -289,6 +290,13 @@ in the environment, that alternating tiers 1 and 2 scores less than holding tier
   improved since the session began). Raw probe recall is deliberately not used here: probes revisit
   practised words, so a policy that practises only easy words gets easy probes. An earlier draft
   that rewarded the true p on probes indeed drove the agent to tier 1.
+
+**Live agent.** The service serves the PPO policy trained on the simulation-only objective
+(`models/ppo_privileged_seed0.zip`, seed 0, chosen without looking at test results); the contextual
+bandit is the configurable fallback (`configs/service.yaml`). The policy does not update its weights
+during a session: it reacts to the person through its observation (the last 8 trials). It is
+conservative: it holds the true p near the learning peak rather than climbing tiers, so in a short
+demo it changes tier less than the proxy-trained policy (mean tier on mild patients 1.54 vs 1.81).
 
 **Training.** 3 seeds x 1.5M steps per reward, CPU, about 3 minutes per run. Learning curves are
 measured on 64 fixed validation patients disjoint from both the training and the test patients. All

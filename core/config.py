@@ -88,10 +88,11 @@ class LogisticBanditConfig(BaseModel):
 
 class ServiceConfig(BaseModel):
     model_config = _STRICT
-    agent: Literal["logistic_bandit", "beta_bandit"]
+    agent: Literal["ppo", "logistic_bandit", "beta_bandit"]
     clinical_config: str
     bandit_config: str
     logistic_bandit_config: str
+    ppo_model: str
     default_session_id: str = Field(min_length=1)
     overrides_path: str
     cors_origins: list[str] = Field(default_factory=list)

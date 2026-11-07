@@ -58,6 +58,14 @@ class SessionStore:
 
 def agent_factory(agent: str, cfg, clinical):
     """session_id -> fresh agent for that session, seeded deterministically from the session id."""
+    if agent == "ppo":
+        from sb3_contrib import MaskablePPO
+
+        from agents.ppo import PPOPolicy
+        from envs.aphasia_env import load_env_config
+        env_cfg = load_env_config()
+        shared = MaskablePPO.load(str(resolve(cfg.ppo_model)), device="cpu")   # loaded once, read-only
+        return lambda sid: PPOPolicy(shared, clinical, env_cfg)
     if agent == "logistic_bandit":
         lcfg = load_logistic_bandit(cfg.logistic_bandit_config)
         return lambda sid: LogisticThompsonBandit(lcfg, clinical, seed=session_seed(lcfg.seed, sid))

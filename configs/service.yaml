@@ -1,7 +1,14 @@
 # FastAPI agent service. Paths are relative to the repo root.
-# Live agent: logistic_bandit (contextual Bayesian logistic Thompson sampling, fitted prior) or
-# beta_bandit (non-contextual fallback). Both learn online per session.
-agent: logistic_bandit
+# Live agent:
+#   ppo              MaskablePPO trained on the simulation-only objective (default). It does not
+#                    update its weights during a session; it reacts to the person through its
+#                    observation history (last 8 trials). Seed 0 of the three trained seeds, chosen
+#                    without looking at test results.
+#   logistic_bandit  contextual Bayesian logistic Thompson sampling with the fitted prior; learns
+#                    online per session (fallback).
+#   beta_bandit      non-contextual Thompson sampling (simple fallback).
+agent: ppo
+ppo_model: models/ppo_privileged_seed0.zip
 clinical_config: configs/clinical.yaml
 bandit_config: configs/bandit.yaml
 logistic_bandit_config: configs/logistic_bandit.yaml
