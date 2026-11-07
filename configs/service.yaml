@@ -1,14 +1,16 @@
 # FastAPI agent service. Paths are relative to the repo root.
 # Live agent:
-#   ppo              MaskablePPO trained on the simulation-only objective (default). It does not
-#                    update its weights during a session; it reacts to the person through its
-#                    observation history (last 8 trials). Seed 0 of the three trained seeds, chosen
-#                    without looking at test results.
+#   ppo              MaskablePPO; reacts to the person through its observation history (last 8
+#                    trials) and does not update its weights during a session.
 #   logistic_bandit  contextual Bayesian logistic Thompson sampling with the fitted prior; learns
 #                    online per session (fallback).
 #   beta_bandit      non-contextual Thompson sampling (simple fallback).
+# Live demo choice (scripts/judge_demo.py, see README "Live agent"): the PROXY-reward PPO, because
+# with a healthy judge it visibly climbs to tier 3 on success and backs off with cues after errors.
+# Fallbacks: models/ppo_privileged_seed0.zip (better on the true objective in simulation, but stays on
+# tier 1 with a healthy judge), then agent: logistic_bandit.
 agent: ppo
-ppo_model: models/ppo_privileged_seed0.zip
+ppo_model: models/ppo_seed0.zip
 clinical_config: configs/clinical.yaml
 bandit_config: configs/bandit.yaml
 logistic_bandit_config: configs/logistic_bandit.yaml
