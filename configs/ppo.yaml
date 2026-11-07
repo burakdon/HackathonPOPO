@@ -1,0 +1,24 @@
+# MaskablePPO (sb3-contrib) on envs/aphasia_env.py. CPU only.
+seeds: [0, 1, 2]
+total_timesteps: 1500000
+n_envs: 8                  # DummyVecEnv: the env is cheap (~11k steps/s), subprocesses do not pay off
+
+# PPO hyperparameters. ASSUMPTION: standard SB3 defaults adapted to 40-step episodes; not tuned on
+# the test split. gamma < 1 is fine because the terminal climb bonus is at most 40 steps away.
+learning_rate: 0.0003
+n_steps: 256               # per env -> 2048 transitions (~51 sessions) per update
+batch_size: 256
+n_epochs: 10
+gamma: 0.99
+gae_lambda: 0.95
+clip_range: 0.2
+ent_coef: 0.01
+net_arch: [128, 128]
+
+# Learning curves: every eval_freq steps, run the deterministic policy on fixed VALIDATION patients
+# (broad population, `val` split; never the test split used for final results).
+eval_freq: 50000
+eval_patients: 64
+
+output_dir: runs/ppo        # TensorBoard logs and per-seed curves (gitignored)
+models_dir: models          # final policies (small, committed so results reproduce without retraining)

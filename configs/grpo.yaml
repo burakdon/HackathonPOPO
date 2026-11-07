@@ -1,0 +1,28 @@
+# GRPO-style RL for a language-model therapist on Tinker (train/grpo_smoke.py).
+# Tinker's smallest Qwen is Qwen/Qwen3.5-4B (0.6B/1.7B are not offered there).
+base_model: Qwen/Qwen3.5-4B
+lora_rank: 16
+learning_rate: 4.0e-5          # LoRA learning rate (cookbook default)
+loss_fn: importance_sampling   # Tinker RL loss; advantages = reward - group mean (no std division)
+group_size: 8                  # completions per prompt
+prompts_per_step: 8
+max_tokens: 48                 # the answer is one short JSON object
+temperature: 1.0
+seed: 0
+
+# Prompt dataset: states visited by the contextual bandit on simulated TRAINING patients (never
+# the test split). For each state the true p(correct) of all 15 actions is stored, so the reward is
+# the EXPECTED band-tracking reward rather than one noisy Bernoulli outcome (much lower variance).
+# Trade-off: this uses privileged simulator information during training (simulation only).
+dataset_size: 512
+dataset_seed: 7
+
+# Reward per completion: -1 for unparseable or masked actions; otherwise
+#   -|p_true(action) - target| - cue_cost * cue_strength + tier_bonus * tier
+# (the same preferences as the bandits' selection rule).
+cue_cost: 0.01
+tier_bonus: 0.005
+format_penalty: -1.0
+
+smoke_steps: 10
+output_dir: runs/grpo

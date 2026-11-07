@@ -44,6 +44,7 @@ def session_metrics(result: SessionResult, clinical: ClinicalConfig) -> dict[str
         "learning_gain": float(result.learning_gain),
         "control_error": float(np.mean([abs(t["p_true"] - clinical.target) for t in trace])),
         "n_trials": float(len(trace)),
+        "quit": float(result.quit),
     }
 
 
