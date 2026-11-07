@@ -109,6 +109,10 @@ class UpdateRequest(BaseModel):
     outcome: Outcome
     probe: bool = Field(default=False, description="True if this trial was a review probe; the agent does "
                                                    "not learn from trials it did not choose")
+    reviewed: bool = Field(default=False, description="True if a clinician was watching this trial on the dashboard "
+                                                      "and could have overridden it. Only reviewed, non-overridden "
+                                                      "agent choices are logged as accepted (DITTO anchors); "
+                                                      "unsupervised home practice is never treated as approval")
 
 
 class NextTrial(BaseModel):

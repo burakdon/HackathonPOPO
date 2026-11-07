@@ -26,3 +26,28 @@ clinician_rule: {after_error: sound, cue: first_sound}
 n_overrides: 10
 override_patients: [0, 60]     # validation patients used to collect override states
 eval_patients: [100, 220]      # disjoint validation patients for the before/after evaluation
+
+# Paper variant (agents/ditto.py, mixture != None): Algorithm 1 of Shaikh et al. more closely.
+# A few SFT steps on the demonstrations first; the frozen DPO reference is that SFT policy; each
+# gradient step mixes online (demo > current samples), replay (demo > earlier samples) and
+# intermodel (later samples > earlier samples) comparisons. 70/20/10 is the paper's mix.
+paper:
+  sft_steps: 20
+  mixture: {online: 0.7, replay: 0.2, intermodel: 0.1}
+  batch_size: 64
+
+# train/ditto_sweep.py: overrides needed vs method, over three simulated clinician rules.
+sweep:
+  n_overrides: [1, 2, 3, 5, 10]
+  seeds: [0, 1, 2]
+
+# Live loop (POST /ditto/train in service/app.py). Always tunes the BASE policy (the service's
+# ppo_model) on all overrides logged so far, so repeated calls do not compound.
+live:
+  variant: paper                # paper | legacy
+  # Anchors = the clinician's real accepted choices (runs/accepted.jsonl) plus decision states the
+  # base policy visits on these simulated validation patients. A live demo has few accepted
+  # choices, so the simulated states keep the rest of the policy in place. Simulated states whose
+  # last error type matches an override's are left out (the clinician's preference may apply there).
+  # This is a heuristic; set sim_anchor_patients to 0 to use only real acceptances.
+  sim_anchor_patients: [300, 330]

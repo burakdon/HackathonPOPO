@@ -30,7 +30,7 @@ simulated patients, and demonstrations from clinician overrides.
 The team objective is **better later naming without hints**. Sessions therefore include review
 probes (an earlier practised word shown again with no cue), and every policy is evaluated on them.
 
-Implemented and tested (128 tests, `uv run pytest`):
+Implemented and tested (137 tests, `uv run pytest`):
 - Agent service (FastAPI) implementing the agreed State/Action interface, with one online-learning
   agent per session, clinician overrides logged for later training, CORS for a frontend on the local
   network, and `POST /next_trial`, which applies the shared item-selection and review-probe rule.
@@ -45,7 +45,10 @@ Implemented and tested (128 tests, `uv run pytest`):
   MaskablePPO trained on simulated patients with three rewards (observable proxy, proxy + review-probe
   bonus, privileged simulator-only objective), 3 seeds each, learning curves on held-out patients.
 - Learning from clinician overrides: DITTO-style preference optimisation of the PPO policy from ~10
-  overrides, with a before/after evaluation on held-out states.
+  overrides, with a before/after evaluation on held-out states; a paper-faithful variant (SFT
+  initialisation, 70/20/10 online/replay/intermodel comparisons), an SFT baseline and a sweep over
+  1 to 10 overrides; and a **live loop** in the service (`POST /ditto/train` tunes the served PPO
+  policy from the dashboard's overrides in about 2 s and swaps it in).
 - Preliminary evaluation: seven policies on three cohorts, 50 held-out patients each, with patient
   dropout on and off (see below).
 
@@ -73,6 +76,9 @@ uv run python -m train.train_ppo --reward full_probe    # proxy + review-probe b
 uv run python -m train.train_ppo --reward privileged    # simulator-only objective (reference)
 uv run python -m eval.plots                     # learning curves -> results/learning_curves.png
 uv run python -m train.ditto_ppo                # DITTO-style tuning from overrides -> results/ditto_report.md
+uv run python -m train.ditto_sweep              # SFT vs DITTO variants, 1-10 overrides (~6 min) -> results/ditto_sweep.md
+AGENT=ppo uv run uvicorn service.app:app --port 8000          # serve the PPO policy (live DITTO loop on)
+uv run python -m scripts.ditto_live_demo --inprocess --overrides 3   # rehearse the live DITTO demo
 uv run python -m scripts.sanity_table --dropout on --out results/sanity_dropout_on.md
 uv run python -m scripts.sanity_table --dropout off --out results/sanity_dropout_off.md
 uv sync --extra grpo && uv run python -m train.grpo_smoke   # explored, out of scope; needs TINKER_API_KEY
@@ -188,6 +194,14 @@ Parameters live in [`configs/sim.yaml`](configs/sim.yaml) (`review_probes`: `eve
 | POST | `/act` | `State` | `Action` |
 | POST | `/update` | `{"state": State, "action": Action, "outcome": Outcome, "probe": false}` | `{"status": "ok", "session_id": "...", "agent_updated": bool}` |
 | POST | `/override` | `{"state": State, "agent_action": Action, "clinician_action": Action, "note": "optional"}` | `{"status": "stored", "session_id": "...", "n_overrides": n}` |
+| GET | `/ditto/status` | none | overrides and accepted choices logged so far, whether the served policy is tuned, last training report |
+| POST | `/ditto/train` | `{"variant": "paper" \| "legacy"}` (optional) | DITTO on the base PPO policy from all overrides; swaps the tuned policy in; per-override before/after report. Needs `AGENT=ppo` (409 otherwise), 400 if no usable overrides |
+| POST | `/ditto/reset` | none | serve the base PPO policy again |
+
+`POST /update` also takes `"reviewed": true` when a clinician was watching the trial on the dashboard.
+Only reviewed agent choices that were **not** overridden are logged (to `runs/accepted.jsonl`) as
+accepted choices, the anchors that keep DITTO from changing behaviour the clinician was happy with.
+Unsupervised home practice is never treated as approval.
 
 Session loop for the frontend:
 1. `POST /next_trial` with the current `State` (or apply the rule above yourself and call `/act`
@@ -436,6 +450,59 @@ states, leaves states after other errors essentially unchanged, and keeps 99% of
 identical; time in band, control error, learning gain and probe recall on the three test cohorts are
 unchanged within noise. The anchors are our addition to DITTO and are only as good as the assumption
 that a non-override means acceptance.
+
+### Paper-faithful variant, SFT baseline and how many overrides are needed (`train/ditto_sweep.py`)
+
+The variant above (`legacy`) uses every "demonstration > sampled action" pair uniformly with the
+original policy as reference. The `paper` variant follows Algorithm 1 of Shaikh et al. more closely:
+a few SFT steps on the demonstrations first, the frozen DPO reference is that SFT policy, and each
+batch mixes online (demo > current samples), replay (demo > earlier samples) and intermodel (later
+samples > earlier samples) comparisons 70/20/10. Intermodel pairs never use the demonstrated action
+as the loser. Anchors stay tied to the original policy (what the clinician accepted).
+
+Three simulated clinician rules (after a sound error give first sound; after a meaning error give a
+semantic cue; after no response give a sentence frame), 1 to 10 overrides, 3 seeds, same anchors
+and gradient budget for every method, held-out states from disjoint validation patients
+([full table](results/ditto_sweep.md)):
+
+![DITTO sweep](results/ditto_sweep.png)
+
+| overrides | adoption: SFT | DITTO-style (legacy) | DITTO (paper) | leakage: SFT | legacy | paper |
+|---|---|---|---|---|---|---|
+| 3 | 0.59 | 0.69 | **0.71** | 0.07 | **0.06** | 0.09 |
+| 5 | 0.65 | 0.73 | **0.79** | 0.07 | **0.06** | 0.09 |
+| 10 | 0.83 | 0.93 | **0.95** | 0.08 | **0.08** | 0.10 |
+
+- Both DITTO variants beat behaviour cloning (SFT) at every n from 2 up, as in the paper.
+- The paper variant adopts slightly more from 2 overrides on, but changes behaviour after *other*
+  errors a little more often (leakage 0.09 to 0.13 vs 0.04 to 0.08). With a single override its SFT
+  step overshoots (leakage 0.13). The differences between the two DITTO variants are within about
+  one standard deviation at n = 3.
+- All methods leave 99% of unrelated decisions unchanged (thanks to the anchors).
+
+### Live loop (`service/live_ditto.py`, `scripts/ditto_live_demo.py`)
+
+With `AGENT=ppo`, the service serves the trained PPO policy. The dashboard posts overrides as before
+and sends `"reviewed": true` on `/update` while the clinician watches. `POST /ditto/train` runs DITTO
+on the **base** policy with every override so far (so repeated calls do not compound), anchored on
+the clinician's real accepted choices plus base-policy states from 30 simulated validation patients
+(minus states in the same context as an override, a heuristic; see `configs/ditto.yaml` `live`),
+then swaps the tuned policy in for all sessions. Overrides the policy cannot produce under the
+clinical mask (a cue right after a correct answer) are skipped and reported, not trained on.
+
+Rehearsal over HTTP with a simulated clinician (moderate Broca's, 10 held-out patients, states after a
+sound error, same patients and random streams before and after; paper variant, about 2 s of training):
+
+| overrides | agent gives the first-sound cue: before | after |
+|---|---|---|
+| 3 | 19/56 (34%) | 34/54 (63%) |
+| 5 | 19/56 (34%) | 38/50 (76%) |
+| 10 | 19/56 (34%) | 48/50 (96%) |
+
+Supervision must stop at the last override: an earlier version of the rehearsal kept "accepting"
+the agent's choices after the clinician's budget ran out, which logged choices that contradict her
+preference as accepted and cut the effect to 34% -> 40%. That is also why only `reviewed` trials
+count as accepted.
 
 ## Known limitations
 - With an 8-trial window, rolling accuracy only takes values k/8, so the [0.75, 0.90] band means

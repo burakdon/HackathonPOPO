@@ -88,12 +88,17 @@ class LogisticBanditConfig(BaseModel):
 
 class ServiceConfig(BaseModel):
     model_config = _STRICT
-    agent: Literal["logistic_bandit", "beta_bandit"]
+    agent: Literal["logistic_bandit", "beta_bandit", "ppo"]
     clinical_config: str
     bandit_config: str
     logistic_bandit_config: str
     default_session_id: str = Field(min_length=1)
     overrides_path: str
+    # Live DITTO loop (service/app.py): the trained policy served when agent == "ppo" and tuned by
+    # POST /ditto/train, and the log of agent choices the clinician saw and did not override.
+    ppo_model: str = "models/ppo_seed0.zip"
+    accepted_path: str = "runs/accepted.jsonl"
+    ditto_config: str = "configs/ditto.yaml"
     cors_origins: list[str] = Field(default_factory=list)
     cors_origin_regex: str | None = None
 

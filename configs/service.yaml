@@ -1,7 +1,10 @@
 # FastAPI agent service. Paths are relative to the repo root.
 # Live agent: logistic_bandit (contextual Bayesian logistic Thompson sampling, fitted prior) or
-# beta_bandit (non-contextual fallback). Both learn online per session.
+# beta_bandit (non-contextual fallback), which both learn online per session, or ppo (the trained
+# MaskablePPO policy in ppo_model), which POST /ditto/train can tune from clinician overrides and
+# hot-swap live. Override per run with the AGENT env var:  AGENT=ppo uv run uvicorn service.app:app
 agent: logistic_bandit
+ppo_model: models/ppo_seed0.zip
 clinical_config: configs/clinical.yaml
 bandit_config: configs/bandit.yaml
 logistic_bandit_config: configs/logistic_bandit.yaml
@@ -13,6 +16,11 @@ default_session_id: default
 # Clinician overrides are appended here as JSON lines; this file is the DITTO training input.
 # Lives under runs/ (gitignored) because it is produced during live demos.
 overrides_path: runs/overrides.jsonl
+
+# Agent choices the clinician saw and did NOT override (implicit acceptances): the anchors that
+# stop DITTO from changing behaviour the clinician was happy with. Written by POST /update.
+accepted_path: runs/accepted.jsonl
+ditto_config: configs/ditto.yaml
 
 # Origins allowed to call the service from a browser (Vite dev server defaults).
 cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]

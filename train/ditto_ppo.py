@@ -22,6 +22,7 @@ import numpy as np
 from sb3_contrib import MaskablePPO
 
 from agents.ditto import Demo, action_probs, ditto
+from agents.selection import clinical_gate
 from core.config import load_clinical, load_yaml, resolve
 from core.masks import ACTION_CUES, ACTION_TIERS, action_index, action_mask
 from core.observation import ObservationBuilder
@@ -74,16 +75,36 @@ def summarise(model, ref, states: list[dict], rule_cue: str) -> dict[str, float]
             "total_variation_vs_original": float(0.5 * np.abs(p - p_ref).sum(1).mean())}
 
 
-def demos_from_overrides(path, clinical, env_cfg) -> list[Demo]:
+def demos_from_records(records: list[dict], clinical, env_cfg) -> tuple[list[Demo], list[dict]]:
+    """Override records (as written by POST /override) -> demonstrations, plus the records skipped.
+
+    The mask must be the one the policy acts under: the clinical mask AND the cue-only-after-error
+    gate (agents/ppo.py, envs/aphasia_env.py). A clinician action outside it (e.g. a cue right after
+    a correct answer) can never be produced by the policy, so it is skipped and reported rather than
+    silently trained on as an impossible target."""
     ob = ObservationBuilder(clinical, env_cfg.history, env_cfg.nominal_trials, env_cfg.rt_cap_s)
-    demos = []
-    for line in open(resolve(path)):
-        rec = json.loads(line)
+    demos, skipped = [], []
+    for rec in records:
         state = State(**rec["state"])
-        mask = action_mask(state.current_tier, clinical.approved_cues, clinical.max_tier_step)
+        mask = clinical_gate(state, action_mask(state.current_tier, clinical.approved_cues, clinical.max_tier_step),
+                             env_cfg.cue_only_after_error)
         a = action_index(rec["clinician_action"]["tier"], rec["clinician_action"]["cue"])
         if mask[a]:
             demos.append(Demo(ob(state), mask, a))
+        else:
+            skipped.append(rec)
+    return demos, skipped
+
+
+def read_jsonl(path) -> list[dict]:
+    p = resolve(path)
+    return [json.loads(line) for line in open(p) if line.strip()] if p.exists() else []
+
+
+def demos_from_overrides(path, clinical, env_cfg) -> list[Demo]:
+    demos, skipped = demos_from_records(read_jsonl(path), clinical, env_cfg)
+    if skipped:
+        print(f"skipped {len(skipped)} overrides the policy cannot produce under the clinical mask")
     return demos
 
 
