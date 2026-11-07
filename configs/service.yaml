@@ -1,0 +1,15 @@
+# FastAPI agent service. Paths are relative to the repo root.
+agent: beta_bandit
+clinical_config: configs/clinical.yaml
+bandit_config: configs/bandit.yaml
+
+# Requests without a session_id share this session (backward compatibility with the original
+# State JSON). The frontend should always send a session_id.
+default_session_id: default
+
+# Clinician overrides are appended here as JSON lines; this file is the DITTO training input.
+# Lives under runs/ (gitignored) because it is produced during live demos.
+overrides_path: runs/overrides.jsonl
+
+# Origins allowed to call the service from a browser (Vite dev server defaults).
+cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]

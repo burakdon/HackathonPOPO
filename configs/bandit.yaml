@@ -1,0 +1,26 @@
+# Non-contextual Beta-Bernoulli Thompson bandit (ported from docs/scaffold/rl_starter.py, bug-fixed).
+# Live fallback agent for Step 1a; the contextual logistic bandit replaces it in 1b.
+
+seed: 0
+
+# Beta(alpha, beta) prior on p(correct) per tier, shared by every cue at that tier.
+# ASSUMPTION: weak prior encoding only "tier 1 is easiest" (prior means 0.80 / 0.50 / 0.25,
+# pseudo-count 4 so a few real trials dominate).
+prior:
+  1: [4.0, 1.0]
+  2: [2.0, 2.0]
+  3: [1.0, 3.0]
+
+# Score = -|sampled p - target| + tier_bonus * tier - cue_cost * cue_strength.
+# ASSUMPTION: small tie-breakers so that, among arms equally close to target, the agent prefers
+# harder items and weaker cues. Values from the scaffold.
+tier_bonus: 0.01
+cue_cost: 0.03
+
+# Discounted Thompson sampling: on every update all arms decay toward the prior by this factor
+# (effective memory ~ 1 / (1 - discount) = 20 trials), so the posterior tracks fatigue and
+# within-session learning. Trade-off: rarely-pulled arms forget quickly.
+discount: 0.95
+
+# Clinical rule from the scaffold: offer a cue only right after an error, as an SLP would.
+cue_only_after_error: true
