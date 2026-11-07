@@ -1,7 +1,7 @@
 """Non-contextual Beta-Bernoulli Thompson sampling over the 15 (tier, cue) arms.
 
-Ported from docs/scaffold/rl_starter.py as the Step 1a live agent so the frontend can integrate early. The
-contextual Bayesian logistic bandit (Step 1b) replaces it as the main bandit; this one stays as a
+Ported from docs/scaffold/rl_starter.py as the first live agent so the frontend could integrate early. The
+contextual Bayesian logistic bandit replaces it as the main bandit; this one stays as a
 simple, dependency-free baseline.
 
 Each arm keeps a Beta posterior over p(correct). Every trial we draw one sample per arm and pick

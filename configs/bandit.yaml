@@ -1,5 +1,5 @@
 # Non-contextual Beta-Bernoulli Thompson bandit (ported from docs/scaffold/rl_starter.py, bug-fixed).
-# Live fallback agent for Step 1a; the contextual logistic bandit replaces it in 1b.
+# Fallback live agent; the contextual logistic bandit is the default (configs/service.yaml).
 
 seed: 0
 
