@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CueAgain</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">CueAgain <span class="tag">prototype</span></div>
+  <nav>
+    <button data-view="practice" class="nav active">Practice</button>
+    <button data-view="clinician" class="nav">Clinician</button>
+    <button data-view="models" class="nav">Models &amp; results</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ PRACTICE ============ -->
+  <section id="view-practice" class="view">
+    <div id="start-card" class="card center">
+      <h1>Picture naming practice</h1>
+      <p class="lead">Look at the picture and say its name. Take your time.</p>
+      <p class="muted small">Decisions in this session: <b id="start-model">…</b></p>
+      <button id="btn-start" class="primary big">Start practice</button>
+    </div>
+
+    <div id="practice" class="hidden">
+      <div class="statusline small muted">
+        <span id="p-session"></span> · model <b id="p-model"></b>
+        <span id="p-source"></span>
+      </div>
+      <div class="card picture-card">
+        <img id="p-image" alt="Picture to name">
+        <div id="p-hint" class="hint hidden"></div>
+        <div id="p-message" class="message hidden"></div>
+      </div>
+
+      <div id="answer-area" class="center">
+        <button id="btn-record" class="primary big">🎤 Press to answer</button>
+        <button id="btn-stop" class="danger big hidden">■ Stop</button>
+        <div id="rec-state" class="recstate hidden"><span class="dot"></span> Recording… press Stop when finished</div>
+        <div id="busy" class="muted hidden">Listening to the recording…</div>
+        <div id="mic-error" class="warn hidden"></div>
+      </div>
+
+      <div id="helper" class="card helper hidden">
+        <h2>For the helper: confirm the answer</h2>
+        <div id="h-recog" class="small"></div>
+        <label class="small">What they said (correct it if the recogniser got it wrong)
+          <input id="h-text" type="text" autocomplete="off">
+        </label>
+        <div id="h-suggest" class="small"></div>
+        <div class="row">
+          <button id="h-correct" class="good">✓ Correct</button>
+          <button id="h-incorrect" class="secondary">✗ Not correct</button>
+        </div>
+        <div id="h-cats" class="row hidden">
+          <button data-cat="sound" class="secondary">Sound error<br><span class="small">“tat” for cat</span></button>
+          <button data-cat="meaning" class="secondary">Meaning error<br><span class="small">“dog” for cat</span></button>
+          <button data-cat="no_response" class="secondary">No response</button>
+          <button data-cat="unclassified" class="secondary">Incorrect, type unclear</button>
+        </div>
+        <button id="h-unscored" class="link">Couldn't tell / recording problem: try again (not scored)</button>
+      </div>
+
+      <div class="row center controls">
+        <button id="btn-hint" class="secondary">Show a hint</button>
+        <button id="btn-skip" class="secondary">Next picture</button>
+        <button id="btn-type" class="secondary">Type the answer instead</button>
+        <button id="btn-pause" class="secondary">Pause</button>
+      </div>
+      <div id="paused" class="overlay hidden"><div class="card center"><h2>Paused</h2>
+        <p>Take a break. Press continue when ready.</p><button id="btn-resume" class="primary big">Continue</button></div></div>
+    </div>
+  </section>
+
+  <!-- ============ CLINICIAN ============ -->
+  <section id="view-clinician" class="view hidden">
+    <div class="row between">
+      <h1>Clinician view</h1>
+      <label class="small">Session <select id="c-session"></select></label>
+    </div>
+    <div id="c-empty" class="muted">No practice session yet. Start one in Practice.</div>
+    <div id="c-body" class="hidden">
+      <div class="grid3">
+        <div class="card stat"><div class="small muted">Named without a hint</div><div id="c-indep" class="big-num">–</div></div>
+        <div class="card stat"><div class="small muted">Named after a hint</div><div id="c-hinted" class="big-num">–</div></div>
+        <div class="card stat"><div class="small muted">Fallback decisions</div><div id="c-fallbacks" class="big-num">–</div></div>
+      </div>
+
+      <div class="card">
+        <h2>Latest decision</h2>
+        <div id="c-latest" class="muted">No decision yet: the first picture is fixed.</div>
+        <div id="c-choose" class="hidden">
+          <h3>Choose another option</h3>
+          <div id="c-options" class="options"></div>
+          <div class="row">
+            <label class="small grow">Note (optional)<input id="c-note" type="text" maxlength="300"></label>
+            <label class="small">Applies to
+              <select id="c-scope"><option value="session">this session only</option>
+                <option value="patient">this patient</option><option value="global">all patients</option></select></label>
+          </div>
+          <div class="row">
+            <button id="c-accept" class="secondary">Save the proposal as a good example</button>
+            <button id="c-use" class="primary">Use my choice</button>
+          </div>
+          <p id="c-feedback" class="small"></p>
+          <p class="small muted">Saved examples are <b>pending</b>: they change nothing until a future training run
+            includes them. Hard limits (3 attempts per picture, one tier step, approved hints) are not changed by examples.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Recent attempts and decisions</h2>
+        <table class="tbl"><thead><tr><th>picture</th><th>hint shown</th><th>heard → confirmed</th><th>result</th>
+          <th>decision</th><th>by</th></tr></thead><tbody id="c-rows"></tbody></table>
+      </div>
+
+      <div class="card">
+        <h2>Saved examples</h2>
+        <table class="tbl"><thead><tr><th>when</th><th>preferred action</th><th>scope</th><th>note</th><th>training status</th></tr></thead>
+          <tbody id="c-demos"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODELS ============ -->
+  <section id="view-models" class="view hidden">
+    <h1>Models &amp; results</h1>
+    <div class="card">
+      <h2>Model used for decisions</h2>
+      <div id="m-versions" class="options"></div>
+      <div class="row">
+        <button id="m-activate" class="primary">Use for new sessions</button>
+        <button id="m-session" class="secondary">Use in the current session</button>
+      </div>
+      <p id="m-feedback" class="small"></p>
+    </div>
+    <div class="card">
+      <div class="row between"><h2>Training runs</h2><select id="m-run"></select></div>
+      <div id="m-run-detail" class="muted">No completed training run found in runs/ditto/.</div>
+    </div>
+    <div class="card">
+      <h2>Comparison on reserved situations</h2>
+      <div id="m-eval" class="muted">No evaluation for this run yet (run evaluation/compare.py).</div>
+    </div>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

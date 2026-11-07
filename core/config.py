@@ -100,7 +100,7 @@ class LiveDittoConfig(BaseModel):
 
 class ServiceConfig(BaseModel):
     model_config = _STRICT
-    agent: Literal["ppo", "logistic_bandit", "beta_bandit"]
+    agent: Literal["ppo", "logistic_bandit", "beta_bandit", "llm"]
     clinical_config: str
     bandit_config: str
     logistic_bandit_config: str
@@ -110,6 +110,10 @@ class ServiceConfig(BaseModel):
     overrides_path: str
     cors_origins: list[str] = Field(default_factory=list)
     cors_origin_regex: str | None = None
+    # Practice flow (service/practice.py) and the language-model policy (agents/llm_policy.py).
+    practice_config: str = "configs/practice.yaml"
+    # Model version /act uses when agent == "llm" (e.g. "ditto:<run_id>", "base", "prompted").
+    llm_model: str | None = None
 
 
 def resolve(path: str | Path) -> Path:

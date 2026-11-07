@@ -15,11 +15,23 @@ dependencies = [
     "torch>=2.3",
     "tensorboard>=2.21.0",
     "matplotlib>=3.11.2",
+    "python-multipart>=0.0.9",
 ]
 
 [project.optional-dependencies]
 grpo = [
     "tinker==0.35.0",
+]
+# Language-model policy and DITTO training. Versions pinned after the train/save/reload smoke test
+# (training/smoke.py) passed on Apple MPS with torch 2.15.0.
+llm = [
+    "accelerate==1.15.0",
+    "peft==0.21.2",
+    "transformers==5.22.2",
+]
+# Local pretrained speech recognition (CPU, no API key). PyAV, bundled with it, decodes browser audio.
+speech = [
+    "faster-whisper==1.2.1",
 ]
 
 [dependency-groups]

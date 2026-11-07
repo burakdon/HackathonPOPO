@@ -1,4 +1,205 @@
-# Aphasia Trainer
+# CueAgain (Aphasia Trainer)
+
+Picture-naming practice with speech input and a decision model adapted from human demonstrations.
+The patient sees a picture and names it aloud. A pretrained speech recogniser proposes a transcript,
+a helper confirms or corrects the result, and a decision model chooses what happens next: retry the
+same picture with a predefined hint, or move on to a new picture at a chosen difficulty. A
+clinician-facing view captures preferred decisions and shows how a model adapted with
+**DITTO** (Shaikh et al., ICLR 2025) behaves.
+
+**Proof-of-concept question:** can model adaptation make exercise-selection decisions follow a
+demonstrator's preferences in situations it has not seen?
+
+> **Prototype, not a clinical tool.** We make no claims of clinical effectiveness, faster recovery,
+> diagnosis, or reliable assessment of impaired speech. The demonstrations are **fictional mock
+> preferences** (team-authored, AI-drafted from a written strategy, pending human review), not
+> clinician-validated treatment knowledge. A teammate's live speech shows usability, not performance
+> on aphasic speech. No real patient data is used anywhere.
+
+Speech recognition and DITTO are separate components: the recogniser (pretrained Whisper, not
+trained here) turns audio into a *proposed* transcript; DITTO adapts a small language model
+(Qwen3-1.7B + LoRA) that chooses the next action from recent confirmed attempts and the valid options.
+
+## CueAgain status (2026-11-07)
+
+Done and checked on this branch:
+
+| piece | what exists | checked by |
+|---|---|---|
+| Patient practice screen | large picture, one main action, user-initiated microphone, explicit recording state, stop, hint, next picture, pause, no timer shown | used in the browser (typed answers; microphone path needs a person) |
+| Speech | local `faster-whisper` `base.en` on CPU, no API key; WebM/Opus and MP4 browser recordings decoded with PyAV; silent, undecodable, timed-out or failed audio returns an explicit status and is never scored | synthesized speech in WebM/Opus transcribed as "Umbrella." (260 ms); tests for garbage and silence |
+| Helper confirmation | transcript shown and editable, *suggested* match only, correct / sound / meaning / no response / **incorrect, type unclear**, or **not scored** (recording problem) | API tests |
+| Attempt state | `session_id`, `exercise_id`, `presentation_id`, `attempt_id`; raw vs corrected transcript, scoring status, hint actually shown; idempotent by `attempt_id` (repeat = same result, different content = 409); stale picture = 409 | API tests |
+| Retry vs next | explicit `retry_current` / `next_exercise`; the next picture is resolved deterministically from the manifest, never by the model | API tests |
+| Picture bank | 24 items (`data/items.json`), predefined hints for each, Twemoji images (CC BY 4.0, `data/ATTRIBUTION.md`) | tests |
+| Decision models | bandit baseline (existing Beta bandit, mapped to options), unadapted Qwen3-1.7B, few-shot prompted Qwen3-1.7B, SFT-only adapter, DITTO adapter; all validated against the valid options; invalid, unparseable or timed-out output falls back to the bandit **and says so** | API tests with scripted model outputs; real adapter in the browser and through `/act` |
+| DITTO training | reproducible CLI, SFT + 3 DITTO rounds with expert / replay / intermodel comparisons, per-round adapters, manifest with base revision, template settings, demonstration IDs and hash, config, seed, metrics, status | one completed run (`demoA-qwen3-1.7b-r1`, 323 s on an Apple M4 Pro GPU via MPS, 4.1 GB peak); adapter reloaded in a fresh process |
+| Evaluation | same reserved situations for every model, counts with denominators | `results/ditto_llm_test.md`, `results/ditto_llm_dev.md` |
+| Clinician view | latest decision with its source, fallback reason and raw model output; alternatives in plain words; note; scope (session / patient / all); "Use my choice" replaces a not-yet-answered picture; "Save the proposal as a good example"; saved examples shown as **pending** until a training run lists them | used in the browser; API tests |
+| Models & results view | activate a completed version for new sessions or the current session; training run details (demonstrations used, pairs per round, losses); measured comparison with per-situation successes and failures | used in the browser |
+| Tests | 190 collected: 189 pass, 1 skipped (pre-existing PPO skip) | `uv run --extra llm --extra speech pytest` |
+
+Compute: the brief planned a GCP L4 VM. `gcloud` is not installed or configured on the build
+machine, and the local Apple GPU ran the whole pipeline (training 323 s, inference ~0.4 s per
+decision), so **no cloud was used and $0 was spent**. The base model and LoRA setup are as planned;
+only the device changed. On a CUDA machine the same commands pick `cuda` automatically.
+
+### Results: does the adapted model follow the demonstrator on new situations?
+
+Run `demoA-qwen3-1.7b-r1`, trained on the 20 training demonstrations. Settings were fixed before
+any evaluation and not tuned afterwards. "Agrees" = the final action is one the demonstrator
+accepts. On the test split every language-model answer was a valid option, so no result depends on
+a fallback, except intermediate round 1 (4/10 unparseable answers, replaced by the bandit and counted).
+
+| model | test (10 situations) | dev (5 situations) | valid output (test) | median latency |
+|---|---|---|---|---|
+| Qwen3-1.7B, task instruction only | 2/10 | 1/5 | 10/10 | 0.34 s |
+| same + 20 training demonstrations in the prompt | 5/10 | 2/5 | 10/10 | 2.7 s |
+| SFT adapter only | 3/10 | 1/5 | 10/10 | 0.38 s |
+| DITTO after round 1 / round 2 | 3/10 / 4/10 | 1/5 / 0/5 | 6/10 / 10/10 | 0.36 s |
+| **DITTO, final (round 3)** | **6/10** | **1/5** | 10/10 | 0.38 s |
+| bandit baseline | 4/10 | 1/5 | n/a | <1 ms |
+
+What this does and does not show (per-situation tables in `results/ditto_llm_test.md`):
+- On the test split the DITTO adapter agreed with the demonstrator more often (6/10) than the
+  unadapted model (2/10), the SFT-only adapter (3/10) and the bandit (4/10), and slightly more than
+  few-shot prompting (5/10) at about a seventh of its latency. Successive rounds moved 3 → 4 → 6.
+- **It is not robust.** On the 5 development situations every model scores 0 to 2. With 10 and 5
+  situations, one or two decisions change the ranking; this is an exploratory check, not evidence.
+- **The adapter learned "move on" better than "retry with the matched hint".** It got all
+  move-on situations right on test (tier up after a fast answer, same tier after a hint, easier
+  late in the session) except one, and missed every retry-with-hint situation (sound error → first
+  sound; unclear error → sentence; after the first sound → sentence or description). The same
+  happened live: after a confirmed meaning error it moved on instead of giving a description.
+- The preferences come from a written rule (`data/demonstrations/README.md`), so a hand-coded rule
+  would score 10/10. The question is whether a language model picks the preference up from 20
+  demonstrations, not whether a language model is needed for this rule.
+- Training statistics are in the run manifest: after SFT, 46 of 120 sampled decisions already
+  matched the demonstrator (60/120 by round 3); 42 expert, 12 replay and 6 intermodel comparisons
+  were used per round (available after filtering: 74 expert in round 1; 60 expert, 150 replay and
+  1,061 intermodel in round 3).
+
+### Not done / limitations
+
+- Live speech has only been exercised with synthesized speech and typed answers on the build
+  machine; a person must try the microphone path in a browser (Chrome or Safari) before the demo.
+  Whisper `base.en` is not evaluated on aphasic speech, and the helper always confirms.
+- Training was not triggered from the browser (optional in the brief); it is a CLI. Clinician
+  examples saved in the app are not in the trained checkpoint; they can be added to a future run
+  with `--extra-demos runs/demonstrations/captured.jsonl` (global-scope examples only).
+- The demonstrations are pending human review by a teammate.
+- MultiPic could not be downloaded non-interactively; Twemoji pictures are used instead (see
+  `data/ATTRIBUTION.md` for how to switch). Tiers are prototype settings.
+- One service worker; sessions are in memory with JSON snapshots in `runs/practice/` (restored at
+  startup). Multiple workers would need a shared store, and each would load its own model.
+- No recorded backup demo has been made yet.
+
+## Run CueAgain
+
+```bash
+uv sync                                                         # CPU baseline: bandit decisions, typed answers
+uv run uvicorn service.app:app --port 8000                      # open http://localhost:8000/app/
+```
+```bash
+uv sync --extra speech                                          # + local speech recognition (no key; ~150 MB model on first use)
+uv sync --extra llm --extra speech                              # + language-model decisions and training
+uv run --extra llm --extra speech uvicorn service.app:app --port 8000
+```
+`uv sync` without the extras removes them from the environment, so keep passing the extras you use.
+The default decision model for new sessions is `default_model` in `configs/practice.yaml`
+(`bandit`); switch versions in **Models & results**. Base model and pinned revision:
+`llm.base_model` / `llm.revision` in the same file.
+
+Reproduce the experiment (Apple MPS or CUDA; about 6 minutes on an M4 Pro):
+```bash
+uv run --extra llm python -m training.smoke --model Qwen/Qwen3-0.6B            # train/save/reload smoke test
+uv run python -m training.build_demonstrations                                    # rebuild the dataset (deterministic)
+uv run --extra llm python -m training.ditto --run-id demoA-qwen3-1.7b-r1          # SFT + 3 DITTO rounds -> runs/ditto/<run_id>/
+uv run --extra llm python -m evaluation.compare --run demoA-qwen3-1.7b-r1 --split test --rounds --markdown results/ditto_llm_test.md
+uv run --extra llm python -m evaluation.compare --run demoA-qwen3-1.7b-r1 --split dev --rounds --markdown results/ditto_llm_dev.md
+uv run --extra llm python -m training.ditto --extra-demos runs/demonstrations/captured.jsonl   # include saved clinician examples
+```
+Serve an adapter behind the original `/act` contract: set `agent: llm` and
+`llm_model: "ditto:<run_id>"` in `configs/service.yaml`. `/act` then answers from the adapter when the
+State carries `current_exercise`. The response body stays `{tier, cue, rationale}`; the
+`X-Decision-Source`, `X-Requested-Model` and `X-Fallback-Reason` headers say which model answered.
+
+Runs, adapters, evaluations, sessions and captured examples live in `runs/` (gitignored). The
+adapter of the run above is 25 MB (`runs/ditto/demoA-qwen3-1.7b-r1/round3`); copy that folder to
+share it. No secrets are needed or committed.
+
+## CueAgain API (added; existing endpoints unchanged)
+
+| method | path | purpose |
+|---|---|---|
+| GET | `/items` | picture manifest with hints |
+| POST | `/transcribe` | multipart `audio` (+ `exercise_id`): `{status: ok/empty/failed/timeout/unavailable, text, provider, error, suggestion}` |
+| GET | `/speech/status` | which speech provider is configured |
+| POST | `/practice/sessions` | start a session (`model_version` optional) → first presentation |
+| GET | `/practice/sessions`, `/practice/sessions/{id}` | session list; full history, decisions, stats (named without a hint vs after a hint) |
+| POST | `/practice/sessions/{id}/attempts` | one attempt: `attempt_id`, `presentation_id`, raw and corrected transcript, `scoring_status` (`confirmed` / `unscored`), `correct`, `error_category` (`sound` / `meaning` / `no_response` / `unclassified`), `response_time_s` → decision + next presentation |
+| POST | `/practice/sessions/{id}/manual` | patient/helper "show a hint" or "next picture" (logged as manual) |
+| POST | `/practice/sessions/{id}/override` | clinician replaces a not-yet-answered decision (+ saves the example) |
+| POST | `/practice/sessions/{id}/model`, `/pause` | switch this session's model; pause/resume |
+| POST/GET | `/demonstrations` | save a preferred or accepted decision (with scope); list with training status |
+| GET/POST | `/models`, `/models/active` | versions and availability; activate for new sessions |
+| GET | `/runs`, `/runs/{run_id}` | training manifests and their evaluations |
+
+Changes to the existing contract (additive): `ErrorType` gains `unclassified` (a confirmed error of
+unknown kind; it has no one-hot slot in trained PPO observations); `TrialRecord` gains optional
+`exercise_id` / `attempt_id`; `State` gains optional `current_exercise`; `/update` accepts an optional
+`attempt_id` and is then idempotent (duplicate → `{"status": "duplicate"}`, conflicting content → 409).
+The `Action` body is unchanged.
+
+## How the decision model is trained (DITTO)
+
+All code paths render contexts and parse actions through one module (`core/practice.py`), so
+training, evaluation and serving see identical text. The model receives the current picture and its
+tier, the hints already shown and attempts on it, the latest attempt, up to 4 earlier attempts, the
+session time, and the list of valid options, and must answer with one option, e.g.
+`{"op":"retry","hint":"first_sound"}` or `{"op":"next","tier":2}`. Qwen3 thinking is disabled
+consistently (`enable_thinking=False`).
+
+`training/ditto.py` follows the authors' implementation (`SALT-NLP/demonstrated-feedback`):
+1. **SFT**: LoRA adapter `sft` (r 16, q/k/v/o) on the demonstrations' answer tokens, with an early
+   stop on the loss (stopped at 6 steps, loss 0.14).
+2. **DITTO**: adapter `ditto` initialised as a copy of `sft`; the fixed `sft` adapter is the DPO
+   reference policy (as `ref_adapter_name="sft"` in the reference).
+3. Each round: sample 6 answers per training context from the current `ditto` policy (temperature 1)
+   into a cache keyed by round; build comparisons **expert** (demonstration ≻ this round's sample),
+   **replay** (demonstration ≻ earlier rounds' samples) and **intermodel** (later round's sample ≻
+   earlier round's sample); draw 70% / 20% / 10% of n_prompts × 3 pairs (reference defaults); run 15
+   DPO steps (β 0.1, lr 5e-5); save the round's adapter. 3 rounds.
+
+Differences from the reference, and why:
+- Pairs are drawn once per round, not per batch inside the data collator; rounds play the role of
+  the reference's `resample_rate` steps.
+- With structured answers, exact repeats are common. Pairs whose two sides are the same action
+  (even if worded differently), and pairs whose rejected side is an action the demonstrator also
+  accepts, are discarded rather than trained on. Generated comparisons add training material, not
+  independent expert judgments; the manifest records how many samples already matched the
+  demonstrator, so we never invent rejected examples to reach a pair count.
+- Intermodel pairs rest on DITTO's assumption that each round's policy is closer to the demonstrator
+  than earlier ones. Round 2 made more unparseable answers than round 1, so on this run the
+  assumption did not hold strictly. We kept the reference construction and report it.
+- The DPO loss (sigmoid, as in TRL's `DPOTrainer`) is implemented directly, with reference
+  log-probabilities computed once per round, instead of through TRL. This keeps the fixed SFT
+  reference adapter and the per-round pairs explicit; TRL is therefore not a dependency.
+- Learning rate and β are larger than the reference's (1e-6, 0.05) because the answers are about
+  10 tokens and each round has only 15 steps; chosen before any evaluation, not tuned.
+
+A preference never changes a hard constraint: at most 3 attempts per picture, tier moves of at most
+one step, approved hints only (`configs/clinical.yaml`, `configs/practice.yaml`). These are enforced
+on every model's output at the service boundary. The 85% target in `configs/clinical.yaml` belongs
+to the bandit/PPO research below; it is not the DITTO objective.
+
+---
+
+The sections below describe the team's earlier RL research on simulated patients (PPO, bandits,
+DITTO-style tuning of the PPO policy). It is kept as is; the CueAgain flow above reuses its schema,
+masks, service and Beta bandit.
+
+## Aphasia Trainer: RL therapist research
 
 A home practice trainer for people with aphasia, the loss of language that follows many strokes. The
 patient names pictures; an AI therapist chooses the difficulty and the hint (cue) for every trial so
@@ -52,8 +253,8 @@ Implemented and tested (149 tests, `uv run pytest`):
   the learning-peak assumption, dropout and the reward (`eval/ablations.py`).
 
 In progress or planned:
-- Patient app and clinician dashboard (`frontend/`).
-- Speech scoring and error classification.
+- Patient app, clinician view and speech transcription now exist for the CueAgain flow (above);
+  automatic error classification from speech is deliberately not done (the helper confirms).
 - The prompted frontier-model baseline is implemented and tested with a mocked API; it runs as soon as
   an API key is available (`configs/eval_llm.yaml`).
 - A clinically curated item bank and clinical validation of the simulator's parameters.

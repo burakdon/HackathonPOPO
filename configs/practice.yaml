@@ -1,0 +1,23 @@
+# Picture-naming practice flow and the language-model decision policy.
+items_path: data/items.json
+start_tier: 1
+# Hard constraint: at most this many attempts per picture, then the app must move on.
+max_attempts_per_exercise: 3
+# Earlier confirmed attempts included in the decision prompt (besides the latest one).
+history_in_prompt: 4
+# Local persistence (gitignored): one JSONL event log per practice session, captured demonstrations.
+sessions_dir: runs/practice
+demonstrations_path: runs/demonstrations/captured.jsonl
+eval_dir: runs/eval
+# Model used by new practice sessions until another version is activated in the clinician view.
+# "bandit" = Beta-Bernoulli Thompson baseline (no GPU stack needed); "base" = unadapted LLM;
+# "prompted" = LLM with the training demonstrations in its prompt; "ditto:<run_id>" / "sft:<run_id>".
+default_model: bandit
+llm:
+  base_model: Qwen/Qwen3-1.7B
+  revision: 70d244cc86ccca08cf5af4e1e306ecf908b1ad5e
+  device: auto          # cuda, then Apple mps, then cpu
+  dtype: bfloat16
+  max_new_tokens: 24
+  timeout_s: 20
+  runs_dir: runs/ditto
