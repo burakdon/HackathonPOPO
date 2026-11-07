@@ -1,0 +1,9 @@
+# Prompted frontier-model baseline (agents/llm_prompted.py): no training, no feedback loop beyond
+# what is in the prompt. Key from GEMINI_API_KEY in .env (never committed).
+provider: gemini
+model: gemini-2.5-flash          # set to the model available to the key
+temperature: 0.0                 # deterministic as far as the API allows; responses are also cached
+max_output_tokens: 64
+timeout_s: 20
+cache_path: runs/llm_cache.jsonl # prompt-hash -> response, so reruns cost nothing and reproduce exactly
+n_patients: 30                   # per cohort; 40 calls per session, so the full 200 would be ~24k calls

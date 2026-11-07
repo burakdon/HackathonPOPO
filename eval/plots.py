@@ -131,7 +131,7 @@ def plot_comparison_bars(cfg: dict, csv_path: Path, out: Path) -> None:
     width = 0.8 / n
     fig, axes = plt.subplots(2, 2, figsize=(11, 7), facecolor=SURFACE)
     for ax, (metric, title, sc) in zip(axes.flat, panels):
-        for j, (p, color) in enumerate(zip(policies, SERIES)):
+        for j, (p, color) in enumerate(zip(policies, SERIES + ["#52514e"])):
             xs = np.arange(len(cohorts)) - 0.4 + width * (j + 0.5)
             means = np.array([sc * float(get[(c, p["key"], metric)]["mean"]) for c in cohorts])
             lo = np.array([sc * float(get[(c, p["key"], metric)]["ci_low"]) for c in cohorts])
@@ -161,7 +161,7 @@ def plot_rolling_accuracy(cfg: dict, ev: dict, out: Path) -> None:
     x = np.arange(W, ev["n_trials"] + 1)
     for ax, cohort in zip(np.atleast_1d(axes), cohorts):
         ax.axhspan(0.75, 0.90, color=GRID, alpha=0.6, linewidth=0, label="target band 75-90%")
-        for p, color in zip(policies, SERIES):
+        for p, color in zip(policies, SERIES + ["#52514e"]):
             curves = ev["curves"][(cohort, p["key"])]
             mean = np.nanmean(curves, axis=0)
             n = np.sum(~np.isnan(curves), axis=0)
@@ -177,6 +177,41 @@ def plot_rolling_accuracy(cfg: dict, ev: dict, out: Path) -> None:
     fig.text(0.01, 0.005, f"{cfg['n_patients']} held-out patients per cohort; lines = mean, light bands = 95% CI; "
              "includes review probes; sessions that were abandoned drop out of later trials.", fontsize=8, color=MUTED)
     fig.tight_layout(rect=(0, 0.04, 1, 0.82))
+    fig.savefig(out, dpi=150, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def plot_learning_peak_ablation(rows: list[dict], cfg: dict, out: Path) -> None:
+    """Learning gain vs the simulator's learning-peak assumption, one panel per cohort, one line per
+    policy (fixed categorical order), 95% CI whiskers."""
+    rows = [r for r in rows if r["ablation"] == "learning_peak" and r["metric"] == "learning_gain"]
+    peaks = sorted({float(r["setting"]) for r in rows})
+    pols = list(dict.fromkeys((r["policy"], r["label"]) for r in rows))
+    cohorts = cfg["cohorts"]
+    fig, axes = plt.subplots(1, len(cohorts), figsize=(12, 4.3), facecolor=SURFACE)
+    colors = SERIES + ["#52514e"]   # 7th series (matched PPO) in neutral ink, dashed
+    for ax, cohort in zip(np.atleast_1d(axes), cohorts):
+        for (key, label), color in zip(pols, colors):
+            pts = sorted(((float(r["setting"]), r) for r in rows if r["cohort"] == cohort and r["policy"] == key),
+                         key=lambda t: t[0])
+            if not pts:
+                continue
+            x = [p for p, _ in pts]
+            y = np.array([100 * r["mean"] for _, r in pts])
+            lo = np.array([100 * r["ci_low"] for _, r in pts])
+            hi = np.array([100 * r["ci_high"] for _, r in pts])
+            style = "--" if key == "ppo_sim_matched" else "-"
+            ax.errorbar(x, y, yerr=[y - lo, hi - y], color=color, linestyle=style, linewidth=2.0, marker="o",
+                        markersize=5, capsize=2, label=label)
+        _style(ax, cohort.replace("_", " "), "learning gain x100" if ax is np.atleast_1d(axes)[0] else "")
+        ax.set_xticks(peaks)
+        ax.set_xlabel("simulator learning peak (p at which practice teaches most)", fontsize=8.5, color=INK_2)
+    handles, labels = np.atleast_1d(axes)[0].get_legend_handles_labels()
+    _legend_top(fig, handles, labels, ncol=3)
+    fig.suptitle("Ablation: where does learning peak?", x=0.01, ha="left", fontsize=11, color=INK)
+    fig.text(0.01, 0.005, f"{cfg['n_patients']} held-out patients per cohort, mean with 95% bootstrap CI. Dashed: "
+             "PPO retrained on the simulation objective at each peak.", fontsize=8, color=MUTED)
+    fig.tight_layout(rect=(0, 0.04, 1, 0.8))
     fig.savefig(out, dpi=150, facecolor=SURFACE)
     plt.close(fig)
 
