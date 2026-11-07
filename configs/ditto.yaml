@@ -1,0 +1,28 @@
+# DITTO-style preference learning from clinician overrides, applied to the trained MaskablePPO policy
+# (agents/ditto.py, train/ditto_ppo.py). Method after Shaikh et al. (ICLR 2025): demonstrations are
+# preferred over the policy's own sampled actions in the same state, including samples from earlier
+# rounds; DPO loss against a frozen reference policy.
+base_model: models/ppo_seed0.zip
+output_model: models/ppo_ditto_seed0.zip
+seed: 0
+
+# Selected by a small sweep scored ONLY on states from the override-collection patients (demos
+# excluded), never on the evaluation patients.
+rounds: 4
+samples_per_state: 8        # policy samples per demonstration state per round (the "rejected" actions)
+beta: 0.5                   # DPO temperature
+learning_rate: 0.001
+gradient_steps_per_round: 60
+
+# Accepted-choice anchors: KL(reference || policy) on states from the same sessions that the
+# clinician saw and did not override (implicit acceptance). 0 disables them (plain DITTO-style).
+# Both variants are reported; the anchored one is saved as output_model.
+anchor_weight: 5.0
+
+# Demonstration for the demo: a simulated clinician with one consistent preference the policy does
+# not already follow: "after a sound (phonological) error, give the first-sound cue" (keeping the
+# policy's tier). Real overrides from the dashboard (runs/overrides.jsonl) use the same pipeline.
+clinician_rule: {after_error: sound, cue: first_sound}
+n_overrides: 10
+override_patients: [0, 60]     # validation patients used to collect override states
+eval_patients: [100, 220]      # disjoint validation patients for the before/after evaluation
