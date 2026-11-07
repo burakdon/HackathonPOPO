@@ -1,0 +1,29 @@
+# Proxy reward: every term is observable on a real patient (no hidden simulator state).
+# Agents are trained on this proxy and evaluated on the true objective (learning gain, sim-only).
+# Terms follow the project spec; magnitudes are ASSUMPTIONS (scaffold values where available).
+
+# Which terms are active. The reward ablation (band_only / band_climb / full) compares them.
+variant: full
+variants:
+  band_only:  {band: true, climb: false, frustration: false, cue_waste: false}
+  band_climb: {band: true, climb: true,  frustration: false, cue_waste: false}
+  full:       {band: true, climb: true,  frustration: true,  cue_waste: true}
+
+# + per trial whose rolling accuracy over the last `window` trials is inside the band
+# (only once a full window exists).
+band_bonus: 1.0
+
+# + once, at the end of the session: climb_scale * (end_tier - start_tier), paid only if the
+# session's time in band >= climb_min_band ("only if accuracy stayed in band").
+# A terminal, conditioned bonus removes the scaffold's exploit (per-step +reward for climbing
+# while in band, no cost for dropping out of band, so oscillating tiers farmed reward).
+climb_scale: 2.0
+climb_min_band: 0.5
+
+# - per trial while the failure streak is 3 or more.
+frustration_penalty: 1.0
+
+# - small, when a trial is correct with no cue right after a correct trial with a heavy cue
+# (strength >= heavy_cue_strength): the heavy cue was probably not needed.
+cue_waste_penalty: 0.1
+heavy_cue_strength: 2

@@ -9,6 +9,17 @@ dependencies = [
     "pyyaml>=6.0",
     "fastapi>=0.110",
     "uvicorn>=0.29",
+    "gymnasium>=1.0",
+    "stable-baselines3>=2.4",
+    "sb3-contrib>=2.4",
+    "torch>=2.3",
+    "tensorboard>=2.21.0",
+    "matplotlib>=3.11.2",
+]
+
+[project.optional-dependencies]
+grpo = [
+    "tinker==0.35.0",
 ]
 
 [dependency-groups]
