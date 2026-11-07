@@ -112,6 +112,75 @@ def plot_variant_curves(variants: dict[str, list[Path]], out: Path, title: str) 
     plt.close(fig)
 
 
+def _legend_top(fig, handles, labels, ncol=3) -> None:
+    fig.legend(handles, labels, loc="upper right", ncol=ncol, frameon=False, fontsize=8.5, labelcolor=INK_2)
+
+
+def plot_comparison_bars(cfg: dict, csv_path: Path, out: Path) -> None:
+    """Grouped bars (cohort groups, one bar per policy) with 95% bootstrap CI whiskers, one panel per
+    metric. Lower is better for control error and quit rate; higher for learning gain and probe lift."""
+    with open(csv_path) as f:
+        rows = list(csv.DictReader(f))
+    get = {(r["cohort"], r["policy"], r["metric"]): r for r in rows}
+    panels = [("control_error", "True control error |p - 0.85| (lower is better)", 1.0),
+              ("learning_gain", "Learning gain over the item bank, x100 (higher is better)", 100.0),
+              ("probe_lift", "Probe lift: recall gain on review items, x100 (higher is better)", 100.0),
+              ("quit", "Sessions abandoned (lower is better)", 1.0)]
+    cohorts, policies = cfg["cohorts"], cfg["policies"]
+    n = len(policies)
+    width = 0.8 / n
+    fig, axes = plt.subplots(2, 2, figsize=(11, 7), facecolor=SURFACE)
+    for ax, (metric, title, sc) in zip(axes.flat, panels):
+        for j, (p, color) in enumerate(zip(policies, SERIES)):
+            xs = np.arange(len(cohorts)) - 0.4 + width * (j + 0.5)
+            means = np.array([sc * float(get[(c, p["key"], metric)]["mean"]) for c in cohorts])
+            lo = np.array([sc * float(get[(c, p["key"], metric)]["ci_low"]) for c in cohorts])
+            hi = np.array([sc * float(get[(c, p["key"], metric)]["ci_high"]) for c in cohorts])
+            ax.bar(xs, means, width=width * 0.88, color=color, label=p["label"], edgecolor=SURFACE, linewidth=1.0)
+            ax.errorbar(xs, means, yerr=[means - lo, hi - means], fmt="none", ecolor=INK_2, elinewidth=0.8, capsize=1.5)
+        ax.set_xticks(np.arange(len(cohorts)))
+        ax.set_xticklabels([c.replace("_", " ") for c in cohorts], fontsize=8.5, color=INK_2)
+        _style(ax, title, "")
+        ax.axhline(0, color=AXIS, linewidth=0.8)
+    handles, labels = axes.flat[0].get_legend_handles_labels()
+    _legend_top(fig, handles, labels)
+    fig.suptitle("Policy comparison on held-out simulated patients", x=0.01, ha="left", fontsize=11, color=INK)
+    fig.text(0.01, 0.005, f"{cfg['n_patients']} held-out patients per cohort, mean with 95% bootstrap CI; "
+             "PPO averaged over 3 training seeds per patient; the oracle reads the hidden patient state.",
+             fontsize=8, color=MUTED)
+    fig.tight_layout(rect=(0, 0.03, 1, 0.9))
+    fig.savefig(out, dpi=150, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def plot_rolling_accuracy(cfg: dict, ev: dict, out: Path) -> None:
+    """Rolling accuracy (last `window` trials) vs trial number, mean over patients (and seeds) with a
+    light 95% band, the 75-90% target band shaded. Sessions that ended early drop out of later trials."""
+    cohorts, policies, W = cfg["cohorts"], cfg["policies"], ev["window"]
+    fig, axes = plt.subplots(1, len(cohorts), figsize=(12, 4.2), facecolor=SURFACE, sharey=True)
+    x = np.arange(W, ev["n_trials"] + 1)
+    for ax, cohort in zip(np.atleast_1d(axes), cohorts):
+        ax.axhspan(0.75, 0.90, color=GRID, alpha=0.6, linewidth=0, label="target band 75-90%")
+        for p, color in zip(policies, SERIES):
+            curves = ev["curves"][(cohort, p["key"])]
+            mean = np.nanmean(curves, axis=0)
+            n = np.sum(~np.isnan(curves), axis=0)
+            se = np.nanstd(curves, axis=0) / np.sqrt(np.maximum(n, 1))
+            ax.fill_between(x, mean - 1.96 * se, mean + 1.96 * se, color=color, alpha=0.12, linewidth=0)
+            ax.plot(x, mean, color=color, linewidth=2.0, label=p["label"])
+        _style(ax, cohort.replace("_", " "), "rolling accuracy (last 8 trials)" if ax is np.atleast_1d(axes)[0] else "")
+        ax.set_xlabel("trial", fontsize=9, color=INK_2)
+        ax.set_ylim(0.2, 1.02)
+    handles, labels = np.atleast_1d(axes)[0].get_legend_handles_labels()
+    _legend_top(fig, handles, labels, ncol=4)
+    fig.suptitle("Rolling accuracy over the session", x=0.01, ha="left", fontsize=11, color=INK)
+    fig.text(0.01, 0.005, f"{cfg['n_patients']} held-out patients per cohort; lines = mean, light bands = 95% CI; "
+             "includes review probes; sessions that were abandoned drop out of later trials.", fontsize=8, color=MUTED)
+    fig.tight_layout(rect=(0, 0.04, 1, 0.82))
+    fig.savefig(out, dpi=150, facecolor=SURFACE)
+    plt.close(fig)
+
+
 VARIANT_LABELS = {"full": "proxy reward", "full_probe": "proxy + probe reward", "privileged": "privileged reward"}
 
 
