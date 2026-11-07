@@ -27,32 +27,38 @@ simulated patients, and demonstrations from clinician overrides.
 
 ## Status
 
-Implemented and tested (117 tests, `uv run pytest`):
+The team objective is **better later naming without hints**. Sessions therefore include review
+probes (an earlier practised word shown again with no cue), and every policy is evaluated on them.
+
+Implemented and tested (128 tests, `uv run pytest`):
 - Agent service (FastAPI) implementing the agreed State/Action interface, with one online-learning
-  agent per session, clinician overrides logged for later training, and CORS for a frontend on the
-  local network.
+  agent per session, clinician overrides logged for later training, CORS for a frontend on the local
+  network, and `POST /next_trial`, which applies the shared item-selection and review-probe rule.
 - Patient simulator: population sampling with a held-out test split, three evaluation cohorts,
   item difficulty from word frequency and length, patient-specific cue responsiveness, error types,
-  fatigue with recovery, and learning with a configurable peak. The item bank is a placeholder.
+  fatigue with recovery, learning with a configurable peak, patient dropout after failure streaks,
+  and review probes. The item bank is a placeholder.
 - Therapist agents: a contextual Bayesian logistic Thompson-sampling bandit with a prior fitted on
   simulated training patients (the live agent), a Beta-Bernoulli Thompson bandit, and fixed-difficulty
   and staircase baselines.
-- Trained agent: a Gymnasium environment with clinical action masks and a decomposed proxy reward,
-  and MaskablePPO trained on simulated patients (3 seeds, learning curves on held-out patients).
-- Preliminary evaluation: five policies on three cohorts, 50 held-out patients each, with patient
+- Trained agent: a Gymnasium environment with clinical action masks and a decomposed reward, and
+  MaskablePPO trained on simulated patients with three rewards (observable proxy, proxy + review-probe
+  bonus, privileged simulator-only objective), 3 seeds each, learning curves on held-out patients.
+- Learning from clinician overrides: DITTO-style preference optimisation of the PPO policy from ~10
+  overrides, with a before/after evaluation on held-out states.
+- Preliminary evaluation: seven policies on three cohorts, 50 held-out patients each, with patient
   dropout on and off (see below).
-- Language-model therapist: prompt format, offline reward and dataset, and a 10-step Tinker training
-  smoke test (not yet run against the API).
 
 In progress or planned:
 - Patient app and clinician dashboard (`frontend/`).
 - Speech scoring and error classification.
-- Language-model therapist trained with group-relative policy optimisation (GRPO), and a prompted
-  frontier-model baseline.
-- Full evaluation: privileged oracle, 200+ patients per cohort, several training seeds, bootstrap
-  confidence intervals, and reward and learning-peak ablations.
-- Expert alignment from clinician overrides.
+- Full evaluation: privileged oracle, 200+ patients per cohort, bootstrap confidence intervals, a
+  prompted frontier-model baseline, and reward and learning-peak ablations.
 - A clinically curated item bank and clinical validation of the simulator's parameters.
+
+Explored, not part of the current scope: a language-model therapist trained with GRPO on Tinker
+(prompt format, offline reward and dataset, and a 10-step smoke test are in `agents/llm_prompt.py`
+and `train/grpo_*.py`; never run against the API).
 
 ## Quick start
 
@@ -62,11 +68,14 @@ uv run pytest                                   # test suite
 uv run uvicorn service.app:app --host 0.0.0.0 --port 8000   # agent service, reachable on the LAN
 uv run python -m scripts.service_smoke --url http://localhost:8000   # 40-trial session over HTTP
 uv run python -m train.fit_bandit_prior         # refit the bandit's empirical-Bayes prior (~2 s)
-uv run python -m train.train_ppo                # MaskablePPO, 3 seeds (~3 min each on CPU) -> models/
+uv run python -m train.train_ppo --reward full          # MaskablePPO, 3 seeds (~3 min each on CPU) -> models/
+uv run python -m train.train_ppo --reward full_probe    # proxy + review-probe bonus
+uv run python -m train.train_ppo --reward privileged    # simulator-only objective (reference)
 uv run python -m eval.plots                     # learning curves -> results/learning_curves.png
+uv run python -m train.ditto_ppo                # DITTO-style tuning from overrides -> results/ditto_report.md
 uv run python -m scripts.sanity_table --dropout on --out results/sanity_dropout_on.md
 uv run python -m scripts.sanity_table --dropout off --out results/sanity_dropout_off.md
-uv sync --extra grpo && uv run python -m train.grpo_smoke   # needs TINKER_API_KEY in .env
+uv sync --extra grpo && uv run python -m train.grpo_smoke   # explored, out of scope; needs TINKER_API_KEY
 ```
 
 **Frontend on another laptop:** run the service with `--host 0.0.0.0`, find this machine's LAN IP
@@ -111,11 +120,15 @@ The contract between the frontend, the scorer and the agent. Defined once in
 [`core/schema.py`](core/schema.py) (pydantic); the service validates every request against it and
 returns HTTP 422 with a precise error on any violation.
 
-**Changes from the original contract (both additive and backward-compatible):**
+**Changes from the original contract (all additive and backward-compatible):**
 1. `State` has an optional `session_id`. The service keeps one online-learning agent per session;
    requests without it share a single `default` session. **Please always send it** (one id per
    patient session, any string up to 128 chars).
 2. `POST /update` takes an explicit `outcome` object (shape below).
+3. Review probes: trials may carry `"probe": true`; `POST /update` accepts `"probe": true`; and
+   `current_tier` means the tier of the last trial the **agent** chose (probes do not change it).
+4. New endpoint `POST /next_trial` returns the complete next trial (word, image, tier, cue, probe)
+   using the shared item-selection rule below, so the frontend does not have to implement it.
 
 ### State
 ```json
@@ -133,7 +146,8 @@ returns HTTP 422 with a precise error on any violation.
 | `last_trials[].outcome` | bool | must be `true` iff `error_type == "correct"` |
 | `last_trials[].error_type` | string | `correct \| sound \| meaning \| no_response` |
 | `last_trials[].response_time` | float | seconds, >= 0 |
-| `current_tier` | int | 1..3, the tier of the most recent trial (the agent plans from this) |
+| `last_trials[].probe` | bool, optional | `true` for a review probe (default `false`) |
+| `current_tier` | int | 1..3, the tier of the last trial the agent chose; review probes do not change it |
 | `trial_count` | int | >= 0 |
 | `session_minutes` | float | >= 0 |
 
@@ -153,22 +167,40 @@ clinician-approved set in [`configs/clinical.yaml`](configs/clinical.yaml).
 ```
 `correct` must be `true` iff `error_type == "correct"`.
 
+### Item selection and review probes (the frontend must use the same rule)
+The agent chooses only the tier and cue; the item is chosen by this rule (implemented in
+[`sim/items.py`](sim/items.py) and used by the simulator and by `POST /next_trial`). Trials are
+numbered k = 0, 1, 2, ... over the whole session, probes included.
+1. **Review probe** if review probes are enabled, (k + 1) is a multiple of 5, and an eligible item
+   exists. Eligible: practised earlier in this session as a normal trial, and not shown in the last
+   3 trials. Pick the eligible item with the fewest probes so far this session; ties go to the item
+   first practised earliest. Show it **with no cue**, at its own tier. Do not call `/act` for it.
+2. **Otherwise a normal trial:** call `/act`, then pick an item in the returned tier that has not
+   been shown this session; if all have been shown, the least recently shown (ties at random).
+Parameters live in [`configs/sim.yaml`](configs/sim.yaml) (`review_probes`: `every` = 5,
+`min_gap` = 3). The simplest integration is `POST /next_trial`, which applies this rule server-side.
+
 ### Endpoints
 | method | path | body | returns |
 |---|---|---|---|
 | GET | `/health` | none | `{"status": "ok", "agent": "...", "active_sessions": n}` |
+| POST | `/next_trial` | `State` | `{"word", "image_file", "tier", "cue", "probe", "rationale"}` |
 | POST | `/act` | `State` | `Action` |
-| POST | `/update` | `{"state": State, "action": Action, "outcome": Outcome}` | `{"status": "ok", "session_id": "..."}` |
+| POST | `/update` | `{"state": State, "action": Action, "outcome": Outcome, "probe": false}` | `{"status": "ok", "session_id": "...", "agent_updated": bool}` |
 | POST | `/override` | `{"state": State, "agent_action": Action, "clinician_action": Action, "note": "optional"}` | `{"status": "stored", "session_id": "...", "n_overrides": n}` |
 
 Session loop for the frontend:
-1. `POST /act` with the current `State` and show the returned tier and cue.
-2. If the clinician overrides, `POST /override` with both actions and show the clinician's action.
+1. `POST /next_trial` with the current `State` (or apply the rule above yourself and call `/act`
+   for normal trials). Show the returned word with the returned cue.
+2. If the clinician overrides a normal trial, `POST /override` with both actions and show the
+   clinician's action.
 3. After the patient answers, `POST /update` with the same `State`, the action **actually shown**
-   (the clinician's if overridden), and the `Outcome`.
-4. Append the trial to `last_trials` and repeat.
+   (the clinician's if overridden), the `Outcome`, and `"probe"` as returned. Agents do not learn
+   from probes, which they did not choose.
+4. Append the trial (with `"probe"`) to `last_trials`; if it was not a probe, set `current_tier` to
+   its tier. Repeat.
 
-Overrides are stored as JSON lines in `runs/overrides.jsonl` (the input to the DITTO step).
+Overrides are stored as JSON lines in `runs/overrides.jsonl` (the input to `train/ditto_ppo.py --overrides`).
 Interactive API docs: `http://localhost:8000/docs` while the service runs.
 
 ## Problem formulation
@@ -194,6 +226,7 @@ either cites the paper behind the *direction* of the effect or says `ASSUMPTION`
 | learning | on a success, item-specific gain with E[gain] = p^a (1-p)^b, peaking at a configurable `peak`; weaker cues teach more; 5% spills over to general ability | item-specific gains with limited generalisation (Nickels 2002); the peak location is an ASSUMPTION; a learning-peak ablation is planned |
 | response time | log-normal, slower for hard items and when fatigued | ASSUMPTION |
 | dropout | after 3 failures in a row the patient may quit: 5% per trial, +5% per further failure | ASSUMPTION (conservative); results reported with dropout on and off |
+| review probes | every 5th trial re-tests a practised word without a cue (rule in Interfaces); scored like any trial | measurement design, not a patient assumption |
 
 **Population, not fixed profiles.** Training patients are drawn from broad parameter distributions
 (domain randomisation). Three named presets (mild anomic, moderate Broca's, severe) are narrow
@@ -226,6 +259,8 @@ and decide from the State JSON only.
 - **Shared selection rule** (`agents/selection.py`): among actions whose predicted p is within 0.06
   of the 0.85 target, take the hardest tier, then the weakest cue; otherwise the closest to target.
   This fixes the tier-1 coasting of the first version of the bandit (37 of 40 trials on tier 1).
+- **DITTO-style learning from clinician overrides** (`agents/ditto.py`, method after Shaikh et al.
+  2025): see the section below.
 
 ## Trained agent: MaskablePPO (`envs/`, `train/train_ppo.py`)
 
@@ -238,93 +273,119 @@ bandits use, including "cue only after an error". (sb3-contrib has no recurrent 
 so we use MaskablePPO with a history stack rather than RecurrentPPO, which would turn masks into
 penalties.)
 
-**Proxy reward** ([`configs/reward.yaml`](configs/reward.yaml)), every term observable on a real
-patient: +1 per trial with rolling accuracy in the band; -1 per trial while the failure streak is 3
+**Rewards** ([`configs/reward.yaml`](configs/reward.yaml)). The default **proxy reward** uses
+only terms observable on a real patient: +1 per trial with rolling accuracy in the band; -1 per trial while the failure streak is 3
 or more; -0.1 when a correct uncued answer follows a correct answer with a heavy cue (cue probably
 wasted); and, once at the end, +2 per tier climbed, paid only if the session spent at least half its
 trials in band. Making the climb bonus terminal and conditional removes an exploit in the original
 scaffold (per-step reward for climbing while in band, no cost for dropping out of band, so
 oscillating tiers farmed reward). Tests check that oscillating tiers earns nothing per step and,
 in the environment, that alternating tiers 1 and 2 scores less than holding tier 2 (mean return
-14.2 vs 18.4 on validation patients). The true objective, learning gain, is never part of the reward.
+13.8 vs 18.5 on validation patients). Two variants are trained for comparison:
+- **proxy + probe**: the proxy plus +1 for every review probe answered correctly (still observable).
+- **privileged** (reference only, not deployable): frustration penalty plus three simulator-only
+  terms: the true control error |p - 0.85| on every agent trial, the dense increase in true
+  retrieval over the item bank, and the probe lift (how much each probed word's uncued recall
+  improved since the session began). Raw probe recall is deliberately not used here: probes revisit
+  practised words, so a policy that practises only easy words gets easy probes. An earlier draft
+  that rewarded the true p on probes indeed drove the agent to tier 1.
 
-**Training.** 3 seeds x 1.5M steps, CPU, about 3 minutes per seed. Learning curves are measured on
-64 fixed validation patients that are disjoint from both the training and the test patients.
-Validation time in band rises from 0.41 (untrained) to about 0.73 within 100k steps and then
-plateaus; true control error improves only from about 0.17 to 0.14.
+**Training.** 3 seeds x 1.5M steps per reward, CPU, about 3 minutes per run. Learning curves are
+measured on 64 fixed validation patients disjoint from both the training and the test patients. All
+variants converge within about 100k steps. The proxy-trained policies reach about 0.71 time in band
+with a true control error near 0.14; the privileged policy holds the band less (about 0.52) but has
+a much lower true control error (about 0.11) and higher learning gain and probe lift.
 
 ![PPO learning curves](results/learning_curves.png)
 
 ## Preliminary results
 
-50 held-out test patients per cohort, 40 trials, dropout **on**, mean ± 95% CI over patients (normal
-approximation); PPO metrics are averaged over its 3 seeds for each patient. Every policy faces the
-same patients with the same random outcome stream, so differences are due to the policy. Full
-tables: [dropout on](results/sanity_dropout_on.md), [dropout off](results/sanity_dropout_off.md).
-"learn eff." is the mean expected learning per trial implied by the simulator's learning rule at the
-true p (1.0 = every trial at the learning peak with no cue); it explains the learning-gain column.
+50 held-out test patients per cohort, 40 trials (every 5th a review probe), dropout **on**, mean ±
+95% CI over patients (normal approximation); PPO metrics are averaged over its 3 seeds for each
+patient. Every policy faces the same patients with the same random outcome stream. Full tables
+(more columns, CIs on every cell): [dropout on](results/sanity_dropout_on.md),
+[dropout off](results/sanity_dropout_off.md).
 
-| cohort | policy | in band | acc | mean tier | gain x100 | learn eff. | \|p-0.85\| | frustration | quit |
-|---|---|---|---|---|---|---|---|---|---|
-| mild anomic | fixed (tier 2) | 0.50 ± 0.06 | 0.90 | 2.00 | **3.33 ± 0.29** | **0.79** | **0.066** | 0.02 | 0.00 |
-| mild anomic | staircase | 0.80 ± 0.03 | 0.79 | 2.29 | 2.98 ± 0.23 | 0.64 | 0.143 | 0.10 | 0.02 |
-| mild anomic | Beta bandit | 0.41 ± 0.07 | 0.94 | 1.38 | 2.39 ± 0.24 | 0.56 | 0.095 | 0.00 | 0.00 |
-| mild anomic | contextual bandit | 0.52 ± 0.06 | 0.91 | 1.77 | 2.89 ± 0.27 | 0.67 | 0.085 | 0.00 | 0.00 |
-| mild anomic | PPO (3 seeds) | **0.89 ± 0.02** | 0.85 | 1.93 | 2.55 ± 0.21 | 0.56 | 0.126 | 0.01 | 0.00 |
-| moderate Broca's | fixed (tier 2) | 0.53 ± 0.06 | 0.74 | 2.00 | 4.63 ± 0.41 | 0.74 | 0.109 | 0.62 | 0.04 |
-| moderate Broca's | staircase | 0.54 ± 0.04 | 0.70 | 1.87 | 3.95 ± 0.29 | 0.65 | 0.169 | 0.28 | 0.04 |
-| moderate Broca's | Beta bandit | 0.61 ± 0.05 | 0.84 | 1.28 | 4.75 ± 0.33 | **0.81** | **0.068** | 0.14 | 0.00 |
-| moderate Broca's | contextual bandit | 0.63 ± 0.05 | 0.83 | 1.42 | **4.80 ± 0.32** | **0.81** | 0.069 | 0.24 | 0.00 |
-| moderate Broca's | PPO (3 seeds) | **0.86 ± 0.03** | 0.79 | 1.57 | 4.16 ± 0.30 | 0.68 | 0.116 | 0.05 | 0.00 |
-| severe | fixed (tier 2) | 0.02 ± 0.01 | 0.28 | 2.00 | 0.10 ± 0.05 | 0.02 | 0.521 | 2.08 | 0.82 |
-| severe | staircase | 0.08 ± 0.03 | 0.49 | 1.25 | 1.18 ± 0.26 | 0.22 | 0.350 | 1.76 | 0.36 |
-| severe | Beta bandit | 0.20 ± 0.05 | 0.53 | 1.31 | 1.49 ± 0.31 | 0.25 | 0.308 | 1.44 | 0.26 |
-| severe | contextual bandit | 0.25 ± 0.06 | 0.57 | 1.19 | 1.86 ± 0.35 | 0.29 | 0.267 | 1.20 | 0.18 |
-| severe | PPO (3 seeds) | **0.34 ± 0.06** | 0.60 | 1.10 | **2.10 ± 0.33** | **0.33** | **0.244** | **0.81** | **0.13** |
+Columns: time in band; learning gain over the whole item bank (sim-only, x100); true control error
+|p - 0.85| (sim-only); **probe recall** = unassisted recall on review probes (observable); **probe
+lift** = how much the probed words' uncued recall improved since the session began (sim-only, x100);
+frustration events (3-failure streaks); share of sessions abandoned.
+
+| cohort | policy | in band | gain | \|p-0.85\| | probe recall | probe lift | frustration | quit |
+|---|---|---|---|---|---|---|---|---|
+| mild anomic | fixed (tier 2) | 0.47 | **3.34 ± 0.29** | **0.067** | 0.92 | **2.68 ± 0.28** | 0.02 | 0.00 |
+| mild anomic | staircase | 0.83 | 2.86 | 0.137 | 0.88 | 2.03 | 0.06 | 0.00 |
+| mild anomic | Beta bandit | 0.40 | 2.30 | 0.097 | **0.95** | 1.03 | 0.00 | 0.00 |
+| mild anomic | contextual bandit | 0.53 | 2.82 | 0.086 | 0.93 | 1.51 | 0.02 | 0.02 |
+| mild anomic | PPO, proxy reward | **0.86 ± 0.03** | 2.44 | 0.131 | 0.92 | 1.52 | 0.01 | 0.00 |
+| mild anomic | PPO, proxy + probe reward | **0.86** | 2.56 | 0.126 | 0.91 | 1.53 | 0.00 | 0.00 |
+| mild anomic | PPO, privileged reward | 0.43 | 2.60 | 0.087 | **0.95** | 1.62 | 0.01 | 0.00 |
+| moderate Broca's | fixed (tier 2) | 0.51 | 4.69 | 0.106 | 0.75 | **4.47 ± 0.34** | 0.52 | 0.02 |
+| moderate Broca's | staircase | 0.58 | 4.01 | 0.149 | 0.78 | 2.98 | 0.40 | 0.06 |
+| moderate Broca's | Beta bandit | 0.57 | 4.74 | 0.069 | **0.85** | 3.05 | 0.16 | 0.00 |
+| moderate Broca's | contextual bandit | 0.56 | 4.78 | 0.071 | 0.84 | 3.11 | 0.30 | 0.04 |
+| moderate Broca's | PPO, proxy reward | **0.82 ± 0.04** | 4.26 | 0.108 | 0.82 | 2.88 | 0.12 | 0.00 |
+| moderate Broca's | PPO, proxy + probe reward | **0.82** | 4.29 | 0.107 | 0.82 | 2.94 | 0.13 | 0.00 |
+| moderate Broca's | PPO, privileged reward | 0.61 | **4.87 ± 0.30** | **0.062** | 0.84 | 3.48 | 0.13 | 0.00 |
+| severe | fixed (tier 2) | 0.03 | 0.10 | 0.521 | 0.24 | 0.19 | 2.34 | 0.76 |
+| severe | staircase | 0.11 | 1.20 | 0.343 | 0.47 | 1.53 | 1.98 | 0.38 |
+| severe | Beta bandit | 0.21 | 1.40 | 0.320 | 0.49 | 1.57 | 1.60 | 0.32 |
+| severe | contextual bandit | 0.22 | 1.75 | 0.290 | 0.48 | 1.84 | 1.42 | 0.20 |
+| severe | PPO, proxy reward | **0.33 ± 0.05** | **2.14 ± 0.28** | **0.245** | **0.55** | **2.34 ± 0.28** | **0.96** | **0.08** |
+| severe | PPO, proxy + probe reward | 0.32 | 2.08 | 0.251 | 0.53 | 2.30 | 1.03 | 0.12 |
+| severe | PPO, privileged reward | 0.28 | 2.05 | 0.258 | 0.50 | 2.28 | 1.09 | 0.13 |
 
 What this shows, honestly:
-- **PPO holds the band best in every cohort** (0.89, 0.86, 0.34) and is the best policy overall on
-  severe patients (highest learning gain, lowest control error, fewest frustration events and
-  quits).
-- **On mild and moderate patients PPO partly games the proxy.** Its true control error (0.126,
-  0.116) is worse than the contextual bandit's (0.085, 0.069), and so is its learning gain. It has
-  learned to steer the 8-trial rolling accuracy (an easier item after an error, a harder one after a
-  success) rather than to keep the true p near 0.85. The staircase shows the same pattern (0.80 in
-  band on mild with the worst control error). This is why time in band is never reported alone.
-- **The contextual bandit is the most accurate controller of true difficulty** on mild and
-  moderate patients and has the highest learning gain among adaptive policies there; it is the
-  current live agent because it also learns online on a real person.
+- **Observed probe recall mostly measures how easy the practised words were, not learning.**
+  Probes revisit practised words, so policies that practise easy words get easy probes: on mild
+  patients the Beta bandit (mean tier 1.34, mostly tier 1) has the highest probe recall (0.95) and
+  the lowest probe lift (1.03). The same holds for fixed tiers: on mild patients fixed tier 1 gets 0.96
+  probe recall but 0.69 lift, fixed tier 3 gets 0.66 recall but 3.34 lift. Probe recall is the
+  measurable signal on a real patient, but it must be read with the difficulty of what was practised.
+  In simulation we therefore rank policies on probe lift and learning gain.
+- **PPO holds the band best in every cohort** (0.86, 0.82, 0.33) and is the best policy overall on
+  severe patients (highest learning gain and probe lift, lowest control error, fewest frustration
+  events and quits).
+- **On mild and moderate patients the proxy-trained PPO partly games the proxy.** Its true control
+  error (0.131, 0.108) is worse than the contextual bandit's (0.086, 0.071): it steers the 8-trial
+  rolling accuracy (an easier item after an error, a harder one after a success) rather than keeping
+  the true p near 0.85. The staircase shows the same pattern.
+- **The privileged reward confirms the gap.** Trained on the simulator-only objective, PPO has the
+  lowest control error and the highest learning gain on moderate patients (4.87) and a higher probe
+  lift than proxy PPO (3.48 vs 2.88), while spending much less time "in band" (0.61 vs 0.82). On
+  severe patients the three PPO variants are within each other's confidence intervals. The proxy is
+  aligned with the true objective where patients are hard, and misaligned where steering the
+  rolling window is easy.
+- **Adding the probe bonus to the observable reward changes almost nothing** (0.86 vs 0.86 in band;
+  probe lift within CIs): the agent cannot choose probe items, and a correct-probe bonus mostly
+  rewards easy practice, which the band term already limits.
 - **Severe patients remain hard for every policy.** One cause is the clinical rule "cue only after
   an error": their best action (tier 1 + first sound, p~0.84) cannot be repeated after a success.
-  With the rule off, the contextual bandit's time in band rises on mild and severe patients but
-  falls on moderate ones (measured with the hand-set prior). Whether to keep the rule is to be
-  validated clinically (`cue_only_after_error`).
-- The Beta bandit still spends 63% of mild sessions on tier 1 despite the progression rule: its
-  discounting pulls unvisited arms back to the tier-1 prior mean 0.80, which sits inside the
-  tolerance window. Shared weights in the contextual model avoid this.
+  Whether to keep the rule is to be validated clinically (`cue_only_after_error`).
 
 **Dropout on vs off.** With dropout off, the mild and moderate rows are unchanged within their
-confidence intervals (almost nobody has 3+ failures in a row there). The effect is on severe
-patients and on policies that let failures accumulate: fixed tier 2 quits in 82% of severe sessions
-(20.5 of 40 trials on average) and its learning gain falls from 0.12 to 0.10, the staircase quits in
-36%, while PPO (13%) and the contextual bandit (18%) keep most sessions going. Dropout is therefore
-the mechanism by which frustration costs practice volume, and it widens the gap between adaptive
-and fixed difficulty only where the fixed tier is wrong for the patient.
+confidence intervals. The effect is on severe patients and on policies that let failures accumulate:
+fixed tier 2 abandons 76% of severe sessions (22 of 40 trials on average; learning gain 0.12 without
+dropout, 0.10 with), the staircase 38%, the contextual bandit 20%, proxy PPO 8%. Dropout is the
+mechanism by which frustration costs practice volume; it widens the gap between adaptive and fixed
+difficulty only where the fixed tier is wrong for the patient.
 
 ### Why fixed difficulty can win learning gain in the simulator
 
-Fixed tier 2 has the highest learning gain on mild patients (3.33) and is close to the best on
-moderate ones. We did not tune the simulator to reverse this. The mechanism is visible in the
-"learn eff." column: learning gain tracks how much of the session is spent near the simulator's
+Fixed tier 2 has the highest learning gain and probe lift on mild patients (3.34, 2.68) and the
+highest probe lift on moderate ones (4.47). We did not tune the simulator to reverse this. The
+mechanism is visible in the "learn eff." column of the full tables (the mean expected learning per
+trial implied by the learning rule at the true p; 1.0 = every trial at the peak with no cue):
+learning gain tracks how much of the session is spent near the simulator's
 learning peak (p = 0.85) **without cues** (successes with cues teach less, by assumption).
 
 - For mild patients, tier 2 happens to give p of about 0.90, right next to the peak, every trial,
-  with no cue (learn eff. 0.79). Adaptive policies spend part of the session exploring, start on
+  with no cue (learn eff. 0.78). Adaptive policies spend part of the session exploring, start on
   tier 1 where p is about 0.96 and little is learned, and use cues after errors, all of which lower
   learning per trial.
-- It is the *matching* that matters, not "fixed": on mild patients fixed tier 1 gets 1.73 and fixed
-  tier 3 gets 2.51; on moderate patients fixed tier 1 gets 4.92 (the best there) while fixed tier 3
-  gets 0.36 with 82% of sessions abandoned. Picking the right fixed tier for each patient requires
+- It is the *matching* that matters, not "fixed": on mild patients fixed tier 1 gets a learning
+  gain of 1.72 and fixed tier 3 gets 2.36; on moderate patients fixed tier 1 gets 4.86 while fixed
+  tier 3 gets 0.45 with 82% of sessions abandoned. Picking the right fixed tier for each patient requires
   exactly the knowledge an adaptive policy acquires; worksheets do not make that choice per patient.
 
 What this **does** mean: in this simulator, with a single 40-trial session, a policy that sits at
@@ -341,6 +402,40 @@ model that interaction yet**: a patient's response to a cue does not depend on t
 made. Accordingly these weights fit to about 0 in the empirical-Bayes prior. They are kept because
 real patients may show the dependency (for example, phonemic cues after sound errors), and they cost
 little.
+
+## Learning from clinician overrides: DITTO-style (`agents/ditto.py`, `train/ditto_ppo.py`)
+
+The method follows DITTO (Shaikh et al., ICLR 2025), applied to the trained PPO policy instead of a
+language model. Each override is a demonstration; it is preferred over every action the policy
+itself samples in the same state, including samples from earlier rounds; the policy's masked action
+log-probabilities are optimised with the DPO loss against a frozen reference (the original policy),
+for 4 rounds. No LoRA is needed: the policy is a small MLP and only its actor is updated.
+
+**Demo.** A simulated clinician with one consistent preference the policy does not follow: "after a
+sound (phonological) error, give the first-sound cue" (keeping the policy's tier). 10 overrides are
+taken from sessions of one set of validation patients; evaluation uses decision states from a
+disjoint set of validation patients, plus full simulations on the three test cohorts. Real
+overrides from the dashboard use the same pipeline (`--overrides runs/overrides.jsonl`).
+
+**Result.** Plain DITTO-style tuning adopts the preference but **overgeneralises**: with only 10
+demonstrations, nothing tells the shared network to leave other states alone, so it gives the
+first-sound cue after *every* error and the policy's behaviour degrades (time in band on mild
+patients 0.85 -> 0.35). We add **accepted-choice anchors**: on the dashboard, every agent choice the
+clinician saw and did not override is an implicit acceptance, so a KL term keeps the policy close to
+the reference on those states (weight and learning rate chosen by a small sweep scored only on the
+override patients' states). Full report: [`results/ditto_report.md`](results/ditto_report.md).
+
+| held-out states | n | top action = clinician's cue, before -> after: plain | with anchors | top action unchanged (anchors) |
+|---|---|---|---|---|
+| after a sound error (preference applies) | 273 | 0.35 -> 1.00 | **0.35 -> 0.96** | 0.38 |
+| after other errors (cues allowed, preference does not apply) | 557 | 0.38 -> 1.00 | **0.38 -> 0.40** | 0.93 |
+| all other states | 2902 | 0.00 -> 0.00 | 0.00 -> 0.00 | **0.99** |
+
+With anchors, after 10 overrides the policy makes the clinician's choice in 96% of matching held-out
+states, leaves states after other errors essentially unchanged, and keeps 99% of all other decisions
+identical; time in band, control error, learning gain and probe recall on the three test cohorts are
+unchanged within noise. The anchors are our addition to DITTO and are only as good as the assumption
+that a non-override means acceptance.
 
 ## Known limitations
 - With an 8-trial window, rolling accuracy only takes values k/8, so the [0.75, 0.90] band means
@@ -376,5 +471,6 @@ the **direction** of an effect; specific numeric values are marked `ASSUMPTION` 
 | Proximal policy optimisation | Schulman, Wolski, Dhariwal, Radford & Klimov (2017). Proximal Policy Optimization Algorithms. arXiv:1707.06347. | `train/train_ppo.py` |
 | Invalid-action masking in policy-gradient methods | Huang & Ontañón (2022). A Closer Look at Invalid Action Masking in Policy Gradient Algorithms. *FLAIRS-35*. | `envs/aphasia_env.py` |
 | PPO implementation | Raffin et al. (2021). Stable-Baselines3: Reliable Reinforcement Learning Implementations. *JMLR* 22(268). | `train/train_ppo.py` |
-| Group-relative policy optimisation (GRPO) | Shao et al. (2024). DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models. arXiv:2402.03300. | `train/grpo_smoke.py` |
-| Learning from demonstrations (DITTO) | Shaikh et al. (2025). Show, Don't Tell: Aligning Language Models with Demonstrated Feedback. ICLR 2025. | planned (expert alignment) |
+| Group-relative policy optimisation (GRPO), explored only | Shao et al. (2024). DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models. arXiv:2402.03300. | `train/grpo_smoke.py` |
+| Learning from demonstrated feedback (DITTO), method followed for override learning | Shaikh et al. (2025). Show, Don't Tell: Aligning Language Models with Demonstrated Feedback. ICLR 2025. | `agents/ditto.py` |
+| Direct preference optimisation (DPO loss) | Rafailov, Sharma, Mitchell, Ermon, Manning & Finn (2023). Direct Preference Optimization: Your Language Model is Secretly a Reward Model. *NeurIPS* 36. | `agents/ditto.py` |

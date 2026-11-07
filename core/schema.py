@@ -43,6 +43,7 @@ class TrialRecord(BaseModel):
     outcome: bool
     error_type: ErrorType
     response_time: float = Field(ge=0.0, description="seconds")
+    probe: bool = Field(default=False, description="True for a review probe (chosen by the app, not the agent)")
 
     @model_validator(mode="after")
     def _consistent(self) -> "TrialRecord":
@@ -60,7 +61,8 @@ class State(BaseModel):
                     "session so the service keeps one online-learning agent per session.",
     )
     last_trials: list[TrialRecord] = Field(default_factory=list)
-    current_tier: int = Field(ge=1, le=3)
+    current_tier: int = Field(ge=1, le=3, description="tier of the last trial the AGENT chose (review "
+                                                       "probes do not change it)")
     trial_count: int = Field(ge=0)
     session_minutes: float = Field(ge=0.0)
 
@@ -105,6 +107,20 @@ class UpdateRequest(BaseModel):
     state: State
     action: Action
     outcome: Outcome
+    probe: bool = Field(default=False, description="True if this trial was a review probe; the agent does "
+                                                   "not learn from trials it did not choose")
+
+
+class NextTrial(BaseModel):
+    """POST /next_trial response: the complete next trial, with the item chosen by the shared rule."""
+
+    model_config = _LENIENT
+    word: str
+    image_file: str
+    tier: int = Field(ge=1, le=3)
+    cue: Cue
+    probe: bool
+    rationale: str | None = None
 
 
 class OverrideRequest(BaseModel):

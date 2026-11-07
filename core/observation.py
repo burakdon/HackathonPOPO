@@ -2,7 +2,8 @@
 
 Layout (all values in [0, 1]):
   history block: the last `history` trials, most recent last, zero-padded at the start; per trial
-                 [present, tier one-hot (3), cue one-hot (5), error type one-hot (4), response time]
+                 [present, tier one-hot (3), cue one-hot (5), error type one-hot (4), response time,
+                  review-probe flag]
   current block: [current tier one-hot (3), rolling accuracy, trials in window / window,
                   fail streak / 3 (capped), session progress]
 
@@ -17,7 +18,7 @@ from core.config import ClinicalConfig
 from core.features import context
 from core.schema import CUES, ERROR_TYPES, TIERS, State
 
-PER_TRIAL = 1 + len(TIERS) + len(CUES) + len(ERROR_TYPES) + 1
+PER_TRIAL = 1 + len(TIERS) + len(CUES) + len(ERROR_TYPES) + 1 + 1
 CURRENT = len(TIERS) + 4
 
 
@@ -36,7 +37,8 @@ class ObservationBuilder:
             obs[base + 1 + TIERS.index(t.tier)] = 1.0
             obs[base + 1 + len(TIERS) + CUES.index(t.cue)] = 1.0
             obs[base + 1 + len(TIERS) + len(CUES) + ERROR_TYPES.index(t.error_type)] = 1.0
-            obs[base + PER_TRIAL - 1] = min(t.response_time, self.rt_cap_s) / self.rt_cap_s
+            obs[base + PER_TRIAL - 2] = min(t.response_time, self.rt_cap_s) / self.rt_cap_s
+            obs[base + PER_TRIAL - 1] = float(t.probe)
         ctx = context(state, self.clinical.window, self.nominal_trials)
         c = self.history * PER_TRIAL
         obs[c + TIERS.index(state.current_tier)] = 1.0

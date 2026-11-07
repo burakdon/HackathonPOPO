@@ -28,7 +28,7 @@ from core.schema import MAX_LAST_TRIALS, State
 from sim.config import SimConfig, load_sim
 from sim.items import load_items
 from sim.population import make_patients
-from sim.session import SessionResult
+from sim.session import SessionResult, play_probe
 
 
 class EnvConfig(BaseModel):
@@ -101,22 +101,42 @@ class AphasiaEnv(gym.Env):
             action = int(min(allowed, key=lambda i: (abs(int(ACTION_TIERS[i]) - want_t), ACTION_CUES[i] != want_c,
                                                      ACTION_CUES[i] != "none")))
         tier, cue = int(ACTION_TIERS[action]), ACTION_CUES[action]
+        retrieval_before = self.patient.mean_retrieval()
         item = self.selector.next(tier)
         p_tier = self.patient.p_correct_tier(tier, cue)
         r = self.patient.respond(item, cue)
         observable = {"word": self.bank.words[item], "tier": tier, "cue": cue, "outcome": r.correct,
-                      "error_type": r.error_type, "response_time": r.response_time}
+                      "error_type": r.error_type, "response_time": r.response_time, "probe": False}
         self.history.append(observable)
         self.result.trace.append({**observable, "trial": len(self.result.trace), "p_true": r.p_correct,
                                   "p_tier": p_tier, "fatigue": self.patient.fatigue})
         self.tier = tier
         self.minutes += (r.response_time + self.sim_cfg.response_time.overhead_s) / 60.0
-
         components = self.reward.step(self.result.trace)
-        terminated = r.quit or len(self.result.trace) >= self.sim_cfg.session.n_trials
+        terms, w = self.reward.cfg.terms, self.reward.cfg.privileged
+        if terms.privileged:
+            components["control"] = -w.control_weight * abs(r.p_correct - self.clinical.target)
+        quit_ = r.quit
+        n_max = self.sim_cfg.session.n_trials
+
+        # Review probes scheduled right after this trial are played before the agent's next decision;
+        # their (observable) reward terms are credited to this step.
+        while not quit_ and len(self.result.trace) < n_max and self.selector.probe_due():
+            observable, record, quit_ = play_probe(self.patient, self.selector, len(self.result.trace))
+            self.history.append(observable)
+            self.result.trace.append(record)
+            self.minutes += (observable["response_time"] + self.sim_cfg.response_time.overhead_s) / 60.0
+            for key, v in self.reward.step(self.result.trace).items():
+                components[key] += v
+            if terms.privileged:
+                components["probe_p"] += w.probe_weight * 100.0 * record["probe_lift"]
+        if terms.privileged:
+            components["learning"] = w.learning_weight * 100.0 * (self.patient.mean_retrieval() - retrieval_before)
+
+        terminated = quit_ or len(self.result.trace) >= n_max
         info: dict = {"reward_terms": components, "invalid_action": invalid}
         if terminated:
-            self.result.quit = r.quit
+            self.result.quit = quit_
             self.result.end_retrieval = self.patient.mean_retrieval()
             final = self.reward.terminal(self.result.trace, self.result.start_tier)
             components = {k: components[k] + final[k] for k in TERMS}

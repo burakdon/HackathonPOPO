@@ -2,12 +2,17 @@
 # Agents are trained on this proxy and evaluated on the true objective (learning gain, sim-only).
 # Terms follow the project spec; magnitudes are ASSUMPTIONS (scaffold values where available).
 
-# Which terms are active. The reward ablation (band_only / band_climb / full) compares them.
+# Which terms are active. The reward ablation (band_only / band_climb / full) compares the
+# observable terms; full_probe adds the review-probe objective (still observable); privileged
+# replaces the band and climb terms with simulator-only quantities (an upper reference, not
+# deployable as a reward because a real session cannot measure them).
 variant: full
 variants:
-  band_only:  {band: true, climb: false, frustration: false, cue_waste: false}
-  band_climb: {band: true, climb: true,  frustration: false, cue_waste: false}
-  full:       {band: true, climb: true,  frustration: true,  cue_waste: true}
+  band_only:  {band: true,  climb: false, frustration: false, cue_waste: false}
+  band_climb: {band: true,  climb: true,  frustration: false, cue_waste: false}
+  full:       {band: true,  climb: true,  frustration: true,  cue_waste: true}
+  full_probe: {band: true,  climb: true,  frustration: true,  cue_waste: true,  probe: true}
+  privileged: {band: false, climb: false, frustration: true,  cue_waste: false, privileged: true}
 
 # + per trial whose rolling accuracy over the last `window` trials is inside the band
 # (only once a full window exists).
@@ -27,3 +32,19 @@ frustration_penalty: 1.0
 # (strength >= heavy_cue_strength): the heavy cue was probably not needed.
 cue_waste_penalty: 0.1
 heavy_cue_strength: 2
+
+# + per review probe answered correctly without a cue (observable; the team objective "better later
+# naming without hints"). ASSUMPTION: weight comparable to one in-band trial.
+probe_bonus: 1.0
+
+# Simulator-only terms of the `privileged` variant (computed in envs/aphasia_env.py):
+#   control:  - control_weight * |p_true - target| on every agent-chosen trial
+#   learning: + learning_weight * 100 * increase in mean uncued retrieval over the item bank
+#   probe_p:  + probe_weight * 100 * probe lift on every review probe (how much the probed item's
+#             uncued recall improved since session start; raw probe recall would reward practising
+#             only easy items, because probes revisit practised items)
+# ASSUMPTION: weights chosen so each term is of the same order per session (~5-10).
+privileged:
+  control_weight: 2.0
+  learning_weight: 3.0
+  probe_weight: 1.0

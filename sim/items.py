@@ -22,7 +22,7 @@ import numpy as np
 
 from core.config import resolve
 from core.schema import TIERS
-from sim.config import ItemsConfig
+from sim.config import ItemsConfig, ProbeConfig
 
 REQUIRED_COLUMNS = ("word", "image_file", "frequency", "length", "tier")
 
@@ -68,18 +68,49 @@ def load_items(cfg: ItemsConfig) -> ItemBank:
 
 
 class ItemSelector:
-    """Unseen-first, then least-recently-seen item within the requested tier."""
+    """Chooses the item for every trial; the agent only chooses tier and cue.
 
-    def __init__(self, bank: ItemBank, rng: np.random.Generator) -> None:
-        self.bank, self.rng = bank, rng
-        self.last_seen = np.full(len(bank), -1)  # trial index of last presentation, -1 = never
-        self.t = 0
+    Practice trials: within the requested tier, an item not yet shown this session, else the least
+    recently shown one (ties broken by the seeded rng).
+
+    Review probes (objective: later naming without hints): trial k (0-based, counting all trials)
+    is a probe if probes are enabled, (k + 1) is a multiple of `every`, and an eligible item exists.
+    Eligible = practised earlier this session (not as a probe) and last shown at least `min_gap`
+    trials ago. Among eligible items: fewest probes so far, then the one first practised earliest.
+    This rule is deterministic so the frontend can reproduce it exactly (see README Interfaces).
+    """
+
+    def __init__(self, bank: ItemBank, rng: np.random.Generator, probes: "ProbeConfig | None" = None) -> None:
+        self.bank, self.rng, self.probes = bank, rng, probes
+        n = len(bank)
+        self.last_seen = np.full(n, -1)          # trial index of last presentation (any kind), -1 = never
+        self.first_practice = np.full(n, -1)     # trial index of first practice presentation
+        self.probe_count = np.zeros(n, dtype=int)
+        self.t = 0                               # index of the next trial
+
+    def _eligible(self) -> np.ndarray:
+        practised = self.first_practice >= 0
+        return np.flatnonzero(practised & (self.t - self.last_seen >= self.probes.min_gap))
+
+    def probe_due(self) -> bool:
+        p = self.probes
+        return bool(p is not None and p.enabled and (self.t + 1) % p.every == 0 and len(self._eligible()))
+
+    def next_probe(self) -> int:
+        cand = self._eligible()
+        i = int(min(cand, key=lambda j: (self.probe_count[j], self.first_practice[j])))
+        self.probe_count[i] += 1
+        self.last_seen[i] = self.t
+        self.t += 1
+        return i
 
     def next(self, tier: int) -> int:
         idx = self.bank.indices_in_tier(tier)
         seen = self.last_seen[idx]
         candidates = idx[seen == seen.min()]
         i = int(self.rng.choice(candidates))
+        if self.first_practice[i] < 0:
+            self.first_practice[i] = self.t
         self.last_seen[i] = self.t
         self.t += 1
         return i

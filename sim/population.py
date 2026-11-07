@@ -53,7 +53,7 @@ class PatientSpec:
     def build(self, bank: ItemBank, cfg: SimConfig, clinical: ClinicalConfig) -> tuple[SimPatient, ItemSelector]:
         """Fresh patient + item selector. Call again to replay the identical patient for another policy."""
         patient = SimPatient(self.params, bank, cfg, clinical, np.random.default_rng(self.outcome_seed))
-        selector = ItemSelector(bank, np.random.default_rng(self.selection_seed))
+        selector = ItemSelector(bank, np.random.default_rng(self.selection_seed), cfg.review_probes)
         return patient, selector
 
 

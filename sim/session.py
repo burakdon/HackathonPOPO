@@ -17,6 +17,23 @@ from sim.items import ItemSelector
 from sim.patient import SimPatient
 
 
+def play_probe(patient: SimPatient, selector: ItemSelector, k: int) -> tuple[dict, dict, bool]:
+    """One review-probe trial: the selector picks the item, no cue, at the item's own tier.
+    Returns (observable record for the State JSON, full trace record, whether the patient quit)."""
+    item = selector.next_probe()
+    tier = int(patient.bank.tier[item])
+    p_tier = patient.p_correct_tier(tier, "none")
+    # Probe lift (sim-only): improvement of this item's uncued, unfatigued recall since the session
+    # began, measured just before the probe. Unlike raw probe recall it cannot be raised by
+    # practising only easy items.
+    lift = float(patient.retrieval_probabilities()[item] - patient.initial_retrieval[item])
+    r = patient.respond(item, "none")
+    observable = {"word": patient.bank.words[item], "tier": tier, "cue": "none", "outcome": r.correct,
+                  "error_type": r.error_type, "response_time": r.response_time, "probe": True}
+    return observable, {**observable, "trial": k, "p_true": r.p_correct, "p_tier": p_tier,
+                        "fatigue": patient.fatigue, "probe_lift": lift}, r.quit
+
+
 @dataclass
 class SessionResult:
     trace: list[dict] = field(default_factory=list)   # one dict per trial (observable + hidden fields)
@@ -41,6 +58,16 @@ def run_session(policy: Policy, patient: SimPatient, selector: ItemSelector, cfg
     result = SessionResult(start_retrieval=patient.mean_retrieval(), start_tier=tier)
 
     for k in range(n_trials):
+        if selector.probe_due():
+            # Review probe: chosen by the app, not the agent; no policy call, current tier unchanged.
+            observable, record, quit_ = play_probe(patient, selector, k)
+            history.append(observable)
+            result.trace.append(record)
+            minutes += (observable["response_time"] + cfg.response_time.overhead_s) / 60.0
+            if quit_:
+                result.quit = True
+                break
+            continue
         state = State(session_id=session_id, last_trials=history[-MAX_LAST_TRIALS:],
                       current_tier=tier, trial_count=k, session_minutes=round(minutes, 2))
         mask = action_mask(tier, clinical.approved_cues, clinical.max_tier_step)
@@ -55,7 +82,8 @@ def run_session(policy: Policy, patient: SimPatient, selector: ItemSelector, cfg
                                              response_time=r.response_time))
 
         observable = {"word": patient.bank.words[item], "tier": action.tier, "cue": action.cue,
-                      "outcome": r.correct, "error_type": r.error_type, "response_time": r.response_time}
+                      "outcome": r.correct, "error_type": r.error_type, "response_time": r.response_time,
+                      "probe": False}
         history.append(observable)
         result.trace.append({**observable, "trial": k, "p_true": r.p_correct, "p_tier": p_tier,
                              "fatigue": patient.fatigue})
