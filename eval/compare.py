@@ -75,6 +75,8 @@ def make_runners(cfg: dict, clinical) -> dict[str, list]:
 def evaluate(cfg: dict) -> dict:
     clinical, sim_cfg = load_clinical(), load_sim()
     sim_cfg = sim_cfg.model_copy(update={"dropout": sim_cfg.dropout.model_copy(update={"enabled": cfg["dropout"]})})
+    if cfg.get("learning_peak") is not None:   # ablation: simulator whose learning peaks elsewhere
+        sim_cfg = sim_cfg.model_copy(update={"learning": sim_cfg.learning.model_copy(update={"peak": cfg["learning_peak"]})})
     bank = load_items(sim_cfg.items)
     runners = make_runners(cfg, clinical)
     n_trials, W = sim_cfg.session.n_trials, clinical.window

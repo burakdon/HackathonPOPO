@@ -13,6 +13,9 @@ variants:
   full:       {band: true,  climb: true,  frustration: true,  cue_waste: true}
   full_probe: {band: true,  climb: true,  frustration: true,  cue_waste: true,  probe: true}
   privileged: {band: false, climb: false, frustration: true,  cue_waste: false, privileged: true}
+  # Learning-only: the privileged variant without the control term, i.e. no 85% target at all; used
+  # in the learning-peak ablation to ask what an agent optimising true learning would do.
+  privileged_learning: {band: false, climb: false, frustration: true, cue_waste: false, privileged: true, control: false}
 
 # + per trial whose rolling accuracy over the last `window` trials is inside the band
 # (only once a full window exists).

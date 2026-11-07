@@ -114,7 +114,7 @@ class AphasiaEnv(gym.Env):
         self.minutes += (r.response_time + self.sim_cfg.response_time.overhead_s) / 60.0
         components = self.reward.step(self.result.trace)
         terms, w = self.reward.cfg.terms, self.reward.cfg.privileged
-        if terms.privileged:
+        if terms.privileged and terms.control:
             components["control"] = -w.control_weight * abs(r.p_correct - self.clinical.target)
         quit_ = r.quit
         n_max = self.sim_cfg.session.n_trials

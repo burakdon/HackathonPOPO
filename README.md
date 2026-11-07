@@ -48,13 +48,14 @@ Implemented and tested (149 tests, `uv run pytest`):
 - Learning from clinician overrides: DITTO-style preference optimisation of the PPO policy from ~10
   overrides, with a before/after evaluation on held-out states.
 - Evaluation harness: privileged oracle, 200 held-out patients per cohort, bootstrap CIs, paired
-  differences and the two result figures, reproduced by one command (`eval/compare.py`).
+  differences and the two result figures, reproduced by one command (`eval/compare.py`); ablations of
+  the learning-peak assumption, dropout and the reward (`eval/ablations.py`).
 
 In progress or planned:
 - Patient app and clinician dashboard (`frontend/`).
 - Speech scoring and error classification.
-- A prompted frontier-model baseline (waiting for an API key) and ablations (learning peak, dropout,
-  reward variants).
+- The prompted frontier-model baseline is implemented and tested with a mocked API; it runs as soon as
+  an API key is available (`configs/eval_llm.yaml`).
 - A clinically curated item bank and clinical validation of the simulator's parameters.
 
 Explored, not part of the current scope: a language-model therapist trained with GRPO on Tinker
@@ -242,7 +243,7 @@ either cites the paper behind the *direction* of the effect or says `ASSUMPTION`
 | cues | `phonemic_weight[cue] * phon_resp + semantic_weight[cue] * sem_resp`, per-patient responsiveness | phonemic > semantic on average, with phonemic vs semantic responders (Meteyard & Bose 2018) |
 | error types | after a failure, P(sound, meaning, no response) proportional to (phon_impair, sem_impair, omission_bias) | simplified from the two-step model (Dell et al. 1997; Schwartz et al. 2006) |
 | fatigue | grows per trial and faster during failure streaks, recovers a fraction each trial, capped | ASSUMPTION |
-| learning | on a success, item-specific gain with E[gain] = p^a (1-p)^b, peaking at a configurable `peak`; weaker cues teach more; 5% spills over to general ability | item-specific gains with limited generalisation (Nickels 2002); the peak location is an ASSUMPTION; a learning-peak ablation is planned |
+| learning | on a success, item-specific gain with E[gain] = p^a (1-p)^b, peaking at a configurable `peak`; weaker cues teach more; 5% spills over to general ability | item-specific gains with limited generalisation (Nickels 2002); the peak location is an ASSUMPTION; see the learning-peak ablation |
 | response time | log-normal, slower for hard items and when fatigued | ASSUMPTION |
 | dropout | after 3 failures in a row the patient may quit: 5% per trial, +5% per further failure | ASSUMPTION (conservative); results reported with dropout on and off |
 | review probes | every 5th trial re-tests a practised word without a cue (rule in Interfaces); scored like any trial | measurement design, not a patient assumption |
@@ -434,7 +435,8 @@ the learning peak from the first trial is hard to beat, and exploration has a re
 What it **does not** mean: that fixed difficulty is a good strategy. The result depends on
 assumptions we cannot validate yet (the location of the learning peak, the cue discount, item-specific
 learning, a single session with no boredom or disengagement effects for items that are too easy) and
-it reverses as soon as the fixed tier does not match the patient. A learning-peak ablation and
+it reverses as soon as the fixed tier does not match the patient (see the learning-peak ablation
+below). A multi-session evaluation and
 multi-session evaluation are planned.
 
 **Error-type x cue features.** The contextual bandit has six features crossing the last error type
@@ -443,6 +445,42 @@ model that interaction yet**: a patient's response to a cue does not depend on t
 made. Accordingly these weights fit to about 0 in the empirical-Bayes prior. They are kept because
 real patients may show the dependency (for example, phonemic cues after sound errors), and they cost
 little.
+
+## Ablations (`eval/ablations.py`)
+
+`uv run python -m eval.ablations --config configs/ablations.yaml` (about 2 minutes) reruns the
+full-evaluation protocol (200 held-out patients per cohort, bootstrap CIs) under three changes.
+Tables: [`results/ablations.md`](results/ablations.md).
+
+**1. Where does learning peak?** The simulator's learning peak (the success rate at which practice
+teaches most) is an assumption; 0.85 mirrors the 85% rule. Every policy is evaluated with the peak at
+0.5, 0.7 and 0.85, and PPO is also retrained at each peak, once with the simulation objective (which
+still contains the -|p - 0.85| control term) and once with a **learning-only** objective (no 85%
+target at all).
+
+![Learning-peak ablation](results/ablation_learning_peak.png)
+
+- **The 85% target is load-bearing.** If learning actually peaked at 0.5, every policy that aims for
+  85% would learn little with mild patients (oracle 0.23, contextual bandit 0.27, simulation-objective
+  PPO trained at 0.85: 0.11, x100), while the harder-running staircase gets 1.22.
+- **Optimising the true objective recovers most of the loss.** The learning-only PPO retrained at
+  peak 0.5 reaches 2.23 [2.11, 2.35] on mild patients and 3.00 [2.87, 3.16] on moderate ones, the best
+  of all policies there. At peak 0.85 it is close to the others (mild 3.16, moderate 4.77). This is
+  the argument for learning the target from the true objective rather than fixing it at 85%: the
+  agent then follows wherever learning actually peaks.
+- **It is not uniformly best.** On severe patients at peak 0.5 the staircase (4.06) beats it (3.33),
+  and at peak 0.7 fixed tier 2 is best on moderate patients (5.17), again because that tier happens
+  to match. The retrained agents inherit every other simulator assumption.
+
+**2. Dropout on vs off.** Dropout matters only for severe patients: abandoned sessions with dropout
+on are 77% for fixed tier 2, 29% for the staircase, 17% for the contextual bandit, 10-12% for PPO and
+7% for the oracle; learning gain changes by at most 0.1 points (x100) when dropout is switched off.
+
+**3. Reward variants (PPO, 3 seeds each).** Band only, band + climb, full proxy and full proxy +
+probe bonus are indistinguishable on every metric in every cohort (time in band 0.82-0.88 on mild and
+moderate patients; learning gain within about 0.2 points): the band term drives the behaviour and the
+other observable terms change little. Only the simulation objective changes it (lower control error,
+higher learning gain and probe lift on moderate patients, much less time in band).
 
 ## Learning from clinician overrides: DITTO-style (`agents/ditto.py`, `train/ditto_ppo.py`)
 
