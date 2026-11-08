@@ -163,3 +163,19 @@ def test_late_pictures_are_shown_after_the_other_unseen_pictures(tmp_path):
 def test_the_served_app_starts_sessions_with_a_well_recognised_picture():
     from service.app import LATE_PICTURES
     assert LATE_PICTURES == ("ex-cat", "ex-car")
+
+
+def test_typed_answer_is_scored_like_a_transcript_and_labelled(client):
+    c = client
+    s = c.post("/patients/demo-ana/sessions").json()
+    pid = s["picture"]["presentation_id"]
+    wrong = c.post(f"/sessions/{s['session_id']}/typed", json={"presentation_id": pid, "client_attempt_id": "typed-0001", "text": "table"})
+    assert wrong.status_code == 200, wrong.text
+    w = wrong.json()
+    assert w["score"]["outcome"] == "incorrect" and w["score"]["error_type"] == "meaning"
+    assert w["score"]["reason"].startswith("Typed answer") and w["transcript"] == "table"
+    right = c.post(f"/sessions/{s['session_id']}/typed", json={"presentation_id": pid, "client_attempt_id": "typed-0002",
+                                                               "text": s["picture"]["word"]}).json()
+    assert right["score"]["outcome"] == "correct"
+    again = c.post(f"/sessions/{s['session_id']}/typed", json={"presentation_id": pid, "client_attempt_id": "typed-0001", "text": "table"})
+    assert again.json()["attempt_id"] == w["attempt_id"]                     # idempotent

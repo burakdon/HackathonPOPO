@@ -21,6 +21,7 @@ from core.contract import (
     SessionStarted, SessionState, Signals, TrainingRun, UsePreparedIn,
 )
 from core.practice import PracticeAction
+from pydantic import BaseModel, Field
 from service.engine import Conflict, Engine, Invalid, NotFound, plan_order_action, rules_decider
 from speech.scoring import SpeechUnavailable, score
 
@@ -61,6 +62,16 @@ def _to_contract(o: PracticeAction):
     if o.operation == "retry_current":
         return RetryAction(op="retry", hint=o.cue)
     return NextAction(op="next", tier=o.tier)
+
+
+class TypedAnswerIn(BaseModel):
+    """A typed answer: the patient tablet's fallback when the microphone fails (not part of contract §4)."""
+    presentation_id: str
+    client_attempt_id: str = Field(min_length=8, max_length=64)
+    text: str = Field(min_length=1, max_length=100)
+
+
+TYPED_PREFIX = "Typed answer (microphone fallback). "
 
 
 def model_decider(registry, resolve=lambda v: v):
@@ -180,6 +191,21 @@ def patient_router(engine: Engine, get_speech, registry=None, rule_drafter=None)
         try:
             again = engine.replay(sid, body.client_attempt_id, body.presentation_id, None)
             return again if again is not None else engine.submit(sid, body.presentation_id, body.client_attempt_id, s, None)
+        except (NotFound, Conflict) as e:
+            raise http(e)
+
+    @r.post("/sessions/{sid}/typed")
+    def typed(sid: str, body: TypedAnswerIn) -> AttemptResult:
+        """Scores typed text with the same scorer as a transcript; the attempt's reason says it was typed."""
+        from speech.base import Transcription
+        try:
+            again = engine.replay(sid, body.client_attempt_id, body.presentation_id, None)
+            if again is not None:
+                return again
+            target, alts = _names(engine, sid)
+            s = score(Transcription(status="ok", text=body.text, provider="typed"), target, alts)
+            s = s.model_copy(update={"reason": TYPED_PREFIX + s.reason})
+            return engine.submit(sid, body.presentation_id, body.client_attempt_id, s, body.text, None)
         except (NotFound, Conflict) as e:
             raise http(e)
 
