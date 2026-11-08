@@ -77,11 +77,15 @@ def model_decider(registry, resolve=lambda v: v):
 
 
 def default_model(registry) -> str:
-    """The newest completed DITTO adapter if the language model is installed, else the plan's rules."""
+    """The model configs/practice.yaml names as default (the delivered shared adapter, e.g.
+    ditto:sft200-g2-s0) if it is available, else the newest available DITTO adapter, else the rules."""
     try:
         ds = [v["id"] for v in registry.versions() if v["id"].startswith("ditto:") and v.get("available")]
     except Exception:
         ds = []
+    preferred = getattr(getattr(registry, "pcfg", None), "default_model", None)
+    if preferred in ds:
+        return preferred
     return ds[-1] if ds else "rules"
 
 

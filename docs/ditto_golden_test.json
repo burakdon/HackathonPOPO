@@ -1,0 +1,294 @@
+{
+ "model_version": "ditto:sft200-g2-s0",
+ "base_model": "Qwen/Qwen3-1.7B@70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+ "decoding": "score",
+ "prompt_format": "v2",
+ "history_in_prompt": 4,
+ "about": "Inputs are DecisionContext + the options the server offers. 'expected' is what the reference code (scripts/ditto_golden_check.py on feature/ditto-training) returns; log-probabilities are rounded and may differ slightly across devices, the chosen action must not.",
+ "cases": [
+  {
+   "id": "g1-meaning-error-first-try",
+   "note": "wrong word on the first try, tries left: hints only (decision 1d)",
+   "context": {
+    "current": {
+     "exercise_id": "ex-banana",
+     "word": "banana",
+     "tier": 2,
+     "hints_shown": [],
+     "attempts": 1
+    },
+    "history": [
+     {
+      "exercise_id": "ex-cat",
+      "word": "cat",
+      "tier": 1,
+      "hint": "none",
+      "correct": true,
+      "error": null,
+      "response_time_s": 2.4
+     },
+     {
+      "exercise_id": "ex-banana",
+      "word": "banana",
+      "tier": 2,
+      "hint": "none",
+      "correct": false,
+      "error": "meaning",
+      "response_time_s": 4.2
+     }
+    ],
+    "session_minutes": 6
+   },
+   "options": [
+    "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+    "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+    "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+    "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+   ],
+   "demonstrator_prefers": [
+    "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+   ],
+   "expected": {
+    "action": "{\"op\":\"retry\",\"hint\":\"semantic\"}",
+    "source": "ditto:sft200-g2-s0",
+    "logprobs": {
+     "{\"op\":\"retry\",\"hint\":\"first_sound\"}": -32.63,
+     "{\"op\":\"retry\",\"hint\":\"first_letter\"}": -42.38,
+     "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}": -14.0,
+     "{\"op\":\"retry\",\"hint\":\"semantic\"}": -0.0
+    }
+   }
+  },
+  {
+   "id": "g2-meaning-hint-failed",
+   "note": "2 failed tries, meaning hint already shown, tries left: remaining hints only (1d)",
+   "context": {
+    "current": {
+     "exercise_id": "ex-glasses",
+     "word": "glasses",
+     "tier": 2,
+     "hints_shown": [
+      "semantic"
+     ],
+     "attempts": 2
+    },
+    "history": [
+     {
+      "exercise_id": "ex-dog",
+      "word": "dog",
+      "tier": 1,
+      "hint": "none",
+      "correct": true,
+      "error": null,
+      "response_time_s": 3.1
+     },
+     {
+      "exercise_id": "ex-glasses",
+      "word": "glasses",
+      "tier": 2,
+      "hint": "none",
+      "correct": false,
+      "error": "meaning",
+      "response_time_s": 5.0
+     },
+     {
+      "exercise_id": "ex-glasses",
+      "word": "glasses",
+      "tier": 2,
+      "hint": "semantic",
+      "correct": false,
+      "error": "meaning",
+      "response_time_s": 6.2
+     }
+    ],
+    "session_minutes": 9
+   },
+   "options": [
+    "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+    "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+    "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+   ],
+   "demonstrator_prefers": [
+    "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+   ],
+   "expected": {
+    "action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+    "source": "ditto:sft200-g2-s0",
+    "logprobs": {
+     "{\"op\":\"retry\",\"hint\":\"first_sound\"}": -0.01,
+     "{\"op\":\"retry\",\"hint\":\"first_letter\"}": -16.13,
+     "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}": -4.76
+    }
+   }
+  },
+  {
+   "id": "g3-correct-fast",
+   "note": "correct without a hint in 2.1 s: next picture, level chosen by the model",
+   "context": {
+    "current": {
+     "exercise_id": "ex-cat",
+     "word": "cat",
+     "tier": 1,
+     "hints_shown": [],
+     "attempts": 1
+    },
+    "history": [
+     {
+      "exercise_id": "ex-apple",
+      "word": "apple",
+      "tier": 1,
+      "hint": "none",
+      "correct": true,
+      "error": null,
+      "response_time_s": 3.0
+     },
+     {
+      "exercise_id": "ex-cat",
+      "word": "cat",
+      "tier": 1,
+      "hint": "none",
+      "correct": true,
+      "error": null,
+      "response_time_s": 2.1
+     }
+    ],
+    "session_minutes": 4
+   },
+   "options": [
+    "{\"op\":\"next\",\"tier\":1}",
+    "{\"op\":\"next\",\"tier\":2}"
+   ],
+   "demonstrator_prefers": [
+    "{\"op\":\"next\",\"tier\":2}"
+   ],
+   "expected": {
+    "action": "{\"op\":\"next\",\"tier\":2}",
+    "source": "ditto:sft200-g2-s0",
+    "logprobs": {
+     "{\"op\":\"next\",\"tier\":1}": -1.06,
+     "{\"op\":\"next\",\"tier\":2}": -0.43
+    }
+   }
+  },
+  {
+   "id": "g4-no-tries-left",
+   "note": "third try failed, no tries left: next picture only",
+   "context": {
+    "current": {
+     "exercise_id": "ex-kangaroo",
+     "word": "kangaroo",
+     "tier": 3,
+     "hints_shown": [
+      "sentence_frame",
+      "first_sound"
+     ],
+     "attempts": 3
+    },
+    "history": [
+     {
+      "exercise_id": "ex-kangaroo",
+      "word": "kangaroo",
+      "tier": 3,
+      "hint": "none",
+      "correct": false,
+      "error": "no_response",
+      "response_time_s": 10.0
+     },
+     {
+      "exercise_id": "ex-kangaroo",
+      "word": "kangaroo",
+      "tier": 3,
+      "hint": "sentence_frame",
+      "correct": false,
+      "error": "unclassified",
+      "response_time_s": 7.8
+     },
+     {
+      "exercise_id": "ex-kangaroo",
+      "word": "kangaroo",
+      "tier": 3,
+      "hint": "first_sound",
+      "correct": false,
+      "error": "no_response",
+      "response_time_s": 6.6
+     }
+    ],
+    "session_minutes": 12
+   },
+   "options": [
+    "{\"op\":\"next\",\"tier\":2}",
+    "{\"op\":\"next\",\"tier\":3}"
+   ],
+   "demonstrator_prefers": [
+    "{\"op\":\"next\",\"tier\":2}"
+   ],
+   "expected": {
+    "action": "{\"op\":\"next\",\"tier\":3}",
+    "source": "ditto:sft200-g2-s0",
+    "logprobs": {
+     "{\"op\":\"next\",\"tier\":2}": -4.02,
+     "{\"op\":\"next\",\"tier\":3}": -0.02
+    }
+   }
+  },
+  {
+   "id": "g5-late-error-full-options",
+   "note": "sound error after 24 minutes with the full contract options (hints and next); under decision 1d the server would offer hints only here",
+   "context": {
+    "current": {
+     "exercise_id": "ex-chair",
+     "word": "chair",
+     "tier": 2,
+     "hints_shown": [],
+     "attempts": 1
+    },
+    "history": [
+     {
+      "exercise_id": "ex-banana",
+      "word": "banana",
+      "tier": 2,
+      "hint": "none",
+      "correct": true,
+      "error": null,
+      "response_time_s": 4.0
+     },
+     {
+      "exercise_id": "ex-chair",
+      "word": "chair",
+      "tier": 2,
+      "hint": "none",
+      "correct": false,
+      "error": "sound",
+      "response_time_s": 5.5
+     }
+    ],
+    "session_minutes": 24
+   },
+   "options": [
+    "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+    "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+    "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+    "{\"op\":\"retry\",\"hint\":\"semantic\"}",
+    "{\"op\":\"next\",\"tier\":1}",
+    "{\"op\":\"next\",\"tier\":2}",
+    "{\"op\":\"next\",\"tier\":3}"
+   ],
+   "demonstrator_prefers": [
+    "{\"op\":\"next\",\"tier\":1}"
+   ],
+   "expected": {
+    "action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+    "source": "ditto:sft200-g2-s0",
+    "logprobs": {
+     "{\"op\":\"retry\",\"hint\":\"first_sound\"}": -0.0,
+     "{\"op\":\"retry\",\"hint\":\"first_letter\"}": -31.0,
+     "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}": -10.5,
+     "{\"op\":\"retry\",\"hint\":\"semantic\"}": -25.38,
+     "{\"op\":\"next\",\"tier\":1}": -6.38,
+     "{\"op\":\"next\",\"tier\":2}": -14.5,
+     "{\"op\":\"next\",\"tier\":3}": -15.75
+    }
+   }
+  }
+ ]
+}
