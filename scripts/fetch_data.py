@@ -23,6 +23,8 @@ FILES = {
     "refs/dell2004_omission.pdf": "https://project-ccap.github.io/2004Dell_Models_of_errors_of_omission_in_aphasic_naming.pdf",
     "refs/dell2013_simulating.pdf": "https://www.cmu.edu/dietrich/psychology/nozarilab/papers/2013DellEtAl.pdf",
     "refs/castro2025_aphasia_databases.pdf": "https://talkbank.org/aphasia/publications/2025/Castro25.pdf",
+    # Brysbaert, Warriner & Kuperman (2014) concreteness norms, Springer supplementary file
+    "brysbaert/brysbaert2014_concreteness.xlsx": "https://static-content.springer.com/esm/art%3A10.3758%2Fs13428-013-0403-5/MediaObjects/13428_2013_403_MOESM1_ESM.xlsx",
 }
 OSF_NODE = "cwq75"  # Middleton, Rawson & Verkuilen 2019
 PSST = {name: f"https://media.talkbank.org/open/RaPID/{name}.tar.gz" for name in ("train", "valid", "full_test")}

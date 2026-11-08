@@ -33,6 +33,8 @@ Key columns: `picnum`, `ename` (dominant name), `elex1` (% producing the target 
 `estatu` (H statistic, name agreement), `lnefreq` (log frequency), `esyll`, `echar`, `ecomplx`
 (visual complexity), `ecdi` (age of acquisition proxy). Full descriptions in `7lgpnovariables.html`.
 
+| Word-level realisation vocabulary (which real words come out as errors) | Brysbaert, Warriner & Kuperman (2014) concreteness ratings for 40k English words | **Downloaded** (Springer supplementary xlsx). Concrete words (rating >= 4) with CMUdict pronunciations form the error vocabulary. | `data/raw/brysbaert/` |
+
 ## PSST files (`data/raw/psst/{train,valid,full_test}/`)
 
 `utterances.tsv` per split: `utterance_id, session, test (BNT|VNT), prompt, transcript (ARPAbet),
