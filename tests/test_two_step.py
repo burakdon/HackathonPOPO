@@ -116,3 +116,17 @@ def test_pnt_population_is_deterministic():
     cfg = load_sim("configs/sim_pnt.yaml")
     assert [x.params for x in make_patients(cfg, "population", "test", 5, 0)] == \
            [x.params for x in make_patients(cfg, "population", "test", 5, 0)]
+
+
+def test_demo_personas_have_their_error_profiles():
+    cfg = load_sim("configs/sim_pnt.yaml")
+    bank, clinical = load_items(cfg.items), load_clinical()
+    share = {}
+    for key in ("demo_maria", "demo_james"):
+        p, _ = make_patients(cfg, key, "test", 1, 0)[0].build(bank, cfg, clinical)
+        e = np.zeros(3)
+        for i in range(len(bank)):
+            d = p.error_distribution(i, "none")
+            e += [d["meaning"], d["sound"], d["no_response"]]
+        share[key] = e / e.sum()
+    assert share["demo_maria"][1] > 0.5 and share["demo_james"][0] > 0.5   # sound vs meaning errors
