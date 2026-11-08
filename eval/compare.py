@@ -91,7 +91,10 @@ def evaluate(cfg: dict) -> dict:
                 runs = []
                 for s, make in enumerate(factories):
                     patient, selector = spec.build(bank, sim_cfg, clinical)
-                    res = run_session(make(spec.index, patient), patient, selector, sim_cfg, clinical)
+                    noise = cfg.get("obs_noise", 0.0)
+                    noise_rng = np.random.default_rng([cfg["seed"], spec.index, s, 7919]) if noise else None
+                    res = run_session(make(spec.index, patient), patient, selector, sim_cfg, clinical,
+                                      obs_noise=noise, noise_rng=noise_rng)
                     m = session_metrics(res, clinical)
                     runs.append(m)
                     seed_rows[s].append(m)

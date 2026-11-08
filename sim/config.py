@@ -115,12 +115,13 @@ class SimConfig(BaseModel):
     parameters: list[str]
     population: dict[str, ParamDist]
     presets: dict[str, dict[str, ParamDist]]
+    ood_cohorts: dict[str, dict[str, ParamDist]] = Field(default_factory=dict)
     splits: dict[str, int]
 
     @model_validator(mode="after")
     def _complete(self) -> "SimConfig":
         needed = set(self.parameters)
-        for name, dists in [("population", self.population), *self.presets.items()]:
+        for name, dists in [("population", self.population), *self.presets.items(), *self.ood_cohorts.items()]:
             if set(dists) != needed:
                 raise ValueError(f"{name} must define exactly {sorted(needed)}")
         return self

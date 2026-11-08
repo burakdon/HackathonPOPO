@@ -59,10 +59,11 @@ class PatientSpec:
 
 def make_patients(cfg: SimConfig, cohort: str, split: str, n: int, root_seed: int,
                   start: int = 0) -> list[PatientSpec]:
-    """`cohort` is "population" (training distribution) or a preset name."""
+    """`cohort` is "population" (training distribution), a preset name, or an out-of-distribution cohort."""
     if split not in cfg.splits:
         raise ValueError(f"unknown split {split!r}; expected one of {list(cfg.splits)}")
-    dists = cfg.population if cohort == "population" else cfg.presets[cohort]
+    dists = (cfg.population if cohort == "population"
+             else cfg.presets[cohort] if cohort in cfg.presets else cfg.ood_cohorts[cohort])
     # Cohort name is hashed into the seed so cohorts drawn with the same root seed are independent.
     cohort_id = int.from_bytes(cohort.encode()[:8].ljust(8, b"\0"), "little")
     specs = []

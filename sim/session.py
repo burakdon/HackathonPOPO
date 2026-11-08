@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+import numpy as np
+
 from agents.base import Policy
 from core.config import ClinicalConfig
 from core.masks import action_mask, is_allowed
@@ -48,9 +50,22 @@ class SessionResult:
         return self.end_retrieval - self.start_retrieval
 
 
+def _observe(correct: bool, error_type: str, obs_noise: float, rng: np.random.Generator | None) -> tuple[bool, str]:
+    """What an imperfect scorer reports. With probability obs_noise the outcome is flipped: a correct
+    answer is reported as a sound error, an error as correct. One uniform draw per trial, always."""
+    if not obs_noise:
+        return correct, error_type
+    if rng.random() < obs_noise:
+        return (False, "sound") if correct else (True, "correct")
+    return correct, error_type
+
+
 def run_session(policy: Policy, patient: SimPatient, selector: ItemSelector, cfg: SimConfig,
                 clinical: ClinicalConfig, n_trials: int | None = None,
-                session_id: str = "sim") -> SessionResult:
+                session_id: str = "sim", obs_noise: float = 0.0,
+                noise_rng: np.random.Generator | None = None) -> SessionResult:
+    """`obs_noise` simulates scorer errors (evaluation only): the agent sees a flipped outcome with this
+    probability, while the patient's true response, learning and all metrics use the true outcome."""
     n_trials = n_trials or cfg.session.n_trials
     tier = cfg.session.start_tier
     history: list[dict] = []
@@ -61,6 +76,9 @@ def run_session(policy: Policy, patient: SimPatient, selector: ItemSelector, cfg
         if selector.probe_due():
             # Review probe: chosen by the app, not the agent; no policy call, current tier unchanged.
             observable, record, quit_ = play_probe(patient, selector, k)
+            seen, seen_err = _observe(observable["outcome"], observable["error_type"], obs_noise, noise_rng)
+            observable = {**observable, "outcome": seen, "error_type": seen_err}
+            record["observed_outcome"] = seen
             history.append(observable)
             result.trace.append(record)
             minutes += (observable["response_time"] + cfg.response_time.overhead_s) / 60.0
@@ -78,15 +96,15 @@ def run_session(policy: Policy, patient: SimPatient, selector: ItemSelector, cfg
         item = selector.next(action.tier)
         p_tier = patient.p_correct_tier(action.tier, action.cue)
         r = patient.respond(item, action.cue)
-        policy.update(state, action, Outcome(correct=r.correct, error_type=r.error_type,
-                                             response_time=r.response_time))
+        seen, seen_err = _observe(r.correct, r.error_type, obs_noise, noise_rng)
+        policy.update(state, action, Outcome(correct=seen, error_type=seen_err, response_time=r.response_time))
 
         observable = {"word": patient.bank.words[item], "tier": action.tier, "cue": action.cue,
-                      "outcome": r.correct, "error_type": r.error_type, "response_time": r.response_time,
+                      "outcome": seen, "error_type": seen_err, "response_time": r.response_time,
                       "probe": False}
         history.append(observable)
-        result.trace.append({**observable, "trial": k, "p_true": r.p_correct, "p_tier": p_tier,
-                             "fatigue": patient.fatigue})
+        result.trace.append({**observable, "outcome": r.correct, "error_type": r.error_type, "observed_outcome": seen,
+                             "trial": k, "p_true": r.p_correct, "p_tier": p_tier, "fatigue": patient.fatigue})
         tier = action.tier
         minutes += (r.response_time + cfg.response_time.overhead_s) / 60.0
         if r.quit:

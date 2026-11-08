@@ -108,8 +108,8 @@ class AphasiaEnv(gym.Env):
         observable = {"word": self.bank.words[item], "tier": tier, "cue": cue, "outcome": r.correct,
                       "error_type": r.error_type, "response_time": r.response_time, "probe": False}
         self.history.append(observable)
-        self.result.trace.append({**observable, "trial": len(self.result.trace), "p_true": r.p_correct,
-                                  "p_tier": p_tier, "fatigue": self.patient.fatigue})
+        self.result.trace.append({**observable, "observed_outcome": r.correct, "trial": len(self.result.trace),
+                                  "p_true": r.p_correct, "p_tier": p_tier, "fatigue": self.patient.fatigue})
         self.tier = tier
         self.minutes += (r.response_time + self.sim_cfg.response_time.overhead_s) / 60.0
         components = self.reward.step(self.result.trace)
@@ -123,6 +123,7 @@ class AphasiaEnv(gym.Env):
         # their (observable) reward terms are credited to this step.
         while not quit_ and len(self.result.trace) < n_max and self.selector.probe_due():
             observable, record, quit_ = play_probe(self.patient, self.selector, len(self.result.trace))
+            record["observed_outcome"] = record["outcome"]
             self.history.append(observable)
             self.result.trace.append(record)
             self.minutes += (observable["response_time"] + self.sim_cfg.response_time.overhead_s) / 60.0
