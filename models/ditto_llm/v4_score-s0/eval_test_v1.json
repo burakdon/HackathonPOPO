@@ -1,0 +1,1246 @@
+{
+ "run_id": "v4_score-s0",
+ "split": "test_v1",
+ "created": "2026-11-08T04:43:10.828119+00:00",
+ "dataset_hash": "4ced794ffaf87d06",
+ "example_ids": [
+  "demoA-v1-F26",
+  "demoA-v1-F27",
+  "demoA-v1-F28",
+  "demoA-v1-F29",
+  "demoA-v1-F30",
+  "demoA-v1-F31",
+  "demoA-v1-F32",
+  "demoA-v1-F33",
+  "demoA-v1-F34",
+  "demoA-v1-F35"
+ ],
+ "base_model": "Qwen/Qwen3-1.7B",
+ "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+ "decoding": "score",
+ "trained_on": [
+  "demoA-v1-F01",
+  "demoA-v1-F02",
+  "demoA-v1-F03",
+  "demoA-v1-F04",
+  "demoA-v1-F05",
+  "demoA-v1-F06",
+  "demoA-v1-F07",
+  "demoA-v1-F08",
+  "demoA-v1-F09",
+  "demoA-v1-F10",
+  "demoA-v1-F11",
+  "demoA-v1-F12",
+  "demoA-v1-F13",
+  "demoA-v1-F14",
+  "demoA-v1-F15",
+  "demoA-v1-F16",
+  "demoA-v1-F17",
+  "demoA-v1-F18",
+  "demoA-v1-F19",
+  "demoA-v1-F20",
+  "demoA-v2-G001",
+  "demoA-v2-G002",
+  "demoA-v2-G003",
+  "demoA-v2-G004",
+  "demoA-v2-G005",
+  "demoA-v2-G006",
+  "demoA-v2-G007",
+  "demoA-v2-G008",
+  "demoA-v2-G009",
+  "demoA-v2-G010",
+  "demoA-v2-G011",
+  "demoA-v2-G012",
+  "demoA-v2-G013",
+  "demoA-v2-G014",
+  "demoA-v2-G015",
+  "demoA-v2-G016",
+  "demoA-v2-G017",
+  "demoA-v2-G018",
+  "demoA-v2-G019",
+  "demoA-v2-G020",
+  "demoA-v2-G021",
+  "demoA-v2-G022",
+  "demoA-v2-G023",
+  "demoA-v2-G024",
+  "demoA-v2-G025",
+  "demoA-v2-G026",
+  "demoA-v2-G027",
+  "demoA-v2-G028",
+  "demoA-v2-G029",
+  "demoA-v2-G030",
+  "demoA-v2-G031",
+  "demoA-v2-G032",
+  "demoA-v2-G033",
+  "demoA-v2-G034",
+  "demoA-v2-G035",
+  "demoA-v2-G036",
+  "demoA-v2-G037",
+  "demoA-v2-G038",
+  "demoA-v2-G039",
+  "demoA-v2-G040",
+  "demoA-v2-G041",
+  "demoA-v2-G042",
+  "demoA-v2-G043",
+  "demoA-v2-G044",
+  "demoA-v2-G045",
+  "demoA-v2-G046",
+  "demoA-v2-G047",
+  "demoA-v2-G048",
+  "demoA-v2-G049",
+  "demoA-v2-G050",
+  "demoA-v2-G051",
+  "demoA-v2-G052",
+  "demoA-v2-G053",
+  "demoA-v2-G054",
+  "demoA-v2-G055",
+  "demoA-v2-G056",
+  "demoA-v2-G057",
+  "demoA-v2-G058",
+  "demoA-v2-G059",
+  "demoA-v2-G060",
+  "demoA-v2-G061",
+  "demoA-v2-G062",
+  "demoA-v2-G063",
+  "demoA-v2-G064",
+  "demoA-v2-G065",
+  "demoA-v2-G066",
+  "demoA-v2-G067",
+  "demoA-v2-G068",
+  "demoA-v2-G069",
+  "demoA-v2-G070",
+  "demoA-v2-G071",
+  "demoA-v2-G072",
+  "demoA-v2-G073",
+  "demoA-v2-G074",
+  "demoA-v2-G075",
+  "demoA-v2-G076",
+  "demoA-v2-G077",
+  "demoA-v2-G078",
+  "demoA-v2-G079",
+  "demoA-v2-G080",
+  "demoA-v2-G081",
+  "demoA-v2-G082",
+  "demoA-v2-G083",
+  "demoA-v2-G084",
+  "demoA-v2-G085",
+  "demoA-v2-G086",
+  "demoA-v2-G087",
+  "demoA-v2-G088",
+  "demoA-v2-G089",
+  "demoA-v2-G090",
+  "demoA-v2-G091",
+  "demoA-v2-G092",
+  "demoA-v2-G093",
+  "demoA-v2-G094",
+  "demoA-v2-G095",
+  "demoA-v2-G096",
+  "demoA-v2-G097",
+  "demoA-v2-G098",
+  "demoA-v2-G099"
+ ],
+ "results": {
+  "base": {
+   "n": 10,
+   "valid_output": 10,
+   "constraint_violations": 0,
+   "unparseable": 0,
+   "fallbacks": 0,
+   "agree_on_valid": 2,
+   "agree_end_to_end": 2,
+   "agree_end_to_end_ci95": [
+    0.0,
+    0.5
+   ],
+   "agree_on_valid_ci95": [
+    0.0,
+    0.5
+   ],
+   "model_detail": {},
+   "latency_ms_median": 50.6,
+   "latency_ms_max": 3028.3,
+   "per_example": [
+    {
+     "example_id": "demoA-v1-F26",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 3028.3
+    },
+    {
+     "example_id": "demoA-v1-F27",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 41.9
+    },
+    {
+     "example_id": "demoA-v1-F28",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 42.8
+    },
+    {
+     "example_id": "demoA-v1-F29",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 40.6
+    },
+    {
+     "example_id": "demoA-v1-F30",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 117.8
+    },
+    {
+     "example_id": "demoA-v1-F31",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 62.4
+    },
+    {
+     "example_id": "demoA-v1-F32",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 70.9
+    },
+    {
+     "example_id": "demoA-v1-F33",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 42.0
+    },
+    {
+     "example_id": "demoA-v1-F34",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 41.0
+    },
+    {
+     "example_id": "demoA-v1-F35",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 58.4
+    }
+   ]
+  },
+  "prompted": {
+   "n": 10,
+   "valid_output": 10,
+   "constraint_violations": 0,
+   "unparseable": 0,
+   "fallbacks": 0,
+   "agree_on_valid": 5,
+   "agree_end_to_end": 5,
+   "agree_end_to_end_ci95": [
+    0.2,
+    0.8
+   ],
+   "agree_on_valid_ci95": [
+    0.2,
+    0.8
+   ],
+   "model_detail": {
+    "few_shot_examples": 20
+   },
+   "latency_ms_median": 323.2,
+   "latency_ms_max": 1195.8,
+   "per_example": [
+    {
+     "example_id": "demoA-v1-F26",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 220.4
+    },
+    {
+     "example_id": "demoA-v1-F27",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 219.9
+    },
+    {
+     "example_id": "demoA-v1-F28",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 321.8
+    },
+    {
+     "example_id": "demoA-v1-F29",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 220.4
+    },
+    {
+     "example_id": "demoA-v1-F30",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1045.9
+    },
+    {
+     "example_id": "demoA-v1-F31",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1044.9
+    },
+    {
+     "example_id": "demoA-v1-F32",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1195.8
+    },
+    {
+     "example_id": "demoA-v1-F33",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 324.7
+    },
+    {
+     "example_id": "demoA-v1-F34",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 225.6
+    },
+    {
+     "example_id": "demoA-v1-F35",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1045.0
+    }
+   ]
+  },
+  "prompted_all": {
+   "n": 10,
+   "valid_output": 5,
+   "constraint_violations": 0,
+   "unparseable": 0,
+   "fallbacks": 5,
+   "agree_on_valid": 2,
+   "agree_end_to_end": 3,
+   "agree_end_to_end_ci95": [
+    0.1,
+    0.6
+   ],
+   "agree_on_valid_ci95": [
+    0.0,
+    0.8
+   ],
+   "model_detail": {
+    "few_shot_examples": 119,
+    "few_shot_available": 119,
+    "prompt_tokens_before_context": 23416,
+    "context_window": 32768
+   },
+   "latency_ms_median": 1693.7,
+   "latency_ms_max": 9516.6,
+   "per_example": [
+    {
+     "example_id": "demoA-v1-F26",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1692.3
+    },
+    {
+     "example_id": "demoA-v1-F27",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1691.2
+    },
+    {
+     "example_id": "demoA-v1-F28",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 2502.6
+    },
+    {
+     "example_id": "demoA-v1-F29",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1695.0
+    },
+    {
+     "example_id": "demoA-v1-F30",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 7.28 GiB. GPU 0 has a total capacity of 39.49 GiB of which 5.45 GiB is free. Including non-PyTorch memory, this process has 34.03 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 6070.9
+    },
+    {
+     "example_id": "demoA-v1-F31",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 7.28 GiB. GPU 0 has a total capacity of 39.49 GiB of which 5.45 GiB is free. Including non-PyTorch memory, this process has 34.03 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 159.8
+    },
+    {
+     "example_id": "demoA-v1-F32",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 8.33 GiB. GPU 0 has a total capacity of 39.49 GiB of which 1.12 GiB is free. Including non-PyTorch memory, this process has 38.36 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 173.0
+    },
+    {
+     "example_id": "demoA-v1-F33",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 832.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 311.44 MiB is free. Including non-PyTorch memory, this process has 39.18 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 149.9
+    },
+    {
+     "example_id": "demoA-v1-F34",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1697.8
+    },
+    {
+     "example_id": "demoA-v1-F35",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 7.27 GiB. GPU 0 has a total capacity of 39.49 GiB of which 359.44 MiB is free. Including non-PyTorch memory, this process has 39.13 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 9516.6
+    }
+   ]
+  },
+  "sft:v4_score-s0": {
+   "n": 10,
+   "valid_output": 10,
+   "constraint_violations": 0,
+   "unparseable": 0,
+   "fallbacks": 0,
+   "agree_on_valid": 4,
+   "agree_end_to_end": 4,
+   "agree_end_to_end_ci95": [
+    0.1,
+    0.7
+   ],
+   "agree_on_valid_ci95": [
+    0.1,
+    0.7
+   ],
+   "model_detail": {},
+   "latency_ms_median": 75.3,
+   "latency_ms_max": 139.5,
+   "per_example": [
+    {
+     "example_id": "demoA-v1-F26",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 139.5
+    },
+    {
+     "example_id": "demoA-v1-F27",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.5
+    },
+    {
+     "example_id": "demoA-v1-F28",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.6
+    },
+    {
+     "example_id": "demoA-v1-F29",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 67.6
+    },
+    {
+     "example_id": "demoA-v1-F30",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 82.8
+    },
+    {
+     "example_id": "demoA-v1-F31",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 83.1
+    },
+    {
+     "example_id": "demoA-v1-F32",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 97.5
+    },
+    {
+     "example_id": "demoA-v1-F33",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 69.0
+    },
+    {
+     "example_id": "demoA-v1-F34",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 67.1
+    },
+    {
+     "example_id": "demoA-v1-F35",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 81.6
+    }
+   ]
+  },
+  "ditto:v4_score-s0": {
+   "n": 10,
+   "valid_output": 10,
+   "constraint_violations": 0,
+   "unparseable": 0,
+   "fallbacks": 0,
+   "agree_on_valid": 4,
+   "agree_end_to_end": 4,
+   "agree_end_to_end_ci95": [
+    0.1,
+    0.7
+   ],
+   "agree_on_valid_ci95": [
+    0.1,
+    0.7
+   ],
+   "model_detail": {},
+   "latency_ms_median": 74.0,
+   "latency_ms_max": 98.5,
+   "per_example": [
+    {
+     "example_id": "demoA-v1-F26",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 74.2
+    },
+    {
+     "example_id": "demoA-v1-F27",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 69.1
+    },
+    {
+     "example_id": "demoA-v1-F28",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 73.8
+    },
+    {
+     "example_id": "demoA-v1-F29",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 73.1
+    },
+    {
+     "example_id": "demoA-v1-F30",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 85.1
+    },
+    {
+     "example_id": "demoA-v1-F31",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 84.9
+    },
+    {
+     "example_id": "demoA-v1-F32",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 98.5
+    },
+    {
+     "example_id": "demoA-v1-F33",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 69.8
+    },
+    {
+     "example_id": "demoA-v1-F34",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 68.6
+    },
+    {
+     "example_id": "demoA-v1-F35",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 83.2
+    }
+   ]
+  },
+  "bandit": {
+   "n": 10,
+   "valid_output": null,
+   "constraint_violations": null,
+   "unparseable": null,
+   "fallbacks": 0,
+   "agree_on_valid": null,
+   "agree_end_to_end": 4,
+   "agree_end_to_end_ci95": [
+    0.1,
+    0.7
+   ],
+   "agree_on_valid_ci95": null,
+   "model_detail": {},
+   "latency_ms_median": 0.2,
+   "latency_ms_max": 0.3,
+   "per_example": [
+    {
+     "example_id": "demoA-v1-F26",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.3
+    },
+    {
+     "example_id": "demoA-v1-F27",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v1-F28",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v1-F29",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v1-F30",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.3
+    },
+    {
+     "example_id": "demoA-v1-F31",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v1-F32",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.3
+    },
+    {
+     "example_id": "demoA-v1-F33",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v1-F34",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v1-F35",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.3
+    }
+   ]
+  }
+ }
+}
