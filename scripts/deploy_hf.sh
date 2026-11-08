@@ -18,7 +18,7 @@ if [ -n "${1:-}" ]; then
   SPACE="$1"
 else
   USER_NAME="$(hf auth whoami --format json 2>/dev/null \
-    | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("name") or d.get("user") or d["username"])')" \
+    | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("name") or d.get("user") or d["username"])' 2>/dev/null)" \
     || { echo "not logged in: run 'hf auth login' with a write token, then retry"; exit 1; }
   SPACE="$USER_NAME/neurocue"
 fi
