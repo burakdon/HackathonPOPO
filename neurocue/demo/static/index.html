@@ -110,7 +110,8 @@ svg.chart text { fill:var(--fg); font:11px var(--mono); }
 .strip { display:grid; grid-template-columns:repeat(40,1fr); gap:2px; margin-top:6px; }
 .strip div { aspect-ratio:1; border-radius:3px; font:8px var(--mono); line-height:1; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; opacity:.92; }
 .strip div:hover { outline:2px solid var(--accent-2); }
-.rows { display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; font-size:13.5px; margin-top:10px; }
+.rows { display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px 18px; font-size:13.5px; margin-top:10px; }
+.rows > span { min-width:0; } .rows select { max-width:100%; }
 .rows .k { color:var(--muted); font:500 12px var(--mono); }
 #summary, #osummary { font-size:14px; margin-top:12px; line-height:1.55; }
 .block { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-top:14px; }
