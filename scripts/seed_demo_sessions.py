@@ -52,8 +52,14 @@ STEPS = {"first": ["correct"], "helped": ["meaning", "correct"], "stuck": ["mean
          "stuck_sound": ["sound", "meaning", "meaning"],
          "sound": ["sound", "correct"], "unsure": ["unsure", "correct"], "unclear": ["unclear", "correct"]}
 FALLBACK_WRONG = ["table", "bird", "spoon", "ball", "book", "shoe", "lamp", "bread"]
+# The demo preference is one the shared adapter does NOT already follow: after a failed meaning hint the
+# delivered adapter ditto:sft200-g2-s0 already gives the first-sound hint (docs/ditto_golden_test.json, case g2),
+# so the demo teaches the first-letter hint there instead, and the before/after is visible.
 DEMO_RULE = Rule(when=RuleWhen(hints_tried_include=["semantic"], failed_attempts_on_picture=Range(min=2)),
-                 then=RetryThen(op="retry", hint="first_sound"), summary="demo rule (for the summary only)")
+                 then=RetryThen(op="retry", hint="first_letter"), summary="demo rule (for the summary only)")
+# Pictures Whisper often mishears with synthetic voices (results/scorer_synthetic.md: "cat" failed most). While
+# seeding they count as already shown, so the engine picks the next unseen picture of the level instead.
+AVOID = ["ex-cat"]
 
 
 class Voice:
@@ -157,7 +163,7 @@ def summary(engine, sids: list[str]) -> None:
               f"{len(ds):>10}{rev.summary.model_version:>34}{len(m):>10}{len(t):>9}   sources={sorted(src)} fallbacks={fb}")
         errs = rev.summary.errors
         print(f"{'':<14}errors: sound {errs.sound}, wrong word {errs.wrong_word}, no answer {errs.no_answer}, unclassified {errs.unclassified}; simulated={rev.summary.simulated}")
-    print(f"\ndemo rule (meaning hint shown, 2+ failed tries -> first-sound hint): {total} matching decisions, {tick} tickable")
+    print(f"\ndemo rule (meaning hint shown, 2+ failed tries -> first-letter hint): {total} matching decisions, {tick} tickable")
 
 
 def main() -> None:
@@ -184,6 +190,8 @@ def main() -> None:
     provider = WhisperLocalProvider()
     app = create_app(speech_provider=provider, cueagain_root=root)
     engine, client = app.state.engine, TestClient(app)
+    next_item = engine.bank.next_item
+    engine.bank.next_item = lambda tier, shown: next_item(tier, list(shown) + [a for a in AVOID if a not in shown])
     version = engine.patient(PATIENT).active_model.version
     print(f"patient {PATIENT}, model {version}")
     if version != "rules":
