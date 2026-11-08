@@ -77,6 +77,9 @@ uv run python -m eval.plots                     # learning curves -> results/lea
 uv run python -m train.ditto_ppo                # DITTO-style tuning from overrides -> results/ditto_report.md
 uv run python -m scripts.validate_live_ditto     # live override learning on fresh states
 uv run python -m train.ditto_sweep              # SFT vs DITTO variants, 1-10 overrides (~6 min) -> results/ditto_sweep.md
+SIM_CONFIG=configs/sim_two_step.yaml uv run python -m train.train_ppo --timesteps 500000   # PPO on two-step patients
+SIM_CONFIG=configs/sim_two_step.yaml uv run python -m eval.compare --config configs/eval_two_step.yaml
+uv run python -m scripts.error_cue_table        # which cue each agent gives after each error type
 uv run python -m scripts.judge_demo --url http://localhost:8000 --name live   # healthy-judge check
 uv run python -m eval.compare --config configs/eval.yaml   # full evaluation -> results/
 uv run python -m scripts.sanity_table --dropout on --out results/sanity_dropout_on.md
@@ -612,6 +615,55 @@ after *other* errors. All methods keep 99% of unrelated decisions unchanged.
 Also fixed in `train/ditto_ppo.py`: offline overrides are now masked with the same
 cue-only-after-error gate the policy acts under (as the live endpoint already does), and overrides
 the policy cannot produce are skipped and reported instead of being trained on as impossible targets.
+
+## Two-step patient model: aphasia as weak links between meaning, words and sounds (`sim/two_step.py`)
+
+The original simulator gives each trial one log-odds score; error types are drawn from fixed
+per-patient proportions and do not change which cue helps. So no agent could learn to read the
+error, and the trained PPO did not: it gave nearly the same mix of cues after sound and meaning
+errors. The two-step model is an optional, switchable patient model (`SIM_CONFIG=configs/sim_two_step.yaml`;
+the default is unchanged) that follows the two-step model of word retrieval (Dell et al. 1997;
+Foygel & Dell 2000; Schwartz et al. 2006): a patient is two link strengths, meaning -> word (s) and
+word -> sounds (p).
+
+- p(correct) = P(select the right word) x P(encode its sounds); frequency acts on step 1, length on step 2.
+- A step-1 failure gives a meaning error (or no response); a step-2 failure gives a sound error (or
+  no response, tip of the tongue). Error types come from where retrieval failed.
+- Semantic cues and sentence frames feed step 1; first sound and first letter feed step 2. Because
+  p is a product, a cue helps most when it targets the failing step, so **the error predicts the cue
+  that helps**.
+- It is a closed-form approximation of the spreading-activation model (exact probabilities for the
+  oracle, metrics and privileged reward; fast enough for RL). The structure is from the literature;
+  every magnitude is an ASSUMPTION in [`configs/sim_two_step.yaml`](configs/sim_two_step.yaml).
+- A fourth evaluation cohort, **moderate semantic** (step 1 weak), joins mild anomic, moderate
+  Broca's (step 2 weak) and severe.
+
+Cohort check (100 test patients, tier-2 items, no cue): moderate Broca's patients fail mostly with
+sound errors (62%) and gain most from a first-sound cue (+0.19 vs +0.03 for a semantic cue);
+moderate semantic patients fail mostly with meaning errors (60%) and gain most from a semantic cue
+(+0.14 vs +0.08 for first sound).
+
+**Does the agent read the error?** Share of cue choices that are phonological (first sound or
+first letter), 100 held-out validation patients ([`results/error_cue_table.md`](results/error_cue_table.md)):
+
+| policy | after a sound error | after a meaning error | difference |
+|---|---|---|---|
+| PPO trained on the original model, original patients | 65% | 54% | 11 pts |
+| PPO trained on the original model, two-step patients | 69% | 55% | 14 pts |
+| **PPO trained on the two-step model, two-step patients** | **83%** | **25%** | **58 pts** |
+
+Trained on the two-step model, PPO gives a sound cue after sound errors and largely stops doing so
+after meaning errors. After meaning errors it often gives **no** cue (41%) rather than a semantic one.
+
+**Does reading the error improve outcomes? Not yet.** On 100 held-out test patients per cohort
+([`results/two_step/comparison.md`](results/two_step/comparison.md)), the two-step-trained PPO and
+the original PPO evaluated zero-shot are within each other's confidence intervals on time in band,
+control error, learning gain, probe lift and quit rate in all four cohorts (learning gain differs by
+at most 0.08 x100). The likely reason is the interface: a cue is applied to the *next* item, not to
+the item the patient just failed, so matching the cue to the error helps only through the patient's
+general profile. Within-item cue escalation (a second attempt with a stronger, matched cue) is the
+change that should let error reading pay off; it is the next step. Training: 3 seeds x 500k steps
+(the original PPO converged within about 100k).
 
 ## Known limitations
 - With an 8-trial window, rolling accuracy only takes values k/8, so the [0.75, 0.90] band means

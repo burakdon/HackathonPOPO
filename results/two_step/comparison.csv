@@ -1,0 +1,217 @@
+cohort,policy,label,metric,mean,ci_low,ci_high,n,pct_of_oracle
+mild_anomic,fixed,fixed (tier 2),time_in_band,0.5212121212121213,0.4793939393939394,0.5606136363636364,100,
+mild_anomic,fixed,fixed (tier 2),control_error,0.05165534388993686,0.048718708718030246,0.054452848982103265,100,
+mild_anomic,fixed,fixed (tier 2),learning_gain,0.039183066387590386,0.036936836062040596,0.0414945314880091,100,99.89159325474267
+mild_anomic,fixed,fixed (tier 2),probe_recall,0.90375,0.88375,0.9225,100,
+mild_anomic,fixed,fixed (tier 2),probe_lift,0.02703648837880914,0.025364671582466657,0.028736204150015,100,93.58547824621844
+mild_anomic,fixed,fixed (tier 2),quit,0.0,0.0,0.0,100,
+mild_anomic,fixed,fixed (tier 2),frustration_events,0.01,0.0,0.03,100,
+mild_anomic,fixed,fixed (tier 2),mean_tier,2.0,2.0,2.0,100,
+mild_anomic,fixed,fixed (tier 2),accuracy,0.8995000000000001,0.88874375,0.9092500000000001,100,
+mild_anomic,staircase,staircase,time_in_band,0.7727272727272728,0.7445454545454548,0.7994015151515149,100,
+mild_anomic,staircase,staircase,control_error,0.08659577757716053,0.08472091544802486,0.08845744633297294,100,
+mild_anomic,staircase,staircase,learning_gain,0.036593457335153894,0.03469959938905175,0.03863133866332325,100,93.28975735971656
+mild_anomic,staircase,staircase,probe_recall,0.88625,0.86375,0.9075,100,
+mild_anomic,staircase,staircase,probe_lift,0.025595046707269056,0.02390388038062931,0.027378407985910836,100,88.59599861021516
+mild_anomic,staircase,staircase,quit,0.0,0.0,0.0,100,
+mild_anomic,staircase,staircase,frustration_events,0.06,0.02,0.11,100,
+mild_anomic,staircase,staircase,mean_tier,2.23175,2.1909937499999996,2.2705062499999995,100,
+mild_anomic,staircase,staircase,accuracy,0.82825,0.8192499999999999,0.8370062500000001,100,
+mild_anomic,contextual_bandit,contextual bandit,time_in_band,0.5292371995820272,0.48923719958202727,0.5674378265412747,100,
+mild_anomic,contextual_bandit,contextual bandit,control_error,0.0667973189559147,0.06431806688643882,0.06920902996912034,100,
+mild_anomic,contextual_bandit,contextual bandit,learning_gain,0.03517910347707038,0.03325436539673989,0.037391312783373085,100,89.68406558173209
+mild_anomic,contextual_bandit,contextual bandit,probe_recall,0.9185714285714286,0.9010669642857143,0.9358973214285714,100,
+mild_anomic,contextual_bandit,contextual bandit,probe_lift,0.01779925062185426,0.016419740086355328,0.019187383251675683,100,61.61123288393203
+mild_anomic,contextual_bandit,contextual bandit,quit,0.01,0.0,0.03,100,
+mild_anomic,contextual_bandit,contextual bandit,frustration_events,0.02,0.0,0.05,100,
+mild_anomic,contextual_bandit,contextual bandit,mean_tier,1.65775,1.61775,1.6985062499999999,100,
+mild_anomic,contextual_bandit,contextual bandit,accuracy,0.9046111111111113,0.8968611111111112,0.9121951388888889,100,
+mild_anomic,ppo_original,"PPO, original model (zero-shot)",time_in_band,0.7877777777777776,0.7598939393939392,0.8137373737373736,100,
+mild_anomic,ppo_original,"PPO, original model (zero-shot)",control_error,0.08679877885462683,0.08511264493504649,0.08853641129553365,100,
+mild_anomic,ppo_original,"PPO, original model (zero-shot)",learning_gain,0.03364974883039858,0.031741861349210275,0.035646613515010424,100,85.78519583028319
+mild_anomic,ppo_original,"PPO, original model (zero-shot)",probe_recall,0.9116666666666667,0.8945833333333334,0.9287499999999999,100,
+mild_anomic,ppo_original,"PPO, original model (zero-shot)",probe_lift,0.02023114913256713,0.018801881417855288,0.02175835225733191,100,70.02913028179502
+mild_anomic,ppo_original,"PPO, original model (zero-shot)",quit,0.0,0.0,0.0,100,
+mild_anomic,ppo_original,"PPO, original model (zero-shot)",frustration_events,0.013333333333333332,0.0,0.04,100,
+mild_anomic,ppo_original,"PPO, original model (zero-shot)",mean_tier,1.8519999999999996,1.812075,1.8904229166666666,100,
+mild_anomic,ppo_original,"PPO, original model (zero-shot)",accuracy,0.8675000000000002,0.8604166666666666,0.8745020833333333,100,
+mild_anomic,ppo_two_step,"PPO, two-step model",time_in_band,0.7823232323232321,0.7559570707070707,0.8059621212121211,100,
+mild_anomic,ppo_two_step,"PPO, two-step model",control_error,0.089721302185725,0.08806164675217575,0.09141973679299151,100,
+mild_anomic,ppo_two_step,"PPO, two-step model",learning_gain,0.03293081777295449,0.031134416080661573,0.034884289869562636,100,83.95238448116551
+mild_anomic,ppo_two_step,"PPO, two-step model",probe_recall,0.9095833333333333,0.8920833333333333,0.92625,100,
+mild_anomic,ppo_two_step,"PPO, two-step model",probe_lift,0.019491761946687284,0.01804429101503069,0.020939367748447547,100,67.46977780856754
+mild_anomic,ppo_two_step,"PPO, two-step model",quit,0.0,0.0,0.0,100,
+mild_anomic,ppo_two_step,"PPO, two-step model",frustration_events,0.013333333333333332,0.0,0.03666666666666667,100,
+mild_anomic,ppo_two_step,"PPO, two-step model",mean_tier,1.8147500000000003,1.7754895833333335,1.8529166666666663,100,
+mild_anomic,ppo_two_step,"PPO, two-step model",accuracy,0.8666666666666666,0.86,0.8734166666666665,100,
+mild_anomic,oracle,oracle (privileged),time_in_band,0.5484242424242424,0.5115136363636363,0.5869166666666666,100,
+mild_anomic,oracle,oracle (privileged),control_error,0.052323686966799204,0.04973833622986463,0.054992221614343015,100,
+mild_anomic,oracle,oracle (privileged),learning_gain,0.03922558957255399,0.037052892090118174,0.04143308758131269,100,100.0
+mild_anomic,oracle,oracle (privileged),probe_recall,0.88125,0.8575,0.90375,100,
+mild_anomic,oracle,oracle (privileged),probe_lift,0.028889619292939414,0.027220631101955224,0.03054145076427321,100,100.0
+mild_anomic,oracle,oracle (privileged),quit,0.01,0.0,0.03,100,
+mild_anomic,oracle,oracle (privileged),frustration_events,0.11,0.05,0.18,100,
+mild_anomic,oracle,oracle (privileged),mean_tier,2.2235,2.1804875,2.2735062499999996,100,
+mild_anomic,oracle,oracle (privileged),accuracy,0.8669166666666667,0.8545833333333335,0.8796666666666667,100,
+moderate_broca,fixed,fixed (tier 2),time_in_band,0.3842872534872535,0.3375257287157286,0.42830891053391046,100,
+moderate_broca,fixed,fixed (tier 2),control_error,0.18733120378174317,0.17406749639253116,0.20096706010897564,100,
+moderate_broca,fixed,fixed (tier 2),learning_gain,0.039466938190981855,0.035916211617209266,0.04320129025909913,100,68.21707428840702
+moderate_broca,fixed,fixed (tier 2),probe_recall,0.6668350168350168,0.6277756734006735,0.7013468013468014,99,
+moderate_broca,fixed,fixed (tier 2),probe_lift,0.031509212567858186,0.02899513138616353,0.03405050389902317,99,84.52575127941944
+moderate_broca,fixed,fixed (tier 2),quit,0.12,0.06,0.19,100,
+moderate_broca,fixed,fixed (tier 2),frustration_events,1.04,0.86,1.22,100,
+moderate_broca,fixed,fixed (tier 2),mean_tier,2.0,2.0,2.0,100,
+moderate_broca,fixed,fixed (tier 2),accuracy,0.6500576056647703,0.6266210075057699,0.6728726184439294,100,
+moderate_broca,staircase,staircase,time_in_band,0.44025346320346315,0.4010208387445887,0.4773585443722944,100,
+moderate_broca,staircase,staircase,control_error,0.17812819585335574,0.16768945765609194,0.18796779529867097,100,
+moderate_broca,staircase,staircase,learning_gain,0.04507213777860388,0.04217498768578532,0.047867546598229706,100,77.9054447117689
+moderate_broca,staircase,staircase,probe_recall,0.7105000000000001,0.6766624999999998,0.7425833333333333,100,
+moderate_broca,staircase,staircase,probe_lift,0.0319701538365319,0.030215374312058653,0.03374584143670061,100,85.76225971156217
+moderate_broca,staircase,staircase,quit,0.05,0.01,0.1,100,
+moderate_broca,staircase,staircase,frustration_events,0.82,0.6597500000000001,0.98,100,
+moderate_broca,staircase,staircase,mean_tier,1.6289135154061625,1.577869170168067,1.6798164828431372,100,
+moderate_broca,staircase,staircase,accuracy,0.6636302521008404,0.6510579306722689,0.6760591386554623,100,
+moderate_broca,contextual_bandit,contextual bandit,time_in_band,0.5316041125541126,0.4915289015151515,0.5740464664502163,100,
+moderate_broca,contextual_bandit,contextual bandit,control_error,0.11421300534073231,0.10486541998127652,0.1238522676418936,100,
+moderate_broca,contextual_bandit,contextual bandit,learning_gain,0.05293694571115184,0.049579411926419334,0.05623074536477186,100,91.49946065499881
+moderate_broca,contextual_bandit,contextual bandit,probe_recall,0.733,0.69840625,0.7663354166666666,100,
+moderate_broca,contextual_bandit,contextual bandit,probe_lift,0.03432368786372224,0.0325359742035816,0.036298291002734205,100,92.07578568056302
+moderate_broca,contextual_bandit,contextual bandit,quit,0.05,0.01,0.09,100,
+moderate_broca,contextual_bandit,contextual bandit,frustration_events,0.42,0.3,0.55,100,
+moderate_broca,contextual_bandit,contextual bandit,mean_tier,1.3230381652661063,1.2902806547619046,1.3562177345938375,100,
+moderate_broca,contextual_bandit,contextual bandit,accuracy,0.7307016806722689,0.7135090336134453,0.7470011554621848,100,
+moderate_broca,ppo_original,"PPO, original model (zero-shot)",time_in_band,0.6259163059163059,0.5874314574314574,0.6634971139971141,100,
+moderate_broca,ppo_original,"PPO, original model (zero-shot)",control_error,0.11875193280720599,0.11141020190073486,0.12674804535932857,100,
+moderate_broca,ppo_original,"PPO, original model (zero-shot)",learning_gain,0.0528184319347434,0.05025771908349973,0.05548061748582623,100,91.29461418197543
+moderate_broca,ppo_original,"PPO, original model (zero-shot)",probe_recall,0.7489166666666667,0.7228291666666665,0.77725,100,
+moderate_broca,ppo_original,"PPO, original model (zero-shot)",probe_lift,0.035735545287529154,0.03400894937673633,0.03756658088623932,100,95.86319576546116
+moderate_broca,ppo_original,"PPO, original model (zero-shot)",quit,0.003333333333333333,0.0,0.01,100,
+moderate_broca,ppo_original,"PPO, original model (zero-shot)",frustration_events,0.2733333333333333,0.18333333333333335,0.37,100,
+moderate_broca,ppo_original,"PPO, original model (zero-shot)",mean_tier,1.2801904761904763,1.2458803571428572,1.3140011904761906,100,
+moderate_broca,ppo_original,"PPO, original model (zero-shot)",accuracy,0.7358095238095239,0.7229761904761907,0.747561011904762,100,
+moderate_broca,ppo_two_step,"PPO, two-step model",time_in_band,0.6366666666666666,0.6003030303030303,0.6720227272727273,100,
+moderate_broca,ppo_two_step,"PPO, two-step model",control_error,0.11959346213349503,0.11221012427034144,0.1276946298535764,100,
+moderate_broca,ppo_two_step,"PPO, two-step model",learning_gain,0.05203979251863977,0.0493784950658155,0.05477329067393268,100,89.94876610439742
+moderate_broca,ppo_two_step,"PPO, two-step model",probe_recall,0.74625,0.7195833333333332,0.7737604166666667,100,
+moderate_broca,ppo_two_step,"PPO, two-step model",probe_lift,0.0351981917615273,0.033336552966023066,0.03702951625528113,100,94.42170590308727
+moderate_broca,ppo_two_step,"PPO, two-step model",quit,0.0,0.0,0.0,100,
+moderate_broca,ppo_two_step,"PPO, two-step model",frustration_events,0.20666666666666664,0.13333333333333333,0.2933333333333333,100,
+moderate_broca,ppo_two_step,"PPO, two-step model",mean_tier,1.2823333333333335,1.2484958333333331,1.31525625,100,
+moderate_broca,ppo_two_step,"PPO, two-step model",accuracy,0.7415833333333335,0.7295833333333335,0.7529166666666666,100,
+moderate_broca,oracle,oracle (privileged),time_in_band,0.5798268398268398,0.5375670995670996,0.6178939393939392,100,
+moderate_broca,oracle,oracle (privileged),control_error,0.08778742294340723,0.08010933664382983,0.09585105960590075,100,
+moderate_broca,oracle,oracle (privileged),learning_gain,0.05785492650142718,0.05478696719426743,0.06103225791489459,100,100.0
+moderate_broca,oracle,oracle (privileged),probe_recall,0.7717499999999999,0.7447499999999999,0.79975625,100,
+moderate_broca,oracle,oracle (privileged),probe_lift,0.03727764863478964,0.035331603294838886,0.039462834691397525,100,100.0
+moderate_broca,oracle,oracle (privileged),quit,0.02,0.0,0.05,100,
+moderate_broca,oracle,oracle (privileged),frustration_events,0.25,0.15,0.35,100,
+moderate_broca,oracle,oracle (privileged),mean_tier,1.234,1.21199375,1.259,100,
+moderate_broca,oracle,oracle (privileged),accuracy,0.763142857142857,0.7474973214285712,0.7783955357142857,100,
+moderate_semantic,fixed,fixed (tier 2),time_in_band,0.42370021645021644,0.38151155303030293,0.4654399621212121,100,
+moderate_semantic,fixed,fixed (tier 2),control_error,0.15974690172923853,0.14644185135031434,0.17284951834152182,100,
+moderate_semantic,fixed,fixed (tier 2),learning_gain,0.04275680180447975,0.03949624569021453,0.04601706016737254,100,70.56432906219514
+moderate_semantic,fixed,fixed (tier 2),probe_recall,0.7100833333333333,0.6755812500000001,0.7442520833333334,100,
+moderate_semantic,fixed,fixed (tier 2),probe_lift,0.035721328473804353,0.0331288560028063,0.038259818466609995,100,98.24630967318166
+moderate_semantic,fixed,fixed (tier 2),quit,0.06,0.02,0.11,100,
+moderate_semantic,fixed,fixed (tier 2),frustration_events,0.91,0.74,1.0802499999999986,100,
+moderate_semantic,fixed,fixed (tier 2),mean_tier,2.0,2.0,2.0,100,
+moderate_semantic,fixed,fixed (tier 2),accuracy,0.6813506240228251,0.6602995601001889,0.701945139453631,100,
+moderate_semantic,staircase,staircase,time_in_band,0.5243116883116883,0.4872261904761905,0.5608069264069263,100,
+moderate_semantic,staircase,staircase,control_error,0.1498484254649329,0.14114497812240662,0.158557488958252,100,
+moderate_semantic,staircase,staircase,learning_gain,0.046757970981445546,0.044274408728789655,0.04915989758448078,100,77.16771861710207
+moderate_semantic,staircase,staircase,probe_recall,0.7613333333333333,0.7309145833333334,0.7908333333333334,100,
+moderate_semantic,staircase,staircase,probe_lift,0.0319542068442457,0.030287615878353345,0.03360082105924956,100,87.88539046869094
+moderate_semantic,staircase,staircase,quit,0.05,0.01,0.09,100,
+moderate_semantic,staircase,staircase,frustration_events,0.51,0.39,0.63,100,
+moderate_semantic,staircase,staircase,mean_tier,1.6899306722689074,1.6476934348739494,1.7345762079831932,100,
+moderate_semantic,staircase,staircase,accuracy,0.6953445378151263,0.6850345063025213,0.7051200105042015,100,
+moderate_semantic,contextual_bandit,contextual bandit,time_in_band,0.5763463203463204,0.5418580086580087,0.6133863636363636,100,
+moderate_semantic,contextual_bandit,contextual bandit,control_error,0.07916251782058954,0.07248210825259212,0.08631166613077218,100,
+moderate_semantic,contextual_bandit,contextual bandit,learning_gain,0.05497094530114803,0.05222501205883858,0.05783722247847534,100,90.72212395183699
+moderate_semantic,contextual_bandit,contextual bandit,probe_recall,0.7850833333333332,0.7534166666666667,0.816,100,
+moderate_semantic,contextual_bandit,contextual bandit,probe_lift,0.03417383370702391,0.032452169677037186,0.03595522263543933,100,93.99015077398975
+moderate_semantic,contextual_bandit,contextual bandit,quit,0.03,0.0,0.07,100,
+moderate_semantic,contextual_bandit,contextual bandit,frustration_events,0.39,0.29,0.5,100,
+moderate_semantic,contextual_bandit,contextual bandit,mean_tier,1.358525210084034,1.3252623949579834,1.3945419642857142,100,
+moderate_semantic,contextual_bandit,contextual bandit,accuracy,0.7789159663865542,0.7656638655462185,0.7916188550420167,100,
+moderate_semantic,ppo_original,"PPO, original model (zero-shot)",time_in_band,0.7249494949494948,0.692121212121212,0.7566666666666666,100,
+moderate_semantic,ppo_original,"PPO, original model (zero-shot)",control_error,0.09494789794841671,0.08926991799389526,0.1011815602788597,100,
+moderate_semantic,ppo_original,"PPO, original model (zero-shot)",learning_gain,0.052342544290095085,0.049963783918834465,0.05490251607905744,100,86.38430292631973
+moderate_semantic,ppo_original,"PPO, original model (zero-shot)",probe_recall,0.7866666666666667,0.7608333333333335,0.81125,100,
+moderate_semantic,ppo_original,"PPO, original model (zero-shot)",probe_lift,0.03331069176353213,0.03159344955753773,0.03510002052459052,100,91.61620461086224
+moderate_semantic,ppo_original,"PPO, original model (zero-shot)",quit,0.006666666666666666,0.0,0.02,100,
+moderate_semantic,ppo_original,"PPO, original model (zero-shot)",frustration_events,0.21666666666666665,0.14,0.30008333333333287,100,
+moderate_semantic,ppo_original,"PPO, original model (zero-shot)",mean_tier,1.3656666666666666,1.33375,1.3999208333333333,100,
+moderate_semantic,ppo_original,"PPO, original model (zero-shot)",accuracy,0.7682500000000002,0.7589979166666667,0.7773354166666665,100,
+moderate_semantic,ppo_two_step,"PPO, two-step model",time_in_band,0.7201346801346802,0.690705387205387,0.7487887205387205,100,
+moderate_semantic,ppo_two_step,"PPO, two-step model",control_error,0.09628126839376266,0.09001057692662853,0.10284277521570777,100,
+moderate_semantic,ppo_two_step,"PPO, two-step model",learning_gain,0.05229375232792198,0.04988835468334445,0.05489127665968426,100,86.30377837983664
+moderate_semantic,ppo_two_step,"PPO, two-step model",probe_recall,0.7863888888888888,0.7619409722222222,0.8105625000000001,100,
+moderate_semantic,ppo_two_step,"PPO, two-step model",probe_lift,0.03309364355648483,0.031356710394778484,0.03488679884959752,100,91.01924513945805
+moderate_semantic,ppo_two_step,"PPO, two-step model",quit,0.003333333333333333,0.0,0.01,100,
+moderate_semantic,ppo_two_step,"PPO, two-step model",frustration_events,0.22666666666666666,0.15324999999999997,0.31,100,
+moderate_semantic,ppo_two_step,"PPO, two-step model",mean_tier,1.3659460784313728,1.3338033088235293,1.3992569852941175,100,
+moderate_semantic,ppo_two_step,"PPO, two-step model",accuracy,0.7652941176470587,0.755914705882353,0.7740833333333333,100,
+moderate_semantic,oracle,oracle (privileged),time_in_band,0.5984848484848486,0.5633333333333334,0.6333333333333333,100,
+moderate_semantic,oracle,oracle (privileged),control_error,0.047288347907011447,0.04339922137478672,0.05145950597235035,100,
+moderate_semantic,oracle,oracle (privileged),learning_gain,0.06059265690288653,0.05792429426109532,0.06359177046145638,100,100.0
+moderate_semantic,oracle,oracle (privileged),probe_recall,0.81875,0.79375,0.84375,100,
+moderate_semantic,oracle,oracle (privileged),probe_lift,0.03635895189613949,0.0343116352312106,0.03834621539599377,100,100.0
+moderate_semantic,oracle,oracle (privileged),quit,0.0,0.0,0.0,100,
+moderate_semantic,oracle,oracle (privileged),frustration_events,0.2,0.12,0.3,100,
+moderate_semantic,oracle,oracle (privileged),mean_tier,1.185,1.1520000000000001,1.22400625,100,
+moderate_semantic,oracle,oracle (privileged),accuracy,0.8175,0.804,0.8310062500000001,100,
+severe,fixed,fixed (tier 2),time_in_band,0.006262626262626263,0.0017171717171717172,0.011921717171717158,100,
+severe,fixed,fixed (tier 2),control_error,0.5524927016943841,0.5410312587990559,0.5635908060144366,100,
+severe,fixed,fixed (tier 2),learning_gain,0.00041771170928329353,0.00030723387251291887,0.0005464185900608358,100,4.826922030280313
+severe,fixed,fixed (tier 2),probe_recall,0.21320346320346317,0.1673701298701299,0.2626509139009139,99,
+severe,fixed,fixed (tier 2),probe_lift,0.0007621609875901221,0.0005652365662486371,0.0010034989773116795,99,8.644773550665308
+severe,fixed,fixed (tier 2),quit,0.82,0.74,0.89,100,
+severe,fixed,fixed (tier 2),frustration_events,2.19,1.93,2.4602499999999985,100,
+severe,fixed,fixed (tier 2),mean_tier,2.0,2.0,2.0,100,
+severe,fixed,fixed (tier 2),accuracy,0.2525683019510522,0.22837010349125808,0.2759913817930878,100,
+severe,staircase,staircase,time_in_band,0.03113465849902168,0.019329764084211738,0.04495965850152968,100,
+severe,staircase,staircase,control_error,0.44299533776204164,0.43018551898716356,0.4551315906815995,100,
+severe,staircase,staircase,learning_gain,0.003221129469866817,0.0026584627281738176,0.003897068273817934,100,37.22218088442544
+severe,staircase,staircase,probe_recall,0.3199404761904762,0.2687607142857143,0.3708627976190476,100,
+severe,staircase,staircase,probe_lift,0.004019087891060682,0.0033977988598819647,0.0046711006398256665,100,45.586306914367306
+severe,staircase,staircase,quit,0.56,0.46,0.66,100,
+severe,staircase,staircase,frustration_events,2.38,2.13,2.66,100,
+severe,staircase,staircase,mean_tier,1.148270348466476,1.127287746082105,1.172709211185514,100,
+severe,staircase,staircase,accuracy,0.37213925989451885,0.3490422755399755,0.3945568088106212,100,
+severe,contextual_bandit,contextual bandit,time_in_band,0.0781253773205912,0.05717462834933689,0.10065409302717113,100,
+severe,contextual_bandit,contextual bandit,control_error,0.39870982402768396,0.386418812542472,0.41085884849490983,100,
+severe,contextual_bandit,contextual bandit,learning_gain,0.0053027133692207995,0.004417936222234796,0.006238985382092383,100,61.276194593804576
+severe,contextual_bandit,contextual bandit,probe_recall,0.3406785714285714,0.2930794642857143,0.3859499999999999,100,
+severe,contextual_bandit,contextual bandit,probe_lift,0.005136112819753548,0.004357714355962087,0.005965247633332035,100,58.256107279681935
+severe,contextual_bandit,contextual bandit,quit,0.39,0.3,0.49,100,
+severe,contextual_bandit,contextual bandit,frustration_events,2.03,1.77,2.3,100,
+severe,contextual_bandit,contextual bandit,mean_tier,1.2136728151337086,1.1817981706735066,1.2472208025322884,100,
+severe,contextual_bandit,contextual bandit,accuracy,0.4299526537859707,0.40349800661080404,0.453742237917262,100,
+severe,ppo_original,"PPO, original model (zero-shot)",time_in_band,0.1063258614243011,0.08430692606224033,0.13054598355006186,100,
+severe,ppo_original,"PPO, original model (zero-shot)",control_error,0.36587513370916463,0.354954604945178,0.3767733323054944,100,
+severe,ppo_original,"PPO, original model (zero-shot)",learning_gain,0.007226205465670102,0.006181603453657635,0.008372536971852413,100,83.50335789586175
+severe,ppo_original,"PPO, original model (zero-shot)",probe_recall,0.38483730158730156,0.33791180555555556,0.4324104166666666,100,
+severe,ppo_original,"PPO, original model (zero-shot)",probe_lift,0.007456422319722143,0.0065717538574593315,0.008366930289975944,100,84.57410376767997
+severe,ppo_original,"PPO, original model (zero-shot)",quit,0.28,0.2,0.3633333333333333,100,
+severe,ppo_original,"PPO, original model (zero-shot)",frustration_events,1.7866666666666668,1.5499166666666666,2.033333333333333,100,
+severe,ppo_original,"PPO, original model (zero-shot)",mean_tier,1.0125537288885746,1.0076752192982459,1.0180855716878405,100,
+severe,ppo_original,"PPO, original model (zero-shot)",accuracy,0.46694570022773796,0.4446892965996289,0.48850239018140285,100,
+severe,ppo_two_step,"PPO, two-step model",time_in_band,0.10591114555480705,0.08485219424543697,0.12999451685022326,100,
+severe,ppo_two_step,"PPO, two-step model",control_error,0.36564747576361406,0.3540492745669796,0.3768808457687793,100,
+severe,ppo_two_step,"PPO, two-step model",learning_gain,0.007205490217100532,0.006168436103069116,0.008331434214849482,100,83.26398014450605
+severe,ppo_two_step,"PPO, two-step model",probe_recall,0.3849722222222222,0.33973253968253975,0.42888749999999987,100,
+severe,ppo_two_step,"PPO, two-step model",probe_lift,0.007365655088834524,0.006514071538784206,0.008288946582904693,100,83.54458091145843
+severe,ppo_two_step,"PPO, two-step model",quit,0.3033333333333333,0.22333333333333333,0.37999999999999995,100,
+severe,ppo_two_step,"PPO, two-step model",frustration_events,1.8066666666666666,1.5733333333333335,2.04675,100,
+severe,ppo_two_step,"PPO, two-step model",mean_tier,1.0284375655311624,1.0218149124051314,1.0357134883671466,100,
+severe,ppo_two_step,"PPO, two-step model",accuracy,0.4681886905007568,0.44813798058794757,0.48647390162906,100,
+severe,oracle,oracle (privileged),time_in_band,0.13427291549030682,0.1059707509881423,0.16320593826463392,100,
+severe,oracle,oracle (privileged),control_error,0.3390412944198399,0.3286552842101406,0.34965434199234197,100,
+severe,oracle,oracle (privileged),learning_gain,0.008653790275933581,0.007552714774145245,0.009803346209725852,100,100.0
+severe,oracle,oracle (privileged),probe_recall,0.39651190476190473,0.3513428571428572,0.4430104166666667,100,
+severe,oracle,oracle (privileged),probe_lift,0.008816436695805244,0.007851168048722885,0.009774885723438705,100,100.0
+severe,oracle,oracle (privileged),quit,0.21,0.13,0.29,100,
+severe,oracle,oracle (privileged),frustration_events,1.54,1.29,1.8,100,
+severe,oracle,oracle (privileged),mean_tier,1.0,1.0,1.0,100,
+severe,oracle,oracle (privileged),accuracy,0.49855942844642237,0.47706522201879203,0.5187702545792595,100,

@@ -124,6 +124,8 @@ def main() -> None:
     tag = "" if args.reward == load_reward().variant else f"{args.reward}_"
     if args.learning_peak is not None:
         tag += f"peak{args.learning_peak:g}_"
+    if load_sim().model != "logistic":     # never overwrite the default models when the patient model changes
+        tag = f"{load_sim().model}_" + tag
     for s in args.seeds:
         train_one(s, cfg, args.timesteps, args.reward, tag, args.learning_peak)
 

@@ -34,9 +34,17 @@ def sample_truncated_normal(d: ParamDist, rng: np.random.Generator) -> float:
     return float(np.clip(rng.normal(d.mean, d.sd), d.low, d.high))
 
 
-def sample_params(dists: dict[str, ParamDist], order: list[str], rng: np.random.Generator) -> PatientParams:
+def sample_params(dists: dict[str, ParamDist], order: list[str], rng: np.random.Generator,
+                  cls=PatientParams):
     # Fixed parameter order keeps draws reproducible regardless of YAML key order.
-    return PatientParams(**{name: sample_truncated_normal(dists[name], rng) for name in order})
+    return cls(**{name: sample_truncated_normal(dists[name], rng) for name in order})
+
+
+def _model_classes(cfg: SimConfig):
+    if cfg.model == "two_step":
+        from sim.two_step import TwoStepParams, TwoStepPatient
+        return TwoStepParams, TwoStepPatient
+    return PatientParams, SimPatient
 
 
 @dataclass
@@ -52,7 +60,7 @@ class PatientSpec:
 
     def build(self, bank: ItemBank, cfg: SimConfig, clinical: ClinicalConfig) -> tuple[SimPatient, ItemSelector]:
         """Fresh patient + item selector. Call again to replay the identical patient for another policy."""
-        patient = SimPatient(self.params, bank, cfg, clinical, np.random.default_rng(self.outcome_seed))
+        patient = _model_classes(cfg)[1](self.params, bank, cfg, clinical, np.random.default_rng(self.outcome_seed))
         selector = ItemSelector(bank, np.random.default_rng(self.selection_seed), cfg.review_probes)
         return patient, selector
 
@@ -69,6 +77,6 @@ def make_patients(cfg: SimConfig, cohort: str, split: str, n: int, root_seed: in
     for k in range(start, start + n):
         ss = np.random.SeedSequence([root_seed, cfg.splits[split], cohort_id, k])
         param_ss, outcome_ss, selection_ss = ss.spawn(3)
-        params = sample_params(dists, cfg.parameters, np.random.default_rng(param_ss))
+        params = sample_params(dists, cfg.parameters, np.random.default_rng(param_ss), _model_classes(cfg)[0])
         specs.append(PatientSpec(cohort, split, k, params, outcome_ss, selection_ss))
     return specs

@@ -1,7 +1,9 @@
 """Typed view of configs/sim.yaml (validated at load so a typo fails loudly)."""
 from __future__ import annotations
 
+import os
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -101,8 +103,30 @@ class ParamDist(BaseModel):
         return self
 
 
+class TwoStepConfig(BaseModel):
+    """Two-step patient model (sim/two_step.py). Cue weights are per step, before the patient's
+    responsiveness multipliers; frequency acts on step 1 (word selection), length on step 2 (sounds)."""
+
+    model_config = _STRICT
+    beta_frequency: float = Field(ge=0.0)
+    beta_length: float = Field(ge=0.0)
+    stage1_cue: dict[Cue, float]
+    stage2_cue: dict[Cue, float]
+
+    @model_validator(mode="after")
+    def _all_cues(self) -> "TwoStepConfig":
+        for name, w in (("stage1_cue", self.stage1_cue), ("stage2_cue", self.stage2_cue)):
+            if set(w) != set(CUES) or w["none"] != 0:
+                raise ValueError(f"{name} must define every cue {CUES}, with 'none' = 0")
+        return self
+
+
 class SimConfig(BaseModel):
     model_config = _STRICT
+    # Patient model: `logistic` (sim/patient.py, one log-odds score per trial) or `two_step`
+    # (sim/two_step.py, meaning -> word -> sounds; errors and cue effects follow from where retrieval fails).
+    model: Literal["logistic", "two_step"] = "logistic"
+    two_step: TwoStepConfig | None = None
     items: ItemsConfig
     cues: CuesConfig
     fatigue: FatigueConfig
@@ -126,5 +150,11 @@ class SimConfig(BaseModel):
         return self
 
 
-def load_sim(path: str | Path = "configs/sim.yaml") -> SimConfig:
-    return SimConfig(**load_yaml(path))
+def load_sim(path: str | Path | None = None) -> SimConfig:
+    """Default: configs/sim.yaml, or the file in the SIM_CONFIG environment variable, so a whole
+    pipeline (training, evaluation, service) can switch patient model without code changes:
+        SIM_CONFIG=configs/sim_two_step.yaml uv run python -m train.train_ppo"""
+    cfg = SimConfig(**load_yaml(path or os.environ.get("SIM_CONFIG", "configs/sim.yaml")))
+    if cfg.model == "two_step" and cfg.two_step is None:
+        raise ValueError("model: two_step needs a `two_step:` section")
+    return cfg
