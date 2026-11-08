@@ -25,3 +25,7 @@ data/cache/
 
 # Derived PSST codings contain AphasiaBank transcripts: regenerate with scripts/code_psst_responses.py, share directly, do not commit
 data/derived/*.csv
+
+# demo recordings: keep the mp4 and captions, not the raw webm
+results/demo/_video/
+results/demo/*.webm

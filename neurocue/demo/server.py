@@ -243,8 +243,11 @@ def override(pid: str, req: OverrideReq) -> dict:
     if not mask[a]:
         raise HTTPException(400, "that cue is not allowed in this state")
     base = d.tuned if d.tuned is not None else Shared.ppo
-    tuned, log = ditto(base, [Demo(obs=obs, mask=mask, action=a)], rounds=6, samples_per_state=8, beta=0.5, lr=2e-3,
-                       steps_per_round=15, seed=0)
+    # Gentle update: with one demonstration and a small network, a strong update rewrites the policy
+    # everywhere (measured: lr 2e-3 x 6 rounds changed all 160 states). lr 1e-3 x 4 rounds changed 16 of
+    # 160, all of them states that followed an error, none elsewhere.
+    tuned, log = ditto(base, [Demo(obs=obs, mask=mask, action=a)], rounds=4, samples_per_state=8, beta=0.5, lr=1e-3,
+                       steps_per_round=10, seed=0)
     d.tuned = tuned
     # Where did the policy change? Compare the chosen action over every state of the recorded course.
     O, M = np.stack(d.ppo_run["_obs"]), np.stack(d.ppo_run["_masks"])
