@@ -9,13 +9,16 @@ Two data anchors:
    which a logit-space SD of 0.8 reproduces. ASSUMPTION: BNT items are harder than the Philadelphia
    Naming Test's, so PNT accuracy at a given AQ is probably higher; the intercept is exposed to
    recalibrate when PNT-by-AQ data are available.
-2. The split between semantic and phonological impairment. Dell's fitted patients (Dell et al. 2004
-   Table 2; 2013 Table 1) have p/s ratios whose log is roughly normal with median about 1.6 and
-   geometric SD about exp(0.6), excluding one near-zero-s outlier. We use that as a lognormal prior on
-   p/s and let the target accuracy pick the (s, p) cells consistent with it. ASSUMPTION / selection
-   bias: the 2004 patients were selected for a high share of non-naming responses, so this prior is
-   a placeholder until an unselected sample (e.g. MAPPD fits) is available. The prior is applied over
-   a grid uniform in (s, p), so the realised log-ratio distribution is only approximately lognormal.
+2. The split between semantic and phonological impairment: a lognormal prior on p/s. Fitted
+   (scripts/fit_population_prior.py) to the error-type mix of the 74 PSST training-split participants
+   on the BNT, coded by clinician > learned coder > rules: log p/s mean -0.2, sd 0.3, i.e. the
+   typical patient leans slightly phonological. The first value, from Dell's fitted patients (2004
+   Table 2; 2013 Table 1: log p/s about +0.5, sd 0.6, a sample selected for omissions), is kept as
+   `PopulationConfig.dell_philadelphia()`. What the prior fixes is the nonword share; the SP model's
+   neighbourhood still makes more formal and unrelated errors relative to semantic ones than PSST
+   patients do, at any prior. The pooled mix identifies the sd weakly; it is the parameter to revisit
+   with per-patient data. The prior is applied over a grid uniform in (s, p), so the realised
+   log-ratio distribution is only approximately lognormal.
 
 The sampler draws AQ, maps it to a target accuracy with heterogeneity, then samples a grid cell of
 the SP model whose predicted accuracy matches, weighted by the p/s prior, and jitters within the cell.
@@ -43,8 +46,8 @@ class PopulationConfig:
     acc_slope: float = 0.0353
     acc_logit_sd: float = 0.8      # between-patient heterogeneity after removing binomial noise
     # Lognormal prior on p/s from Dell's fitted patients.
-    log_ps_ratio_mean: float = 0.5
-    log_ps_ratio_sd: float = 0.6
+    log_ps_ratio_mean: float = -0.2     # fitted to PSST, scripts/fit_population_prior.py; Dell's: dell_philadelphia()
+    log_ps_ratio_sd: float = 0.3
     # How tightly a grid cell's predicted accuracy must match the target (SD in accuracy units).
     accuracy_match_sd: float = 0.02
     min_weight: float = 0.001      # exclude the degenerate s = 0 or p = 0 cells
@@ -58,6 +61,15 @@ class SyntheticPatient:
     aq: float
     target_accuracy: float
     expected_naming: dict[str, float] = field(default_factory=dict)
+
+
+def _with_prior(mean: float, sd: float) -> "PopulationConfig":
+    from dataclasses import replace
+    return replace(PopulationConfig(), log_ps_ratio_mean=mean, log_ps_ratio_sd=sd)
+
+
+PopulationConfig.dell_philadelphia = staticmethod(lambda: _with_prior(0.5, 0.6))  # Dell 2004/2013 fitted patients
+PopulationConfig.psst_fitted = staticmethod(lambda: PopulationConfig())             # the default, fitted to PSST
 
 
 def expected_accuracy(aq: float | np.ndarray, cfg: PopulationConfig) -> np.ndarray:

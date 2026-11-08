@@ -46,6 +46,51 @@ def band(aq: float) -> str:
     return "AQ<50" if aq < 50 else "AQ 50-69" if aq < 70 else "AQ 70-84" if aq < 85 else "AQ 85+"
 
 
+HELD_OUT = frozenset({"valid", "full_test"})
+SP_MERGE = {"correct": "correct", "correct_variant": "correct", "semantic": "semantic", "formal": "formal", "mixed": "mixed",
+            "unrelated": "unrelated", "nonword_phon": "nonword", "nonword_other": "nonword", "fragment": "nonword"}
+
+
+def real_bnt_mix(splits: frozenset[str] | None) -> tuple[dict[str, collections.Counter], int, dict[str, str]]:
+    """Per-band counts of response types on PSST BNT trials, best available code per row:
+    clinician's final_category, else the learned coder's category, else the rule coder's. Machine
+    low-confidence rows with neither are counted as 'low_confidence'. Returns (mix, n_adjudicated, learned)."""
+    coded_path = ROOT / "data" / "derived" / "psst_coded.csv"
+    adj_path = ROOT / "data" / "derived" / "psst_adjudication.csv"
+    final: dict[str, str] = {}
+    learned: dict[str, str] = {}
+    if adj_path.exists():
+        with open(adj_path) as f:
+            for r in csv.DictReader(f):
+                if r.get("final_category"):
+                    final[r["utterance_id"]] = r["final_category"]
+                elif r.get("learned_category"):
+                    learned[r["utterance_id"]] = r["learned_category"]
+    mix: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
+    n_final = 0
+    with open(coded_path) as f:
+        for r in csv.DictReader(f):
+            if r["test"] != "BNT" or (splits is not None and r["split"] not in splits):
+                continue
+            cat = final.get(r["utterance_id"]) or learned.get(r["utterance_id"]) or r["category"]
+            n_final += r["utterance_id"] in final
+            if r["confidence"] == "low" and r["utterance_id"] not in final and r["utterance_id"] not in learned:
+                cat = "low_confidence"
+            mix[band(float(r["aq_index"]))][cat] += 1
+    return mix, n_final, learned
+
+
+def error_shares(mix: dict[str, collections.Counter]) -> tuple[collections.Counter, int]:
+    """Pooled counts of the five SP error types across bands."""
+    pooled = collections.Counter()
+    for c in mix.values():
+        for k, v in c.items():
+            m = SP_MERGE.get(k)
+            if m and m != "correct":
+                pooled[m] += v
+    return pooled, sum(pooled.values())
+
+
 def main() -> None:
     import cmudict
     cmu = cmudict.dict()
@@ -118,31 +163,12 @@ def main() -> None:
     coded_path = ROOT / "data" / "derived" / "psst_coded.csv"
     real_mix: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
     if coded_path.exists():
-        adj_path = ROOT / "data" / "derived" / "psst_adjudication.csv"
-        final: dict[str, str] = {}
-        learned: dict[str, str] = {}
-        if adj_path.exists():
-            with open(adj_path) as f:
-                for r in csv.DictReader(f):
-                    if r.get("final_category"):
-                        final[r["utterance_id"]] = r["final_category"]
-                    elif r.get("learned_category"):
-                        learned[r["utterance_id"]] = r["learned_category"]
-        n_final = 0
-        with open(coded_path) as f:
-            for r in csv.DictReader(f):
-                if r["test"] != "BNT":
-                    continue
-                cat = final.get(r["utterance_id"]) or learned.get(r["utterance_id"]) or r["category"]
-                n_final += r["utterance_id"] in final
-                if r["confidence"] == "low" and r["utterance_id"] not in final and r["utterance_id"] not in learned:
-                    cat = "low_confidence"
-                real_mix[band(float(r["aq_index"]))][cat] += 1
-        merge = {"correct": "correct", "correct_variant": "correct", "semantic": "semantic", "formal": "formal", "mixed": "mixed",
-                 "unrelated": "unrelated", "nonword_phon": "nonword", "nonword_other": "nonword", "fragment": "nonword"}
-        lines += ["\n**2b. Real response-type mix by band, PSST BNT items, machine-coded with clinician adjudication** "
+        real_mix, n_final, learned = real_bnt_mix(HELD_OUT)
+        all_mix, _, _ = real_bnt_mix(None)
+        merge = SP_MERGE
+        lines += ["\n**2b. Real response-type mix by band, PSST BNT items, held-out participants, best available code** "
                   f"({'with ' + str(n_final) + ' adjudicated rows' if n_final else 'no adjudication yet'}"
-                  f"{' and ' + str(len(learned)) + ' rows coded by the learned coder' if learned else ''}; low-confidence rows shown separately; "
+                  f"{' and ' + str(len(learned)) + ' rows coded by the learned coder' if learned else ''}; clinician > learned coder > rules; low-confidence rows shown separately; "
                   "fragments counted as nonwords; multiword = descriptions, circumlocutions and strung attempts, which the engine does not produce)\n",
                   "| band | n | " + " | ".join(NAMING_CATEGORIES) + " | multiword | low confidence |", "|---|---|" + "---|" * (len(NAMING_CATEGORIES) + 2)]
         for b in ("AQ<50", "AQ 50-69", "AQ 70-84", "AQ 85+"):
@@ -181,9 +207,14 @@ def main() -> None:
             if rn and sn:
                 lines.append(f"| {b} | {rn} | " + " | ".join(f"{six[k] / rn:.2f}" for k in err_cats) + f" | {sn} | " +
                              " | ".join(f"{syn[k] / sn:.2f}" for k in err_cats) + " |")
-        lines.append("\nReading 2c: where real and synthetic differ by more than a few hundredths in the pooled row, the engine's "
-                     "population prior or realizer is the suspect, not the PSST sample; the real column still depends on the "
-                     "machine codes for rows the clinician has not seen.")
+        all_err, all_n = error_shares(all_mix)
+        sn = sum(pooled_syn.values())
+        lines.append(f"| all splits incl. training (prior fitted on these) | {all_n} | " + " | ".join(f"{all_err[k] / all_n:.2f}" for k in err_cats) +
+                     f" | {sn} | " + " | ".join(f"{pooled_syn[k] / sn:.2f}" for k in err_cats) + " |")
+        lines.append("\nReading 2c: the band rows and the 'all' row are the 33 held-out participants, who played no part in fitting the "
+                     "severity curve or the p/s prior; the last row adds the training participants for a larger n. Where real and "
+                     "synthetic differ by more than a few hundredths, the engine's population prior or realizer is the suspect, not "
+                     "the PSST sample; the real column still depends on learned codes for rows the clinician has not seen.")
     tot_trials = sum(sum(c.values()) for c in syn_cats.values())
     lines.append(f"\nRealizer fallbacks (model category -> realized category, share of all trials): " +
                  (", ".join(f"{a}->{b} {n / tot_trials:.2%}" for (a, b), n in fallbacks.most_common()) or "none") + ".")

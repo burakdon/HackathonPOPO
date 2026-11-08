@@ -5,30 +5,30 @@ Held-out check: 33 PSST validation/test participants (not used to fit the severi
 
 | band | n real | real accuracy | severity curve alone | synthetic accuracy (mean of replicates) | synthetic SD across replicates |
 |---|---|---|---|---|---|
-| AQ<50 | 5 | 0.30 | 0.25 | 0.32 | 0.086 |
-| AQ 50-69 | 12 | 0.35 | 0.39 | 0.43 | 0.053 |
-| AQ 70-84 | 8 | 0.45 | 0.54 | 0.55 | 0.083 |
-| AQ 85+ | 8 | 0.65 | 0.66 | 0.64 | 0.053 |
+| AQ<50 | 5 | 0.30 | 0.25 | 0.30 | 0.119 |
+| AQ 50-69 | 12 | 0.35 | 0.39 | 0.44 | 0.068 |
+| AQ 70-84 | 8 | 0.45 | 0.54 | 0.58 | 0.089 |
+| AQ 85+ | 8 | 0.65 | 0.66 | 0.66 | 0.058 |
 
-Overall: real 0.44, curve 0.47, synthetic 0.49. Correlation of accuracy with AQ: real 0.52, synthetic per replicate 0.43. With 15 items per participant the real values carry binomial noise of about 0.12 in accuracy; a synthetic correlation well above the real one would mean too little non-severity variance in the cohort.
+Overall: real 0.44, curve 0.47, synthetic 0.50. Correlation of accuracy with AQ: real 0.52, synthetic per replicate 0.46. With 15 items per participant the real values carry binomial noise of about 0.12 in accuracy; a synthetic correlation well above the real one would mean too little non-severity variance in the cohort.
 
 **2. Synthetic response-type mix by band** (shares of all trials)
 
 | band | correct | semantic | formal | mixed | unrelated | nonword | omission |
 |---|---|---|---|---|---|---|---|
-| AQ<50 | 0.35 | 0.11 | 0.12 | 0.01 | 0.14 | 0.27 | 0.00 |
-| AQ 50-69 | 0.43 | 0.11 | 0.13 | 0.02 | 0.13 | 0.19 | 0.00 |
-| AQ 70-84 | 0.55 | 0.10 | 0.09 | 0.02 | 0.11 | 0.13 | 0.00 |
-| AQ 85+ | 0.64 | 0.09 | 0.09 | 0.02 | 0.08 | 0.07 | 0.00 |
+| AQ<50 | 0.38 | 0.06 | 0.10 | 0.01 | 0.08 | 0.38 | 0.00 |
+| AQ 50-69 | 0.44 | 0.06 | 0.08 | 0.01 | 0.05 | 0.34 | 0.00 |
+| AQ 70-84 | 0.58 | 0.07 | 0.07 | 0.01 | 0.04 | 0.22 | 0.00 |
+| AQ 85+ | 0.66 | 0.06 | 0.07 | 0.01 | 0.04 | 0.17 | 0.00 |
 
-**2b. Real response-type mix by band, PSST BNT items, machine-coded with clinician adjudication** (with 328 adjudicated rows and 91 rows coded by the learned coder; low-confidence rows shown separately; fragments counted as nonwords; multiword = descriptions, circumlocutions and strung attempts, which the engine does not produce)
+**2b. Real response-type mix by band, PSST BNT items, held-out participants, best available code** (with 104 adjudicated rows and 91 rows coded by the learned coder; clinician > learned coder > rules; low-confidence rows shown separately; fragments counted as nonwords; multiword = descriptions, circumlocutions and strung attempts, which the engine does not produce)
 
 | band | n | correct | semantic | formal | mixed | unrelated | nonword | multiword | low confidence |
 |---|---|---|---|---|---|---|---|---|---|
-| AQ<50 | 85 | 0.21 | 0.24 | 0.01 | 0.01 | 0.12 | 0.41 | 0.00 | 0.00 |
-| AQ 50-69 | 246 | 0.46 | 0.21 | 0.00 | 0.02 | 0.01 | 0.28 | 0.02 | 0.00 |
-| AQ 70-84 | 395 | 0.50 | 0.15 | 0.00 | 0.03 | 0.03 | 0.27 | 0.02 | 0.00 |
-| AQ 85+ | 348 | 0.67 | 0.09 | 0.00 | 0.00 | 0.01 | 0.22 | 0.01 | 0.00 |
+| AQ<50 | 30 | 0.23 | 0.30 | 0.03 | 0.03 | 0.10 | 0.30 | 0.00 | 0.00 |
+| AQ 50-69 | 83 | 0.43 | 0.28 | 0.00 | 0.00 | 0.01 | 0.25 | 0.02 | 0.00 |
+| AQ 70-84 | 101 | 0.46 | 0.16 | 0.01 | 0.01 | 0.06 | 0.28 | 0.03 | 0.00 |
+| AQ 85+ | 102 | 0.65 | 0.09 | 0.00 | 0.00 | 0.01 | 0.24 | 0.02 | 0.00 |
 
 Compare with table 2 (synthetic). Caveat: BNT items are 15 hard, low-frequency nouns; the synthetic cohort names a 481-item bank, so item difficulty is not matched here. Among errors only, the shares are more comparable.
 
@@ -36,15 +36,16 @@ Compare with table 2 (synthetic). Caveat: BNT items are 15 hard, low-frequency n
 
 | band | real n | real semantic | real formal | real mixed | real unrelated | real nonword | syn n | syn semantic | syn formal | syn mixed | syn unrelated | syn nonword |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| AQ<50 | 67 | 0.30 | 0.01 | 0.01 | 0.15 | 0.52 | 194 | 0.16 | 0.19 | 0.02 | 0.21 | 0.42 |
-| AQ 50-69 | 127 | 0.40 | 0.01 | 0.03 | 0.02 | 0.54 | 473 | 0.19 | 0.23 | 0.03 | 0.22 | 0.33 |
-| AQ 70-84 | 187 | 0.32 | 0.01 | 0.05 | 0.06 | 0.56 | 450 | 0.22 | 0.20 | 0.05 | 0.24 | 0.29 |
-| AQ 85+ | 112 | 0.27 | 0.01 | 0.01 | 0.02 | 0.70 | 368 | 0.26 | 0.25 | 0.06 | 0.22 | 0.21 |
-| all | 493 | 0.32 | 0.01 | 0.03 | 0.05 | 0.58 | 1485 | 0.21 | 0.22 | 0.04 | 0.23 | 0.30 |
+| AQ<50 | 23 | 0.39 | 0.04 | 0.04 | 0.13 | 0.39 | 187 | 0.09 | 0.16 | 0.01 | 0.13 | 0.61 |
+| AQ 50-69 | 45 | 0.51 | 0.00 | 0.00 | 0.02 | 0.47 | 462 | 0.11 | 0.15 | 0.02 | 0.10 | 0.62 |
+| AQ 70-84 | 52 | 0.31 | 0.02 | 0.02 | 0.12 | 0.54 | 422 | 0.17 | 0.17 | 0.04 | 0.10 | 0.52 |
+| AQ 85+ | 34 | 0.26 | 0.00 | 0.00 | 0.03 | 0.71 | 349 | 0.17 | 0.19 | 0.04 | 0.11 | 0.48 |
+| all | 154 | 0.37 | 0.01 | 0.01 | 0.07 | 0.53 | 1420 | 0.14 | 0.17 | 0.03 | 0.11 | 0.56 |
+| all splits incl. training (prior fitted on these) | 493 | 0.32 | 0.01 | 0.03 | 0.05 | 0.58 | 1420 | 0.14 | 0.17 | 0.03 | 0.11 | 0.56 |
 
-Reading 2c: where real and synthetic differ by more than a few hundredths in the pooled row, the engine's population prior or realizer is the suspect, not the PSST sample; the real column still depends on the machine codes for rows the clinician has not seen.
+Reading 2c: the band rows and the 'all' row are the 33 held-out participants, who played no part in fitting the severity curve or the p/s prior; the last row adds the training participants for a larger n. Where real and synthetic differ by more than a few hundredths, the engine's population prior or realizer is the suspect, not the PSST sample; the real column still depends on learned codes for rows the clinician has not seen.
 
-Realizer fallbacks (model category -> realized category, share of all trials): mixed->semantic 0.51%, semantic->unrelated 0.47%, mixed->unrelated 0.09%.
+Realizer fallbacks (model category -> realized category, share of all trials): semantic->unrelated 0.35%, mixed->semantic 0.25%, mixed->unrelated 0.06%.
 
 PSST (all splits, all items): 1667 incorrect responses, of which 21% transcribe to a single English word and 79% do not. The latter mix phonological paraphasias with circumlocutions, fragments and multi-word attempts, because PSST codes correctness only; tables 2b and 2c use the PNT-style codes from scripts/code_psst_responses.py with the clinician's adjudication where it exists.
 
@@ -54,12 +55,13 @@ Synthetic nonwords are phonological paraphasias (legal, non-word edits of the ta
 
 | target phonemes | PSST nonword-like n | PSST mean edits | synthetic n | synthetic mean edits |
 |---|---|---|---|---|
-| 3 | 73 | 4.1 | 105 | 1.3 |
-| 4 | 71 | 4.0 | 90 | 1.4 |
-| 5 | 35 | 4.3 | 98 | 1.5 |
-| 6 | 52 | 4.1 | 54 | 1.8 |
-| 7 | 69 | 3.2 | 53 | 1.9 |
-| 8 | 24 | 5.2 | 22 | 2.3 |
-| 9 | 31 | 4.0 | 12 | 2.5 |
+| 2 | 0 | - | 12 | 1.0 |
+| 3 | 73 | 4.1 | 168 | 1.2 |
+| 4 | 71 | 4.0 | 178 | 1.4 |
+| 5 | 35 | 4.3 | 189 | 1.6 |
+| 6 | 52 | 4.1 | 88 | 2.0 |
+| 7 | 69 | 3.2 | 86 | 2.1 |
+| 8 | 24 | 5.2 | 40 | 2.3 |
+| 9 | 31 | 4.0 | 23 | 2.6 |
 
 Response durations are not compared: PSST records clip length, not latency (see patient.py).

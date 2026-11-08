@@ -21,7 +21,7 @@ deliverables are synthetic patients, cohorts and datasets, validated against rea
 |---|---|---|
 | `dell_sp.py` | The semantic-phonological interactive two-step model of lexical access (Foygel & Dell 2000). Parameters s (semantic-lexical weight) and p (lexical-phonological weight); six-word neighbourhood, 57 semantic units, 10 phonemes, decay .6, two noise terms, 8 steps per stage. Returns the six PNT response categories. | Dell et al. 2004 (architecture, constants); Walker 2016 (lexicon). Reproduces the SP-model proportions Dell published for 7 fitted patients to rmsd .002-.011 and names 97% correctly at normal weights (`tests/test_dell_sp.py`, tolerance .015). |
 | `fit.py` | Fits (s, p) to a patient's naming counts: cached simulated probability grid keyed on the full model config, Laplace-smoothed multinomial likelihood, Dell's rmsd, grid posterior with 95% intervals, a boundary flag. Counts must be naming responses only. | Refitting Dell's 2004/2013 patients from their published proportions with the correct effective N recovers his s and p to .002 on the 14 interior fits; the one near-normal patient sits at the grid edge and is flagged (`scripts/fit_dell_sp.py`). |
-| `population.py` | Samples patients: AQ severity, a target accuracy from a logistic severity curve with between-patient heterogeneity, then an (s, p) cell consistent with it under a lognormal prior on p/s. Profiles mild / moderate / severe / very severe. | Severity curve fitted on the PSST noun items of the 74 training-split participants; heterogeneity after removing binomial noise; p/s prior from Dell's fitted patients (flagged: a selected sample). |
+| `population.py` | Samples patients: AQ severity, a target accuracy from a logistic severity curve with between-patient heterogeneity, then an (s, p) cell consistent with it under a lognormal prior on p/s. Profiles mild / moderate / severe / very severe. | Severity curve fitted on the PSST noun items of the 74 training-split participants; heterogeneity after removing binomial noise; p/s prior fitted to the training participants' error mix and checked held out (Dell's prior kept as a named profile). |
 | `items.py` | 520 IPNP object pictures with norms and a difficulty index (healthy RT, frequency, length; name agreement deliberately excluded); 244 drawings; 39 compound-name items flagged `pronounceable=False`. | Bates et al. 2003; Szekely et al. 2004. |
 | `lexicon.py` | About 4,800 picturable nouns: concreteness >= 4, WordNet noun, CMUdict pronunciation, not on the profanity or sensitive-word lists; Zipf frequency; MiniLM embeddings; the full CMUdict pronunciation set; the PNT formal-relatedness criterion; English phonotactic legality. | CMUdict; Brysbaert et al. 2014; WordNet; wordfreq; all-MiniLM-L6-v2. |
 | `realize.py` | Turns a response category into an actual response for a target: semantic neighbours need embedding similarity plus a WordNet taxonomic relation (or very high similarity); formal neighbours meet the PNT criterion and are not semantic; mixed need both and shared onset or <= 2 edits; unrelated are frequent nouns sharing nothing; nonwords are length-scaled, class-preserving phoneme edits that are not any English word and are phonotactically legal. Fallbacks when a category has no candidate are recorded in `fallback_from`. | Qualitative; the nonword edit rate is an ASSUMPTION pending category-coded PSST data. |
@@ -47,14 +47,18 @@ features of the target/response pair that codes the remaining 91 uncertain noun 
 leave-one-target-out cross-validation it is right 51% of the time on nine categories and 68% on
 the five SP error types, against 35% and 42% for the rules; on the 20 audited rows it had coded, it
 was right on 8 (`results/psst_coder_learned.md`). Precedence downstream: clinician > learned >
-rules. Table 2c of `results/engine_validation.md` compares error-only mixes on that basis. Real
-patients on these items: semantic 0.32, formal 0.01 (she kept 3 of 91 formal calls, so the
-learned coder never predicts it), mixed 0.03, unrelated 0.05, nonword 0.58. The engine: 0.21,
-0.22, 0.04, 0.23, 0.30. Item difficulty is not the cause (synthetic nonword share on the 13 BNT
-items is 0.35). The population prior (log p/s mean 0.5, from Dell's Philadelphia patients) explains
-the nonword shortfall: a mean near -0.5 gives nonword 0.63. The formal and unrelated excess comes
-from the SP model's six-word neighbourhood, a known approximation of that model, and no prior
-setting removes it. The prior has not been retuned yet.
+rules. Table 2c of `results/engine_validation.md` compares error-only mixes on that basis. The lesion
+prior was then fitted to the 74 training-split participants' mix (`scripts/fit_population_prior.py`,
+`results/population_prior_fit.md`): log p/s mean -0.2, sd 0.3, against the +0.5, 0.6 borrowed from
+Dell's Philadelphia patients, which is kept as `PopulationConfig.dell_philadelphia()`. On the 33
+held-out participants (154 codable errors) the fitted engine's nonword share is 0.56 against a real
+0.53, where Dell's prior gave 0.30. What the prior cannot fix is the word-error split: real patients
+make semantic 0.37, formal 0.01, unrelated 0.07 of their errors; the engine makes 0.14, 0.17, 0.11
+at any prior setting. That comes from the SP model's six-word neighbourhood (two formal and two
+unrelated competitors against one semantic), a known approximation of the published model. Item
+difficulty is not the cause (synthetic nonword share on the 13 BNT items moved only 0.02). Accuracy
+by severity is unchanged by the prior, as it should be, since the sampler matches accuracy
+separately.
 
 ## Known limitations
 
