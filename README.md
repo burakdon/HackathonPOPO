@@ -10,8 +10,8 @@ clinician-facing view captures preferred decisions and shows how a model adapted
 ## NeuroCue demo: hosted, or run it locally (team)
 
 Repository: https://github.com/burakdon/neurocue (default branch `main`; the earlier scaffold is kept
-as `legacy-main`). The hosted demo is a Hugging Face Space built from this repository with the
-`Dockerfile` at the root; see "Deploy" below for the one command that publishes or updates it.
+as `legacy-main`). Hosted demo: **https://burakdonbekci--neurocue-web.modal.run** (Modal; the first
+request after an idle period waits about a minute while the engine loads). See "Deploy" below.
 
 Everything the demo needs is in `main`: code, trained policies, picture norms and pictures, and the
 caches (fitted model grid, lexicon, WordNet). To run it on your machine, one command:
@@ -32,30 +32,36 @@ Rehearsed seeds: AQ 55 phonological seed 3, then AQ 50 semantic seed 3 (same pic
 Not in the branch: the PSST transcripts (TalkBank data; `uv run python -m scripts.fetch_data` gets them)
 and the papers' PDFs. Neither is needed to run the demo.
 
-### Deploy (Hugging Face Space, free CPU tier)
+### Deploy
 
-The `Dockerfile` serves the console on port 7860, the Spaces convention. Publishing or updating the
-hosted demo takes a Hugging Face account and three commands:
+The hosted demo runs on [Modal](https://modal.com) (serverless containers, free monthly credits, no
+card). `deploy/modal_app.py` builds the image from `pyproject.toml` and `uv.lock`, mounts the
+repository under the `.dockerignore` rules (ignored files such as transcripts never leave the
+machine) and serves the FastAPI app. Publishing or updating it:
 
 ```bash
-pip install -U huggingface_hub
+uv tool install modal
 ```
 
 ```bash
-hf auth login
+modal setup
 ```
 
 ```bash
-./scripts/deploy_hf.sh
+modal deploy deploy/modal_app.py
 ```
 
-The script uploads the committed tree (files git ignores, such as transcripts, never leave the machine)
-to the Space `<your HF user>/neurocue`, creating it on first use, and prints the app URL
-(`https://<user>-neurocue.hf.space`). The first build takes 5-10 minutes; the first request after a
-build waits a minute or two while the engine loads. To keep the Space in step with every push to
-`main`, add a repository secret `HF_TOKEN` (a write token) on GitHub: the workflow in
-`.github/workflows/deploy-hf-space.yml` then runs the same script. Local container check:
-`docker build -t neurocue-demo . && docker run --rm -p 7860:7860 neurocue-demo`.
+The first build takes a few minutes (torch); later deploys reuse the image and take seconds. The
+container scales to zero after 20 idle minutes, so the first visit afterwards waits about a minute
+while the engine loads; `min_containers=1` in `deploy/modal_app.py` keeps one warm at the cost of
+credits. To redeploy on every push to `main`, add the repository secrets `MODAL_TOKEN_ID` and
+`MODAL_TOKEN_SECRET` (from https://modal.com/settings/tokens) on GitHub: the workflow in
+`.github/workflows/deploy-modal.yml` then runs the same command.
+
+The same server also ships as a container: `Dockerfile` serves it on port 7860, so
+`docker build -t neurocue-demo . && docker run --rm -p 7860:7860 neurocue-demo` runs it anywhere
+Docker does. `scripts/deploy_hf.sh` publishes that container to a Hugging Face Space, which since
+late 2026 needs a PRO subscription for Docker Spaces.
 
 **Proof-of-concept question:** can model adaptation make exercise-selection decisions follow a
 demonstrator's preferences in situations it has not seen?

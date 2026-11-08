@@ -1,0 +1,31 @@
+# Redeploys the hosted demo on Modal after every push to main. Needs two repository secrets,
+# MODAL_TOKEN_ID and MODAL_TOKEN_SECRET (https://modal.com/settings/tokens); until they are set the
+# job exits without doing anything.
+name: Deploy demo to Modal
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: deploy-modal
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+      MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: No Modal secrets, nothing to deploy
+        if: env.MODAL_TOKEN_ID == ''
+        run: echo "Add MODAL_TOKEN_ID and MODAL_TOKEN_SECRET repository secrets to enable deployment."
+      - uses: actions/setup-python@v5
+        if: env.MODAL_TOKEN_ID != ''
+        with:
+          python-version: "3.11"
+      - name: Deploy
+        if: env.MODAL_TOKEN_ID != ''
+        run: |
+          pip install -q -U modal
+          modal deploy deploy/modal_app.py

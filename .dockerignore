@@ -14,3 +14,7 @@ frontend
 *.webm
 data/raw/psst
 data/derived
+*.pdf
+data/raw/refs
+models/*
+!models/engine_ppo_*.zip
