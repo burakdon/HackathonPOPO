@@ -32,8 +32,12 @@ structure. On the 33 PSST validation/test participants (not used to fit the curv
 a matched synthetic cohort reproduces real accuracy to within 0.02 in the lowest and highest severity
 bands and overshoots by 0.08-0.10 in the two middle bands (n = 12 and 8 participants, 15 items
 each). Synthetic accuracy correlates 0.43 with severity against 0.52 for the real participants.
-PSST codes correctness only, so the error-type mix cannot be validated against it until its
-transcripts are coded into the six PNT categories, which is the next validation task.
+PSST codes correctness only. `scripts/code_psst_responses.py` machine-codes its transcripts into
+PNT-style types (about 40% of noun errors at high confidence; the rest await adjudication, see
+`data/derived/CODING_GUIDE.md`), giving a first real response-type mix by severity band in
+`results/engine_validation.md` table 2b. Against it the engine makes too few mixed errors and too
+many semantic and unrelated ones; part of that gap is the formal-relatedness rule over-firing on
+the long BNT targets, which adjudication will settle before any model change.
 
 ## Known limitations
 

@@ -114,6 +114,45 @@ def main() -> None:
         if c:
             tot = sum(c.values())
             lines.append(f"| {b} | " + " | ".join(f"{c[k] / tot:.2f}" for k in NAMING_CATEGORIES) + f" | {c['omission'] / tot:.2f} |")
+    # Real response-type mix from the coded PSST responses, when the coder has been run.
+    coded_path = ROOT / "data" / "derived" / "psst_coded.csv"
+    real_mix: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
+    if coded_path.exists():
+        adj_path = ROOT / "data" / "derived" / "psst_adjudication.csv"
+        final: dict[str, str] = {}
+        if adj_path.exists():
+            with open(adj_path) as f:
+                for r in csv.DictReader(f):
+                    if r.get("final_category"):
+                        final[r["utterance_id"]] = r["final_category"]
+        n_final = 0
+        with open(coded_path) as f:
+            for r in csv.DictReader(f):
+                if r["test"] != "BNT":
+                    continue
+                cat = final.get(r["utterance_id"]) or r["category"]
+                n_final += r["utterance_id"] in final
+                if r["confidence"] == "low" and r["utterance_id"] not in final:
+                    cat = "low_confidence"
+                real_mix[band(float(r["aq_index"]))][cat] += 1
+        merge = {"correct": "correct", "correct_variant": "correct", "semantic": "semantic", "formal": "formal", "mixed": "mixed",
+                 "unrelated": "unrelated", "nonword_phon": "nonword", "nonword_other": "nonword", "fragment": "nonword"}
+        lines += ["\n**2b. Real response-type mix by band, PSST BNT items, machine-coded** "
+                  f"({'with ' + str(n_final) + ' adjudicated rows' if n_final else 'no adjudication yet'}; low-confidence rows shown separately; "
+                  "fragments counted as nonwords; multiword = descriptions, circumlocutions and strung attempts, which the engine does not produce)\n",
+                  "| band | n | " + " | ".join(NAMING_CATEGORIES) + " | multiword | low confidence |", "|---|---|" + "---|" * (len(NAMING_CATEGORIES) + 2)]
+        for b in ("AQ<50", "AQ 50-69", "AQ 70-84", "AQ 85+"):
+            c = real_mix.get(b)
+            if not c:
+                continue
+            tot = sum(c.values()); six = collections.Counter()
+            for k, v in c.items():
+                if k in merge:
+                    six[merge[k]] += v
+            lines.append(f"| {b} | {tot} | " + " | ".join(f"{six[k] / tot:.2f}" for k in NAMING_CATEGORIES) +
+                         f" | {c.get('multiword', 0) / tot:.2f} | {c.get('low_confidence', 0) / tot:.2f} |")
+        lines.append("\nCompare with table 2 (synthetic). Caveat: BNT items are 15 hard, low-frequency nouns; the synthetic cohort "
+                     "names a 481-item bank, so item difficulty is not matched here. Among errors only, the shares are more comparable.")
     tot_trials = sum(sum(c.values()) for c in syn_cats.values())
     lines.append(f"\nRealizer fallbacks (model category -> realized category, share of all trials): " +
                  (", ".join(f"{a}->{b} {n / tot_trials:.2%}" for (a, b), n in fallbacks.most_common()) or "none") + ".")

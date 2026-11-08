@@ -41,6 +41,13 @@ Key columns: `picnum`, `ename` (dominant name), `elex1` (% producing the target 
 correctness, aq_index (WAB-R AQ), duration_frames (16 kHz), filename`. 3,291 WAV files, mono 16 kHz.
 107 sessions from about 75 participants, 15 BNT items and 22 VNT items per session at most.
 
+## Derived: coded PSST responses (`data/derived/`)
+
+`scripts/code_psst_responses.py` codes every PSST response into PNT-style types with a confidence
+(`psst_coded.csv`) and writes the rows below high confidence to `psst_adjudication.csv` for a
+clinician, with `CODING_GUIDE.md` as instructions. `scripts/validate_engine.py` uses the codes (and
+any `final_category` filled in) to build the real response-type mix by severity band.
+
 ## Not obtained
 
 - **MAPPD** (per-patient item-level PNT responses) is offline; access would require emailing Dan

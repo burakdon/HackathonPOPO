@@ -22,3 +22,6 @@ data/raw/
 
 # Simulated response-probability grids for model fitting (rebuilt on demand)
 data/cache/
+
+# Derived PSST codings contain AphasiaBank transcripts: regenerate with scripts/code_psst_responses.py, share directly, do not commit
+data/derived/*.csv

@@ -21,6 +21,17 @@ Overall: real 0.44, curve 0.47, synthetic 0.49. Correlation of accuracy with AQ:
 | AQ 70-84 | 0.55 | 0.10 | 0.09 | 0.02 | 0.10 | 0.13 | 0.00 |
 | AQ 85+ | 0.64 | 0.10 | 0.09 | 0.03 | 0.07 | 0.07 | 0.00 |
 
+**2b. Real response-type mix by band, PSST BNT items, machine-coded** (no adjudication yet; low-confidence rows shown separately; fragments counted as nonwords; multiword = descriptions, circumlocutions and strung attempts, which the engine does not produce)
+
+| band | n | correct | semantic | formal | mixed | unrelated | nonword | multiword | low confidence |
+|---|---|---|---|---|---|---|---|---|---|
+| AQ<50 | 85 | 0.22 | 0.08 | 0.16 | 0.08 | 0.13 | 0.27 | 0.00 | 0.05 |
+| AQ 50-69 | 246 | 0.46 | 0.05 | 0.14 | 0.12 | 0.05 | 0.13 | 0.01 | 0.04 |
+| AQ 70-84 | 395 | 0.50 | 0.04 | 0.11 | 0.08 | 0.05 | 0.17 | 0.01 | 0.05 |
+| AQ 85+ | 348 | 0.66 | 0.03 | 0.07 | 0.03 | 0.01 | 0.16 | 0.00 | 0.03 |
+
+Compare with table 2 (synthetic). Caveat: BNT items are 15 hard, low-frequency nouns; the synthetic cohort names a 481-item bank, so item difficulty is not matched here. Among errors only, the shares are more comparable.
+
 Realizer fallbacks (model category -> realized category, share of all trials): mixed->semantic 0.19%, semantic->unrelated 0.16%.
 
 PSST (all splits, all items): 1667 incorrect responses, of which 21% transcribe to a single English word and 79% do not. The latter mix phonological paraphasias with circumlocutions, fragments and multi-word attempts, because PSST codes correctness only. A response-type comparison needs the PSST transcripts coded into the six PNT categories (planned).
