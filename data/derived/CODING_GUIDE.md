@@ -58,6 +58,14 @@ original `utterances.tsv`).
 6. **When in doubt**, pick the category a speech-language pathologist would write on a PNT score
    sheet, and write a word in `notes`. Disagreement with the machine is the point.
 
+## Round 2
+
+Your first 278 codes are in and counted (thank you). They showed that the machine's `formal` and `mixed`
+calls are unreliable even when it was confident (you kept 3 of 91 formal), so those rows are now on
+the sheet too: the 111 BNT rows with an empty `final_category` are the second round, about half an
+hour. Same rules: blank accepts the machine's code. The first-round rows keep your codes; do not
+retype them.
+
 ## What happens with your codes
 
 They become the "real" column next to the engine's synthetic error mix by severity, and the
