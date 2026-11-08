@@ -9,37 +9,39 @@
 <title>CueAgain</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 /* Layout: top bar switches two views. Patient = one tablet card, one action at a time, large type.
    Clinician = caseload list + one patient page read top to bottom: how they are doing, what we see,
    session review, notes, exercise plan. Minimum text size ~15px everywhere. */
 :root {
-  --bg: #f1f4f6; --surface: #ffffff; --surface-2: #f6f8fa; --ink: #142433; --muted: #51606d; --line: #d4dbe1; --nav: #13324d; --nav-ink: #ffffff; --nav-muted: #a9bfd2;
-  --accent: #0b6b67; --accent-ink: #ffffff; --accent-soft: #dcefed;
-  --hint: #7a4a00; --hint-bg: #fff0d2; --good: #17703f; --good-bg: #e1f3e7; --bad: #a93434; --bad-bg: #fbe6e5;
-  --c-sound: #3567b0; --c-word: #c4571b; --c-none: #87939a; --c-hint: #d39b2a;
-  --shadow: 0 1px 2px rgba(19, 36, 51, .08);
-  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --bg: #f3f5f7; --surface: #ffffff; --surface-2: #f7f9fa; --ink: #1b2733; --muted: #5b6875; --line: #d8dee4; --nav: #102a43; --nav-ink: #ffffff; --nav-muted: #9fb3c8;
+  --accent: #1f5b99; --accent-ink: #ffffff; --accent-soft: #eaf1f8;
+  --hint: #1b2733; --hint-bg: #eaf1f8; --good: #2f6b4a; --good-bg: #ebf3ee; --bad: #a3382d; --bad-bg: #f8eceb;
+  --c-sound: #1f5b99; --c-word: #6b7f95; --c-none: #b4bec8; --c-hint: #9fb5cc;
+  --shadow: 0 1px 2px rgba(16, 42, 67, .06);
+  --f-body: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0e161d; --surface: #152230; --surface-2: #1a2a39; --ink: #e6edf3; --muted: #a3b2bf; --line: #2a3b4b; --nav: #0a1a28; --nav-ink: #e6edf3; --nav-muted: #8fa6ba;
-  --accent: #52c4ba; --accent-ink: #062523; --accent-soft: #173f3c;
-  --hint: #f6c977; --hint-bg: #3a2d12; --good: #72d59d; --good-bg: #14361f; --bad: #f29a95; --bad-bg: #3d1c1c;
-  --c-sound: #7ca8ee; --c-word: #f0925c; --c-none: #8f9ca3; --c-hint: #e3b459;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3); color-scheme: dark } }
+  --bg: #0f1720; --surface: #16212c; --surface-2: #1b2835; --ink: #e4e9ee; --muted: #9aa8b5; --line: #2a3846; --nav: #0a1622; --nav-ink: #e4e9ee; --nav-muted: #8aa0b4;
+  --accent: #7fb0e3; --accent-ink: #0a1622; --accent-soft: #1b3047;
+  --hint: #e4e9ee; --hint-bg: #1b3047; --good: #8cc7a4; --good-bg: #17302a; --bad: #ec9c93; --bad-bg: #3a1f1d;
+  --c-sound: #7fb0e3; --c-word: #9aaabb; --c-none: #5f6d7a; --c-hint: #4d6782;
+  --shadow: 0 1px 2px rgba(0,0,0,.35); color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #0e161d; --surface: #152230; --surface-2: #1a2a39; --ink: #e6edf3; --muted: #a3b2bf; --line: #2a3b4b; --nav: #0a1a28; --nav-ink: #e6edf3; --nav-muted: #8fa6ba;
-  --accent: #52c4ba; --accent-ink: #062523; --accent-soft: #173f3c;
-  --hint: #f6c977; --hint-bg: #3a2d12; --good: #72d59d; --good-bg: #14361f; --bad: #f29a95; --bad-bg: #3d1c1c;
-  --c-sound: #7ca8ee; --c-word: #f0925c; --c-none: #8f9ca3; --c-hint: #e3b459;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3); color-scheme: dark }
+  --bg: #0f1720; --surface: #16212c; --surface-2: #1b2835; --ink: #e4e9ee; --muted: #9aa8b5; --line: #2a3846; --nav: #0a1622; --nav-ink: #e4e9ee; --nav-muted: #8aa0b4;
+  --accent: #7fb0e3; --accent-ink: #0a1622; --accent-soft: #1b3047;
+  --hint: #e4e9ee; --hint-bg: #1b3047; --good: #8cc7a4; --good-bg: #17302a; --bad: #ec9c93; --bad-bg: #3a1f1d;
+  --c-sound: #7fb0e3; --c-word: #9aaabb; --c-none: #5f6d7a; --c-hint: #4d6782;
+  --shadow: 0 1px 2px rgba(0,0,0,.35); color-scheme: dark }
 
 * { box-sizing: border-box }
-body { background: var(--bg); color: var(--ink); font: 17px/1.5 var(--f-body); margin: 0 }
+body { background: var(--bg); color: var(--ink); font: 16px/1.55 var(--f-body); margin: 0; -webkit-font-smoothing: antialiased }
+b, strong { font-weight: 600 }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--nav) }
 h1, h2, h3 { line-height: 1.2; text-wrap: balance; margin: 0 }
-h2 { font-size: 1.25rem }
+h2 { font-size: 1.12rem; font-weight: 600 }
+h1 { font-weight: 600; letter-spacing: -.01em }
 button, input, select, textarea { font: inherit; color: inherit }
 button { cursor: pointer }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
@@ -49,53 +51,53 @@ button { cursor: pointer }
 
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--nav); color: var(--nav-ink) }
 .top .wrap { display: flex; align-items: center; gap: 14px; padding-block: 10px; flex-wrap: wrap }
-.brand { font-weight: 700; font-size: 1.2rem; display: flex; align-items: center; gap: 10px } .brand svg { flex: none }
+.brand { font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; gap: 10px } .brand svg { flex: none }
 .demo-tag { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--nav-muted); border: 1px solid var(--nav-muted); border-radius: 4px; padding: 1px 6px }
 .seg { display: inline-flex; gap: 2px; margin-left: auto }
-.seg button { border: 0; background: transparent; padding: 8px 14px; border-radius: 6px; font-weight: 700; color: var(--nav-muted) }
+.seg button { border: 0; background: transparent; padding: 8px 14px; border-radius: 6px; font-weight: 600; color: var(--nav-muted) }
 .seg button[aria-pressed="true"] { background: rgba(255,255,255,.14); color: var(--nav-ink) }
-.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 9px 16px; font-weight: 700 }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 9px 16px; font-weight: 600 }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) }
 .btn:disabled { opacity: .45; cursor: not-allowed }
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 6px; font-weight: 700; z-index: 20; max-width: calc(100% - 32px) }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 6px; font-weight: 600; z-index: 20; max-width: calc(100% - 32px) }
 
 /* ---------- PATIENT TABLET ---------- */
 .stage { display: grid; gap: 14px; justify-items: center; padding-block: 22px 40px }
-.stage-meta { width: min(780px, 100%); display: flex; gap: 10px; align-items: center; font-weight: 700 }
+.stage-meta { width: min(780px, 100%); display: flex; gap: 10px; align-items: center; font-weight: 600 }
 .stage-meta select { border: 1px solid var(--line); border-radius: 6px; background: var(--surface); padding: 5px 8px }
 .tablet { width: min(780px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); min-height: 600px; display: flex; flex-direction: column; overflow: hidden }
-.t-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--surface-2); font-weight: 700 }
+.t-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--surface-2); font-weight: 600 }
 .t-inner { padding: clamp(20px, 4vw, 36px); display: flex; flex-direction: column; gap: 20px; flex: 1 }
 .t-top { display: flex; justify-content: space-between; align-items: center; gap: 12px }
 .dots { display: flex; gap: 6px; flex-wrap: wrap }
 .dots i { width: 22px; height: 6px; border-radius: 2px; background: var(--line); display: block }
 .dots i.ok { background: var(--good) } .dots i.help { background: var(--c-hint) } .dots i.miss { background: var(--c-none) } .dots i.now { background: var(--accent) }
-.quiet { border: 0; background: none; color: var(--muted); font-weight: 700; padding: 6px 4px }
+.quiet { border: 0; background: none; color: var(--muted); font-weight: 600; padding: 6px 4px }
 .t-body { display: grid; justify-items: center; text-align: center; gap: 20px; margin-block: auto }
-.t-title { font-size: clamp(1.7rem, 4.5vw, 2.3rem); font-weight: 700 }
+.t-title { font-size: clamp(1.6rem, 4.2vw, 2.1rem); letter-spacing: -.01em; font-weight: 600 }
 .t-say { font-size: clamp(1.25rem, 3.4vw, 1.55rem) }
 .pic { width: min(300px, 68vw); aspect-ratio: 1; max-width: 100%; display: grid; place-items: center; background: var(--surface); border-radius: 8px; border: 1px solid var(--line) }
 .pic img { width: 74%; height: 74% }
-.big { font-size: 1.4rem; font-weight: 700; border: 2px solid var(--accent); border-radius: 8px; background: var(--accent); color: var(--accent-ink); padding: 16px 32px; min-width: 210px; display: inline-flex; gap: 12px; align-items: center; justify-content: center }
+.big { font-size: 1.3rem; font-weight: 600; border: 2px solid var(--accent); border-radius: 8px; background: var(--accent); color: var(--accent-ink); padding: 16px 32px; min-width: 210px; display: inline-flex; gap: 12px; align-items: center; justify-content: center }
 .big.soft { background: var(--surface); color: var(--accent) }
 .row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center }
-.bubble { border-radius: 6px; padding: 14px 20px; font-size: 1.4rem; font-weight: 700; max-width: 600px; display: flex; gap: 14px; align-items: center; text-align: left; border-left: 5px solid }
+.bubble { border-radius: 6px; padding: 14px 20px; font-size: 1.4rem; font-weight: 600; max-width: 600px; display: flex; gap: 14px; align-items: center; text-align: left; border-left: 5px solid }
 .bubble.hint { background: var(--accent-soft); color: var(--ink); border-color: var(--accent) } .bubble.good { background: var(--good-bg); color: var(--good); border-color: var(--good) }
 .speak { border: 1px solid var(--accent); background: var(--surface); color: var(--accent); border-radius: 6px; width: 46px; height: 46px; flex: none; display: grid; place-items: center }
 .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100% }
-.features div { background: var(--accent-soft); color: var(--ink); border-radius: 6px; padding: 12px; font-weight: 700; border-top: 4px solid var(--accent) }
+.features div { background: var(--accent-soft); color: var(--ink); border-radius: 6px; padding: 12px; font-weight: 600; border-top: 4px solid var(--accent) }
 .listening { display: grid; justify-items: center; gap: 10px }
 .pulse { width: 84px; height: 84px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; color: var(--accent-ink); animation: pulse 1.4s ease-in-out infinite }
 @keyframes pulse { 50% { transform: scale(1.08); opacity: .85 } }
 .demo { width: min(780px, 100%); border: 1px dashed var(--muted); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--surface-2) }
-.demo .lbl { font-weight: 700; color: var(--muted) }
+.demo .lbl { font-weight: 600; color: var(--muted) }
 .demo .row { gap: 8px }
 .demo button { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 7px 12px }
 .sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100% }
 .sum div { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 16px; font-size: 1.05rem }
 .sum b { display: block; font-size: 2.2rem }
 .moods { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; width: 100% }
-.moods button { border: 2px solid var(--line); background: var(--surface); border-radius: 8px; padding: 16px 8px; display: grid; justify-items: center; gap: 8px; font-size: 1.15rem; font-weight: 700; color: var(--ink) }
+.moods button { border: 2px solid var(--line); background: var(--surface); border-radius: 8px; padding: 16px 8px; display: grid; justify-items: center; gap: 8px; font-size: 1.15rem; font-weight: 600; color: var(--ink) }
 .moods button:hover { border-color: var(--accent) }
 .mood-row { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 12px; align-items: center }
 .overlay { position: fixed; inset: 0; background: rgba(10, 20, 24, .55); display: grid; place-items: center; z-index: 15; padding: 16px }
@@ -107,22 +109,22 @@ button { cursor: pointer }
 .prow { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 14px; display: grid; gap: 6px; width: 100% }
 .prow[aria-current="true"] { border-color: var(--accent); box-shadow: inset 5px 0 0 var(--accent) }
 .prow b { font-size: 1.08rem }
-.status { justify-self: start; border-radius: 4px; padding: 2px 8px; font-weight: 700; font-size: .9rem }
-.status.attn { background: var(--bad-bg); color: var(--bad) } .status.ok { background: var(--accent-soft); color: var(--accent) } .status.up { background: var(--good-bg); color: var(--good) }
+.status { justify-self: start; border-radius: 4px; padding: 2px 8px; font-weight: 600; font-size: .9rem }
+.status { background: transparent; border: 1px solid currentColor } .status.attn { color: var(--bad) } .status.ok { color: var(--muted) } .status.up { color: var(--good) }
 .meter { height: 6px; background: var(--surface-2); border-radius: 2px; overflow: hidden; border: 1px solid var(--line) }
 .meter span { display: block; height: 100%; background: var(--accent) }
 .main { display: grid; gap: 18px; min-width: 0 }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 20px 22px; display: grid; gap: 14px; align-content: start; min-width: 0 }
-.phead h1 { font-size: 1.85rem } .phead p { margin: 4px 0 0 }
+.phead h1 { font-size: 1.65rem } .phead p { margin: 4px 0 0 }
 .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px }
-.stat .k { color: var(--muted); font-weight: 700 } .stat .v { font-size: 2.1rem; font-weight: 700 } .stat .d { color: var(--muted) }
+.stat .k { color: var(--muted); font-weight: 600 } .stat .v { font-size: 1.9rem; font-weight: 600 } .stat .d { color: var(--muted) }
 .stat.attn .v { font-size: 1.25rem; line-height: 1.35; color: var(--bad) } .stat.attn.none .v { color: var(--good) }
 .chart svg { width: 100%; height: auto; display: block }
 .legend { display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted) }
 .legend i { display: inline-block; width: 16px; height: 5px; border-radius: 3px; vertical-align: middle; margin-right: 6px }
 .obs { display: grid; grid-template-columns: max-content minmax(0, 1fr); margin: 0 }
 .obs dt, .obs dd { margin: 0; padding: 10px 0; border-top: 1px solid var(--line) }
-.obs dt { color: var(--muted); font-weight: 700; padding-right: 18px }
+.obs dt { color: var(--muted); font-weight: 600; padding-right: 18px }
 .hintbars { display: grid; gap: 8px }
 .hb-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 60px; gap: 10px; align-items: center }
 .hb-bar { height: 10px; background: var(--surface-2); border-radius: 2px; overflow: hidden; border: 1px solid var(--line) }
@@ -137,9 +139,9 @@ button { cursor: pointer }
 table { border-collapse: collapse; width: 100% }
 th { text-align: left; color: var(--muted); padding: 8px 10px; border-bottom: 2px solid var(--line); white-space: nowrap; font-size: .95rem }
 td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle }
-.res { font-weight: 700 } .res.good { color: var(--good) } .res.bad { color: var(--bad) } .res.help { color: var(--hint) }
+.res { font-weight: 600 } .res.good { color: var(--good) } .res.bad { color: var(--bad) } .res.help { color: var(--accent) }
 td select { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 6px 8px; max-width: 100% }
-.mine { color: var(--accent); font-weight: 700 }
+.mine { color: var(--accent); font-weight: 600 }
 .banner { border: 1px solid var(--accent); border-left: 5px solid var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 16px; display: grid; gap: 10px }
 textarea { width: 100%; min-height: 96px; border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; background: var(--surface-2); resize: vertical }
 .chips { display: flex; gap: 8px; flex-wrap: wrap }
@@ -148,10 +150,10 @@ textarea { width: 100%; min-height: 96px; border: 1px solid var(--line); border-
 .proposal label { display: flex; gap: 10px; align-items: flex-start }
 .proposal input { width: 20px; height: 20px; margin-top: 3px }
 .form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px }
-.form label { display: grid; gap: 6px; font-weight: 700 }
+.form label { display: grid; gap: 6px; font-weight: 600 }
 .form select, .form input[type=text] { border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px; background: var(--surface-2); min-width: 0; font-weight: 400 }
 .days { display: flex; gap: 6px; flex-wrap: wrap }
-.days button { width: 52px; border: 1px solid var(--line); border-radius: 6px; padding: 8px 0; background: var(--surface); font-weight: 700 }
+.days button { width: 52px; border: 1px solid var(--line); border-radius: 6px; padding: 8px 0; background: var(--surface); font-weight: 600 }
 .days button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
 .pw { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
 .pw span { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px 4px 12px; display: inline-flex; gap: 6px; align-items: center }
@@ -196,7 +198,7 @@ const LADDERS = {
 const MIC = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M8.5 21h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const SPEAKER = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const MOOD = { 4: "Good", 3: "Okay", 2: "Low", 1: "Very low" };
-const MOOD_COLOR = { 4: "var(--good)", 3: "var(--accent)", 2: "var(--c-hint)", 1: "var(--bad)" };
+const MOOD_COLOR = { 4: "var(--accent)", 3: "var(--c-hint)", 2: "var(--c-word)", 1: "var(--bad)" };
 function face(level, size = 64) {   // simple line face; mouth curvature follows the mood
   const mouth = { 4: "M20 38 Q32 50 44 38", 3: "M21 40 Q32 44 43 40", 2: "M21 43 Q32 38 43 43", 1: "M20 45 Q32 33 44 45" }[level];
   return `<svg width="${size}" height="${size}" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="23" cy="26" r="3.2" fill="currentColor"/><circle cx="41" cy="26" r="3.2" fill="currentColor"/><path d="${mouth}" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>`;
@@ -312,7 +314,7 @@ function renderTablet() {
       <button class="big" id="go">Start</button></div>`;
   } else if (r.phase === "mood") {
     body = `<div class="t-body"><div class="t-title">How are you feeling today?</div>
-      <div class="moods">${[4, 3, 2, 1].map((m) => `<button data-mood="${m}" aria-label="${MOOD[m]}" style="color:${MOOD_COLOR[m]}">${face(m)}<span style="color:var(--ink)">${MOOD[m]}</span></button>`).join("")}</div></div>`;
+      <div class="moods">${[4, 3, 2, 1].map((m) => `<button data-mood="${m}" aria-label="${MOOD[m]}">${face(m)}<span>${MOOD[m]}</span></button>`).join("")}</div></div>`;
   } else if (r.phase === "end") {
     const n = r.done.length, solo = r.done.filter((d) => d.solo).length, helped = r.done.filter((d) => d.named && !d.solo).length;
     const rv = r.reviewDone.length ? `${r.reviewDone.filter((x) => x.ok).length} of ${r.reviewDone.length}` : "–";

@@ -5,7 +5,7 @@ Open `product/index.html` in a browser (no server needed). Two views, switched i
 **Patient tablet**, modelled on a naming session with a speech therapist, with no helper assumed:
 - Start screen with today's plan, then **How are you feeling today?** with four faces (no reading needed).
 - One picture at a time. The person presses **Say it**; speech recognition scores the answer (in
-  the CueAgain app; here a labelled demo strip stands in for it). **Hint please** is always there.
+  the CueAgain app; here a labelled demo strip stands in for it). **Hint** is always there.
 - After a miss, the smallest helpful hint for that kind of mistake, then stronger ones (cueing
   hierarchy). With "meaning first", a wrong word starts with describing the object: group, use,
   where you find it (semantic feature analysis). Hints can be read aloud.
