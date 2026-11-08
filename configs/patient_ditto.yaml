@@ -1,0 +1,39 @@
+# Per-patient DITTO from the shared adapter (training/patient_ditto.py, called by the app's trainer).
+# Serving settings (base model, revision, option scoring, prompt format v2) come from configs/practice.yaml,
+# so a patient adapter is always served the way it was trained.
+practice_config: configs/practice.yaml
+init_adapter: models/ditto_llm/sft200-g2-s0       # the delivered shared adapter
+seed: 0
+select_on: train          # best stage on the training rows (patient examples + anchors); ties to the earlier stage
+
+anchors:
+  source: data/demonstrations/demonstrator_a_v4.jsonl   # training split only
+  n: 30                   # shared-adapter choices on situations of other kinds than the patient's examples
+  patient_share: 0.34     # patient examples are repeated to make up about a third of the rows
+
+lora:                     # must match the shared adapter
+  r: 16
+  alpha: 32
+  dropout: 0.0
+  target_modules: [q_proj, k_proj, v_proj, o_proj]
+
+sft:                      # brief: the start is already a trained adapter
+  max_steps: 30
+  batch_size: 4
+  learning_rate: 1.0e-4
+  stop_loss: 0.0          # fixed number of steps
+
+ditto:                    # gentle setting of the shared adapter (round 2, g2), shorter rounds for ~2-3 min on a laptop
+  rounds: 3
+  samples_per_prompt: 3
+  temperature: 1.0
+  top_k: 50
+  steps_per_round: 15
+  batch_size: 4
+  learning_rate: 2.0e-5
+  beta: 0.2
+  rpo_alpha: 0.5
+  frac_expert: 0.7
+  frac_replay: 0.2
+  frac_intermodel: 0.1
+  rescale_batch: 3

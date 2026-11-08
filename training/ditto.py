@@ -233,7 +233,10 @@ def select_stage(agreement: dict[str, int]) -> str:
 # --------------------------------------------------------------------------------------------
 # Training run
 
-def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None) -> Path:
+def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None, prepare_rows=None) -> Path:
+    """`prepare_rows(model, enc, fmt, rows, history_in_prompt) -> (rows, info)`, if given, is called once the
+    model (and init_adapter, as the active "sft" adapter) is loaded and returns the rows to train on; `info` is
+    stored in the manifest. Per-patient training uses it to add anchors computed with the loaded model."""
     import torch
     from peft import LoraConfig, get_peft_model
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -302,6 +305,14 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
         else:
             model = get_peft_model(model, lora, adapter_name="sft")
         fmt = pcfg.llm.prompt_format
+        if prepare_rows is not None:
+            model.set_adapter("sft")
+            rows, info = prepare_rows(model, enc, fmt, rows, pcfg.history_in_prompt)
+            model.train()
+            manifest["demonstrations"].update({"example_ids": [r["example_id"] for r in rows],
+                                               "hash": examples_hash(rows), "n": len(rows)})
+            manifest["prepared_rows"] = info
+            write_manifest()
         prompts = {r["example_id"]: enc.prompt_ids(example_messages(r, pcfg.history_in_prompt, fmt=fmt)) for r in rows}
         demo_ids = {r["example_id"]: enc.answer_ids(r["preferred"]) for r in rows}
         manifest["max_prompt_tokens"] = max(len(p) for p in prompts.values())
@@ -330,8 +341,10 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
 
         # Optional selection on a held-out split (cfg["select_on"], e.g. "dev"): agreement after SFT
         # (stage "sft") and after every DITTO round; the best stage becomes the run's final adapter.
-        sel_rows = load_examples(cfg["demonstrations"], cfg["select_on"]) if cfg.get("select_on") else []
-        if {r["example_id"] for r in sel_rows} & {r["example_id"] for r in rows}:
+        # select_on: "train" selects on the training rows themselves (a per-patient run has no held-out split).
+        sel_rows = (rows if cfg.get("select_on") == "train"
+                    else load_examples(cfg["demonstrations"], cfg["select_on"]) if cfg.get("select_on") else [])
+        if cfg.get("select_on") != "train" and {r["example_id"] for r in sel_rows} & {r["example_id"] for r in rows}:
             raise ValueError("selection rows overlap the training rows")
         sel_prompts = {r["example_id"]: enc.prompt_ids(example_messages(r, pcfg.history_in_prompt, fmt=fmt))
                        for r in sel_rows}

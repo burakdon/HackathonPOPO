@@ -78,3 +78,23 @@ Data (gitignored): `runs/cueagain/` now holds three seeded sessions and `seed_de
 - No real-key rule drafting, no real training run, no real preview numbers (see above).
 - The product UI (`product/`) was not touched; it still needs wiring to the steering and training endpoints.
 - A training process cancelled by `use-prepared` leaves its manifest marked "running".
+
+## Update 2026-11-08: per-patient training now starts from the shared adapter
+
+- `SubprocessTrainer.start` (service/training.py) now runs `python -m training.patient_ditto --run-id <id>
+  --examples <file>` instead of `python -m training.ditto --run-id <id> --extra-demos <file>`. Same run ids, same
+  examples file (`example_rows`), same `runs/ditto/<id>/manifest.json` format, so `status()`, the preview,
+  `use-prepared` and activation are unchanged; `tests/test_training.py` passes as before.
+- What it trains (`training/patient_ditto.py`, `configs/patient_ditto.yaml`): starts from the delivered shared
+  adapter `models/ditto_llm/sft200-g2-s0`; trains on this patient's examples only, plus 30 anchors (the shared
+  adapter's own choices, with the app's option rule, on training situations of other kinds than the examples, as in
+  service/live_ditto.py), so the update does not spill over into other situations; brief SFT, then 3 gentle DITTO
+  rounds (option scoring, prompt format v2); keeps the best stage on the training rows. No seed demonstrations are
+  re-learned.
+- The patient adapter is served with the same settings as the shared one (configs/practice.yaml: option scoring,
+  prompt format v2); the registry checks the manifest's base model, revision and prompt format.
+- The demo rule changed from first-sound to **first-letter** after a failed meaning hint: the delivered shared
+  adapter already gives the first-sound hint there (11 of 11 tickable seeded decisions), so first-sound would show
+  no change. `scripts/seed_demo_sessions.py` (summary rule; "cat" is skipped while seeding because Whisper mishears
+  it) and `scripts/prepare_demo_run.py` (the prepared run) use it; the contract examples still show the original
+  first-sound note.

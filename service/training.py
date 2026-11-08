@@ -7,10 +7,10 @@ The engine owns the records (JSON under <root>/training/<run_id>.json); a Traine
   Trainer.cancel(run_id)                                   stop it (when a prepared run replaces it)
 
 `SubprocessTrainer` is the real one: it writes the patient's examples in the demonstration row format, runs
-`python -m training.ditto --run-id <id> --extra-demos <file>` as a subprocess (SFT plus 3 DITTO rounds on the
-20 seed demonstrations plus the examples, about 5-6 minutes on this Mac) and reads runs/ditto/<id>/manifest.json.
-Training is from the base model, not yet "from the shared adapter" (Person 3's entry point): the patient's
-adapter learns the seed demonstrations plus this patient's examples.
+`python -m training.patient_ditto --run-id <id> --examples <file>` as a subprocess and reads
+runs/ditto/<id>/manifest.json. The patient's adapter starts from the shared adapter (models/ditto_llm/
+sft200-g2-s0) and trains on this patient's examples only, plus anchors that keep the shared adapter's choices
+in other kinds of situations (configs/patient_ditto.yaml; about 2-3 minutes on an M5 laptop).
 
 Status is synced when someone asks (GET /training-runs/{id}). When the trainer says completed, the preview is
 computed in the background (stage "preview", status still "running"), and only then the run is "completed" and
@@ -122,8 +122,8 @@ class SubprocessTrainer:
         if (self.runs_dir / run_id).exists():
             raise Conflict(f"runs/ditto/{run_id} already exists")
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        cmd = ["uv", "run", "--extra", "llm", "--extra", "speech", "python", "-m", "training.ditto",
-               "--run-id", run_id, "--extra-demos", str(examples_jsonl_path)]
+        cmd = ["uv", "run", "--extra", "llm", "--extra", "speech", "python", "-m", "training.patient_ditto",
+               "--run-id", run_id, "--examples", str(examples_jsonl_path)]
         log = open(self.log_dir / f"{run_id}.log", "wb")
         proc = subprocess.Popen(cmd, cwd=REPO_ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
         self._procs[run_id] = proc
