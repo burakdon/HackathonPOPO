@@ -10,6 +10,7 @@ Status: `open` · `decided` · `deferred`
 | 1 | Practice flow: retry the same picture, and what chooses the hint | Team | decided |
 | 1b | How a clinician's note becomes training data | Team (Persons 2 and 3) | decided |
 | 1c | One shared model, or a separate adapter per patient | Person 3 | decided |
+| 1d | Hint only while tries are left | Team | decided |
 | 2 | Which UI we demo (`product/` or `frontend/`) | Team | decided |
 | 3 | Where patients and practice plans live | Team (Persons 1 and 2) | decided |
 | 4 | Automatic error type: sound error / wrong word / no answer | Team (Persons 2 and 3) | decided |
@@ -57,6 +58,21 @@ Status: `open` · `decided` · `deferred`
   follows the rule on situations it hasn't seen, and how often its other decisions stay unchanged.
 - The current adapter misses every "retry with a hint" situation, which is exactly this case. The
   training data needs more of them.
+
+### 1d. Hint only while tries are left
+
+**Decision (Kuba, 2026-11-07): Option A.** After a wrong answer with tries left, the model is offered
+hints only. It chooses *which* hint, never whether to move on early. Moving on happens after the last
+try ("say it with me") or after a correct answer, and the model then chooses the next level.
+
+**Why:** in a live spoken session, the DITTO adapter `demoA-qwen3-1.7b-r1` moved to a new picture after
+every wrong answer (4 of 4), so patients never got a hint. That broke the spec ("if incorrect,
+provide a hint and allow another attempt"). The steering the demo shows is a choice between hints,
+which the model still makes.
+
+**Trade-off:** the model can't learn "move on early when it's too hard". If a retrained adapter
+handles that well, relax this to "at least one hint per picture" (Option C), a one-line change in
+`service/engine.py`.
 
 ### 1b. How a clinician's note becomes training data
 
@@ -153,6 +169,19 @@ label. Their influence is only on the decision model: which hints, which picture
 **Known limit:** a misheard attempt stays in the summaries and in the context of training examples.
 The safeguards are the "unclear" outcome (decision 6) and measuring the scorer on labeled test
 recordings (decision 9).
+
+**Implemented (2026-11-07):** `speech/scoring.py`, with tests in `tests/test_scoring.py`.
+- A sound error is a phoneme edit distance of at most half the word's length (CMUdict).
+- Words the dictionary doesn't know fall back to spelling distance. Spelling misses some
+  near-misses, for example "kak" for "cat" comes out unclassified.
+- `cmudict` (the Python package) is GPL-3.0. Fine for the hackathon; before distributing, replace it
+  with the BSD-licensed dictionary file.
+- Mac-voice check of 8 answers through Whisper `base.en`:
+  - Whisper's confidence in isolated words is low even when it is right ("cat" 0.41, "dog" 0.17),
+    so the unclear threshold is 0.1, not 0.45.
+  - Whisper heard "umm, cat" as "I'm Kat", which is unclear, so the patient records again.
+  - 7 of the 8 scored as intended.
+  - Not a measurement: decision 9 does the real check.
 
 **Open detail (for decision 10, Person 3):** the model chooses the *level* of the next picture; the
 picture within that level is chosen automatically. Steering specific pictures ("more food words")
@@ -261,3 +290,17 @@ says "correct". Team voices tell us nothing about aphasic speech, and we say so.
   notes, for example "after 2 missed pictures, go easier". DITTO learns from these.
 - The model does not choose exact pictures. Clinician feedback is about level, so there would be
   nothing to teach it which picture to pick.
+
+
+---
+
+## Implemented (Person 2 hand-off, 2026-11-08)
+
+- **1b note -> rule -> examples:** `service/steering.py`, `service/rule_drafter.py` (Claude API, structured outputs,
+  `claude-opus-5-5` or `$CUEAGAIN_RULE_MODEL`; without `ANTHROPIC_API_KEY` the clinician fills the rule in by hand).
+  The real-key check has not been run (no key).
+- **1c / 8 training and activation:** `service/training.py`, `service/preview.py`. Patient adapters are `ditto:<run_id>`.
+  Trained from the base model for now; the real run for `demo-ana` is deferred.
+- **7 hint audio:** `scripts/make_hint_audio.py`, 120 clips in `frontend/hints/` (first sounds should be re-recorded by a person).
+- **9 scorer accuracy:** `scripts/scorer_report.py`, `results/scorer_synthetic.md` (synthetic speech only, optimistic).
+- **10 / 10.1 demo history:** `scripts/seed_demo_sessions.py`.

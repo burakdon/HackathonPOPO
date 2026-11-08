@@ -96,7 +96,15 @@ def agent_factory(agent: str, cfg, clinical):
 def create_app(config_path: str | Path | None = None,
                overrides_path: str | Path | None = None,
                agent: str | None = None,
-               speech_provider=None) -> FastAPI:
+               speech_provider=None,
+               cueagain_root: str | Path | None = None,
+               cueagain_decider=None,
+               rule_drafter=None,
+               cueagain_trainer=None,
+               cueagain_previewer=None) -> FastAPI:
+    """`cueagain_root` / `cueagain_decider`: where the patient practice API (service/patient_api.py) keeps
+    its data (default runs/cueagain, or $CUEAGAIN_DATA) and which decision model it asks (default: each
+    patient's active model). Tests pass a temporary directory and the rules decider."""
     cfg = load_service(config_path or os.environ.get("AGENT_SERVICE_CONFIG", "configs/service.yaml"))
     # Optional overrides (e.g. to run several agents side by side): argument, then environment variable.
     agent = agent or os.environ.get("AGENT_SERVICE_AGENT")
@@ -249,6 +257,45 @@ def create_app(config_path: str | Path | None = None,
     app.state.registry = registry
     app.include_router(practice_router(pcfg, clinical, load_beta_bandit(cfg.bandit_config), registry,
                                        speech_provider=speech_provider))
+
+    # Patient practice API of docs/API_CONTRACT.md: automatic scoring, model-chosen next steps.
+    from core.contract import NewPatient
+    from core.practice import load_items as load_pictures
+    from service.engine import Engine
+    from service.patient_api import default_model, model_decider, patient_router
+    speech_holder = {"p": speech_provider}
+
+    def get_speech():
+        if speech_holder["p"] is None:
+            try:
+                from speech.whisper_local import WhisperLocalProvider
+                speech_holder["p"] = WhisperLocalProvider()
+            except ImportError as e:
+                from speech.base import UnavailableProvider
+                speech_holder["p"] = UnavailableProvider(f"speech extra not installed ({e.name})")
+        return speech_holder["p"]
+
+    engine = Engine(resolve(cueagain_root or os.environ.get("CUEAGAIN_DATA", "runs/cueagain")),
+                    load_pictures(pcfg.items_path), decider=cueagain_decider or model_decider(registry, lambda v: engine.adapter_version(v)),
+                    hint_audio_dir=resolve("frontend/hints"),
+                    default_model="rules" if cueagain_decider else default_model(registry))
+    if not engine.patients:
+        engine.add_patient(NewPatient(name="Ana (demo)", first="Ana", about="Demo patient for trying the app."),
+                           pid="demo-ana", simulated=True)
+    from service.preview import ModelPreviewer
+    from service.training import SubprocessTrainer, TrainingManager
+    engine.training = TrainingManager(
+        engine, cueagain_trainer or SubprocessTrainer(resolve(pcfg.llm.runs_dir), engine.root / "training"),
+        cueagain_previewer or ModelPreviewer(cueagain_decider or model_decider(registry, lambda v: engine.adapter_version(v))))
+    app.state.engine = engine
+    if rule_drafter is None:
+        from service.rule_drafter import ClaudeRuleDrafter
+        rule_drafter = ClaudeRuleDrafter()
+    app.include_router(patient_router(engine, get_speech, registry, rule_drafter))
+    app.mount("/media/images", StaticFiles(directory=str(resolve("frontend/images"))), name="media-images")
+    app.mount("/media/hints", StaticFiles(directory=str(resolve("frontend/hints")), check_dir=False), name="media-hints")
+    if resolve("product").exists():
+        app.mount("/product", StaticFiles(directory=str(resolve("product")), html=True), name="product")
     frontend = resolve("frontend")
     if frontend.exists():
         app.mount("/app", StaticFiles(directory=str(frontend), html=True), name="app")

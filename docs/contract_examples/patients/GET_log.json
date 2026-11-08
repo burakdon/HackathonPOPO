@@ -1,0 +1,17 @@
+[
+  {
+    "when": "2026-11-01T15:00:00Z",
+    "who": "Dr. Patel, SLP",
+    "what": "Patient added with the default plan."
+  },
+  {
+    "when": "2026-11-05T15:01:59Z",
+    "who": "Dr. Patel, SLP",
+    "what": "Rule confirmed from note: “When meaning hints have repeatedly failed, try a first-sound hint before moving to another picture.”"
+  },
+  {
+    "when": "2026-11-05T15:07:59Z",
+    "who": "Dr. Patel, SLP",
+    "what": "Activated Ana's adapter (run demo-ana-r1, trained on 2 examples)."
+  }
+]

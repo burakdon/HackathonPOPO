@@ -1,0 +1,32 @@
+{
+  "attempt_id": "s-demo-01-a07",
+  "presentation_id": "p-04",
+  "counted": false,
+  "transcript": "",
+  "score": {
+    "outcome": "unclear",
+    "error_type": null,
+    "heard_word": null,
+    "matched_name": null,
+    "reason": "No speech detected.",
+    "signals": {
+      "audio_seconds": 2.4,
+      "no_speech_prob": 0.92,
+      "word_confidence": null
+    }
+  },
+  "next": {
+    "kind": "try_again",
+    "message": "I didn't catch that. Please try again.",
+    "hint": null,
+    "attempt_number": null,
+    "max_attempts": null,
+    "decision_id": null,
+    "word": null,
+    "whole_word_audio_url": null,
+    "picture": null,
+    "session_complete": false,
+    "summary": null,
+    "break_suggested": false
+  }
+}

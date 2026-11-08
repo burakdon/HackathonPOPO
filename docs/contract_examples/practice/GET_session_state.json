@@ -1,0 +1,23 @@
+{
+  "session_id": "s-demo-01",
+  "patient_id": "demo-ana",
+  "status": "active",
+  "picture": {
+    "presentation_id": "p-02",
+    "number": 2,
+    "of": 6,
+    "exercise_id": "ex-dog",
+    "word": "dog",
+    "level": 1,
+    "image_url": "/media/images/dog.svg",
+    "attempt_number": 2,
+    "max_attempts": 3,
+    "hint": {
+      "type": "semantic",
+      "text": "A pet that wags its tail and fetches sticks.",
+      "audio_url": "/media/hints/ex-dog/semantic.m4a"
+    }
+  },
+  "pictures_done": 1,
+  "summary": null
+}

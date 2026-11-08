@@ -1,0 +1,21 @@
+{
+  "run_id": "demo-ana-r1",
+  "patient_id": "demo-ana",
+  "status": "queued",
+  "progress": {
+    "stage": "queued",
+    "round": null,
+    "of": null
+  },
+  "started": null,
+  "finished": null,
+  "base": "ditto:demoA-qwen3-1.7b-r1",
+  "example_ids": [
+    "x-0001",
+    "x-0002"
+  ],
+  "preview": null,
+  "prepared": false,
+  "prepared_run_id": null,
+  "error": null
+}

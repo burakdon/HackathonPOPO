@@ -1,0 +1,36 @@
+{
+  "attempt_id": "s-demo-01-a10",
+  "presentation_id": "p-05",
+  "counted": true,
+  "transcript": "truck",
+  "score": {
+    "outcome": "incorrect",
+    "error_type": "meaning",
+    "heard_word": "truck",
+    "matched_name": null,
+    "reason": "One word, “truck”, a different word from “car”.",
+    "signals": {
+      "audio_seconds": 2.1,
+      "no_speech_prob": 0.03,
+      "word_confidence": 0.84
+    }
+  },
+  "next": {
+    "kind": "hint",
+    "message": "Here's a hint.",
+    "hint": {
+      "type": "sentence_frame",
+      "text": "You drive a ___ on the road.",
+      "audio_url": "/media/hints/ex-car/sentence_frame.m4a"
+    },
+    "attempt_number": 3,
+    "max_attempts": 3,
+    "decision_id": "s-demo-01-d07",
+    "word": null,
+    "whole_word_audio_url": null,
+    "picture": null,
+    "session_complete": false,
+    "summary": null,
+    "break_suggested": false
+  }
+}
