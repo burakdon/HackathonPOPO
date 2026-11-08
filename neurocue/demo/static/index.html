@@ -151,46 +151,68 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
     <div class="picbox"><img id="img" alt="picture to name" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3C/svg%3E"><div class="cap">Picture · <span id="picname">–</span> · IPNP naming norms</div></div>
     <div class="avatar" id="avatar" aria-label="the patient, Marisol">
       <svg viewBox="0 0 210 220" role="img" aria-hidden="true">
-        <!-- hair, back -->
-        <path d="M38 128 C 30 70, 62 30, 105 30 C 150 30, 182 72, 172 130 C 176 160, 182 192, 178 220 L 32 220 C 30 190, 36 160, 38 128 Z" fill="#2a1a14"/>
-        <path d="M44 120 C 40 150, 36 180, 40 220 L 60 220 C 56 185, 60 150, 66 120 Z" fill="#3a241b"/>
-        <path d="M166 120 C 172 150, 176 180, 172 220 L 150 220 C 154 185, 150 150, 144 120 Z" fill="#3a241b"/>
-        <!-- shoulders and top -->
-        <path d="M22 220 C 32 182, 68 172, 90 170 L 105 184 L 120 170 C 142 172, 178 182, 188 220 Z" fill="#1f6f69"/>
-        <path d="M88 168 L 105 186 L 122 168 L 118 160 L 92 160 Z" fill="#c98f67"/>
+        <defs>
+          <radialGradient id="skinG" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#d9a37d"/><stop offset="1" stop-color="#c48a62"/></radialGradient>
+          <linearGradient id="hairG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b2419"/><stop offset="1" stop-color="#1c110c"/></linearGradient>
+          <radialGradient id="irisG" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#7a4b2a"/><stop offset=".7" stop-color="#4a2c18"/><stop offset="1" stop-color="#2a170c"/></radialGradient>
+          <linearGradient id="topG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c8a82"/><stop offset="1" stop-color="#1c6560"/></linearGradient>
+        </defs>
+        <!-- hair, back: long and wavy -->
+        <path d="M40 120 C 30 72, 58 30, 105 30 C 152 30, 182 72, 170 120 C 178 150, 188 180, 180 220 L 30 220 C 22 180, 32 150, 40 120 Z" fill="url(#hairG)"/>
+        <path d="M44 128 C 36 160, 30 190, 36 220 L 58 220 C 52 190, 54 160, 62 130 Z" fill="#2a1a12"/>
+        <path d="M166 128 C 174 160, 180 190, 174 220 L 152 220 C 158 190, 156 160, 148 130 Z" fill="#2a1a12"/>
+        <path d="M58 150 C 52 172, 50 196, 56 220" stroke="#5a3a2a" stroke-width="1.5" fill="none" opacity=".7"/>
+        <path d="M152 150 C 158 172, 160 196, 154 220" stroke="#5a3a2a" stroke-width="1.5" fill="none" opacity=".7"/>
+        <!-- shoulders, v-neck top, pendant -->
+        <path d="M18 220 C 28 184, 64 174, 88 170 L 105 190 L 122 170 C 146 174, 182 184, 192 220 Z" fill="url(#topG)"/>
+        <path d="M86 168 L 105 192 L 124 168 L 118 158 L 92 158 Z" fill="#c48a62"/>
+        <path d="M105 160 L 105 176" stroke="#d6a93c" stroke-width="1.2"/><circle cx="105" cy="178" r="2.6" fill="#e2b84a"/>
         <!-- neck -->
-        <rect x="90" y="150" width="30" height="24" rx="8" fill="#c08359"/>
-        <!-- head -->
-        <ellipse cx="105" cy="114" rx="56" ry="66" fill="#c98f67"/>
-        <!-- cheeks -->
-        <ellipse cx="76" cy="134" rx="9" ry="5" fill="#d9926f" opacity=".55"/><ellipse cx="134" cy="134" rx="9" ry="5" fill="#d9926f" opacity=".55"/>
-        <!-- ears and gold hoops -->
-        <ellipse cx="50" cy="118" rx="6" ry="10" fill="#c08359"/><ellipse cx="160" cy="118" rx="6" ry="10" fill="#c08359"/>
-        <circle cx="48" cy="140" r="9" fill="none" stroke="#d6a93c" stroke-width="2.5"/><circle cx="162" cy="140" r="9" fill="none" stroke="#d6a93c" stroke-width="2.5"/>
-        <!-- hair, front: side-swept with waves -->
-        <path d="M50 108 C 46 70, 70 44, 105 44 C 140 44, 166 70, 160 108 C 150 86, 138 72, 118 70 C 108 70, 100 78, 92 84 C 82 92, 70 96, 50 108 Z" fill="#2a1a14"/>
-        <path d="M50 108 C 56 96, 66 90, 76 86 C 70 98, 62 108, 54 118 Z" fill="#2a1a14"/>
-        <path d="M160 108 C 154 94, 146 84, 136 78 C 144 92, 150 104, 156 118 Z" fill="#2a1a14"/>
+        <path d="M91 148 C 92 162, 96 170, 105 172 C 114 170, 118 162, 119 148 Z" fill="#b97d57"/>
+        <!-- face -->
+        <path d="M49 108 C 49 58, 161 58, 161 108 C 161 146, 138 180, 105 182 C 72 180, 49 146, 49 108 Z" fill="url(#skinG)"/>
+        <!-- blush -->
+        <ellipse cx="74" cy="136" rx="10" ry="5.5" fill="#d9846f" opacity=".35"/><ellipse cx="136" cy="136" rx="10" ry="5.5" fill="#d9846f" opacity=".35"/>
+        <!-- ears and hoops -->
+        <ellipse cx="50" cy="120" rx="6" ry="10" fill="#c48a62"/><ellipse cx="160" cy="120" rx="6" ry="10" fill="#c48a62"/>
+        <circle cx="49" cy="142" r="9" fill="none" stroke="#e2b84a" stroke-width="2.4"/><circle cx="161" cy="142" r="9" fill="none" stroke="#e2b84a" stroke-width="2.4"/>
+        <!-- hair, front: side part with a sweep -->
+        <path d="M49 110 C 46 70, 68 42, 105 42 C 142 42, 164 70, 161 110 C 154 88, 142 72, 124 68 C 112 66, 104 74, 96 82 C 84 94, 68 100, 49 110 Z" fill="url(#hairG)"/>
+        <path d="M49 110 C 54 98, 62 90, 72 86 C 66 100, 58 112, 52 124 Z" fill="url(#hairG)"/>
+        <path d="M161 110 C 156 94, 148 84, 138 78 C 146 92, 152 106, 158 122 Z" fill="url(#hairG)"/>
+        <path d="M98 80 C 90 88, 78 94, 62 100" stroke="#6b4530" stroke-width="1.3" fill="none" opacity=".8"/>
+        <path d="M122 70 C 134 74, 146 84, 154 100" stroke="#6b4530" stroke-width="1.3" fill="none" opacity=".8"/>
         <!-- brows -->
-        <path id="browL" class="brow" d="M72 94 Q 86 87, 98 92" stroke="#2a1a14" stroke-width="4" stroke-linecap="round" fill="none" style="transform-origin:85px 91px"/>
-        <path id="browR" class="brow" d="M112 92 Q 124 87, 138 94" stroke="#2a1a14" stroke-width="4" stroke-linecap="round" fill="none" style="transform-origin:125px 91px"/>
-        <!-- eyes: almond, brown iris -->
-        <g><ellipse cx="85" cy="110" rx="10" ry="6.5" fill="#fff"/><circle cx="86" cy="110.5" r="4.6" fill="#5a3a22"/><circle id="pupL" class="pupil" cx="86" cy="110.5" r="2.6" fill="#1a1210"/><circle cx="87.5" cy="109" r="1" fill="#fff"/>
-           <path d="M75 108 Q 85 101, 95 108" stroke="#2a1a14" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-           <rect class="lid" id="lidL" x="74" y="102" width="22" height="16" fill="#c98f67" style="transform:scaleY(0);transform-origin:85px 102px"/></g>
-        <g><ellipse cx="125" cy="110" rx="10" ry="6.5" fill="#fff"/><circle cx="126" cy="110.5" r="4.6" fill="#5a3a22"/><circle id="pupR" class="pupil" cx="126" cy="110.5" r="2.6" fill="#1a1210"/><circle cx="127.5" cy="109" r="1" fill="#fff"/>
-           <path d="M115 108 Q 125 101, 135 108" stroke="#2a1a14" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-           <rect class="lid" id="lidR" x="114" y="102" width="22" height="16" fill="#c98f67" style="transform:scaleY(0);transform-origin:125px 102px"/></g>
+        <path id="browL" class="brow" d="M72 95 Q 84 87, 98 92" stroke="#2a1a12" stroke-width="3.6" stroke-linecap="round" fill="none" style="transform-origin:85px 91px"/>
+        <path id="browR" class="brow" d="M112 92 Q 126 87, 138 95" stroke="#2a1a12" stroke-width="3.6" stroke-linecap="round" fill="none" style="transform-origin:125px 91px"/>
+        <!-- eyes -->
+        <g>
+          <path d="M74 110 C 79 102, 93 102, 97 110 C 93 116, 79 116, 74 110 Z" fill="#fff"/>
+          <circle cx="86" cy="110.5" r="5.2" fill="url(#irisG)"/><circle id="pupL" class="pupil" cx="86" cy="110.5" r="2.6" fill="#120c09"/><circle cx="88" cy="108.5" r="1.3" fill="#fff"/>
+          <path d="M73 110 C 79 101, 93 101, 98 109" stroke="#1a100b" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M96 108 L 100 106" stroke="#1a100b" stroke-width="2" stroke-linecap="round"/>
+          <path d="M76 114 C 81 117, 91 117, 95 114" stroke="#8b5a3c" stroke-width=".9" fill="none" opacity=".7"/>
+          <rect class="lid" id="lidL" x="72" y="100" width="28" height="18" fill="#cf9469" style="transform:scaleY(0);transform-origin:86px 100px"/>
+        </g>
+        <g>
+          <path d="M113 110 C 117 102, 131 102, 136 110 C 131 116, 117 116, 113 110 Z" fill="#fff"/>
+          <circle cx="124" cy="110.5" r="5.2" fill="url(#irisG)"/><circle id="pupR" class="pupil" cx="124" cy="110.5" r="2.6" fill="#120c09"/><circle cx="126" cy="108.5" r="1.3" fill="#fff"/>
+          <path d="M112 109 C 117 101, 131 101, 137 110" stroke="#1a100b" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M135 108 L 139 106" stroke="#1a100b" stroke-width="2" stroke-linecap="round"/>
+          <path d="M115 114 C 119 117, 129 117, 134 114" stroke="#8b5a3c" stroke-width=".9" fill="none" opacity=".7"/>
+          <rect class="lid" id="lidR" x="110" y="100" width="28" height="18" fill="#cf9469" style="transform:scaleY(0);transform-origin:124px 100px"/>
+        </g>
         <!-- nose -->
-        <path d="M105 116 L 100 138 Q 105 142, 110 138 Z" fill="#b57a52"/>
-        <!-- mouth -->
-        <path id="mouth" class="mouth" d="M88 158 C 94 156, 116 156, 122 158 C 116 160, 94 160, 88 158 Z" fill="#a9474f"/>
+        <path d="M105 118 C 103 128, 100 134, 99 140 C 101 143, 109 143, 111 140 C 110 134, 107 128, 105 118" fill="#b97d57" opacity=".55"/>
+        <path d="M99 141 Q 105 145, 111 141" stroke="#9c6442" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <!-- lips: a soft upper-lip line above the viseme mouth -->
+        <path d="M91 155 Q 98 151, 105 154 Q 112 151, 119 155" stroke="#8e3a43" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path id="mouth" class="mouth" d="M88 158 C 94 156, 116 156, 122 158 C 116 160, 94 160, 88 158 Z" fill="#b34a55"/>
       </svg>
       <div class="who" id="who">Marisol, 23 · synthetic patient</div>
       <div class="bubble" id="bubble"></div>
     </div>
     <div>
       <div class="row"><button id="name1" disabled>Name it</button><button id="name10" class="ghost" disabled>Ten in a row</button><label class="counter"><input id="speak" type="checkbox" checked> speak aloud</label></div>
+      <div class="row" style="margin-top:8px"><span class="counter">Or skip the listening:</span><label class="counter">name <input id="nbatch" type="number" value="20" min="1" max="200" style="width:64px; padding:4px 6px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--fg)"> pictures instantly</label><button id="namen" class="ghost" disabled>Go</button><span class="counter">· fills the feed and the diagnosis at once, no speech</span></div>
       <div class="kv"><span class="k">target word</span><b id="target">–</b><span class="k">what she said</span><span id="said">–</span><span class="k">response type</span><span id="type">–</span><span class="k">so far</span><span id="count" class="counter">0 pictures</span></div>
       <div class="legend"><span class="lbl">Response types (PNT convention)</span>
         <span><span class="chip c c-correct">correct</span></span>
@@ -245,6 +267,13 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
   <div class="counter">Green = named correctly, red = error. Letter = cue given: <b>p</b> first sound, <b>s</b> meaning cue, <b>w</b> whole word, blank = no cue. Hover for the word. <b>Click a trial to override its cue as the clinician</b>; DITTO retrains the policy on that one demonstration.</div>
   <div class="strip" id="strip"></div>
   <div id="override"></div>
+  <div id="ditto" style="display:none; margin-top:12px">
+    <div class="lbl">What the override changed · the policy's cue on each of the 160 recorded trials, before and after</div>
+    <div class="ll" style="margin-top:6px"><span><i style="background:#8a948f; height:10px; width:10px; border-radius:2px"></i>no cue</span><span><i style="background:var(--accent); height:10px; width:10px; border-radius:2px"></i>first sound</span><span><i style="background:var(--semantic); height:10px; width:10px; border-radius:2px"></i>meaning cue</span><span><i style="background:var(--accent-2); height:10px; width:10px; border-radius:2px"></i>whole word</span><span><i style="border:2px solid #e8c547; height:8px; width:8px; border-radius:2px; background:transparent"></i>the clinician's demonstrations</span><span><i style="border:2px solid #fff; height:8px; width:8px; border-radius:2px; background:transparent"></i>changed</span><span>· dot = a trial that matches the clinician's situation but was not shown</span></div>
+    <div class="counter" style="margin-top:6px">before</div><div class="strip" id="stripBefore"></div>
+    <div class="counter" style="margin-top:6px">after</div><div class="strip" id="stripAfter"></div>
+    <svg id="dittoBars" class="chart" viewBox="0 0 640 170" width="100%" height="170" role="img" aria-label="How often the policy gives the clinician's cue, before and after, by situation"></svg>
+  </div>
   <p id="summary"></p>
   <details><summary>What the trainer learned, on 80 held-out patients</summary>
     <ul><li>Spaced retrieval with no cues: +0.32 retention at one week. The trained policy: +0.32, cueing on 1% of trials. Cueing hierarchy: +0.29. Errorless (whole word every time): +0.26. Massed practice: +0.23.</li>
@@ -296,7 +325,7 @@ const avatar = {
   timers: [],
   setV(v) { $("#mouth").setAttribute("d", VISEME[v] || VISEME.rest); },
   blink() { ["#lidL", "#lidR"].forEach(s => { $(s).style.transform = "scaleY(1)"; }); setTimeout(() => ["#lidL", "#lidR"].forEach(s => { $(s).style.transform = "scaleY(0)"; }), 110); setTimeout(() => this.blink(), 2600 + Math.random() * 3200); },
-  gaze(dx, dy) { $("#pupL").setAttribute("cx", 86 + dx); $("#pupR").setAttribute("cx", 126 + dx); $("#pupL").setAttribute("cy", 110.5 + dy); $("#pupR").setAttribute("cy", 110.5 + dy); },
+  gaze(dx, dy) { $("#pupL").setAttribute("cx", 86 + dx); $("#pupR").setAttribute("cx", 124 + dx); $("#pupL").setAttribute("cy", 110.5 + dy); $("#pupR").setAttribute("cy", 110.5 + dy); },
   brows(mode) { const L = $("#browL"), R = $("#browR"); if (mode === "effort") { L.style.transform = "translateY(2px) rotate(8deg)"; R.style.transform = "translateY(2px) rotate(-8deg)"; } else if (mode === "ok") { L.style.transform = "translateY(-2px)"; R.style.transform = "translateY(-2px)"; } else { L.style.transform = ""; R.style.transform = ""; } },
   clear() { this.timers.forEach(clearTimeout); this.timers = []; },
   later(fn, ms) { const t = setTimeout(fn, ms); this.timers.push(t); return t; },
@@ -350,27 +379,44 @@ $("#newp").onclick = async () => {
     $("#feed").innerHTML = ""; $("#target").textContent = "–"; $("#said").textContent = "–"; $("#type").textContent = "–";
     $("#n").textContent = 0; $("#read").textContent = "–"; $("#pacc").textContent = "–"; $("#map").textContent = "–"; $("#truth").textContent = "hidden";
     drawHeat(null); $("#chart").innerHTML = ""; $("#strip").innerHTML = ""; $("#summary").textContent = ""; $("#override").style.display = "none";
-    ["#name1","#name10","#reveal","#run"].forEach(s => $(s).disabled = false);
+    ["#name1","#name10","#namen","#reveal","#run"].forEach(s => $(s).disabled = false);
     $("#runnote").textContent = P.ppo_available ? "MaskablePPO trained on predicted retention; picks the word (due / repeat / weakest / strongest) and the cue each trial" : "not loaded on this server; the comparison runs spaced retrieval (no cues) instead";
     $("#leg2").textContent = P.ppo_available ? "trained policy" : "spaced retrieval";
   } finally { $("#newp").disabled = false; }
 };
 
-async function nameOne() {
-  const {response: r, posterior: q} = await post(`/api/patient/${P.id}/name`);
-  $("#img").src = r.image; $("#picname").textContent = r.target; $("#target").textContent = r.target; $("#said").textContent = "…"; $("#type").textContent = "";
-  await avatar.say(r);
+function renderResponse(r) {
   const said = r.said_text || (r.word ? r.word : (r.phonemes ? r.phonemes.join(" ") : "(no response)"));
+  $("#img").src = r.image; $("#picname").textContent = r.target; $("#target").textContent = r.target;
   $("#said").textContent = said; $("#type").innerHTML = `<span class="chip c-${r.category}">${r.category}</span>`;
   const row = document.createElement("div"); row.className = "r";
   row.innerHTML = `<span class="mono">${r.n}</span><span>${r.target}</span><span>${said}${r.phonemes && !r.word ? ` <span class="mono">${r.phonemes.join(" ")}</span>` : ""}</span><span class="chip c-${r.category}">${r.category}</span>`;
   $("#feed").prepend(row);
   const rows = $("#feed").children.length, ok = [...$("#feed").children].filter(x => x.textContent.trim().endsWith("correct")).length;
   $("#count").textContent = `${rows} picture${rows === 1 ? "" : "s"} · ${ok} correct · ${rows - ok} errors`;
+}
+function applyPosterior(q) {
   $("#n").textContent = q.n; $("#read").textContent = `${q.lesion_read} lesion`; $("#pacc").textContent = `${Math.round(q.predicted_accuracy*100)}%`;
   $("#map").textContent = `s ${q.map.s.toFixed(3)} · p ${q.map.p.toFixed(3)}`;
   drawHeat(q);
 }
+async function nameOne() {
+  const {response: r, posterior: q} = await post(`/api/patient/${P.id}/name`);
+  $("#img").src = r.image; $("#picname").textContent = r.target; $("#target").textContent = r.target; $("#said").textContent = "…"; $("#type").textContent = "";
+  await avatar.say(r);
+  renderResponse(r); applyPosterior(q);
+}
+async function nameBatch() {
+  const n = Math.max(1, Math.min(200, +$("#nbatch").value || 20));
+  ["#name1","#name10","#namen"].forEach(s => $(s).disabled = true);
+  try {
+    const {responses, posterior: q} = await post(`/api/patient/${P.id}/name_batch`, {n});
+    responses.forEach(renderResponse); applyPosterior(q);
+    avatar.show(`named ${n} pictures`); setTimeout(() => avatar.show("", false), 1600);
+  } catch (e) { $("#said").textContent = e.message.slice(0, 120); }
+  finally { ["#name1","#name10","#namen"].forEach(s => $(s).disabled = false); }
+}
+$("#namen").onclick = nameBatch;
 $("#name1").onclick = () => nameOne().catch(e => alert(e.message));
 $("#name10").onclick = async () => { $("#name10").disabled = true; for (let i = 0; i < 10; i++) { await nameOne(); await new Promise(r => setTimeout(r, 350)); } $("#name10").disabled = false; };
 
@@ -417,6 +463,26 @@ function drawStrip(run) {
     d.textContent = t.cue ? {phonemic_initial:"p", semantic:"s", whole_word:"w"}[t.cue] : ""; d.title = `trial ${i+1} · ${t.word} · ${t.rule}${t.cue?" + "+t.cue:""} · ${t.category}`;
     d.onclick = () => openOverride(i, t); st.appendChild(d); });
 }
+function drawDitto(r) {
+  const box = $("#ditto"); box.style.display = "block";
+  const CUECOL = ["#8a948f", "var(--accent)", "var(--semantic)", "var(--accent-2)"];
+  const demo = new Set(r.demo_idx), held = new Set(r.heldout_idx), changed = new Set(r.changed_states);
+  const fill = (el, cues, markChanged) => { el.innerHTML = ""; cues.forEach((c, i) => { const d = document.createElement("div"); d.style.background = CUECOL[c];
+    if (demo.has(i)) d.style.outline = "2px solid #e8c547"; else if (markChanged && changed.has(i)) d.style.outline = "2px solid #fff";
+    if (held.has(i)) d.textContent = "·"; d.title = `trial ${i+1} · ${["no cue","first sound","meaning cue","whole word"][c]}${demo.has(i) ? " · demonstration" : held.has(i) ? " · matching, not shown" : ""}`; el.appendChild(d); }); };
+  fill($("#stripBefore"), r.cue_before, false); fill($("#stripAfter"), r.cue_after, true);
+  const svg = $("#dittoBars"); svg.innerHTML = "";
+  const ns = (t, a, txt) => { const e = document.createElementNS("http://www.w3.org/2000/svg", t); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+  const groups = [["matching trials, not shown to it", r.adoption_heldout_before, r.adoption_heldout, r.n_heldout], ["after other kinds of error", r.leak_other_errors_before, r.leak_other_errors, r.n_other_errors], ["after a success", r.leak_after_correct_before, r.leak_after_correct, r.n_after_correct]];
+  const W = 640, L = 250, R = 60, T = 16, rh = 44; const x = v => L + (W - L - R) * (v || 0);
+  ns("text", {x: L, y: 10, fill: "var(--muted)", "font-size": 10}, `how often the policy gives ${(r.cue || "no cue").replace("_", " ")} · grey = before, teal = after the override`);
+  groups.forEach((g, i) => { const y = T + i * rh + 6;
+    ns("text", {x: L - 10, y: y + 14, "text-anchor": "end"}, `${g[0]} (n=${g[3]})`);
+    ns("rect", {x: x(0), y, width: Math.max(0, x(g[1]) - x(0)), height: 10, fill: "#8a948f", rx: 2}); ns("text", {x: x(g[1]) + 5, y: y + 9, "font-size": 10}, g[1] == null ? "–" : Math.round(g[1]*100) + "%");
+    ns("rect", {x: x(0), y: y + 13, width: Math.max(0, x(g[2]) - x(0)), height: 10, fill: "var(--accent)", rx: 2}); ns("text", {x: x(g[2]) + 5, y: y + 22, "font-size": 10}, g[2] == null ? "–" : Math.round(g[2]*100) + "%");
+  });
+  [0, .5, 1].forEach(v => ns("text", {x: x(v), y: T + 3 * rh + 8, "text-anchor": "middle", fill: "var(--muted)", "font-size": 10}, Math.round(v*100) + "%"));
+}
 function openOverride(i, t) {
   const o = $("#override"); o.style.display = "block";
   const prev = i > 0 && courses.ppo ? courses.ppo.trials[i-1].category : null;
@@ -430,7 +496,7 @@ function openOverride(i, t) {
     <div class="counter" style="margin-top:6px">DITTO treats each demonstration as preferred over what the policy would have done and retrains it against the original as an anchor. One demonstration teaches it nothing beyond that trial; a handful of consistent ones teach the rule.</div>`;
   $("#oapply").onclick = async () => { $("#oapply").disabled = true; $("#ostat").textContent = "retraining the policy on the demonstrations…";
     try { const r = await post(`/api/patient/${P.id}/override`, {trial: i, cue: $("#ocue").value || null, scope: $("#oscope").value, n_demos: 6});
-      courses.tuned = r.course; drawChart();
+      courses.tuned = r.course; drawChart(); drawDitto(r);
       const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
       const cueName = ($("#ocue").value || "no cue").replace("_", " ");
       $("#summary").innerHTML = `<b>Override applied</b> (${r.n_demos_total} demonstration${r.n_demos_total === 1 ? "" : "s"} so far, scope: ${$("#oscope").selectedOptions[0].textContent.replace(/ \(.*\)/, "")}). The retrained policy now gives <b>${cueName}</b> in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching trials it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} trials after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} trials after a success. Choice changed in ${r.changed_states.length} of ${r.n_states} states. Retention at one week: trained ${Math.round(courses.ppo.final["17"]*100)}%, after the override ${Math.round(r.course.final["17"]*100)}%. The engine says what the clinician's preference costs or gains this patient.`;

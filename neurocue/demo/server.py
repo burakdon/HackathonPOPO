@@ -137,6 +137,19 @@ def _get(pid: str) -> DemoPatient:
     return PATIENTS[pid]
 
 
+class BatchReq(BaseModel):
+    n: int = 20
+
+
+@app.post("/api/patient/{pid}/name_batch")
+def name_batch(pid: str, req: BatchReq) -> dict:
+    """Name n pictures at once (no avatar pacing): the responses in order and the posterior after them."""
+    d = _get(pid)
+    n = max(1, min(int(req.n), 200))
+    out = [name_picture(pid)["response"] for _ in range(n)]
+    return {"responses": out, "posterior": posterior(d.counts)}
+
+
 @app.post("/api/patient/{pid}/name")
 def name_picture(pid: str) -> dict:
     d = _get(pid)
@@ -276,15 +289,20 @@ def override(pid: str, req: OverrideReq) -> dict:
     d.tuned = tuned
     before = action_probs(Shared.ppo, O, M).argmax(1); after = action_probs(tuned, O, M).argmax(1)
     cue_idx = CUE_KINDS.index(req.cue)
-    gives_cue = lambda idx: float(np.mean([after[i] % len(CUE_KINDS) == cue_idx for i in idx])) if idx else None
+    nC = len(CUE_KINDS)
+    gives_cue = lambda idx, acts: float(np.mean([acts[i] % nC == cue_idx for i in idx])) if idx else None
     tp = make_patient(d.aq, d.lesion, d.seed)
     res = run_course(tuned, tp, d.seed)
     return {"demo_prob": log[-1]["demo_prob"], "n_demos": len(demos), "n_demos_total": len(d.demos), "scope": req.scope,
             "changed_states": [int(i) for i in np.flatnonzero(before != after)], "n_states": int(len(O)),
-            "adoption_heldout": gives_cue(held), "n_heldout": len(held),
-            "leak_other_errors": gives_cue(other_err), "n_other_errors": len(other_err),
-            "leak_after_correct": gives_cue(after_ok), "n_after_correct": len(after_ok),
-            "prev_category": prev_cat, "course": res}
+            "cue_before": [int(a % nC) for a in before], "cue_after": [int(a % nC) for a in after],
+            "rule_before": [int(a // nC) for a in before], "rule_after": [int(a // nC) for a in after],
+            "demo_idx": [int(i) for i in demo_idx], "heldout_idx": [int(i) for i in held],
+            "other_err_idx": [int(i) for i in other_err], "after_ok_idx": [int(i) for i in after_ok],
+            "adoption_heldout": gives_cue(held, after), "adoption_heldout_before": gives_cue(held, before), "n_heldout": len(held),
+            "leak_other_errors": gives_cue(other_err, after), "leak_other_errors_before": gives_cue(other_err, before), "n_other_errors": len(other_err),
+            "leak_after_correct": gives_cue(after_ok, after), "leak_after_correct_before": gives_cue(after_ok, before), "n_after_correct": len(after_ok),
+            "prev_category": prev_cat, "cue": req.cue, "course": res}
 
 
 app.mount("/", StaticFiles(directory=str(STATIC), html=True), name="static")
