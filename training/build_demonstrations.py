@@ -22,12 +22,13 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from core.config import load_clinical, resolve
-from core.practice import (AttemptSummary, CurrentExercise, DecisionContext, PracticeAction, format_action,
-                           load_items, load_practice, next_ex, retry, valid_options)
+from core.practice import (AttemptSummary, CurrentExercise, DecisionContext, PracticeAction, contract_options,
+                           format_action, load_items, load_practice, next_ex, retry, valid_options)
 
 OUT = "data/demonstrations/demonstrator_a_v1.jsonl"
 OUT_V2 = "data/demonstrations/demonstrator_a_v2.jsonl"
 OUT_V3 = "data/demonstrations/demonstrator_a_v3.jsonl"
+OUT_V4 = "data/demonstrations/demonstrator_a_v4.jsonl"
 FAST_S = 4.0          # demonstrator A: "fast" independent answer
 LATE_MIN = 20.0       # demonstrator A: "late in the session"
 ERROR_HINT = {"sound": "first_sound", "meaning": "semantic", "no_response": "sentence_frame",
@@ -48,7 +49,9 @@ def demonstrator_a(ctx: DecisionContext, options: list[PracticeAction]) -> tuple
     if ctx.session_minutes >= LATE_MIN:
         return "G", [easier.key()], "error late in the session: easier picture instead of a hint"
     n_hints = len(cur.hints_shown)
-    if n_hints >= 2 or retry("none").key() not in allowed:
+    # "No tries left" = no retry option at all (the contract never offers a plain retry, so the
+    # presence of retry("none") is not a usable signal).
+    if n_hints >= 2 or not any(o.operation == "retry_current" for o in options):
         return "F", [easier.key()], "still incorrect after two hints: easier picture"
     if n_hints == 0:
         return f"D-{L.error}", [retry(ERROR_HINT[L.error]).key()], "first error: hint matched to the error"
@@ -151,14 +154,14 @@ def build_context(spec: Spec, bank, rng: np.random.Generator) -> DecisionContext
 
 
 def build(specs: list[Spec] | None = None, seed_offset: int = 0, version: str = "v1",
-          source: str = "team-authored (fictional scenario)") -> list[dict]:
+          source: str = "team-authored (fictional scenario)", options_fn=valid_options) -> list[dict]:
     clinical, pcfg = load_clinical(), load_practice()
     bank = load_items(pcfg.items_path)
     rows = []
     for k, spec in enumerate(SPECS if specs is None else specs):
         rng = np.random.default_rng([2026, seed_offset + k])
         ctx = build_context(spec, bank, rng)
-        opts = valid_options(ctx, clinical.approved_cues, clinical.max_tier_step, pcfg.max_attempts_per_exercise)
+        opts = options_fn(ctx, clinical.approved_cues, clinical.max_tier_step, pcfg.max_attempts_per_exercise)
         rule, accepted, why = demonstrator_a(ctx, opts)
         keys = [format_action(o) for o in opts]
         assert all(a in keys for a in accepted), (spec.family, accepted, keys)
@@ -259,15 +262,68 @@ def build_v3() -> list[dict]:
     return train + dev + test + old
 
 
+# ---- v4: the v3 situations with contract options, plus targeted training additions.
+# Options follow the API contract (core.practice.contract_options: a hint already shown on the picture
+# is never offered again, no plain retry); every label is re-derived with demonstrator_a and must equal
+# the v3 label. Additions (training only, training pictures only, families X001...):
+#   G      errors at 20+ minutes, half of them within 20-23 min (11 -> 31 G situations)
+#   G-     contrast: errors at 15-19.5 min that follow the hint rules (the 20-minute boundary from below)
+#   E-sem  "meaning hint failed -> first sound" (the case clinicians steer most)
+V4_ADD = {"G": 20, "G-": 12, "E-sem": 10}
+
+
+def v4_add_specs(seed: int = 17) -> list[Spec]:
+    held_out = {s.word for s in SPECS if s.split in ("dev", "test")}
+    words = [i.preferred_name for i in load_items().items if i.preferred_name not in held_out]
+    rng = np.random.default_rng(seed)
+    pick = lambda xs: xs[int(rng.integers(len(xs)))]
+    rt_err = lambda: round(float(rng.uniform(4.0, 10.0)), 1)
+    errs = ["sound", "meaning", "no_response", "unclassified"]
+
+    def chain(first_errors: list[str]) -> list[tuple]:
+        return [("none" if k == 0 else ERROR_HINT[first_errors[k - 1]], e, rt_err()) for k, e in enumerate(first_errors)]
+
+    specs, n = [], 0
+    for kind, count in V4_ADD.items():
+        for j in range(count):
+            n += 1
+            if kind == "G":
+                minutes = float(round(rng.uniform(20, 23.5), 0)) if j % 2 == 0 else float(round(rng.uniform(24, 32), 0))
+                prior = chain([pick(errs)] * int(rng.integers(0, 2)))
+            elif kind == "G-":
+                minutes = float(round(rng.uniform(15, 19.4), 0))
+                prior = chain([pick(errs)] * int(rng.integers(0, 2)))
+            else:
+                minutes = float(round(rng.uniform(2, 19), 0))
+                prior = chain(["meaning"])
+            specs.append(Spec(f"X{n:03d}", "train", pick(words), (pick(errs), rt_err()), prior, minutes=minutes,
+                              n_earlier=int(rng.integers(1, 5))))
+    return specs
+
+
+def build_v4() -> list[dict]:
+    clinical, pcfg = load_clinical(), load_practice()
+    out = []
+    for r in build_v3():
+        ctx = DecisionContext(**r["context"])
+        opts = contract_options(ctx, clinical.approved_cues, clinical.max_tier_step, pcfg.max_attempts_per_exercise)
+        rule, accepted, _ = demonstrator_a(ctx, opts)
+        assert accepted == r["accepted"] and rule == r["rule"], r["example_id"]
+        out.append({**r, "options": [format_action(o) for o in opts]})
+    add = build(v4_add_specs(), seed_offset=4000, version="v4", source=V2_SOURCE, options_fn=contract_options)
+    train = [r for r in out if r["split"] == "train"]
+    return train + add + [r for r in out if r["split"] != "train"]
+
+
 def dataset_hash(rows: list[dict]) -> str:
     return hashlib.sha256("\n".join(json.dumps(r, sort_keys=True) for r in rows).encode()).hexdigest()[:16]
 
 
 def main() -> None:
     import sys
-    version = "v3" if "--v3" in sys.argv else "v2" if "--v2" in sys.argv else "v1"
-    rows = {"v1": build, "v2": build_v2, "v3": build_v3}[version]()
-    out = resolve({"v1": OUT, "v2": OUT_V2, "v3": OUT_V3}[version])
+    version = next((v for v in ("v4", "v3", "v2") if f"--{v}" in sys.argv), "v1")
+    rows = {"v1": build, "v2": build_v2, "v3": build_v3, "v4": build_v4}[version]()
+    out = resolve({"v1": OUT, "v2": OUT_V2, "v3": OUT_V3, "v4": OUT_V4}[version])
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("".join(json.dumps(r) + "\n" for r in rows))
     from collections import Counter
