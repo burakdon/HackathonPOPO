@@ -148,8 +148,12 @@ class PatientRec(BaseModel):
 class Engine:
     def __init__(self, root: str | Path, bank: ItemBank, decider: Decider = rules_decider,
                  clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc),
-                 hint_audio_dir: str | Path | None = None, default_model: str = "rules") -> None:
+                 hint_audio_dir: str | Path | None = None, default_model: str = "rules",
+                 late_pictures: tuple[str, ...] = ()) -> None:
+        """`late_pictures`: exercise ids shown only after the other unseen pictures of their level (pictures the
+        speech recognizer often gets wrong when named correctly), so a session never starts with them."""
         self.root, self.bank, self.decider, self.clock = Path(root), bank, decider, clock
+        self.late_pictures = tuple(late_pictures)
         self.hint_audio_dir = Path(hint_audio_dir) if hint_audio_dir else None
         self.default_model = default_model
         self.lock = threading.RLock()
@@ -278,7 +282,9 @@ class Engine:
         return self.sessions[sid]
 
     def _present(self, s: SessionRec, tier: int) -> PresRec:
-        item = self.bank.next_item(tier, s.shown)
+        unseen = [i for i in self.bank.items if i.tier == tier and i.exercise_id not in s.shown
+                  and i.exercise_id not in self.late_pictures]
+        item = unseen[0] if unseen else self.bank.next_item(tier, s.shown)
         s.shown.append(item.exercise_id)
         pr = PresRec(presentation_id=f"p-{len(s.pictures) + 1:02d}", number=len(s.pictures) + 1,
                      exercise_id=item.exercise_id, word=item.preferred_name, level=item.tier,

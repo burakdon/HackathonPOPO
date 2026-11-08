@@ -23,6 +23,7 @@ import os
 import signal
 import subprocess
 import threading
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -157,8 +158,8 @@ class SubprocessTrainer:
         total = int(m.get("config", {}).get("ditto", {}).get("rounds", 3))
         if m["status"] == "completed":
             return TrainerStatus("completed", Progress(stage="ditto", round=total, of=total))
-        if m["status"] == "failed":
-            return TrainerStatus("failed", Progress(stage="ditto"), m.get("error") or "training failed")
+        if m["status"] in ("failed", "cancelled"):
+            return TrainerStatus("failed", Progress(stage="ditto"), m.get("error") or f"training {m['status']}")
         if not alive:
             return TrainerStatus("failed", Progress(stage="sft"),
                                  f"the training process ended while the run was still marked running: {self._log_tail(run_id)}")
@@ -166,13 +167,24 @@ class SubprocessTrainer:
             return TrainerStatus("running", Progress(stage="sft"))
         return TrainerStatus("running", Progress(stage="ditto", round=min(len(m.get("rounds", [])) + 1, total), of=total))
 
-    def cancel(self, run_id: str) -> None:
+    def cancel(self, run_id: str, reason: str = "cancelled: replaced by a run prepared earlier") -> None:
+        """Stop the run's process and mark its manifest "cancelled" (so it is not left as "running").
+        Only use-prepared cancels runs today, hence the default reason."""
         proc = self._procs.get(run_id)
         try:
             pid = proc.pid if proc else int(self._pidfile(run_id).read_text())
             os.killpg(os.getpgid(pid), signal.SIGTERM)
         except (OSError, ValueError):
             pass
+        for _ in range(50):                      # up to 5 s: the process must not rewrite the manifest afterwards
+            if not self._alive(run_id):
+                break
+            time.sleep(0.1)
+        p = self.runs_dir / run_id / "manifest.json"
+        m = self._manifest(run_id)
+        if m is not None and m.get("status") == "running":
+            m.update(status="cancelled", error=reason)
+            p.write_text(json.dumps(m, indent=1))
 
 
 # ---------------------------------------------------------------- the manager

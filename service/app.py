@@ -101,7 +101,8 @@ def create_app(config_path: str | Path | None = None,
                cueagain_decider=None,
                rule_drafter=None,
                cueagain_trainer=None,
-               cueagain_previewer=None) -> FastAPI:
+               cueagain_previewer=None,
+               cueagain_late_pictures: tuple[str, ...] = ()) -> FastAPI:
     """`cueagain_root` / `cueagain_decider`: where the patient practice API (service/patient_api.py) keeps
     its data (default runs/cueagain, or $CUEAGAIN_DATA) and which decision model it asks (default: each
     patient's active model). Tests pass a temporary directory and the rules decider."""
@@ -278,7 +279,8 @@ def create_app(config_path: str | Path | None = None,
     engine = Engine(resolve(cueagain_root or os.environ.get("CUEAGAIN_DATA", "runs/cueagain")),
                     load_pictures(pcfg.items_path), decider=cueagain_decider or model_decider(registry, lambda v: engine.adapter_version(v)),
                     hint_audio_dir=resolve("frontend/hints"),
-                    default_model="rules" if cueagain_decider else default_model(registry))
+                    default_model="rules" if cueagain_decider else default_model(registry),
+                    late_pictures=cueagain_late_pictures)
     if not engine.patients:
         engine.add_patient(NewPatient(name="Ana (demo)", first="Ana", about="Demo patient for trying the app."),
                            pid="demo-ana", simulated=True)
@@ -307,4 +309,10 @@ def create_app(config_path: str | Path | None = None,
     return app
 
 
-app = create_app()
+# Level-1 pictures whose correct name Whisper base.en often mishears (results/scorer_synthetic.csv, correct-word
+# clips scored correct: cat 1/4, car 1/4; dog, apple, tree, fish 4/4). The served app shows them after the other
+# unseen pictures of the level, so a live session starts with "dog", not "cat". Tests and scripts that call
+# create_app() keep the plain manifest order.
+LATE_PICTURES = ("ex-cat", "ex-car")
+
+app = create_app(cueagain_late_pictures=LATE_PICTURES)

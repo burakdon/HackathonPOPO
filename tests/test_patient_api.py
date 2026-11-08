@@ -147,3 +147,19 @@ def test_hint_only_while_tries_are_left(client):
     ds = client.app.state.engine.review(sid).pictures[0].decisions
     assert [{o.op for o in d.options} for d in ds] == [{"retry"}, {"retry"}, {"next"}]
     assert ds[1].options and all(o.hint != ds[0].action.hint for o in ds[1].options)   # no repeated hint
+
+
+def test_late_pictures_are_shown_after_the_other_unseen_pictures(tmp_path):
+    c = TestClient(create_app(speech_provider=FakeSpeech(), cueagain_root=tmp_path, cueagain_decider=rules_decider,
+                              cueagain_late_pictures=("ex-cat", "ex-car")))
+    s = c.post("/patients/demo-ana/sessions").json()
+    assert s["picture"]["word"] == "dog"                           # not "cat", the first level-1 picture
+    eng = c.app.state.engine
+    rec = eng.sessions[s["session_id"]]
+    order = [eng._present(rec, 1).exercise_id for _ in range(7)]
+    assert order[-2:] == ["ex-cat", "ex-car"] and "ex-cat" not in order[:-2]
+
+
+def test_the_served_app_starts_sessions_with_a_well_recognised_picture():
+    from service.app import LATE_PICTURES
+    assert LATE_PICTURES == ("ex-cat", "ex-car")

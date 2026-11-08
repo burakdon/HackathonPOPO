@@ -314,3 +314,18 @@ def test_previewer_counts_real_choices(tmp_path):
     a = p.follows_your_rules_new_situations
     assert (a.new, a.current, a.total) == (10, 0, 10) and "generated" in a.label
     assert p.unchanged_elsewhere.total == 10 and 0 <= p.unchanged_elsewhere.same <= 10
+
+
+def test_cancel_marks_a_running_manifest_cancelled(tmp_path):
+    runs, logs = tmp_path / "runs", tmp_path / "logs"
+    t = SubprocessTrainer(runs, logs)
+    (runs / "r9").mkdir(parents=True)
+    (runs / "r9" / "manifest.json").write_text(json.dumps({"run_id": "r9", "status": "running", "config": {}}))
+    t._procs["r9"] = SimpleNamespace(poll=lambda: 1, pid=999999999)          # already stopped
+    t.cancel("r9")
+    m = json.loads((runs / "r9" / "manifest.json").read_text())
+    assert m["status"] == "cancelled" and "prepared" in m["error"]
+    assert t.status("r9").status == "failed"
+    (runs / "r9" / "manifest.json").write_text(json.dumps({"run_id": "r9", "status": "completed", "config": {}}))
+    t.cancel("r9")                                                           # a finished run is left alone
+    assert json.loads((runs / "r9" / "manifest.json").read_text())["status"] == "completed"
