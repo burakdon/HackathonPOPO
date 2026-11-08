@@ -127,6 +127,21 @@ class _Network:
         return s * self.sem_mask + p * self.phon_mask
 
 
+@dataclass(frozen=True)
+class CueInput:
+    """External activation a cue adds to the target's units (activation units, same scale as the
+    jolts). Semantic and word input are applied once at the start of word access; phonological input
+    (onset, vowel, coda of the target) is applied at the start of both stages, since a spoken cue is
+    still available while the word's sounds are being assembled. Because the formal neighbours share
+    the target's vowel and coda but not its onset (PHONOLOGY), an onset cue singles out the target
+    while a coda cue also helps the formal competitors."""
+    semantic: float = 0.0
+    onset: float = 0.0
+    vowel: float = 0.0
+    coda: float = 0.0
+    word: float = 0.0
+
+
 class DellSPModel:
     """Vectorised simulator over the two neighbourhoods. Immutable after construction."""
 
@@ -149,19 +164,32 @@ class DellSPModel:
             a = new
         return a
 
-    def _run(self, net: _Network, s: float, p: float, n: int, rng: np.random.Generator) -> np.ndarray:
+    def _phon_cue(self, net: _Network, a: np.ndarray, cue: CueInput) -> None:
+        o, v, cd = PHONOLOGY["target"]
+        a[:, net.onset_ids[o]] += cue.onset
+        a[:, net.vowel_ids[v]] += cue.vowel
+        a[:, net.coda_ids[cd]] += cue.coda
+
+    def _run(self, net: _Network, s: float, p: float, n: int, rng: np.random.Generator,
+             cue: CueInput | None = None) -> np.ndarray:
         c = self.cfg
         if n == 0:
             return np.zeros(0, dtype=int)
         W = net.weights(s, p)
         a = np.zeros((n, net.n_units))
         a[:, net.target_features] += c.semantic_jolt
+        if cue is not None:
+            a[:, net.target_features] += cue.semantic
+            a[:, net.word_index["target"]] += cue.word
+            self._phon_cue(net, a, cue)
         a = self._spread(a, W, rng)
         word_act = a[:, net.word_start: net.word_start + len(WORDS)]
         chosen = word_act.argmax(axis=1)
         omitted = (word_act.max(axis=1) < c.omission_threshold) if c.omission_threshold is not None \
             else np.zeros(n, dtype=bool)
         a[np.arange(n), net.word_start + chosen] += c.lexical_jolt
+        if cue is not None:
+            self._phon_cue(net, a, cue)
         a = self._spread(a, W, rng)
         o = a[:, net.onset_ids].argmax(axis=1)
         v = a[:, net.vowel_ids].argmax(axis=1)
@@ -170,19 +198,21 @@ class DellSPModel:
         cat[omitted] = CATEGORIES.index("omission")
         return cat
 
-    def simulate_trials(self, s: float, p: float, n_trials: int, rng: np.random.Generator) -> np.ndarray:
+    def simulate_trials(self, s: float, p: float, n_trials: int, rng: np.random.Generator,
+                        cue: CueInput | None = None) -> np.ndarray:
         """Int array of category indices (into CATEGORIES) for n_trials namings. Mixed-neighbourhood
         trials are drawn with probability `mixed_opportunity`; the output order is shuffled."""
         n_mixed = int(rng.binomial(n_trials, self.cfg.mixed_opportunity))
-        cat = np.concatenate([self._run(self.plain, s, p, n_trials - n_mixed, rng),
-                              self._run(self.mixed, s, p, n_mixed, rng)])
+        cat = np.concatenate([self._run(self.plain, s, p, n_trials - n_mixed, rng, cue),
+                              self._run(self.mixed, s, p, n_mixed, rng, cue)])
         rng.shuffle(cat)
         return cat
 
-    def simulate(self, s: float, p: float, n_trials: int = 4000, seed: int | None = 0) -> dict[str, float]:
-        """Category probabilities for a patient with weights (s, p)."""
+    def simulate(self, s: float, p: float, n_trials: int = 4000, seed: int | None = 0,
+                 cue: CueInput | None = None) -> dict[str, float]:
+        """Category probabilities for a patient with weights (s, p), optionally under a cue."""
         rng = np.random.default_rng(seed)
-        counts = np.bincount(self.simulate_trials(s, p, n_trials, rng), minlength=len(CATEGORIES))
+        counts = np.bincount(self.simulate_trials(s, p, n_trials, rng, cue), minlength=len(CATEGORIES))
         return {k: float(v) / n_trials for k, v in zip(CATEGORIES, counts)}
 
     def name_once(self, s: float, p: float, rng: np.random.Generator) -> str:

@@ -85,8 +85,10 @@ class LearningModel:
         total = float(np.exp(mem.beta)) + float(np.sum(np.asarray(mem.weights) * dt ** (-np.asarray(mem.decays))))
         return float(np.log(total))
 
-    def probability(self, mem: ItemMemory, t: float) -> float:
-        m = self.strength(mem, t)
+    def probability(self, mem: ItemMemory, t: float, boost: float = 0.0) -> float:
+        """Retrieval probability at t; `boost` is extra activation available on this attempt only
+        (a cue), not stored."""
+        m = self.strength(mem, t) + boost
         return float(1.0 / (1.0 + np.exp((self.p.tau - m) / self.p.s)))
 
     # ------------------------------------------------------------------ events
@@ -97,11 +99,15 @@ class LearningModel:
         d = self.p.c * float(np.exp(m_now)) + self.p.alpha
         mem.times.append(t); mem.weights.append(weight * self.learn_scale); mem.decays.append(d)
 
-    def retrieval_practice(self, mem: ItemMemory, t: float, rng: np.random.Generator) -> bool:
+    def retrieval_practice(self, mem: ItemMemory, t: float, rng: np.random.Generator,
+                           boost: float = 0.0, success_weight: float | None = None) -> bool:
         """One retrieval attempt with feedback: the patient tries to name, then hears the name.
-        Returns whether the attempt succeeded. Lays a success or fail-with-feedback trace."""
-        success = rng.random() < self.probability(mem, t)
-        self.record(mem, t, self.p.w_success if success else self.p.w_fail_feedback)
+        Returns whether the attempt succeeded. Lays a success or fail-with-feedback trace. A cue
+        enters as `boost` (activation on this attempt only) and, since an assisted retrieval is a
+        weaker learning event, as a lower `success_weight` than an unaided success."""
+        success = rng.random() < self.probability(mem, t, boost)
+        w = (self.p.w_success if success_weight is None else success_weight) if success else self.p.w_fail_feedback
+        self.record(mem, t, w)
         return success
 
     def study(self, mem: ItemMemory, t: float) -> None:

@@ -22,6 +22,7 @@ deliverables are synthetic patients, cohorts and datasets, validated against rea
 | `dell_sp.py` | The semantic-phonological interactive two-step model of lexical access (Foygel & Dell 2000). Parameters s (semantic-lexical weight) and p (lexical-phonological weight); six-word neighbourhood, 57 semantic units, 10 phonemes, decay .6, two noise terms, 8 steps per stage. Returns the six PNT response categories. | Dell et al. 2004 (architecture, constants); Walker 2016 (lexicon). Reproduces the SP-model proportions Dell published for 7 fitted patients to rmsd .002-.011 and names 97% correctly at normal weights (`tests/test_dell_sp.py`, tolerance .015). |
 | `fit.py` | Fits (s, p) to a patient's naming counts: cached simulated probability grid keyed on the full model config, Laplace-smoothed multinomial likelihood, Dell's rmsd, grid posterior with 95% intervals, a boundary flag. Counts must be naming responses only. | Refitting Dell's 2004/2013 patients from their published proportions with the correct effective N recovers his s and p to .002 on the 14 interior fits; the one near-normal patient sits at the grid edge and is flagged (`scripts/fit_dell_sp.py`). |
 | `population.py` | Samples patients: AQ severity, a target accuracy from a logistic severity curve with between-patient heterogeneity, then an (s, p) cell consistent with it under a lognormal prior on p/s. Profiles mild / moderate / severe / very severe. | Severity curve fitted on the PSST noun items of the 74 training-split participants; heterogeneity after removing binomial noise; p/s prior fitted to the training participants' error mix and checked held out (Dell's prior kept as a named profile). |
+| `cues.py` | Cues as external activation in the SP model: a first sound (target's onset unit), a last sound (coda unit, shared with the formal neighbours), a meaning cue (target's semantic features), or the whole word (all three phoneme units plus the word node, Dell 2013's dual-route repetition). `Cue.effort` is the share of the retrieval the cue does, which the learning layer uses to weight a cued success between an unaided success and errorless study. `TreatablePatient.attempt(item, t, cue)` and `cue_hierarchy()`. | Activation levels calibrated to cued-naming accuracy in Nardo et al. 2017 (initial phoneme and whole word fitted exactly; final phoneme unreachable, see below); semantic level and effort shares are ASSUMPTIONS stated in `configs/cues.yaml`. |
 | `items.py` | 520 IPNP object pictures with norms and a difficulty index (healthy RT, frequency, length; name agreement deliberately excluded); 244 drawings; 39 compound-name items flagged `pronounceable=False`. | Bates et al. 2003; Szekely et al. 2004. |
 | `lexicon.py` | About 4,800 picturable nouns: concreteness >= 4, WordNet noun, CMUdict pronunciation, not on the profanity or sensitive-word lists; Zipf frequency; MiniLM embeddings; the full CMUdict pronunciation set; the PNT formal-relatedness criterion; English phonotactic legality. | CMUdict; Brysbaert et al. 2014; WordNet; wordfreq; all-MiniLM-L6-v2. |
 | `realize.py` | Turns a response category into an actual response for a target: semantic neighbours need embedding similarity plus a WordNet taxonomic relation (or very high similarity); formal neighbours meet the PNT criterion and are not semantic; mixed need both and shared onset or <= 2 edits; unrelated are frequent nouns sharing nothing; nonwords are length-scaled, class-preserving phoneme edits that are not any English word and are phonotactically legal. Fallbacks when a category has no candidate are recorded in `fallback_from`. | Qualitative; the nonword edit rate is an ASSUMPTION pending category-coded PSST data. |
@@ -59,6 +60,23 @@ unrelated competitors against one semantic), a known approximation of the publis
 difficulty is not the cause (synthetic nonword share on the 13 BNT items moved only 0.02). Accuracy
 by severity is unchanged by the prior, as it should be, since the sampler matches accuracy
 separately.
+
+### Cues (`results/cue_calibration.md`)
+
+Cue activation levels were fitted on a synthetic cohort with unaided accuracy near Nardo et al.
+2017's 0.60 so that the share of otherwise-failed items rescued matches theirs: initial phoneme 0.70
+and whole word 0.82 are reproduced. The final-phoneme cue cannot be: its best rescue share is 0.24
+against 0.475 observed, because in the SP model's six-word neighbourhood both formal competitors
+share the target's coda, so a coda cue lifts them as much as the target. That is a stated limit of
+the model's three-slot phonology, not a tuning failure. Two predictions the fit did not touch: the
+initial-phoneme rescue share falls with severity, 0.79 in mild to 0.46 in severe patients, matching
+Pease & Goodglass 1978's direction and their 49% figure for the severe band; and the semantic cue
+helps patients with a semantic lesion most (0.42 against 0.15 for phonological lesions), which is
+the opposite of what Python et al. 2021 reported for lexical-semantic anomia, so the semantic cue
+mechanism is suspect and its level is an assumption anyway. In the learning layer a cued success
+lays a trace weighted between an unaided success and errorless study by the cue's effort share;
+the direction follows Howard et al. 1985 and Middleton et al. 2019, the values are not fitted, and
+no cued-therapy retention data has been compared yet.
 
 ## Known limitations
 

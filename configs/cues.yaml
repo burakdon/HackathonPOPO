@@ -1,0 +1,16 @@
+# Cue activation levels (activation units on the SP model's scale; semantic jolt is 10 per feature,
+# lexical jolt 100). Written by scripts/calibrate_cues.py; see results/cue_calibration.md.
+# effort: share of the retrieval the cue does for the patient; weights a cued success between an
+# unaided success and errorless study in the learning layer. ASSUMPTION (direction from Howard et al.
+# 1985 and Middleton et al. 2019; values not fitted).
+activation:
+  phonemic_initial_onset: 75.0
+  phonemic_final_coda: 60.0
+  semantic_features: 10.0
+  whole_word_phoneme: 25.0
+  whole_word_lexical: 25.0
+effort:
+  phonemic_initial: 0.5
+  phonemic_final: 0.4
+  semantic: 0.3
+  whole_word: 1.0

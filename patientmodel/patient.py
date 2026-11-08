@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
+from patientmodel.cues import Cue, CueConfig, load_cue_config
 from patientmodel.dell_sp import CATEGORIES, DellSPConfig, DellSPModel
 from patientmodel.items import Item
 from patientmodel.realize import Realization, Realizer
@@ -53,6 +54,7 @@ class Response:
     fallback_from: str | None         # model category when the realizer had to substitute one
     s_eff: float
     p_eff: float
+    cue: str | None = None            # the cue kind given on this attempt, if any
 
 
 @dataclass
@@ -66,6 +68,7 @@ class Patient:
     item_beta: float = 0.15
     duration: ResponseDurationModel = field(default_factory=ResponseDurationModel)
     rng: np.random.Generator | None = None   # None: seeded from the patient_id, so distinct patients get distinct streams
+    cue_cfg: CueConfig = field(default_factory=load_cue_config)
 
     def __post_init__(self) -> None:
         if self.rng is None:
@@ -77,20 +80,22 @@ class Patient:
         scale = float(np.exp(-self.item_beta * item.difficulty))
         return self.s * scale, self.p * scale
 
-    def category_probabilities(self, item: Item, n: int = 2000) -> dict[str, float]:
-        """Diagnostic: category distribution for this item. Uses its own stream, so calling it does
-        not change the sequence of responses `name` will produce."""
+    def category_probabilities(self, item: Item, n: int = 2000, cue: Cue | None = None) -> dict[str, float]:
+        """Diagnostic: category distribution for this item, optionally under a cue. Uses its own
+        stream, so calling it does not change the sequence of responses `name` will produce."""
         s, p = self.effective_weights(item)
-        return self.model.simulate(s, p, n, seed=int(self._probe_rng.integers(2**31)))
+        return self.model.simulate(s, p, n, seed=int(self._probe_rng.integers(2**31)),
+                                   cue=cue.input(self.cue_cfg) if cue else None)
 
-    def name(self, item: Item) -> Response:
-        """One naming attempt at this picture."""
+    def name(self, item: Item, cue: Cue | None = None) -> Response:
+        """One naming attempt at this picture, unaided or with a cue."""
         s, p = self.effective_weights(item)
-        cat = CATEGORIES[int(self.model.simulate_trials(s, p, 1, self.rng)[0])]
+        ci = cue.input(self.cue_cfg) if cue else None
+        cat = CATEGORIES[int(self.model.simulate_trials(s, p, 1, self.rng, ci)[0])]
         real: Realization = self.realizer.realize(item.word, cat, self.rng)
         return Response(item=item, category=real.category, word=real.word, phonemes=real.phonemes,
                         duration_s=self.duration.sample(real.category, self.rng), correct=real.category == "correct",
-                        fallback_from=real.fallback_from, s_eff=s, p_eff=p)
+                        fallback_from=real.fallback_from, s_eff=s, p_eff=p, cue=cue.kind if cue else None)
 
     def naming_test(self, items: list[Item]) -> list[Response]:
         return [self.name(it) for it in items]
