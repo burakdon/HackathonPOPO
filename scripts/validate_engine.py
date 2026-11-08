@@ -137,7 +137,7 @@ def main() -> None:
                 real_mix[band(float(r["aq_index"]))][cat] += 1
         merge = {"correct": "correct", "correct_variant": "correct", "semantic": "semantic", "formal": "formal", "mixed": "mixed",
                  "unrelated": "unrelated", "nonword_phon": "nonword", "nonword_other": "nonword", "fragment": "nonword"}
-        lines += ["\n**2b. Real response-type mix by band, PSST BNT items, machine-coded** "
+        lines += ["\n**2b. Real response-type mix by band, PSST BNT items, machine-coded with clinician adjudication** "
                   f"({'with ' + str(n_final) + ' adjudicated rows' if n_final else 'no adjudication yet'}; low-confidence rows shown separately; "
                   "fragments counted as nonwords; multiword = descriptions, circumlocutions and strung attempts, which the engine does not produce)\n",
                   "| band | n | " + " | ".join(NAMING_CATEGORIES) + " | multiword | low confidence |", "|---|---|" + "---|" * (len(NAMING_CATEGORIES) + 2)]
@@ -153,6 +153,33 @@ def main() -> None:
                          f" | {c.get('multiword', 0) / tot:.2f} | {c.get('low_confidence', 0) / tot:.2f} |")
         lines.append("\nCompare with table 2 (synthetic). Caveat: BNT items are 15 hard, low-frequency nouns; the synthetic cohort "
                      "names a 481-item bank, so item difficulty is not matched here. Among errors only, the shares are more comparable.")
+        # 2c: the same comparison restricted to errors the SP model can produce, so that item difficulty and the
+        # unmodelled response types (descriptions, fragments of speech) do not drive the numbers.
+        err_cats = [k for k in NAMING_CATEGORIES if k != "correct"]
+        lines += ["\n**2c. Error-only mix, real (adjudicated) vs synthetic** (shares of the five SP error types; real nonword = "
+                  "phonological nonword + other nonword + fragment; multiword and low-confidence rows excluded; synthetic omissions excluded)\n",
+                  "| band | real n | " + " | ".join(f"real {k}" for k in err_cats) + " | syn n | " + " | ".join(f"syn {k}" for k in err_cats) + " |",
+                  "|---|---|" + "---|" * (2 * len(err_cats) + 1)]
+        pooled_real = collections.Counter(); pooled_syn = collections.Counter()
+        for b in ("AQ<50", "AQ 50-69", "AQ 70-84", "AQ 85+", "all"):
+            if b == "all":
+                six, syn = pooled_real, pooled_syn
+            else:
+                six = collections.Counter(); syn = collections.Counter()
+                for k, v in real_mix.get(b, {}).items():
+                    if merge.get(k) in err_cats:
+                        six[merge[k]] += v
+                for k, v in syn_cats.get(b, {}).items():
+                    if k in err_cats:
+                        syn[k] += v
+                pooled_real.update(six); pooled_syn.update(syn)
+            rn, sn = sum(six.values()), sum(syn.values())
+            if rn and sn:
+                lines.append(f"| {b} | {rn} | " + " | ".join(f"{six[k] / rn:.2f}" for k in err_cats) + f" | {sn} | " +
+                             " | ".join(f"{syn[k] / sn:.2f}" for k in err_cats) + " |")
+        lines.append("\nReading 2c: where real and synthetic differ by more than a few hundredths in the pooled row, the engine's "
+                     "population prior or realizer is the suspect, not the PSST sample; the real column still depends on the "
+                     "machine codes for rows the clinician has not seen.")
     tot_trials = sum(sum(c.values()) for c in syn_cats.values())
     lines.append(f"\nRealizer fallbacks (model category -> realized category, share of all trials): " +
                  (", ".join(f"{a}->{b} {n / tot_trials:.2%}" for (a, b), n in fallbacks.most_common()) or "none") + ".")
@@ -162,8 +189,8 @@ def main() -> None:
     is_word = [tuple(p for p in r["transcript"].split() if not p.startswith("<")) in all_prons for r in spoken]
     lines.append(f"\nPSST (all splits, all items): {len(spoken)} incorrect responses, of which {np.mean(is_word):.0%} transcribe to a "
                  f"single English word and {1 - np.mean(is_word):.0%} do not. The latter mix phonological paraphasias with "
-                 f"circumlocutions, fragments and multi-word attempts, because PSST codes correctness only. A response-type "
-                 f"comparison needs the PSST transcripts coded into the six PNT categories (planned).\n")
+                 f"circumlocutions, fragments and multi-word attempts, because PSST codes correctness only; tables 2b and 2c use the "
+                 f"PNT-style codes from scripts/code_psst_responses.py with the clinician's adjudication where it exists.\n")
 
     lines += ["**3. Nonword distance from target (phoneme edits), by target length**\n",
               "Synthetic nonwords are phonological paraphasias (legal, non-word edits of the target). The PSST column is every "
