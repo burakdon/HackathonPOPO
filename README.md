@@ -33,8 +33,8 @@ Done and checked on this branch:
 | Retry vs next | explicit `retry_current` / `next_exercise`; the next picture is resolved deterministically from the manifest, never by the model | API tests |
 | Picture bank | 24 items (`data/items.json`), predefined hints for each, Twemoji images (CC BY 4.0, `data/ATTRIBUTION.md`) | tests |
 | Decision models | bandit baseline (existing Beta bandit, mapped to options), unadapted Qwen3-1.7B, few-shot prompted Qwen3-1.7B, SFT-only adapter, DITTO adapter; all validated against the valid options; invalid, unparseable or timed-out output falls back to the bandit **and says so** | API tests with scripted model outputs; real adapter in the browser and through `/act` |
-| DITTO training | reproducible CLI, SFT + 3 DITTO rounds with expert / replay / intermodel comparisons, per-round adapters, manifest with base revision, template settings, demonstration IDs and hash, config, seed, metrics, status | one completed run (`demoA-qwen3-1.7b-r1`, 323 s on an Apple M4 Pro GPU via MPS, 4.1 GB peak); adapter reloaded in a fresh process |
-| Evaluation | same reserved situations for every model, counts with denominators | `results/ditto_llm_test.md`, `results/ditto_llm_dev.md` |
+| DITTO training | shared adapter on Colab (SFT + gentle DITTO, selection on dev) and per-patient adapters from it in the app (`training/patient_ditto.py`, anchors) | delivered `sft200-g2-s0`; prepared demo run `demo-ana-r1` (411 s on an Apple M5) |
+| Evaluation | 55 test situations never used in training, 3 seeds, 95% bootstrap intervals, paired differences, per-rule accuracy | `results/ditto_colab_r2_test.md`; golden test `scripts/ditto_golden_check.py` |
 | Clinician view | latest decision with its source, fallback reason and raw model output; alternatives in plain words; note; scope (session / patient / all); "Use my choice" replaces a not-yet-answered picture; "Save the proposal as a good example"; saved examples shown as **pending** until a training run lists them | used in the browser; API tests |
 | Models & results view | activate a completed version for new sessions or the current session; training run details (demonstrations used, pairs per round, losses); measured comparison with per-situation successes and failures | used in the browser |
 | Tests | 190 collected: 189 pass, 1 skipped (pre-existing PPO skip) | `uv run --extra llm --extra speech pytest` |
@@ -46,38 +46,43 @@ only the device changed. On a CUDA machine the same commands pick `cuda` automat
 
 ### Results: does the adapted model follow the demonstrator on new situations?
 
-Run `demoA-qwen3-1.7b-r1`, trained on the 20 training demonstrations. Settings were fixed before
-any evaluation and not tuned afterwards. "Agrees" = the final action is one the demonstrator
-accepts. On the test split every language-model answer was a valid option, so no result depends on
-a fallback, except intermediate round 1 (4/10 unparseable answers, replaced by the bandit and counted).
+Delivered shared adapter `ditto:sft200-g2-s0` (Qwen3-1.7B + LoRA, `models/ditto_llm/sft200-g2-s0/`), trained on
+Colab (`notebooks/ditto_colab_round2.ipynb`): SFT 200 steps on 161 demonstrations, then gentle DITTO; the
+model picks the most likely of the allowed actions (option scoring), so every output is valid. Settings and the
+delivered stage were chosen on a 33-situation dev split before any test evaluation. Test: **55 situations never
+used in training** (new pictures and histories, every rule covered), evaluated once, 3 training seeds, 95%
+bootstrap intervals (`results/ditto_colab_r2_test.md`).
 
-| model | test (10 situations) | dev (5 situations) | valid output (test) | median latency |
-|---|---|---|---|---|
-| Qwen3-1.7B, task instruction only | 2/10 | 1/5 | 10/10 | 0.34 s |
-| same + 20 training demonstrations in the prompt | 5/10 | 2/5 | 10/10 | 2.7 s |
-| SFT adapter only | 3/10 | 1/5 | 10/10 | 0.38 s |
-| DITTO after round 1 / round 2 | 3/10 / 4/10 | 1/5 / 0/5 | 6/10 / 10/10 | 0.36 s |
-| **DITTO, final (round 3)** | **6/10** | **1/5** | 10/10 | 0.38 s |
-| bandit baseline | 4/10 | 1/5 | n/a | <1 ms |
+| model | agrees with the demonstrator (test, 55) | median latency (A100) |
+|---|---|---|
+| Qwen3-1.7B, untrained | 29% (CI 18-42%) | 57 ms |
+| same + 20 demonstrations in the prompt | 38% (CI 25-51%) | 768 ms |
+| same + 128 demonstrations in the prompt | 27% (CI 16-38%) | 6.5 s |
+| bandit baseline | 27% (CI 16-40%) | <1 ms |
+| SFT adapter (200 steps) | 77% (CI 68-85%) | 78 ms |
+| **DITTO adapter (delivered)** | **75% (CI 65-84%)** | 79 ms |
 
-What this does and does not show (per-situation tables in `results/ditto_llm_test.md`):
-- On the test split the DITTO adapter agreed with the demonstrator more often (6/10) than the
-  unadapted model (2/10), the SFT-only adapter (3/10) and the bandit (4/10), and slightly more than
-  few-shot prompting (5/10) at about a seventh of its latency. Successive rounds moved 3 → 4 → 6.
-- **It is not robust.** On the 5 development situations every model scores 0 to 2. With 10 and 5
-  situations, one or two decisions change the ranking; this is an exploratory check, not evidence.
-- **The adapter learned "move on" better than "retry with the matched hint".** It got all
-  move-on situations right on test (tier up after a fast answer, same tier after a hint, easier
-  late in the session) except one, and missed every retry-with-hint situation (sound error → first
-  sound; unclear error → sentence; after the first sound → sentence or description). The same
-  happened live: after a confirmed meaning error it moved on instead of giving a description.
-- The preferences come from a written rule (`data/demonstrations/README.md`), so a hand-coded rule
-  would score 10/10. The question is whether a language model picks the preference up from 20
-  demonstrations, not whether a language model is needed for this rule.
-- Training statistics are in the run manifest: after SFT, 46 of 120 sampled decisions already
-  matched the demonstrator (60/120 by round 3); 42 expert, 12 replay and 6 intermodel comparisons
-  were used per round (available after filtering: 74 expert in round 1; 60 expert, 150 replay and
-  1,061 intermodel in round 3).
+- Paired on the same situations, DITTO is **+46 points over the untrained model** (CI +32 to +59) and +37 over
+  few-shot prompting (CI +18 to +56).
+- **DITTO ties SFT** (-1.8 points, CI -7.3 to +4.2). DITTO was delivered because it led on dev (29/33 vs 25/33),
+  but that lead was the best of 9 candidate stages on 33 situations and did not carry over to test. The gain over
+  the untrained model comes from adapting on demonstrations; the DITTO rounds add nothing measurable over SFT here.
+- Rules it still gets wrong often: "still wrong after two hints -> easier" (33%) and "error after 20 minutes ->
+  easier" (27%), where few-shot prompting does better (`docs/ditto_golden_test.json` has one example of each).
+- What fixed the first round's failures (round 1 delivered 45% on the same test): options labelled in words with
+  levels relative to the current picture (prompt format v2), more training situations near the 20-minute boundary,
+  no SFT early stop, gentle DITTO with an NLL term, and selection on dev.
+- The demonstrations are fictional, generated from demonstrator A's written strategy and pending human review, so
+  a hand-coded rule would score 100%. The question is whether a small language model picks the preference up
+  from demonstrations. Mock preferences: an exploratory check, not a clinical or statistical validation.
+- Earlier runs are kept for reference: `results/ditto_llm_test.md` (first adapter, 10 test situations) and
+  `results/ditto_colab_r1/` (round 1).
+
+**Per-patient steering (demo patient, `results/demo_prepared_run.md`).** A patient adapter trained from the shared
+one on 5 clinician examples of "meaning hint failed -> first-letter hint" (plus anchors that keep the shared
+choices elsewhere; 411 s on an Apple M5 laptop) chose the first-letter hint in all 11 real demo situations (6 of
+them not trained on), where the shared adapter chose it in none. Preview: 5/5 on the examples, 5/10 on situations
+generated from the rule, 9/10 held-out situations unchanged.
 
 ### Not done / limitations
 
