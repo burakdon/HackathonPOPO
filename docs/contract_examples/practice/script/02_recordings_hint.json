@@ -1,0 +1,36 @@
+{
+  "attempt_id": "s-demo-01-a02",
+  "presentation_id": "p-02",
+  "counted": true,
+  "transcript": "bone",
+  "score": {
+    "outcome": "incorrect",
+    "error_type": "meaning",
+    "heard_word": "bone",
+    "matched_name": null,
+    "reason": "One word, “bone”, a different word from “dog”.",
+    "signals": {
+      "audio_seconds": 1.9,
+      "no_speech_prob": 0.03,
+      "word_confidence": 0.84
+    }
+  },
+  "next": {
+    "kind": "hint",
+    "message": "Here's a hint.",
+    "hint": {
+      "type": "semantic",
+      "text": "A pet that wags its tail and fetches sticks.",
+      "audio_url": "/media/hints/ex-dog/semantic.m4a"
+    },
+    "attempt_number": 2,
+    "max_attempts": 3,
+    "decision_id": "s-demo-01-d02",
+    "word": null,
+    "whole_word_audio_url": null,
+    "picture": null,
+    "session_complete": false,
+    "summary": null,
+    "break_suggested": false
+  }
+}

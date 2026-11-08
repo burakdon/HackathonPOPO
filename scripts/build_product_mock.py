@@ -123,6 +123,22 @@ def summarise(res, clinical) -> dict:
             "minutes": round(minutes, 1), "trials": trials}
 
 
+# Mood before practice (1 very low, 2 low, 3 okay, 4 good), asked with faces at the start of each
+# session. Simulated: a per-patient baseline and drift, a little better after good sessions and lower
+# after a session that stopped early. Ruth's mood drifts down while she stops practising (a flag).
+MOOD = {"maria": (3.0, 0.0), "james": (3.4, 0.0), "ruth": (2.9, -0.22), "david": (3.6, 0.0)}
+
+
+def add_mood(pid: str, sessions: list[dict], seed: int) -> None:
+    base, drift = MOOD.get(pid, (3.2, 0.0))
+    rng = np.random.default_rng([seed, 7])
+    prev_early, prev_good = False, 0.0
+    for i, s in enumerate(sessions):
+        m = base + drift * i + 0.8 * (prev_good - 0.5) - (0.9 if prev_early else 0.0) + rng.normal(0, 0.35)
+        s["mood"] = int(np.clip(round(m), 1, 4))
+        prev_early, prev_good = s["ended_early"], s["named_without_hint"]
+
+
 def cue_after(sessions: list[dict], error: str) -> dict:
     c = collections.Counter()
     for s in sessions:
@@ -186,6 +202,7 @@ def main() -> None:
             s = summarise(res, clinical)
             s["date"] = (start + timedelta(days=d)).isoformat()
             sessions.append(s)
+        add_mood(p["id"], sessions, k)
         rec = {k2: v for k2, v in p.items() if k2 not in ("preset", "days", "level")}
         rec.update({"pnt_score": round(theta, 1), "pnt_percentile": int(round(100 * np.mean(real <= theta))),
                     "sessions": sessions,
@@ -199,11 +216,13 @@ def main() -> None:
             tuned_policy = PPOPolicy(tuned, clinical, env_cfg)
             after = [summarise(r, clinical) for r in play_days(tuned_policy, patient, cfg, clinical, bank, 4, 99,
                                                                  p["level"])]
+            add_mood(p["id"], after, 99)
             teach["sessions_after"] = [{**s, "date": (END + timedelta(days=i + 1)).isoformat()} for i, s in enumerate(after)]
             teach["cue_after_wrong_word_after"] = cue_after(after, "meaning")
             rec["teaching"] = teach
         out["patients"].append(rec)
         last = sessions[-3:]
+        print(p["first"], "mood", [s["mood"] for s in sessions])
         print(f"{p['first']:6s} PNT {theta:.1f} ({rec['pnt_percentile']}th)  sessions {len(sessions)}  "
               f"no-hint last3 {np.mean([s['named_without_hint'] for s in last]):.2f}  cue after wrong word {rec['cue_after']['wrong_word']}")
     james = next(x for x in out["patients"] if x["id"] == "james")

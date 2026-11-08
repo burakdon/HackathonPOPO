@@ -1,0 +1,31 @@
+[
+  {
+    "decision_id": "s-demo-01-d07",
+    "date": "2026-11-05",
+    "word": "car",
+    "situation": "2 failed tries on “car”, hints so far: meaning, last answer a wrong word",
+    "model_chose": {
+      "op": "retry",
+      "hint": "sentence_frame"
+    },
+    "rule_says": {
+      "op": "retry",
+      "hint": "first_sound"
+    },
+    "already_agrees": false,
+    "allowed": true
+  },
+  {
+    "decision_id": "s-demo-01-d08",
+    "date": "2026-11-05",
+    "word": "car",
+    "situation": "3 failed tries on “car”, hints so far: meaning, sentence, last answer a wrong word",
+    "model_chose": {
+      "op": "next",
+      "tier": 1
+    },
+    "rule_says": null,
+    "already_agrees": false,
+    "allowed": false
+  }
+]

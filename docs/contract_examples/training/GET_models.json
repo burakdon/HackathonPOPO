@@ -1,0 +1,23 @@
+[
+  {
+    "id": "rules",
+    "label": "The plan's hint order (no language model)",
+    "kind": "baseline",
+    "available": true,
+    "active": false
+  },
+  {
+    "id": "ditto:demoA-qwen3-1.7b-r1",
+    "label": "Shared starting adapter",
+    "kind": "shared",
+    "available": true,
+    "active": true
+  },
+  {
+    "id": "ditto:demo-ana-r1",
+    "label": "Ana's adapter (run demo-ana-r1)",
+    "kind": "patient",
+    "available": true,
+    "active": false
+  }
+]

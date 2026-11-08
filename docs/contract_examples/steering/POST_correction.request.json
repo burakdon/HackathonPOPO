@@ -1,0 +1,7 @@
+{
+  "preferred": {
+    "op": "retry",
+    "hint": "first_sound"
+  },
+  "note": "For this patient, try a sound cue before another meaning cue."
+}

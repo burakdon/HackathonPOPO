@@ -1,0 +1,27 @@
+{
+  "session_id": "s-demo-01",
+  "patient_id": "demo-ana",
+  "model_version": "ditto:demoA-qwen3-1.7b-r1",
+  "plan": {
+    "level": 1,
+    "pictures_per_session": 6,
+    "max_attempts": 3,
+    "break_after_misses": 3,
+    "hint_order": "match_error",
+    "session_minutes": 10,
+    "days_per_week": 5,
+    "personal_words": []
+  },
+  "picture": {
+    "presentation_id": "p-01",
+    "number": 1,
+    "of": 6,
+    "exercise_id": "ex-cat",
+    "word": "cat",
+    "level": 1,
+    "image_url": "/media/images/cat.svg",
+    "attempt_number": 1,
+    "max_attempts": 3,
+    "hint": null
+  }
+}

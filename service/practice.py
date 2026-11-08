@@ -222,6 +222,8 @@ def practice_router(pcfg: PracticeConfig, clinical: ClinicalConfig, bcfg: BetaBa
         for p in sessions_dir.glob("*.json"):
             try:
                 d = json.loads(p.read_text())
+                if not (isinstance(d, dict) and "session_id" in d and "presentations" in d):
+                    continue          # not a session snapshot (for example active_model.json)
                 s = Session(d["session_id"], d["model_version"], d.get("patient_label"), new_bandit(d["session_id"]))
                 s.created, s.paused = d["created"], d.get("paused", False)
                 s.started_ts = datetime.fromisoformat(d["started_ts"])

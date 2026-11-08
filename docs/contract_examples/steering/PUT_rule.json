@@ -1,0 +1,28 @@
+{
+  "note_id": "n-0001",
+  "patient_id": "demo-ana",
+  "text": "When meaning hints have repeatedly failed, try a first-sound hint before moving to another picture.",
+  "rule": {
+    "when": {
+      "last_error": null,
+      "failed_attempts_on_picture": {
+        "min": 2,
+        "max": null
+      },
+      "hints_tried_include": [
+        "semantic"
+      ],
+      "hints_tried_exclude": null,
+      "missed_pictures_in_a_row": null,
+      "level": null
+    },
+    "then": {
+      "op": "retry",
+      "hint": "first_sound"
+    },
+    "summary": "After 2 or more failed tries on a picture where a meaning hint was already given → give the first-sound hint."
+  },
+  "rule_source": "claude",
+  "rule_status": "confirmed",
+  "problem": null
+}

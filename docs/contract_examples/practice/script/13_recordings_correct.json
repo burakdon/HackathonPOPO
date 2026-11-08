@@ -1,0 +1,57 @@
+{
+  "attempt_id": "s-demo-01-a13",
+  "presentation_id": "p-06",
+  "counted": true,
+  "transcript": "tree",
+  "score": {
+    "outcome": "correct",
+    "error_type": null,
+    "heard_word": "tree",
+    "matched_name": "tree",
+    "reason": "One word, “tree”, matches “tree”.",
+    "signals": {
+      "audio_seconds": 1.2,
+      "no_speech_prob": 0.03,
+      "word_confidence": 0.84
+    }
+  },
+  "next": {
+    "kind": "correct",
+    "message": "Yes! tree.",
+    "hint": null,
+    "attempt_number": null,
+    "max_attempts": null,
+    "decision_id": null,
+    "word": null,
+    "whole_word_audio_url": null,
+    "picture": null,
+    "session_complete": true,
+    "summary": {
+      "session_id": "s-demo-01",
+      "date": "2026-11-05",
+      "simulated": true,
+      "model_version": "ditto:demoA-qwen3-1.7b-r1",
+      "pictures": 6,
+      "named_without_hint": 0.2,
+      "named_with_hint": 0.6,
+      "unsuccessful": 0.2,
+      "counts": {
+        "assessed": 5,
+        "independent": 1,
+        "assisted": 3,
+        "unsuccessful": 1,
+        "not_assessed": 1
+      },
+      "errors": {
+        "sound": 1,
+        "wrong_word": 4,
+        "no_answer": 1,
+        "unclassified": 0
+      },
+      "mean_level": 1.0,
+      "minutes": 1.9,
+      "ended_early": false
+    },
+    "break_suggested": false
+  }
+}
