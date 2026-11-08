@@ -27,7 +27,22 @@ button:disabled { opacity:.5; cursor:default; }
 input[type=range] { width:220px; accent-color:var(--accent); }
 .kv { display:grid; grid-template-columns:auto 1fr; gap:2px 12px; font-size:14px; margin-top:8px; }
 .kv .k { color:var(--muted); }
-.pic { display:grid; grid-template-columns: 220px 1fr; gap:16px; align-items:start; }
+.pic { display:grid; grid-template-columns: 200px 210px 1fr; gap:14px; align-items:start; }
+@media (max-width: 1240px) { .pic { grid-template-columns: 1fr 1fr; } .pic > div:last-child { grid-column: 1 / -1; } }
+.avatar { position:relative; width:210px; }
+.avatar svg { width:210px; height:220px; display:block; border-radius:14px; background: radial-gradient(circle at 50% 30%, #f3ece4 0%, #e3d7cb 70%, #d2c3b4 100%); }
+.avatar .mouth { transition: d .07s linear; }
+.avatar .lid { transition: transform .08s; }
+.avatar .brow { transition: transform .35s ease; }
+.avatar .pupil { transition: cx .25s ease, cy .25s ease; }
+.avatar .who { text-align:center; font-size:12.5px; color:var(--muted); margin-top:6px; }
+.bubble { position:absolute; left:8px; right:8px; top:0; transform: translateY(-4px); background:var(--card); border:1px solid var(--line); border-radius:12px; padding:6px 10px; font-size:13px; line-height:1.3; box-shadow:0 4px 14px rgba(0,0,0,.08); opacity:0; transition:opacity .2s; pointer-events:none; }
+.bubble.on { opacity:1; }
+.bubble .ph { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--muted); font-size:11.5px; display:block; margin-top:2px; }
+.bubble .dots span { display:inline-block; width:6px; height:6px; margin-right:4px; border-radius:50%; background:var(--muted); animation: dot 1s infinite; }
+.bubble .dots span:nth-child(2) { animation-delay:.2s } .bubble .dots span:nth-child(3) { animation-delay:.4s }
+@keyframes dot { 0%,80%,100% { opacity:.25 } 40% { opacity:1 } }
+@media (prefers-reduced-motion: reduce) { .bubble .dots span { animation: none; } }
 .pic img { width:220px; height:220px; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:10px; }
 .feed { max-height:260px; overflow:auto; border-top:1px solid var(--line); margin-top:10px; padding-top:6px; font-variant-numeric: tabular-nums; }
 .feed .r { display:grid; grid-template-columns: 28px 110px 1fr auto; gap:8px; padding:5px 0; border-bottom:1px dashed var(--line); align-items:center; font-size:14px; }
@@ -73,11 +88,51 @@ svg text { fill: var(--fg); font-size: 11px; }
   <h2>2 · The patient names pictures</h2>
   <div class="pic">
     <img id="img" alt="picture" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3C/svg%3E">
+    <div class="avatar" id="avatar" aria-label="the patient, Marisol">
+      <svg viewBox="0 0 210 220" role="img" aria-hidden="true">
+        <!-- hair, back -->
+        <path d="M38 128 C 30 70, 62 30, 105 30 C 150 30, 182 72, 172 130 C 176 160, 182 192, 178 220 L 32 220 C 30 190, 36 160, 38 128 Z" fill="#2a1a14"/>
+        <path d="M44 120 C 40 150, 36 180, 40 220 L 60 220 C 56 185, 60 150, 66 120 Z" fill="#3a241b"/>
+        <path d="M166 120 C 172 150, 176 180, 172 220 L 150 220 C 154 185, 150 150, 144 120 Z" fill="#3a241b"/>
+        <!-- shoulders and top -->
+        <path d="M22 220 C 32 182, 68 172, 90 170 L 105 184 L 120 170 C 142 172, 178 182, 188 220 Z" fill="#1f6f69"/>
+        <path d="M88 168 L 105 186 L 122 168 L 118 160 L 92 160 Z" fill="#c98f67"/>
+        <!-- neck -->
+        <rect x="90" y="150" width="30" height="24" rx="8" fill="#c08359"/>
+        <!-- head -->
+        <ellipse cx="105" cy="114" rx="56" ry="66" fill="#c98f67"/>
+        <!-- cheeks -->
+        <ellipse cx="76" cy="134" rx="9" ry="5" fill="#d9926f" opacity=".55"/><ellipse cx="134" cy="134" rx="9" ry="5" fill="#d9926f" opacity=".55"/>
+        <!-- ears and gold hoops -->
+        <ellipse cx="50" cy="118" rx="6" ry="10" fill="#c08359"/><ellipse cx="160" cy="118" rx="6" ry="10" fill="#c08359"/>
+        <circle cx="48" cy="140" r="9" fill="none" stroke="#d6a93c" stroke-width="2.5"/><circle cx="162" cy="140" r="9" fill="none" stroke="#d6a93c" stroke-width="2.5"/>
+        <!-- hair, front: side-swept with waves -->
+        <path d="M50 108 C 46 70, 70 44, 105 44 C 140 44, 166 70, 160 108 C 150 86, 138 72, 118 70 C 108 70, 100 78, 92 84 C 82 92, 70 96, 50 108 Z" fill="#2a1a14"/>
+        <path d="M50 108 C 56 96, 66 90, 76 86 C 70 98, 62 108, 54 118 Z" fill="#2a1a14"/>
+        <path d="M160 108 C 154 94, 146 84, 136 78 C 144 92, 150 104, 156 118 Z" fill="#2a1a14"/>
+        <!-- brows -->
+        <path id="browL" class="brow" d="M72 94 Q 86 87, 98 92" stroke="#2a1a14" stroke-width="4" stroke-linecap="round" fill="none" style="transform-origin:85px 91px"/>
+        <path id="browR" class="brow" d="M112 92 Q 124 87, 138 94" stroke="#2a1a14" stroke-width="4" stroke-linecap="round" fill="none" style="transform-origin:125px 91px"/>
+        <!-- eyes: almond, brown iris -->
+        <g><ellipse cx="85" cy="110" rx="10" ry="6.5" fill="#fff"/><circle cx="86" cy="110.5" r="4.6" fill="#5a3a22"/><circle id="pupL" class="pupil" cx="86" cy="110.5" r="2.6" fill="#1a1210"/><circle cx="87.5" cy="109" r="1" fill="#fff"/>
+           <path d="M75 108 Q 85 101, 95 108" stroke="#2a1a14" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+           <rect class="lid" id="lidL" x="74" y="102" width="22" height="16" fill="#c98f67" style="transform:scaleY(0);transform-origin:85px 102px"/></g>
+        <g><ellipse cx="125" cy="110" rx="10" ry="6.5" fill="#fff"/><circle cx="126" cy="110.5" r="4.6" fill="#5a3a22"/><circle id="pupR" class="pupil" cx="126" cy="110.5" r="2.6" fill="#1a1210"/><circle cx="127.5" cy="109" r="1" fill="#fff"/>
+           <path d="M115 108 Q 125 101, 135 108" stroke="#2a1a14" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+           <rect class="lid" id="lidR" x="114" y="102" width="22" height="16" fill="#c98f67" style="transform:scaleY(0);transform-origin:125px 102px"/></g>
+        <!-- nose -->
+        <path d="M105 116 L 100 138 Q 105 142, 110 138 Z" fill="#b57a52"/>
+        <!-- mouth -->
+        <path id="mouth" class="mouth" d="M88 158 C 94 156, 116 156, 122 158 C 116 160, 94 160, 88 158 Z" fill="#a9474f"/>
+      </svg>
+      <div class="who">Marisol, 23</div>
+      <div class="bubble" id="bubble"></div>
+    </div>
     <div>
       <div class="row"><button id="name1" disabled>Name it</button><button id="name10" class="ghost" disabled>Ten in a row</button>
         <label class="muted"><input id="speak" type="checkbox" checked> speak</label></div>
       <div class="kv"><span class="k">target</span><b id="target">–</b><span class="k">said</span><span id="said">–</span><span class="k">type</span><span id="type">–</span></div>
-      <p class="note">Nonwords are spoken from their phoneme string. Real-word errors are the realizer's neighbours of the target.</p>
+      <p class="note">The patient looks at the picture, pauses for as long as the engine says the response took, then speaks it. Mouth shapes follow the phonemes produced, so a nonword is mouthed as the sounds that came out, not the word that was meant.</p>
     </div>
   </div>
   <div class="feed" id="feed"></div>
@@ -119,7 +174,68 @@ let P = null, lesion = "balanced", truthShown = false, courses = {};
 $("#aq").oninput = e => $("#aqv").textContent = e.target.value;
 document.querySelectorAll("#lesion button").forEach(b => b.onclick = () => { document.querySelectorAll("#lesion button").forEach(x => x.classList.remove("on")); b.classList.add("on"); lesion = b.dataset.v; });
 async function post(url, body) { const r = await fetch(url, {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(body||{})}); if (!r.ok) throw new Error(await r.text()); return r.json(); }
-function speak(text, nonword) { if (!$("#speak").checked || !window.speechSynthesis || !text) return; const u = new SpeechSynthesisUtterance(text); u.rate = nonword ? 0.8 : 0.95; u.lang = "en-US"; speechSynthesis.speak(u); }
+// ---- the avatar: a stylised patient whose mouth follows the phonemes the engine produced
+const VISEME = {
+  rest: "M88 158 C 94 156, 116 156, 122 158 C 116 160, 94 160, 88 158 Z",
+  M:    "M90 158 C 96 157, 114 157, 120 158 C 114 159, 96 159, 90 158 Z",
+  F:    "M90 157 C 96 154, 114 154, 120 157 C 114 162, 96 162, 90 157 Z",
+  C:    "M90 157 C 96 153, 114 153, 120 157 C 114 164, 96 164, 90 157 Z",
+  E:    "M84 156 C 92 150, 118 150, 126 156 C 118 166, 92 166, 84 156 Z",
+  A:    "M90 154 C 96 150, 114 150, 120 154 C 118 174, 92 174, 90 154 Z",
+  O:    "M95 154 C 99 148, 111 148, 115 154 C 115 170, 95 170, 95 154 Z",
+  W:    "M98 156 C 101 152, 109 152, 112 156 C 112 165, 98 165, 98 156 Z",
+  L:    "M90 156 C 96 152, 114 152, 120 156 C 116 167, 94 167, 90 156 Z",
+};
+const PH2V = (p) => { p = p.replace(/\d/g, ""); if ("P B M".split(" ").includes(p)) return "M"; if ("F V".split(" ").includes(p)) return "F"; if ("TH DH L".split(" ").includes(p)) return "L";
+  if ("W UW UH OW AO OY".split(" ").includes(p)) return "O"; if ("ER R".split(" ").includes(p)) return "W"; if ("AA AH AY AW".split(" ").includes(p)) return "A";
+  if ("EH AE EY IY IH Y".split(" ").includes(p)) return "E"; return "C"; };
+const avatar = {
+  timers: [],
+  setV(v) { $("#mouth").setAttribute("d", VISEME[v] || VISEME.rest); },
+  blink() { ["#lidL", "#lidR"].forEach(s => { $(s).style.transform = "scaleY(1)"; }); setTimeout(() => ["#lidL", "#lidR"].forEach(s => { $(s).style.transform = "scaleY(0)"; }), 110); setTimeout(() => this.blink(), 2600 + Math.random() * 3200); },
+  gaze(dx, dy) { $("#pupL").setAttribute("cx", 86 + dx); $("#pupR").setAttribute("cx", 126 + dx); $("#pupL").setAttribute("cy", 110.5 + dy); $("#pupR").setAttribute("cy", 110.5 + dy); },
+  brows(mode) { const L = $("#browL"), R = $("#browR"); if (mode === "effort") { L.style.transform = "translateY(2px) rotate(8deg)"; R.style.transform = "translateY(2px) rotate(-8deg)"; } else if (mode === "ok") { L.style.transform = "translateY(-2px)"; R.style.transform = "translateY(-2px)"; } else { L.style.transform = ""; R.style.transform = ""; } },
+  clear() { this.timers.forEach(clearTimeout); this.timers = []; },
+  later(fn, ms) { const t = setTimeout(fn, ms); this.timers.push(t); return t; },
+  show(html, on = true) { const b = $("#bubble"); b.innerHTML = html; b.classList.toggle("on", on); },
+  // Speak one segment: text through the browser's voice (if on), mouth through its phonemes. Resolves when done.
+  segment(seg, tts) {
+    return new Promise(resolve => {
+      const per = seg.kind === "attempt" ? (/^[a-z' ]+$/i.test(seg.text) && seg.phonemes.length && seg.text.indexOf("-") < 0 ? 95 : 150) : 130;
+      const total = Math.max(350, seg.phonemes.length * per);
+      const animate = () => { seg.phonemes.forEach((p, i) => this.later(() => this.setV(PH2V(p)), i * per)); this.later(() => this.setV("rest"), total); };
+      if (tts && window.speechSynthesis && seg.text) {
+        const u = new SpeechSynthesisUtterance(seg.text.replace(/-$/, "")); u.rate = seg.kind === "attempt" && seg.phonemes.length && !/^[a-z' ]+$/i.test(seg.text) ? 0.8 : 0.95; u.lang = "en-US";
+        let started = false, done = false; const finish = () => { if (!done) { done = true; this.setV("rest"); resolve(); } };
+        u.onstart = () => { started = true; animate(); }; u.onend = finish; u.onerror = () => { if (!started) animate(); this.later(finish, total); };
+        speechSynthesis.speak(u);
+        this.later(() => { if (!started) { animate(); this.later(finish, total); } }, 900);
+      } else { animate(); this.later(resolve, total); }
+    });
+  },
+  // The engine's response, framed the way PSST patients framed theirs (patientmodel/utterance.py):
+  // look at the picture and hesitate for part of the recorded duration, then say each segment with its pause.
+  async say(r) {
+    this.clear(); this.brows("");
+    const segs = r.utterance || [{ kind: "attempt", text: r.speak, phonemes: r.phonemes || [], pause_ms: 0 }];
+    const hesitate = Math.min(3200, Math.max(600, (r.duration_s || 1) * 650));
+    this.gaze(-3, -2); this.show('<span class="dots"><span></span><span></span><span></span></span>');
+    await new Promise(res => this.later(res, hesitate));
+    this.gaze(0, 0);
+    if (!segs.length) { this.brows("effort"); this.show("…"); await new Promise(res => this.later(res, 1400)); this.brows(""); this.show("", false); return; }
+    let shown = "";
+    for (const seg of segs) {
+      if (seg.pause_ms) await new Promise(res => this.later(res, seg.pause_ms));
+      shown += (shown ? (seg.pause_ms >= 400 ? " … " : " ") : "") + seg.text;
+      this.show(shown + (seg.kind === "attempt" && !r.word && seg.phonemes.length ? `<span class="ph">${seg.phonemes.join(" ")}</span>` : ""));
+      await this.segment(seg, $("#speak").checked);
+    }
+    this.brows(r.correct ? "ok" : "effort");
+    await new Promise(res => this.later(res, 1200));
+    this.brows(""); this.show("", false);
+  },
+};
+setTimeout(() => avatar.blink(), 1500);
 
 $("#newp").onclick = async () => {
   $("#newp").disabled = true;
@@ -138,19 +254,19 @@ $("#newp").onclick = async () => {
 
 async function nameOne() {
   const {response: r, posterior: q} = await post(`/api/patient/${P.id}/name`);
-  $("#img").src = r.image; $("#target").textContent = r.target;
-  const said = r.word ? r.word : (r.phonemes ? r.phonemes.join(" ") : "(no response)");
+  $("#img").src = r.image; $("#target").textContent = r.target; $("#said").textContent = "…"; $("#type").textContent = "";
+  await avatar.say(r);
+  const said = r.said_text || (r.word ? r.word : (r.phonemes ? r.phonemes.join(" ") : "(no response)"));
   $("#said").textContent = said; $("#type").innerHTML = `<span class="chip c-${r.category}">${r.category}</span>`;
-  speak(r.speak, !r.word);
   const row = document.createElement("div"); row.className = "r";
-  row.innerHTML = `<span class="mono">${r.n}</span><span>${r.target}</span><span>${r.word ? r.word : `<span class="mono">${r.phonemes ? r.phonemes.join(" ") : "–"}</span>`}</span><span class="chip c-${r.category}">${r.category}</span>`;
+  row.innerHTML = `<span class="mono">${r.n}</span><span>${r.target}</span><span>${said}${r.phonemes && !r.word ? ` <span class="mono">${r.phonemes.join(" ")}</span>` : ""}</span><span class="chip c-${r.category}">${r.category}</span>`;
   $("#feed").prepend(row);
   $("#n").textContent = q.n; $("#read").textContent = `${q.lesion_read} lesion`; $("#pacc").textContent = `${Math.round(q.predicted_accuracy*100)}%`;
   $("#map").textContent = `s ${q.map.s.toFixed(3)} · p ${q.map.p.toFixed(3)}`;
   drawHeat(q);
 }
 $("#name1").onclick = () => nameOne().catch(e => alert(e.message));
-$("#name10").onclick = async () => { $("#name10").disabled = true; for (let i = 0; i < 10; i++) { await nameOne(); await new Promise(r => setTimeout(r, $("#speak").checked ? 1400 : 250)); } $("#name10").disabled = false; };
+$("#name10").onclick = async () => { $("#name10").disabled = true; for (let i = 0; i < 10; i++) { await nameOne(); await new Promise(r => setTimeout(r, 350)); } $("#name10").disabled = false; };
 
 let lastQ = null, truth = null;
 function drawHeat(q) {

@@ -1,0 +1,61 @@
+{
+ "source": "PSST BNT transcripts (TalkBank), function-word material around the response word; counts only",
+ "n_responses": {
+  "AQ 50-69": 246,
+  "AQ<50": 85,
+  "AQ 70-84": 395,
+  "AQ 85+": 348
+ },
+ "prefix": {
+  "AQ 50-69": {
+   "uh": 9,
+   "eh": 2,
+   "<false start>": 2,
+   "it's uh": 1,
+   "oh it's uh": 1,
+   "an": 1
+  },
+  "AQ<50": {
+   "eh": 1
+  },
+  "AQ 70-84": {
+   "uh": 17,
+   "<false start>": 6,
+   "it's uh": 3,
+   "uh i": 1,
+   "oh": 1,
+   "eh": 1,
+   "the": 1,
+   "an": 1
+  },
+  "AQ 85+": {
+   "uh": 24,
+   "<false start>": 4,
+   "this is uh": 3,
+   "an": 2,
+   "the": 2,
+   "it's uh": 2,
+   "eh": 1,
+   "oh it's uh": 1,
+   "is uh": 1,
+   "okay that's uh": 1,
+   "that is uh": 1,
+   "that's uh": 1
+  }
+ },
+ "suffix": {
+  "AQ 50-69": {
+   "oh": 2,
+   "mm": 1
+  },
+  "AQ<50": {},
+  "AQ 70-84": {
+   "oh": 1,
+   "mm": 1,
+   "or something like that": 1
+  },
+  "AQ 85+": {
+   "uh": 1
+  }
+ }
+}

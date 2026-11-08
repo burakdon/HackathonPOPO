@@ -68,7 +68,8 @@ def latest_response(page) -> dict:
 def name_n(rec: Recorder, page, n: int, pause: float = 2.4) -> None:
     for _ in range(n):
         page.get_by_role("button", name="Name it").click()
-        rec.wait(0.6)
+        page.wait_for_function("() => document.querySelector('#said').textContent !== '…'", timeout=20000)
+        rec.wait(0.2)
         r = latest_response(page)
         if r:
             label = {"correct": "correct", "semantic": "semantic error", "formal": "sound-related word", "mixed": "mixed error",
@@ -107,8 +108,8 @@ def main() -> None:
         page.locator("#speak").uncheck()
         rec.cap("The patient is the Dell model of word retrieval with two lesion weights drawn from a prior fitted to real patients.")
         rec.wait(3.5)
-        rec.cap("Now the patient names pictures. Nonwords are shown as the phoneme string the patient produced.")
-        rec.wait(2.5)
+        rec.cap("Now the patient names pictures. The avatar pauses for as long as the response took, then mouths the phonemes it actually produced.")
+        rec.wait(3)
         name_n(rec, page, 8)
 
         # 2. diagnose

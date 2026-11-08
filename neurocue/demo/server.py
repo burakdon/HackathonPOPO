@@ -30,21 +30,14 @@ from patientmodel.patient import Patient
 from patientmodel.population import PopulationConfig, PopulationSampler, expected_accuracy
 from patientmodel.realize import Realizer
 from patientmodel.treatment import TreatablePatient
+from patientmodel.utterance import UtteranceShaper, respell
 
 ROOT = Path(__file__).resolve().parents[2]
 STATIC = Path(__file__).resolve().parent / "static"
 PPO_PATH = ROOT / "models" / "engine_ppo_privileged_seed0.zip"
 LESION_PRIOR = {"semantic": 1.0, "balanced": 0.0, "phonological": -1.0}   # log p/s centre per lesion type
 
-# ARPAbet -> rough English respelling, so a browser speech engine can say a nonword.
-RESPELL = {"AA": "ah", "AE": "a", "AH": "u", "AO": "aw", "AW": "ow", "AY": "igh", "B": "b", "CH": "ch", "D": "d", "DH": "th",
-           "EH": "e", "ER": "er", "EY": "ay", "F": "f", "G": "g", "HH": "h", "IH": "i", "IY": "ee", "JH": "j", "K": "k",
-           "L": "l", "M": "m", "N": "n", "NG": "ng", "OW": "oh", "OY": "oy", "P": "p", "R": "r", "S": "s", "SH": "sh",
-           "T": "t", "TH": "th", "UH": "oo", "UW": "oo", "V": "v", "W": "w", "Y": "y", "Z": "z", "ZH": "zh"}
-
-
-def respell(phonemes) -> str:
-    return "".join(RESPELL.get(p, p.lower()) for p in phonemes) if phonemes else ""
+SHAPER = UtteranceShaper()
 
 
 class Shared:
@@ -149,9 +142,11 @@ def name_picture(pid: str) -> dict:
     cat = r.category if r.category in NAMING_CATEGORIES else "nonword"
     d.counts[NAMING_CATEGORIES.index(cat)] += 1
     phon = list(r.phonemes) if r.phonemes else None
+    segs = SHAPER.shape(r.category, r.word, phon, d.aq, d.tp.snapshot.rng)
     rec = {"n": len(d.responses) + 1, "target": item.word, "item_id": item.item_id, "image": f"/api/image/{item.item_id}",
            "category": r.category, "correct": r.correct, "word": r.word, "phonemes": phon,
            "speak": r.word if r.word else respell(phon), "duration_s": round(r.duration_s, 2),
+           "utterance": UtteranceShaper.to_dicts(segs), "said_text": UtteranceShaper.text(segs),
            "p_correct": d.tp.baseline_probability(item)}
     d.responses.append(rec)
     return {"response": rec, "posterior": posterior(d.counts)}
