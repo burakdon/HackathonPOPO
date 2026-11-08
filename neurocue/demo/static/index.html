@@ -462,7 +462,7 @@ function drawStrip(run) {
   const st = $("#strip"); st.innerHTML = ""; if (!run || !run.trials) return;
   run.trials.forEach((t, i) => { const d = document.createElement("div"); d.style.background = t.correct ? "var(--correct)" : "var(--nonword)";
     d.textContent = t.cue ? {phonemic_initial:"p", semantic:"s", whole_word:"w"}[t.cue] : ""; d.title = `trial ${i+1} · ${t.word} · ${t.rule}${t.cue?" + "+t.cue:""} · ${t.category}`;
-    d.onclick = () => openOverride(i, t); st.appendChild(d); });
+    d.onclick = () => openOverride(i, t, run.trials[i + 1]); st.appendChild(d); });
 }
 function drawDitto(r) {
   const box = $("#ditto"); box.style.display = "block";
@@ -484,24 +484,26 @@ function drawDitto(r) {
   });
   [0, .5, 1].forEach(v => ns("text", {x: x(v), y: T + 3 * rh + 8, "text-anchor": "middle", fill: "var(--muted)", "font-size": 10}, Math.round(v*100) + "%"));
 }
-function openOverride(i, t) {
+function openOverride(i, t, next) {
   const o = $("#override"); o.style.display = "block";
-  const prev = i > 0 && courses.ppo ? courses.ppo.trials[i-1].category : null;
-  o.innerHTML = `<div class="lbl">Clinician override · trial ${i+1}</div>
-    <div style="margin:6px 0">Word <i>${t.word}</i> · the policy chose the <b>${t.rule}</b> word with <b>${t.cue ? t.cue.replace("_", " ") : "no cue"}</b> · she answered <span class="chip c c-${t.category}">${t.category}</span>${prev ? ` · the trial before was <span class="chip c c-${prev}">${prev}</span>` : ""}.</div>
+  if (!next) { o.innerHTML = `<div class="lbl">Clinician override</div><div class="counter">Trial ${i+1} was the last trial of the course; there is no next decision to override. Click an earlier trial.</div>`; return; }
+  const kind = t.correct ? "a correct answer" : `a ${t.category} error`;
+  o.innerHTML = `<div class="lbl">Clinician override · after trial ${i+1}</div>
+    <div style="margin:6px 0">She was shown <i>${t.word}</i> and answered <span class="chip c c-${t.category}">${t.category}</span>${t.cue ? ` (with ${t.cue.replace("_", " ")})` : ""}. The policy's next move was the <b>${next.rule}</b> word${next.rule === "repeat" ? "" : ` (<i>${next.word}</i>)`} with <b>${next.cue ? next.cue.replace("_", " ") : "no cue"}</b>.</div>
     <div class="row" style="gap:8px">
-      <label>I would have <select id="orule"><option value="repeat" selected>retried the word she just failed</option><option value="keep">moved on to the next word</option></select></label>
+      <label>I would have <select id="orule"><option value="repeat" selected>retried <i>${t.word}</i></option><option value="keep">moved on to the next word</option></select></label>
       <label>with <select id="ocue"><option value="">no cue</option><option value="phonemic_initial" selected>the first sound</option><option value="semantic">a meaning cue</option><option value="whole_word">the whole word</option></select></label>
-      <label>and I mean this <select id="oscope"><option value="same_error" selected>whenever she has just made this kind of error (6 demonstrations)</option><option value="any_error">whenever she has just made any error (6 demonstrations)</option><option value="one">only on this trial (1 demonstration)</option></select></label>
+      <label>and I mean this <select id="oscope"><option value="same_error" selected>whenever she has just given ${kind} (6 demonstrations)</option>${t.correct ? "" : `<option value="any_error">whenever she has just made any error (6 demonstrations)</option>`}<option value="one">only this once (1 demonstration)</option></select></label>
       <button id="oapply">Apply override (DITTO)</button> <span class="counter" id="ostat"></span>
     </div>
-    <div class="counter" style="margin-top:6px">DITTO treats each demonstration as preferred over what the policy would have done and retrains it against the original as an anchor. One demonstration teaches it nothing beyond that trial; a handful of consistent ones teach the rule.</div>`;
+    <div class="counter" style="margin-top:6px">DITTO treats each demonstration as preferred over what the policy would have done and retrains it against the original as an anchor. One demonstration teaches it nothing beyond that moment; a handful of consistent ones teach the rule.</div>`;
+  const decision = i + 1;
   $("#oapply").onclick = async () => { $("#oapply").disabled = true; $("#ostat").textContent = "retraining the policy on the demonstrations…";
-    try { const r = await post(`/api/patient/${P.id}/override`, {trial: i, cue: $("#ocue").value || null, scope: $("#oscope").value, n_demos: 6, rule: $("#orule").value});
+    try { const r = await post(`/api/patient/${P.id}/override`, {trial: decision, cue: $("#ocue").value || null, scope: $("#oscope").value, n_demos: 6, rule: $("#orule").value});
       courses.tuned = r.course; drawChart(); drawDitto(r);
       const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
       const cueName = ($("#ocue").value || "no cue").replace("_", " ");
-      $("#summary").innerHTML = `<b>Override applied</b> (${r.n_demos_total} demonstration${r.n_demos_total === 1 ? "" : "s"} so far, scope: ${$("#oscope").selectedOptions[0].textContent.replace(/ \(.*\)/, "")}). The retrained policy now gives <b>${cueName}</b> in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching trials it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} trials after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} trials after a success. Choice changed in ${r.changed_states.length} of ${r.n_states} states. Retention at one week: trained ${Math.round(courses.ppo.final["17"]*100)}%, after the override ${Math.round(r.course.final["17"]*100)}%. The engine says what the clinician's preference costs or gains this patient.`;
+      $("#summary").innerHTML = `<b>Override applied</b> (${r.n_demos} demonstration${r.n_demos === 1 ? "" : "s"} this time, ${r.n_demos_total} in total, scope: ${$("#oscope").selectedOptions[0].textContent.replace(/ \(.*\)/, "")}). The retrained policy now gives <b>${cueName}</b> in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching moments it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} moments after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} moments after a success. Choice changed in ${r.changed_states.length} of ${r.n_states} states. Retention at one week: trained ${Math.round(courses.ppo.final["17"]*100)}%, after the override ${Math.round(r.course.final["17"]*100)}%. The engine says what the clinician's preference costs or gains this patient.`;
       $("#ostat").textContent = "done"; } catch (e) { $("#ostat").textContent = e.message.slice(0, 200); } finally { $("#oapply").disabled = false; } };
 }
 $("#run").onclick = async () => {

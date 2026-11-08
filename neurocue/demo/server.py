@@ -257,25 +257,27 @@ def override(pid: str, req: OverrideReq) -> dict:
     if Shared.ppo is None or d.ppo_run is None:
         raise HTTPException(400, "run the trained policy's course first")
     from agents.ditto import Demo, action_probs, ditto
-    trials = d.ppo_run["trials"]; t = req.trial
-    if not 0 <= t < len(trials):
-        raise HTTPException(400, "trial out of range")
+    trials = d.ppo_run["trials"]; t = req.trial          # the DECISION being overridden; its context is trial t-1
+    if not 1 <= t < len(trials):
+        raise HTTPException(400, "trial out of range (the override applies to the decision after the clicked outcome)")
     O, M = np.stack(d.ppo_run["_obs"]), np.stack(d.ppo_run["_masks"])
-    prev_cat = trials[t - 1]["category"] if t > 0 else None
-    after_error = [i for i in range(1, len(trials)) if not trials[i - 1]["correct"]]
-    same = [i for i in after_error if trials[i - 1]["category"] == prev_cat]
-    after_ok = [i for i in range(1, len(trials)) if trials[i - 1]["correct"]]
+    prev_cat = trials[t - 1]["category"]
+    idx = range(1, len(trials))
+    same = [i for i in idx if trials[i - 1]["category"] == prev_cat]           # same kind of outcome just before
+    after_error = [i for i in idx if not trials[i - 1]["correct"]]
+    after_ok = [i for i in idx if trials[i - 1]["correct"]]
     other_err = [i for i in after_error if i not in same]
-    if req.scope == "one" or prev_cat is None:
-        demo_idx, anchor_idx, held = [t], after_ok + other_err, []
-    elif req.scope == "any_error":
-        pool = [i for i in after_error if i != t]; rng = np.random.default_rng(t)
-        pick = list(rng.permutation(pool)[: max(req.n_demos - 1, 0)]); demo_idx = [t] + [int(i) for i in pick]
+    rng = np.random.default_rng(t)
+    if req.scope == "one":
+        demo_idx, anchor_idx, held = [t], [i for i in idx if i != t], []
+    elif req.scope == "any_error" and prev_cat != "correct":
+        pool = [i for i in after_error if i != t]
+        demo_idx = [t] + [int(i) for i in rng.permutation(pool)[: max(req.n_demos - 1, 0)]]
         anchor_idx, held = after_ok, [i for i in after_error if i not in demo_idx]
     else:
-        pool = [i for i in same if i != t]; rng = np.random.default_rng(t)
-        pick = list(rng.permutation(pool)[: max(req.n_demos - 1, 0)]); demo_idx = [t] + [int(i) for i in pick]
-        anchor_idx, held = after_ok + other_err, [i for i in same if i not in demo_idx]
+        pool = [i for i in same if i != t]
+        demo_idx = [t] + [int(i) for i in rng.permutation(pool)[: max(req.n_demos - 1, 0)]]
+        anchor_idx, held = [i for i in idx if i not in same], [i for i in same if i not in demo_idx]
     demos = []
     for i in demo_idx:
         rule = "repeat" if req.rule == "repeat" and M[i][action_index("repeat", req.cue)] else trials[i]["rule"]
