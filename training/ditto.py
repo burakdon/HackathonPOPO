@@ -246,7 +246,7 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
         "run_id": run_id, "method": "DITTO (SFT + iterative DPO with expert/replay/intermodel comparisons)",
         "status": "running", "started": datetime.now(timezone.utc).isoformat(), "smoke": smoke,
         "base_model": base, "base_revision": revision, "template": TEMPLATE_SETTINGS,
-        "dtype": pcfg.llm.dtype, "decoding": pcfg.llm.decoding,
+        "dtype": pcfg.llm.dtype, "decoding": pcfg.llm.decoding, "init_adapter": cfg.get("init_adapter"),
         "history_in_prompt": pcfg.history_in_prompt,
         "demonstrations": {"path": cfg["demonstrations"], "extra_path": extra_demos,
                            "example_ids": [r["example_id"] for r in rows], "hash": examples_hash(rows),
@@ -272,7 +272,14 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
         lcfg = cfg["lora"]
         lora = LoraConfig(r=lcfg["r"], lora_alpha=lcfg["alpha"], lora_dropout=lcfg["dropout"],
                           target_modules=lcfg["target_modules"], task_type="CAUSAL_LM")
-        model = get_peft_model(model, lora, adapter_name="sft")
+        if cfg.get("init_adapter"):
+            # Per-patient run: start from the shared adapter (same LoRA shape), which is also the
+            # starting point of the brief SFT stage and hence of the DPO reference.
+            from peft import PeftModel
+            model = PeftModel.from_pretrained(model, str(resolve(cfg["init_adapter"])), adapter_name="sft",
+                                              is_trainable=True)
+        else:
+            model = get_peft_model(model, lora, adapter_name="sft")
         prompts = {r["example_id"]: enc.prompt_ids(example_messages(r, pcfg.history_in_prompt)) for r in rows}
         demo_ids = {r["example_id"]: enc.answer_ids(r["preferred"]) for r in rows}
         manifest["max_prompt_tokens"] = max(len(p) for p in prompts.values())

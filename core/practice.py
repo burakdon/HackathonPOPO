@@ -210,6 +210,20 @@ def valid_options(ctx: DecisionContext, approved_cues: list[str], max_tier_step:
     return opts
 
 
+def contract_options(ctx: DecisionContext, approved_cues: list[str], max_tier_step: int,
+                     max_attempts: int) -> list[PracticeAction]:
+    """Options under the API contract (section 5 and review answer 3): retry only after an incorrect
+    attempt while tries are left, with an approved hint that has not already been shown on this
+    picture ("none" is not a hint the model can choose); next to a tier within `max_tier_step`."""
+    opts: list[PracticeAction] = []
+    if not ctx.latest.correct and ctx.current.attempts < max_attempts:
+        opts += [retry(c) for c in CUES
+                 if c != "none" and c in approved_cues and c not in ctx.current.hints_shown]
+    t = ctx.current.tier
+    opts += [next_ex(k) for k in (1, 2, 3) if abs(k - t) <= max_tier_step]
+    return opts
+
+
 # --------------------------------------------------------------------------------------------
 # Canonical text serialization (shared by data, training, evaluation and inference)
 
