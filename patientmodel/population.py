@@ -1,15 +1,21 @@
 """Sample synthetic patients: lexical weights (s, p) grounded in severity and published fits.
 
 Two data anchors:
-1. Severity -> naming accuracy. On the PSST data (107 AphasiaBank participants) a logistic fit gives
-   logit(accuracy) = -3.88 + 0.0535 * AQ (WAB-R Aphasia Quotient), with a residual SD of 0.14 in
-   accuracy between participants at the same AQ. ASSUMPTION: PSST items (BNT short form, VNT) are
-   harder than the Philadelphia Naming Test, so this curve likely understates PNT accuracy at a given
-   AQ; the intercept is exposed in the config to recalibrate when PNT-by-AQ data are available.
+1. Severity -> naming accuracy. Fitted on the PSST *noun* naming items (Boston Naming Test short
+   form) of the 74 training-split participants only: logit(accuracy) = -2.52 + 0.0353 * AQ (WAB-R
+   Aphasia Quotient). The 33 validation/test participants are held out and used by
+   scripts/validate_engine.py. Between-patient heterogeneity: the observed accuracy SD around the
+   curve is 0.22 with 15 items per participant; removing binomial sampling noise leaves about 0.18,
+   which a logit-space SD of 0.8 reproduces. ASSUMPTION: BNT items are harder than the Philadelphia
+   Naming Test's, so PNT accuracy at a given AQ is probably higher; the intercept is exposed to
+   recalibrate when PNT-by-AQ data are available.
 2. The split between semantic and phonological impairment. Dell's fitted patients (Dell et al. 2004
    Table 2; 2013 Table 1) have p/s ratios whose log is roughly normal with median about 1.6 and
    geometric SD about exp(0.6), excluding one near-zero-s outlier. We use that as a lognormal prior on
-   p/s and let the target accuracy pick the (s, p) cells consistent with it.
+   p/s and let the target accuracy pick the (s, p) cells consistent with it. ASSUMPTION / selection
+   bias: the 2004 patients were selected for a high share of non-naming responses, so this prior is
+   a placeholder until an unselected sample (e.g. MAPPD fits) is available. The prior is applied over
+   a grid uniform in (s, p), so the realised log-ratio distribution is only approximately lognormal.
 
 The sampler draws AQ, maps it to a target accuracy with heterogeneity, then samples a grid cell of
 the SP model whose predicted accuracy matches, weighted by the p/s prior, and jitters within the cell.
@@ -20,6 +26,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
+from patientmodel.dell_sp import NAMING_CATEGORIES
 from patientmodel.fit import GridTable
 
 
@@ -31,9 +38,10 @@ class PopulationConfig:
     aq_min: float = 10.0
     aq_max: float = 98.0
     # logit(accuracy) = acc_intercept + acc_slope * AQ, plus between-patient noise in logit space.
-    acc_intercept: float = -3.88
-    acc_slope: float = 0.0535
-    acc_logit_sd: float = 0.65     # reproduces the 0.14 residual SD in accuracy around the curve
+    # Fitted on PSST BNT (noun) items, training-split participants only.
+    acc_intercept: float = -2.517
+    acc_slope: float = 0.0353
+    acc_logit_sd: float = 0.8      # between-patient heterogeneity after removing binomial noise
     # Lognormal prior on p/s from Dell's fitted patients.
     log_ps_ratio_mean: float = 0.5
     log_ps_ratio_sd: float = 0.6
@@ -62,7 +70,7 @@ class PopulationSampler:
         S, P = np.meshgrid(table.s_values, table.p_values, indexing="ij")
         ok = (S >= self.cfg.min_weight) & (P >= self.cfg.min_weight)
         self._cells = np.argwhere(ok)
-        self._correct = table.probs[ok][:, 0]
+        self._correct = table.probs[ok][:, NAMING_CATEGORIES.index("correct")]
         log_ratio = np.log(P[ok] / S[ok])
         self._prior = np.exp(-0.5 * ((log_ratio - self.cfg.log_ps_ratio_mean) / self.cfg.log_ps_ratio_sd) ** 2)
         self._step_s = float(np.diff(table.s_values).mean()) if len(table.s_values) > 1 else 0.0
@@ -93,12 +101,12 @@ class PopulationSampler:
             s, p = self.weights_for_accuracy(float(t), rng)
             pred = self.table.lookup(s, p)
             out.append(SyntheticPatient(f"{prefix}-{k:04d}", s, p, float(a), float(t),
-                                        {c: float(v) for c, v in zip(("correct", "semantic", "formal", "mixed", "unrelated", "nonword"), pred)}))
+                                        {c: float(v) for c, v in zip(NAMING_CATEGORIES, pred)}))
         return out
 
     def from_profile(self, profile: str, n: int, seed: int = 0) -> list[SyntheticPatient]:
         """Convenience cohorts by severity band on the AQ scale (WAB-R conventions, approximate)."""
         bands = {"mild": (76.0, 93.9), "moderate": (51.0, 75.9), "severe": (26.0, 50.9), "very_severe": (10.0, 25.9)}
         lo, hi = bands[profile]
-        rng = np.random.default_rng(seed)
-        return self.sample(n, seed=seed, aq=rng.uniform(lo, hi, n), prefix=profile)
+        aq_rng, sample_seed = np.random.default_rng([seed, 1]), int(np.random.default_rng([seed, 2]).integers(2**31))
+        return self.sample(n, seed=sample_seed, aq=aq_rng.uniform(lo, hi, n), prefix=profile)

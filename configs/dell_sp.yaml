@@ -35,4 +35,4 @@ fit:
   grid_step: 0.002
   trials_per_cell: 4000
   seed: 20261107
-  probability_floor: 1.0e-4    # smoothing so a zero simulated cell never gives -inf log-likelihood
+  pseudo_count: 0.5            # Laplace smoothing of each simulated cell: (count + a) / (N + 6a)

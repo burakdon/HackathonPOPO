@@ -33,7 +33,7 @@ Key columns: `picnum`, `ename` (dominant name), `elex1` (% producing the target 
 `estatu` (H statistic, name agreement), `lnefreq` (log frequency), `esyll`, `echar`, `ecomplx`
 (visual complexity), `ecdi` (age of acquisition proxy). Full descriptions in `7lgpnovariables.html`.
 
-| Word-level realisation vocabulary (which real words come out as errors) | Brysbaert, Warriner & Kuperman (2014) concreteness ratings for 40k English words | **Downloaded** (Springer supplementary xlsx). Concrete words (rating >= 4) with CMUdict pronunciations form the error vocabulary. | `data/raw/brysbaert/` |
+| Word-level realisation vocabulary (which real words come out as errors) | Brysbaert, Warriner & Kuperman (2014) concreteness ratings for 40k English words; WordNet (via nltk, downloaded to `data/cache/nltk_data`) for part of speech and taxonomic similarity; the `better_profanity` list plus a sensitive-word list in `patientmodel/lexicon.py` | **Downloaded** (Springer supplementary xlsx). Concrete words (rating >= 4) that are WordNet nouns, have CMUdict pronunciations and pass both blocklists form the error vocabulary (about 4,800 nouns). | `data/raw/brysbaert/` |
 
 ## PSST files (`data/raw/psst/{train,valid,full_test}/`)
 
@@ -46,6 +46,12 @@ correctness, aq_index (WAB-R AQ), duration_frames (16 kHz), filename`. 3,291 WAV
 - **MAPPD** (per-patient item-level PNT responses) is offline; access would require emailing Dan
   Mirman. We instead sample simulated patients from the published fits in `data/calibration/` and the
   parameter distributions reported in the papers.
+
+## Severity curve
+
+The population sampler's severity-to-accuracy curve is fitted on the PSST Boston Naming Test (noun)
+items of the 74 training-split participants; the 33 validation/test participants are held out for
+`scripts/validate_engine.py`. Verb Naming Test items are not used for the curve.
 
 ## Calibration
 

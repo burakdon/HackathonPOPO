@@ -1,13 +1,12 @@
-"""Validate the synthetic patient engine against the PSST data and write results/engine_validation.md.
+"""Check the synthetic patient engine against held-out PSST data; write results/engine_validation.md.
 
-Checks:
-  1. Accuracy by severity: a synthetic cohort matched to the 107 PSST participants' AQ values,
-     named on the same number of items, versus the real participants.
-  2. Response-type mix by severity band (synthetic; PSST only labels correct/incorrect, but we also
-     report the share of incorrect PSST transcripts that are real words vs nonword-like).
-  3. Nonword distance: phoneme edit distance from target for synthetic nonwords vs PSST nonword-like
-     responses, for targets of matched length.
-  4. Latency: synthetic vs real medians for correct and incorrect responses.
+The severity-to-accuracy curve in `population.py` was fitted on the Boston Naming Test (noun) items
+of the 74 PSST training-split participants. Here synthetic patients are matched to the 33 held-out
+(valid + test split) participants' AQ values and item counts and compared on noun naming accuracy.
+This is a held-out consistency check of the severity mapping, not a validation of the model's
+error structure: PSST labels correctness only. Also reported: the synthetic response-type mix by
+band, how far synthetic nonwords sit from their targets versus PSST's non-word transcripts (an
+upper bound, since those include unrelated speech), and the share of items evaluated.
 
 Usage:  uv run python -m scripts.validate_engine
 """
@@ -20,12 +19,12 @@ from pathlib import Path
 
 import numpy as np
 
-from patientmodel.dell_sp import DellSPModel, load_dell_sp_config
+from patientmodel.dell_sp import NAMING_CATEGORIES, DellSPModel, load_dell_sp_config
 from patientmodel.fit import load_or_build_grid
 from patientmodel.items import load_item_bank
 from patientmodel.lexicon import build_lexicon, phoneme_edit_distance, strip_stress
 from patientmodel.patient import Patient
-from patientmodel.population import PopulationSampler
+from patientmodel.population import PopulationSampler, expected_accuracy
 from patientmodel.realize import Realizer
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,7 +34,11 @@ OUT = ROOT / "results" / "engine_validation.md"
 def load_psst() -> list[dict]:
     rows = []
     for t in sorted(glob.glob(str(ROOT / "data/raw/psst/*/**/utterances.tsv"), recursive=True)):
-        rows += list(csv.DictReader(open(t), delimiter="\t"))
+        split = t.split("/psst/")[1].split("/")[0]
+        with open(t) as f:
+            for r in csv.DictReader(f, delimiter="\t"):
+                r["split"] = split
+                rows.append(r)
     return rows
 
 
@@ -47,8 +50,9 @@ def main() -> None:
     import cmudict
     cmu = cmudict.dict()
     rows = load_psst()
+    held = [r for r in rows if r["test"] == "BNT" and r["split"] != "train"]
     per = collections.defaultdict(list)
-    for r in rows:
+    for r in held:
         per[r["session"]].append(r)
     real_aq = np.array([float(v[0]["aq_index"]) for v in per.values()])
     real_n = np.array([len(v) for v in per.values()])
@@ -58,18 +62,18 @@ def main() -> None:
     model = DellSPModel(cfg)
     table = load_or_build_grid(model, fit_cfg["grid_step"], fit_cfg["trials_per_cell"], fit_cfg["seed"])
     items = load_item_bank()
-    lex = build_lexicon(extra_words=[i.word for i in items])
+    lex = build_lexicon(extra_words=[i.word for i in items if i.pronounceable])
     rz = Realizer(lex)
-    bank = [i for i in items if i.word in lex.index]
+    bank = [i for i in items if i.pronounceable and i.word in lex.index]
     sampler = PopulationSampler(table)
 
-    # 1. matched cohort, 5 replicates
+    reps = 10
     rng = np.random.default_rng(0)
-    syn_acc = np.zeros((5, len(real_aq)))
+    syn_acc = np.zeros((reps, len(real_aq)))
     syn_cats: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
     syn_nonword_ed: dict[int, list[int]] = collections.defaultdict(list)
-    syn_lat_ok, syn_lat_err = [], []
-    for rep in range(5):
+    fallbacks = collections.Counter()
+    for rep in range(reps):
         pats = sampler.sample(len(real_aq), seed=100 + rep, aq=real_aq, prefix=f"rep{rep}")
         for k, sp in enumerate(pats):
             pt = Patient(sp.patient_id, sp.s, sp.p, model, rz, aq=sp.aq, rng=np.random.default_rng(rng.integers(2**31)))
@@ -78,43 +82,54 @@ def main() -> None:
             syn_acc[rep, k] = np.mean([r.correct for r in resp])
             for r in resp:
                 syn_cats[band(sp.aq)][r.category] += 1
-                (syn_lat_ok if r.correct else syn_lat_err).append(r.latency_s)
+                if r.fallback_from:
+                    fallbacks[(r.fallback_from, r.category)] += 1
                 if r.category == "nonword":
                     syn_nonword_ed[len(lex.pron(r.item.word))].append(phoneme_edit_distance(lex.pron(r.item.word), r.phonemes))
 
-    lines = [f"<!-- Generated by: uv run python -m scripts.validate_engine. Do not edit by hand. -->",
-             f"Synthetic cohort matched to the {len(real_aq)} PSST participants' AQ and item counts; 5 replicates. "
-             f"Items are IPNP objects (the PSST items are BNT/VNT short forms, which are harder; see data/README.md).\n",
-             "**1. Accuracy by severity band (mean over participants)**\n",
-             "| band | n real | real accuracy | synthetic accuracy (mean of 5) | synthetic SD across replicates |", "|---|---|---|---|---|"]
+    curve = expected_accuracy(real_aq, sampler.cfg)
+    lines = ["<!-- Generated by: uv run python -m scripts.validate_engine. Do not edit by hand. -->",
+             f"Held-out check: {len(real_aq)} PSST validation/test participants (not used to fit the severity curve), "
+             f"Boston Naming Test items only ({real_n.sum()} real trials). Synthetic patients matched to their AQ and item "
+             f"counts, {reps} replicates, named on {len(bank)} IPNP object pictures "
+             f"({len(items) - len(bank)} of {len(items)} items skipped: compound names without a single-word pronunciation; "
+             f"these are the hardest items, mean difficulty {np.mean([i.difficulty for i in items if i not in bank]):+.2f}).\n",
+             "**1. Noun naming accuracy by severity band (mean over participants)**\n",
+             "| band | n real | real accuracy | severity curve alone | synthetic accuracy (mean of replicates) | synthetic SD across replicates |",
+             "|---|---|---|---|---|---|"]
     for b in ("AQ<50", "AQ 50-69", "AQ 70-84", "AQ 85+"):
         m = np.array([band(a) == b for a in real_aq])
-        lines.append(f"| {b} | {m.sum()} | {real_acc[m].mean():.2f} | {syn_acc[:, m].mean():.2f} | {syn_acc[:, m].mean(axis=1).std():.3f} |")
-    corr = np.corrcoef(real_aq, syn_acc.mean(axis=0))[0, 1]
-    lines.append(f"\nCorrelation of synthetic accuracy with AQ: {corr:.2f} (real: {np.corrcoef(real_aq, real_acc)[0, 1]:.2f}). "
-                 f"Overall: real {real_acc.mean():.2f}, synthetic {syn_acc.mean():.2f}.\n")
+        if m.sum():
+            lines.append(f"| {b} | {m.sum()} | {real_acc[m].mean():.2f} | {curve[m].mean():.2f} | {syn_acc[:, m].mean():.2f} | {syn_acc[:, m].mean(axis=1).std():.3f} |")
+    lines.append(f"\nOverall: real {real_acc.mean():.2f}, curve {curve.mean():.2f}, synthetic {syn_acc.mean():.2f}. "
+                 f"Correlation of accuracy with AQ: real {np.corrcoef(real_aq, real_acc)[0, 1]:.2f}, synthetic per replicate "
+                 f"{np.mean([np.corrcoef(real_aq, syn_acc[r])[0, 1] for r in range(reps)]):.2f}. With 15 items per participant the "
+                 f"real values carry binomial noise of about 0.12 in accuracy; a synthetic correlation well above the real one "
+                 f"would mean too little non-severity variance in the cohort.\n")
 
     lines += ["**2. Synthetic response-type mix by band** (shares of all trials)\n",
-              "| band | correct | semantic | formal | mixed | unrelated | nonword |", "|---|---|---|---|---|---|---|"]
-    for b, c in syn_cats.items():
-        tot = sum(c.values())
-        lines.append(f"| {b} | " + " | ".join(f"{c[k] / tot:.2f}" for k in ("correct", "semantic", "formal", "mixed", "unrelated", "nonword")) + " |")
+              "| band | " + " | ".join(NAMING_CATEGORIES) + " | omission |", "|---|" + "---|" * (len(NAMING_CATEGORIES) + 1)]
+    for b in ("AQ<50", "AQ 50-69", "AQ 70-84", "AQ 85+"):
+        c = syn_cats.get(b)
+        if c:
+            tot = sum(c.values())
+            lines.append(f"| {b} | " + " | ".join(f"{c[k] / tot:.2f}" for k in NAMING_CATEGORIES) + f" | {c['omission'] / tot:.2f} |")
+    tot_trials = sum(sum(c.values()) for c in syn_cats.values())
+    lines.append(f"\nRealizer fallbacks (model category -> realized category, share of all trials): " +
+                 (", ".join(f"{a}->{b} {n / tot_trials:.2%}" for (a, b), n in fallbacks.most_common()) or "none") + ".")
     wrong = [r for r in rows if r["correctness"] != "True"]
     spoken = [r for r in wrong if [p for p in r["transcript"].split() if not p.startswith("<")]]
-    inv = {}
-    for w, prons in cmu.items():
-        for pr in prons:
-            inv.setdefault(strip_stress(pr), w)
-    is_word = [tuple(p for p in r["transcript"].split() if not p.startswith("<")) in inv for r in spoken]
-    lines.append(f"\nPSST incorrect responses: {len(spoken)}, of which {np.mean(is_word):.0%} transcribe to a single English "
-                 f"word and {1 - np.mean(is_word):.0%} do not. The latter mix phonological paraphasias with circumlocutions, "
-                 f"fragments and multi-word attempts, because PSST codes correctness only. A response-type comparison needs the "
-                 f"PSST transcripts coded into the six PNT categories (planned).\n")
+    all_prons = frozenset(strip_stress(p) for ps in cmu.values() for p in ps)
+    is_word = [tuple(p for p in r["transcript"].split() if not p.startswith("<")) in all_prons for r in spoken]
+    lines.append(f"\nPSST (all splits, all items): {len(spoken)} incorrect responses, of which {np.mean(is_word):.0%} transcribe to a "
+                 f"single English word and {1 - np.mean(is_word):.0%} do not. The latter mix phonological paraphasias with "
+                 f"circumlocutions, fragments and multi-word attempts, because PSST codes correctness only. A response-type "
+                 f"comparison needs the PSST transcripts coded into the six PNT categories (planned).\n")
 
     lines += ["**3. Nonword distance from target (phoneme edits), by target length**\n",
-              "Synthetic nonwords are phonological paraphasias (edits of the target). The PSST column is every incorrect "
-              "non-word transcript within two phonemes of the target's length, which includes unrelated speech, so it is an "
-              "upper bound on how far real phonological errors sit from their targets.\n",
+              "Synthetic nonwords are phonological paraphasias (legal, non-word edits of the target). The PSST column is every "
+              "incorrect non-word transcript within two phonemes of the target's length, which includes unrelated speech, so it "
+              "is an upper bound on how far real phonological errors sit from their targets.\n",
               "| target phonemes | PSST nonword-like n | PSST mean edits | synthetic n | synthetic mean edits |", "|---|---|---|---|---|"]
     real_ed: dict[int, list[int]] = collections.defaultdict(list)
     for r, w in zip(spoken, is_word):
@@ -128,11 +143,7 @@ def main() -> None:
         rm = f"{np.mean(real_ed[L]):.1f}" if real_ed.get(L) else "-"
         sm = f"{np.mean(syn_nonword_ed[L]):.1f}" if syn_nonword_ed.get(L) else "-"
         lines.append(f"| {L} | {len(real_ed.get(L, []))} | {rm} | {len(syn_nonword_ed.get(L, []))} | {sm} |")
-
-    dur = lambda rs: np.array([int(r["duration_frames"]) / 16000 for r in rs])
-    lines += ["\n**4. Response latency (median seconds)**\n", "| | real | synthetic |", "|---|---|---|",
-              f"| correct | {np.median(dur([r for r in rows if r['correctness'] == 'True'])):.2f} | {np.median(syn_lat_ok):.2f} |",
-              f"| incorrect | {np.median(dur(wrong)):.2f} | {np.median(syn_lat_err):.2f} |"]
+    lines.append("\nResponse durations are not compared: PSST records clip length, not latency (see patient.py).")
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text("\n".join(lines) + "\n")
     print("\n".join(lines))

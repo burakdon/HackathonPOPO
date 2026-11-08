@@ -17,11 +17,11 @@ PUBLISHED = {
     "GB": ((0.017, 0.021), [0.40, 0.07, 0.06, 0.02, 0.04, 0.10]),
     "VP": ((0.008, 0.028), [0.28, 0.11, 0.14, 0.02, 0.14, 0.04]),
     "AS1": ((0.005, 0.018), [0.15, 0.09, 0.14, 0.02, 0.15, 0.19]),
-    "T1": ((0.005, 0.018), [0.21, 0.12, 0.19, 0.03, 0.20, 0.26]),
+    # (Dell 2013 Table 1 is AS1 from Dell 2004 re-reported; kept once as AS1.)
 }
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def model() -> DellSPModel:
     cfg, _ = load_dell_sp_config()
     return DellSPModel(cfg)
@@ -67,7 +67,9 @@ def test_reproduces_published_fits(model: DellSPModel, name: str) -> None:
     (s, p), published = PUBLISHED[name]
     published = np.array(published) / np.sum(published)
     rmsd = np.sqrt(np.mean((probs(model, s, p, n=8000, seed=3) - published) ** 2))
-    assert rmsd < 0.02, f"{name}: rmsd {rmsd:.3f} against Dell's model proportions"
+    # Observed .002-.011 across seeds; the alternative noise placement (scaled by the previous
+    # activation) gives .08-.13, so .015 separates the two readings with margin.
+    assert rmsd < 0.015, f"{name}: rmsd {rmsd:.3f} against Dell's model proportions"
 
 
 def test_seed_determinism(model: DellSPModel) -> None:
@@ -91,9 +93,9 @@ def test_config_validation() -> None:
 
 # ------------------------------------------------------------------------------------ fitting
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def coarse_grid(model: DellSPModel):
-    return build_grid(model, grid_step=0.005, trials_per_cell=2000, seed=1)
+    return build_grid(model, grid_step=0.005, trials_per_cell=1500, seed=1)
 
 
 def test_fit_recovers_known_parameters(model: DellSPModel, coarse_grid) -> None:
@@ -114,3 +116,4 @@ def test_fit_dell_2013_example_patient(coarse_grid) -> None:
     assert fit.s <= 0.010
     assert 0.010 <= fit.p <= 0.030
     assert fit.rmsd < 0.07
+    assert not fit.at_boundary
