@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cueagain",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": ["run", "--extra", "llm", "--extra", "speech", "uvicorn", "service.app:app", "--port", "8000"],
+      "port": 8000
+    }
+  ]
+}

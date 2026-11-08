@@ -17,8 +17,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from agents.base import Policy
 from agents.beta_bandit import BetaThompsonBandit
@@ -63,6 +65,19 @@ class SessionStore:
 
 def agent_factory(agent: str, cfg, clinical):
     """session_id -> fresh agent for that session, seeded deterministically from the session id."""
+    if agent == "llm":
+        # Language-model policy behind the original /act contract. The model is loaded once per
+        # worker (shared across sessions); each session gets its own bandit as the explicit fallback.
+        from agents.llm_policy import LLMActPolicy
+        from agents.registry import ModelRegistry
+        from core.practice import load_practice
+        if not cfg.llm_model:
+            raise ValueError("agent: llm needs llm_model in configs/service.yaml")
+        pcfg = load_practice(cfg.practice_config)
+        registry = ModelRegistry(pcfg)
+        bcfg = load_beta_bandit(cfg.bandit_config)
+        return lambda sid: LLMActPolicy(registry, cfg.llm_model, pcfg, clinical,
+                                        BetaThompsonBandit(bcfg, clinical, seed=session_seed(bcfg.seed, sid)), bcfg)
     if agent == "ppo":
         from sb3_contrib import MaskablePPO
 
@@ -80,7 +95,8 @@ def agent_factory(agent: str, cfg, clinical):
 
 def create_app(config_path: str | Path | None = None,
                overrides_path: str | Path | None = None,
-               agent: str | None = None) -> FastAPI:
+               agent: str | None = None,
+               speech_provider=None) -> FastAPI:
     cfg = load_service(config_path or os.environ.get("AGENT_SERVICE_CONFIG", "configs/service.yaml"))
     # Optional overrides (e.g. to run several agents side by side): argument, then environment variable.
     agent = agent or os.environ.get("AGENT_SERVICE_AGENT")
@@ -125,13 +141,21 @@ def create_app(config_path: str | Path | None = None,
         return {"status": "ok", "agent": cfg.agent, "active_sessions": len(store)}
 
     @app.post("/act", response_model=Action)
-    def act(state: State) -> Action:
+    def act(state: State, response: Response = None) -> Action:
         session = sid(state)
         agent = store.get(session)
         mask = action_mask(state.current_tier, clinical.approved_cues, clinical.max_tier_step)
         with store.lock():
             action = agent.act(state, mask)
             acted.setdefault(session, []).append(state)
+        # Which model actually produced the action, without changing the Action body (headers).
+        if response is not None:
+            last = getattr(agent, "last_decision", None)
+            response.headers["X-Decision-Source"] = last.source if last else cfg.agent
+            if last is not None:
+                response.headers["X-Requested-Model"] = last.requested_model
+                if last.fallback_reason:
+                    response.headers["X-Fallback-Reason"] = last.fallback_reason[:200]
         return action
 
     @app.post("/next_trial", response_model=NextTrial)
@@ -157,9 +181,21 @@ def create_app(config_path: str | Path | None = None,
         return NextTrial(word=bank.words[i], image_file=bank.image_files[i], tier=action.tier, cue=action.cue,
                          probe=False, rationale=action.rationale)
 
+    seen_updates: dict[tuple[str, str], str] = {}     # (session, attempt_id) -> content fingerprint
+
     @app.post("/update")
     def update(req: UpdateRequest) -> dict:
         session = sid(req.state)
+        if req.attempt_id is not None:   # idempotent: an attempt is learned from at most once
+            import hashlib
+            fp = hashlib.sha256(req.model_dump_json(exclude={"attempt_id"}).encode()).hexdigest()
+            with store.lock():
+                prev = seen_updates.get((session, req.attempt_id))
+                if prev is not None:
+                    if prev != fp:
+                        raise HTTPException(409, f"attempt {req.attempt_id} was already submitted with different content")
+                    return {"status": "duplicate", "session_id": session, "agent_updated": False}
+                seen_updates[(session, req.attempt_id)] = fp
         if req.probe:      # review probes are not the agent's choice: nothing to learn from
             return {"status": "ok", "session_id": session, "agent_updated": False}
         agent = store.get(session)
@@ -203,6 +239,23 @@ def create_app(config_path: str | Path | None = None,
             with open(overrides_file) as f:
                 n = sum(1 for _ in f)
         return {"status": "stored", "session_id": record["session_id"], "n_overrides": n}
+
+    # ---- Practice flow (patient practice, speech, clinician feedback, model versions) and the web app
+    from agents.registry import ModelRegistry
+    from core.practice import load_practice
+    from service.practice import practice_router
+    pcfg = load_practice(cfg.practice_config)
+    registry = ModelRegistry(pcfg)
+    app.state.registry = registry
+    app.include_router(practice_router(pcfg, clinical, load_beta_bandit(cfg.bandit_config), registry,
+                                       speech_provider=speech_provider))
+    frontend = resolve("frontend")
+    if frontend.exists():
+        app.mount("/app", StaticFiles(directory=str(frontend), html=True), name="app")
+
+        @app.get("/", include_in_schema=False)
+        def root():
+            return RedirectResponse("/app/")
 
     return app
 
