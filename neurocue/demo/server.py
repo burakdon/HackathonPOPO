@@ -304,7 +304,7 @@ class OverrideReq(BaseModel):
     cue: str | None              # None | phonemic_initial | semantic | whole_word
     scope: str = "same_error"    # one | same_error | any_error
     n_demos: int = 4
-    rule: str = "repeat"         # repeat (retry the word she just failed, what a clinician means) | keep (the policy's word choice)
+    rule: str = "repeat"         # repeat (retry the word she just had) | due (move on to the word due longest) | keep (the policy's own word choice)
 
 
 @app.post("/api/patient/{pid}/override")
@@ -355,12 +355,15 @@ def override(pid: str, req: OverrideReq) -> dict:
         pool = [i for i in same if i != t]
         demo_idx = [t] + [int(i) for i in rng.permutation(pool)[: max(req.n_demos - 1, 0)]]
         anchor_idx, held = [i for i in idx if i not in same], [i for i in same if i not in demo_idx]
-    demos = []
+    demos = []; taught: dict[int, int] = {}
     for i in demo_idx:
-        rule = "repeat" if req.rule == "repeat" and M[i][action_index("repeat", req.cue)] else trials[i]["rule"]
+        rule = req.rule if req.rule in ("repeat", "due") and M[i][action_index(req.rule, req.cue)] else trials[i]["rule"]
         a = action_index(rule, req.cue)
         if M[i][a]:
             demos.append(Demo(obs=O[i], mask=M[i], action=a))
+    def taught_action(i: int) -> int:
+        rule = req.rule if req.rule in ("repeat", "due") and M[i][action_index(req.rule, req.cue)] else trials[i]["rule"]
+        return action_index(rule, req.cue)
     if not demos:
         raise HTTPException(400, "that cue is not allowed in this state")
     d.demos = getattr(d, "demos", []) + demos
@@ -369,9 +372,9 @@ def override(pid: str, req: OverrideReq) -> dict:
                        anchors=anchors, anchor_weight=3.0)
     d.tuned = tuned
     before = action_probs(base_model, O, M).argmax(1); after = action_probs(tuned, O, M).argmax(1)
-    cue_idx = CUE_KINDS.index(req.cue)
     nC = len(CUE_KINDS)
-    gives_cue = lambda idx, acts: float(np.mean([acts[i] % nC == cue_idx for i in idx])) if idx else None
+    # adoption = the policy now takes the taught action (word rule AND cue) in those moments
+    gives_cue = lambda idx, acts: float(np.mean([acts[i] == taught_action(i) for i in idx])) if idx else None
     tp = make_patient(d.aq, d.lesion, d.seed)
     res = run_course(tuned, tp, d.seed)
     return {"demo_prob": log[-1]["demo_prob"], "n_demos": len(demos), "n_demos_total": len(d.demos), "scope": scope, "trial": int(t),
