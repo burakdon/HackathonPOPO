@@ -330,7 +330,7 @@ function renderTablet() {
   $("app").innerHTML = `<div class="wrap stage">
     <div class="stage-meta"><label for="who">Patient</label><select id="who">${[...S.srvPatients, ...S.patients].map((x) => `<option value="${x.id}" ${x.id === S.tablet ? "selected" : ""}>${esc(x.name)}${x.server ? " · server" : ""}</option>`).join("")}</select></div>
     <section class="tablet" aria-label="${esc(p.first)}'s practice"><div class="t-bar"><span>Picture naming</span><span>${esc(p.name)}</span></div><div class="t-inner">${body}</div></section>
-    ${demoStrip()}</div>`;
+    ${demoStrip()}${debugPanel()}</div>`;
   const on = (id, f) => { const el = $(id); if (el) el.onclick = f; };
   $("who").onchange = (e) => { S.tablet = e.target.value; S.run = null; renderTablet(); };
   const srv = !!(r && r.server);
@@ -380,8 +380,8 @@ async function srvLoadPatients() {
       const p = await api(`/patients/${encodeURIComponent(row.id)}`);
       return { ...p, server: true, sessions: [], plan: { ...p.plan, days: DAYS.slice(0, p.plan.days_per_week) } };
     }));
-    if (S.srvPatients.length) S.tablet = S.srvPatients[0].id;
-    if (S.view === "patient") renderTablet();
+    if (S.srvPatients.length) { S.tablet = S.srvPatients[0].id; S.sel = S.srvPatients[0].id; }
+    render();
   } catch (e) { toast(`Server not reachable: ${e.message}`); }
 }
 function playOrSay(text) {
@@ -413,7 +413,15 @@ function srvAfter() {
   srvShow();
 }
 function srvDone(entry) { S.run.done.push({ word: S.run.item.preferred_name, ...entry }); }
+function debugPanel() {        // ?api&debug: the server's full reply to each answer, newest first
+  if (API === null || !QS.has("debug") || !S.debugLog || !S.debugLog.length) return "";
+  return `<div class="demo" style="display:block;font:12px/1.4 ui-monospace,Menlo,monospace;max-height:60vh;overflow:auto">
+    <div class="lbl" style="margin-bottom:6px">Debug: server replies (newest first)</div>
+    ${S.debugLog.map((x) => `<pre style="white-space:pre-wrap;margin:0 0 12px">${esc(JSON.stringify(x, null, 2))}</pre>`).join("")}</div>`;
+}
+function srvDebug(entry) { S.debugLog = [entry, ...(S.debugLog || [])].slice(0, 20); }
 function srvApply(res) {      // render whatever the server says comes next (§4 next.kind)
+  srvDebug(res);
   const r = S.run, nx = res.next;
   if (nx.picture || nx.session_complete) {
     r.pending = nx.picture || null; r.complete = !!nx.session_complete; r.summary = nx.summary || null;
@@ -452,7 +460,7 @@ function silentWav(seconds = 0.5, rate = 16000) {
 async function srvSend(path, form) {
   const r = S.run, back = r.hints.length ? "hint" : "ask";
   try { srvApply(await api(path, { method: "POST", body: form })); }
-  catch (e) { toast(e.message); r.phase = back; renderTablet(); }
+  catch (e) { srvDebug({ error: e.message }); toast(e.message); r.phase = back; renderTablet(); }
 }
 async function srvMic() {
   const r = S.run, back = r.hints.length ? "hint" : "ask";
@@ -491,7 +499,72 @@ async function srvNoAnswer() {  // "Hint" = "I'm not sure" (§4 no-answer): coun
   try {
     srvApply(await api(`/sessions/${r.sid}/no-answer`, { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ presentation_id: r.pic.presentation_id, client_attempt_id: crypto.randomUUID() }) }));
-  } catch (e) { toast(e.message); r.phase = back; renderTablet(); }
+  } catch (e) { srvDebug({ error: e.message }); toast(e.message); r.phase = back; renderTablet(); }
+}
+
+/* ---- server mode: clinician view of a server patient (read-only, real data from the API) ---- */
+S.clin = {};
+const ACTION = (a) => a.op === "retry" ? HINT[a.hint] : `Next picture, level ${a.tier}`;
+const PIC_RESULT = { independent: ["good", "Named on own"], assisted: ["help", "Named with hint"], unsuccessful: ["bad", "Not named"], not_assessed: ["", "Not assessed"] };
+function attemptResult(a) {
+  if (a.outcome === "correct") return ["good", "Correct"];
+  if (a.outcome === "unclear") return ["", "Unclear (not counted)"];
+  return ["bad", a.error_type === "unclassified" ? "Incorrect" : RESULT[a.error_type] || "Incorrect"];
+}
+async function srvClinLoad(pid, sid) {
+  const c = (S.clin[pid] = S.clin[pid] || {});
+  c.error = null;
+  try {
+    c.sessions = await api(`/patients/${encodeURIComponent(pid)}/sessions`);
+    const ids = c.sessions.filter((s) => s.pictures > 0).map((s) => s.session_id);
+    c.sid = sid && ids.includes(sid) ? sid : ids.includes(c.sid) ? c.sid : ids[ids.length - 1] || null;
+    c.review = c.sid ? await api(`/sessions/${c.sid}/review`) : null;
+  } catch (e) { c.error = e.message; }
+  if (S.view === "clinician" && S.sel === pid) renderClinician();
+}
+function srvRailRow(p) {
+  return `<button class="prow" data-id="${p.id}" aria-current="${p.id === S.sel}"><b>${esc(p.first)} (real)</b>
+    <span class="muted">Live data from the app</span><span class="top2"><span class="status up">Real</span></span></button>`;
+}
+function srvClinPage(p) {
+  const c = S.clin[p.id];
+  if (!c) { srvClinLoad(p.id); return `<div class="card">Loading ${esc(p.first)}'s sessions…</div>`; }
+  if (c.error) return `<div class="card">Could not load data: ${esc(c.error)} <button class="btn" id="clin-refresh">Retry</button></div>`;
+  const ss = c.sessions.filter((s) => s.pictures > 0), s = ss.find((x) => x.session_id === c.sid);
+  const err = { sound: 0, wrong_word: 0, no_answer: 0, unclassified: 0 };
+  for (const x of ss) for (const k in err) err[k] += x.errors[k];
+  const head = `<div class="phead"><h1>${esc(p.first)} (real)</h1>
+    <p class="muted">Real practice data from the app · model: ${esc(p.active_model.version)} · ${ss.length} session${ss.length === 1 ? "" : "s"}</p></div>`;
+  if (!s) return `${head}<div class="card">No sessions yet. Practise on the patient tablet, then press Refresh. <button class="btn" id="clin-refresh">Refresh</button></div>`;
+  const n = s.counts;
+  const stats = `<div class="stats">
+    <div class="card stat"><div class="k">Named on own (this session)</div><div class="v num">${pct(s.named_without_hint)}</div><div class="d num">${n.independent} of ${n.assessed} pictures</div></div>
+    <div class="card stat"><div class="k">Named with a hint</div><div class="v num">${pct(s.named_with_hint)}</div><div class="d num">${n.assisted} of ${n.assessed} · ${n.unsuccessful} not named · ${n.not_assessed} not assessed</div></div>
+    <div class="card stat"><div class="k">Errors (all sessions)</div><div class="v" style="font-size:1rem">Close in sound ${err.sound}<br>Different word ${err.wrong_word}<br>No word ${err.no_answer} · other ${err.unclassified}</div></div></div>`;
+  const pics = c.review.pictures.map((pic) => {
+    const [rc, rt] = PIC_RESULT[pic.result];
+    const byAttempt = Object.fromEntries(pic.decisions.map((d) => [d.after_attempt_id, d]));
+    const rows = pic.attempts.map((a) => {
+      const [ac, at] = attemptResult(a), d = byAttempt[a.attempt_id];
+      const play = a.audio_url ? `<button class="btn" data-play="${esc(a.audio_url)}" aria-label="Play recording">▶</button>` : "";
+      const model = d ? `${esc(ACTION(d.action))}${d.fallback_reason ? ` <span class="muted">(fallback: ${esc(d.fallback_reason)})</span>` : ""}` : "<span class=\"muted\">–</span>";
+      return `<tr><td>${a.hint_shown ? esc(HINT[a.hint_shown]) : "–"}</td><td>“${esc(a.transcript ?? "I'm not sure")}”</td>
+        <td class="res ${ac}">${at}</td><td class="muted">${esc(a.reason)}</td><td>${play}</td><td>${model}</td></tr>`;
+    }).join("");
+    return `<div class="card"><h2>${esc(pic.word)} · level ${pic.level} · <span class="res ${rc}">${rt}</span></h2>
+      <div class="tablebox"><table><thead><tr><th>Hint shown</th><th>Heard</th><th>Result</th><th>Why</th><th></th><th>Model chose next</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }).join("");
+  return `${head}${stats}
+    <div class="card"><h2>Sessions</h2>
+      <div class="sess">${ss.map((x, j) => `<button data-sid="${x.session_id}" aria-pressed="${x.session_id === c.sid}">#${j + 1} ${fmtDate(x.date)}${x.simulated ? " (scripted)" : ""}</button>`).join("")}</div>
+      <div class="row" style="justify-content:space-between;align-items:center"><span class="muted num">${s.pictures} pictures · ${Math.round(s.minutes)} min${s.ended_early ? " · ended early" : ""}</span>
+        <button class="btn" id="clin-refresh">Refresh</button></div></div>
+    ${pics}`;
+}
+function srvClinWire(p) {
+  const rf = $("clin-refresh"); if (rf) rf.onclick = () => srvClinLoad(p.id);
+  document.querySelectorAll("[data-sid]").forEach((b) => (b.onclick = () => srvClinLoad(p.id, b.dataset.sid)));
+  document.querySelectorAll("[data-play]").forEach((b) => (b.onclick = () => new Audio(API + b.dataset.play).play().catch(() => toast("Could not play the recording."))));
 }
 
 /* =====================================================================
@@ -535,11 +608,11 @@ function errorMix(p) { const t = { sound: 0, wrong_word: 0, no_answer: 0 }; for 
 function renderClinician() {
   const p = P(S.sel);
   $("app").innerHTML = `<div class="wrap clin">
-    <nav class="rail" aria-label="Your patients"><h2>Your patients</h2>${S.patients.map(railRow).join("")}</nav>
-    <section class="main">${page(p)}</section></div>
+    <nav class="rail" aria-label="Your patients"><h2>Your patients</h2>${[...S.srvPatients, ...S.patients].map((x) => (x.server ? srvRailRow(x) : railRow(x))).join("")}</nav>
+    <section class="main">${p.server ? srvClinPage(p) : page(p)}</section></div>
 `;
-  document.querySelectorAll(".prow").forEach((b) => (b.onclick = () => { S.sel = b.dataset.id; S.openSession = null; S.proposal = null; renderClinician(); window.scrollTo(0, 0); }));
-  wire(p);
+  document.querySelectorAll(".prow").forEach((b) => (b.onclick = () => { S.sel = b.dataset.id; S.openSession = null; S.proposal = null; if ((P(S.sel) || {}).server) delete S.clin[S.sel]; renderClinician(); window.scrollTo(0, 0); }));
+  p.server ? srvClinWire(p) : wire(p);
 }
 function railRow(p) {
   const mins = thisWeek(p).reduce((a, s) => a + s.minutes, 0), [c, t] = status(p), last = lastReal(p);
