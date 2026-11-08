@@ -3,7 +3,7 @@ Fresh validation of POST /learn_from_overrides: 10 overrides 'after a sound erro
 
 | model | cohort | held-out sound-error states | P(first_sound) before -> after | top action = first_sound before -> after | other state types: top action unchanged | seconds |
 |---|---|---|---|---|---|---|
-| PPO, proxy reward (live agent) | moderate_broca | 171 | 0.35 -> 0.97 ± 0.01 | 0.37 -> 0.98 ± 0.01 | 0.98 ± 0.00 (n=1101) | 0.33 ± 0.00 |
-| PPO, proxy reward (live agent) | population | 105 | 0.37 -> 0.91 ± 0.10 | 0.37 -> 0.93 ± 0.09 | 0.97 ± 0.00 (n=1164) | 0.33 ± 0.00 |
-| PPO, simulation objective | moderate_broca | 105 | 0.03 -> 0.90 ± 0.02 | 0.02 -> 0.92 ± 0.01 | 1.00 ± 0.00 (n=1175) | 0.33 ± 0.00 |
-| PPO, simulation objective | population | 82 | 0.04 -> 0.84 ± 0.05 | 0.04 -> 0.89 ± 0.04 | 0.99 ± 0.00 (n=1195) | 0.33 ± 0.00 |
+| PPO, proxy reward (live agent) | moderate_broca | 185 | 0.35 -> 0.93 ± 0.04 | 0.38 -> 0.95 ± 0.04 | 0.97 ± 0.00 (n=1087) | 0.61 ± 0.03 |
+| PPO, proxy reward (live agent) | population | 156 | 0.35 -> 0.90 ± 0.04 | 0.36 -> 0.93 ± 0.04 | 0.97 ± 0.01 (n=1020) | 0.40 ± 0.02 |
+| PPO, simulation objective | moderate_broca | 153 | 0.04 -> 0.89 ± 0.04 | 0.04 -> 0.90 ± 0.04 | 0.99 ± 0.00 (n=1124) | 0.37 ± 0.02 |
+| PPO, simulation objective | population | 140 | 0.10 -> 0.80 ± 0.13 | 0.10 -> 0.84 ± 0.13 | 0.99 ± 0.00 (n=1037) | 0.35 ± 0.01 |

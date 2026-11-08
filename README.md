@@ -30,14 +30,16 @@ simulated patients, and demonstrations from clinician overrides.
 The team objective is **better later naming without hints**. Sessions therefore include review
 probes (an earlier practised word shown again with no cue), and every policy is evaluated on them.
 
-Implemented and tested (149 tests, `uv run pytest`):
+Implemented and tested (170 tests, `uv run pytest`):
 - Agent service (FastAPI) implementing the agreed State/Action interface, with one online-learning
   agent per session, clinician overrides logged for later training, CORS for a frontend on the local
   network, and `POST /next_trial`, which applies the shared item-selection and review-probe rule.
 - Patient simulator: population sampling with a held-out test split, three evaluation cohorts,
   item difficulty from word frequency and length, patient-specific cue responsiveness, error types,
   fatigue with recovery, learning with a configurable peak, patient dropout after failure streaks,
-  and review probes. The item bank is a placeholder.
+  and review probes. **Calibrated against published picture-naming statistics** (14 group-level
+  targets, all passing; see Simulator validity), with out-of-distribution and scorer-noise checks.
+  The item bank is a placeholder.
 - Therapist agents: MaskablePPO trained on the observable proxy reward (the live demo agent, chosen
   for visible adaptation to a healthy user), MaskablePPO trained on the simulation-only objective and
   the contextual Bayesian logistic Thompson-sampling bandit (live fallbacks), a Beta-Bernoulli
@@ -76,6 +78,9 @@ uv run python -m train.train_ppo --reward privileged    # simulator-only objecti
 uv run python -m eval.plots                     # learning curves -> results/learning_curves.png
 uv run python -m train.ditto_ppo                # DITTO-style tuning from overrides -> results/ditto_report.md
 uv run python -m scripts.validate_live_ditto     # live override learning on fresh states
+uv run python -m eval.calibration               # simulator vs published statistics (data/calibration_targets.yaml)
+uv run python -m eval.sim_validation            # results/simulator_validation.png
+uv run python -m eval.robustness                # out-of-distribution patients and scorer noise
 uv run python -m scripts.judge_demo --url http://localhost:8000 --name live   # healthy-judge check
 uv run python -m eval.compare --config configs/eval.yaml   # full evaluation -> results/
 uv run python -m scripts.sanity_table --dropout on --out results/sanity_dropout_on.md
@@ -219,7 +224,7 @@ reports, for each overridden state type (for example `"after a sound error"`), t
 of choosing the clinician's cue in reference states of that type before and after, and the share of
 other reference states whose top action is unchanged. Example on the live agent with 10 overrides
 "after a sound error, use first_sound" collected from states the policy actually visits: `p_before`
-0.35, `p_after` 0.91, `other_states_unchanged` 1.00 (0.5 s); the session then chose first_sound in
+0.35, `p_after` 0.87, `other_states_unchanged` 1.00 (0.5 s); the session then chose first_sound in
 held-out sound-error states. Validation on fresh states: see the DITTO section. Errors: 409 if the live agent is not PPO, 400 if the session has no overrides.
 Demo flow: play a few trials, override the cue a handful of times on the dashboard, call this
 endpoint, and continue: the next similar states get the clinician's choice.
@@ -237,7 +242,7 @@ or more API calls; the right column is what the clinician dashboard should show.
 | 2. Cue after an error | The judge gives a wrong answer (or none) on purpose, 2-3 times in a row; keep calling `POST /next_trial` and `POST /update`. | The agent steps the tier down and offers a cue (e.g. first letter), with the rationale; error types appear in the breakdown. After the judge recovers, the tier climbs back. |
 | 3. Review probe | Every 5th trial `POST /next_trial` returns `"probe": true` (a word practised earlier, `cue: "none"`); `POST /update` with `"probe": true`. | A "review, no hint" label on that trial; the current tier is unchanged; probe results are tallied as "recalled without a hint". |
 | 4. Override | On a trial right after a sound error, the clinician presses override and picks the first-sound cue (same tier): `POST /override` with `state`, `agent_action`, `clinician_action`; show the clinician's cue; `POST /update` with the clinician's action. Repeat on a few such trials (10 give a strong effect; fewer give a smaller one). | The override is marked on the timeline; the override count increases. |
-| 5. Learn from the clinician | `POST /learn_from_overrides` with `{"session_id": "demo-judge"}` (well under a second). | "After a sound error: P(first sound) 0.35 -> 0.9x; other behaviour unchanged ~98-100%" from the response (`by_state_type`, `other_states_unchanged`). |
+| 5. Learn from the clinician | `POST /learn_from_overrides` with `{"session_id": "demo-judge"}` (well under a second). | "After a sound error: P(first sound) about 0.35 -> about 0.9; other behaviour unchanged ~98-100%" from the response (`by_state_type`, `other_states_unchanged`). |
 | 6. The agent now makes the clinician's choice | Continue the session; after the next sound error `POST /next_trial` returns the first-sound cue without an override. | The cue matches the clinician's earlier choice; no override was needed. |
 
 Fallback if the live agent misbehaves: set `ppo_model: models/ppo_privileged_seed0.zip` or
@@ -260,9 +265,9 @@ either cites the paper behind the *direction* of the effect or says `ASSUMPTION`
 
 | component | model | grounding |
 |---|---|---|
-| item difficulty | `beta_f * (-z(frequency)) + beta_l * z(length)` | frequency and length effects on naming (Nickels & Howard 1995) |
-| cues | `phonemic_weight[cue] * phon_resp + semantic_weight[cue] * sem_resp`, per-patient responsiveness | phonemic > semantic on average, with phonemic vs semantic responders (Meteyard & Bose 2018) |
-| error types | after a failure, P(sound, meaning, no response) proportional to (phon_impair, sem_impair, omission_bias) | simplified from the two-step model (Dell et al. 1997; Schwartz et al. 2006) |
+| item difficulty | `beta_f * (-z(frequency)) + beta_l * z(length)` | frequency and length effects on naming (Nickels & Howard 1995); frequency slope **calibrated** to 0.6 log-odds per log10 unit (published 0.41-0.88) |
+| cues | `phonemic_weight[cue] * phon_resp + semantic_weight[cue] * sem_resp`, per-patient responsiveness | phonemic > semantic (Meteyard & Bose 2018); first-sound and semantic gains **calibrated** to their estimates (0.65 and about 0 log-odds) |
+| error types | after a failure, P(sound, meaning, no response) proportional to (phon_impair, sem_impair, omission_bias) | simplified from the two-step model (Dell et al. 1997; Schwartz et al. 2006); error mix **calibrated** to Kittredge et al. 2008 and Dell, Martin & Schwartz 2007 |
 | fatigue | grows per trial and faster during failure streaks, recovers a fraction each trial, capped | ASSUMPTION |
 | learning | on a success, item-specific gain with E[gain] = p^a (1-p)^b, peaking at a configurable `peak`; weaker cues teach more; 5% spills over to general ability | item-specific gains with limited generalisation (Nickels 2002); the peak location is an ASSUMPTION; see the learning-peak ablation |
 | response time | log-normal, slower for hard items and when fatigued | ASSUMPTION |
@@ -280,6 +285,89 @@ patients with the same random outcome stream (common random numbers, so comparis
 is a **PLACEHOLDER**: 60 picturable nouns, frequencies from the `wordfreq` package (Zipf scale),
 length in letters, tiers = difficulty terciles. It is to be replaced by a clinically curated bank. Within a tier,
 items are shown unseen-first, then least recently seen; the app should use the same rule.
+
+## Simulator validity
+
+**What is calibrated.** `data/calibration_targets.yaml` lists 14 group-level statistics read in the
+published sources (each with a verbatim quote and the exact measure we compare), and
+`tests/test_calibration.py` asserts each one (`uv run python -m eval.calibration` prints the table).
+Sources: Kittredge et al. 2008 (50 patients, PNT), Dell, Martin & Schwartz 2007 (65 patients,
+per-patient PNT data), Meteyard & Bose 2018 (10 patients, cueing experiment), Mirman et al. 2024
+(three samples, fatigue).
+
+| target | published | simulator before | after |
+|---|---|---|---|
+| mean naming accuracy, mixed sample | 59% (range 3-98%) | 0.61 | 0.60 |
+| spread of patient accuracy (5th-95th percentile width) | range 3-98% | 0.52 (too narrow) | 0.64 |
+| semantic share of semantic + phonological + omission errors | 5 / 32 = 0.16 | 0.30 (off) | 0.17 |
+| phonological share | 15 / 32 = 0.47 | 0.32 (off) | 0.46 |
+| omission share | 12 / 32 = 0.375 | 0.38 | 0.38 |
+| anomic accuracy, normalised as in Dell 2007 | 0.82 (SD 0.16) | 0.90 | 0.94 |
+| Broca's accuracy, normalised | 0.69 (SD 0.24) | 0.72 | 0.73 |
+| anomic: phonological / (phonological + semantic) errors | 0.59 | 0.30 (off) | 0.62 |
+| Broca's: phonological / (phonological + semantic) errors | 0.70 | 0.79 | 0.79 |
+| frequency effect, log-odds per log10 unit | 0.41 (Kittredge) to 0.88 (Mirman) | 1.25 (off) | 0.60 |
+| first-sound cue gain, log-odds | 0.65 [0.48, 0.82] | 1.02 (off) | 0.65 |
+| semantic cue gain, log-odds | -0.04 [-0.41, 0.32] | 0.57 (off) | 0.26 |
+| between-patient SD of ability, logit | about 1.3 | 0.98 | 1.13 |
+| accuracy falls over a session (direction) | yes, 2 of 3 samples | yes | yes |
+
+Before calibration 7 of 14 targets passed. We changed only the parameters behind the 7 that were
+off (population ability spread and error mix, the anomic error mix, the frequency weight, and the
+phonemic and semantic cue channel magnitudes); all 14 now pass
+([`results/calibration_report.md`](results/calibration_report.md)). Comparability caveats: the
+published samples used the 175-item PNT (ours is a 60-item placeholder bank); the Dell 2007
+proportions are normalised (omissions removed), so we normalise the same way; Meteyard & Bose gave
+an associated word 750 ms *before* the picture, while our cues follow an error and our semantic cue
+is a hint, so their semantic estimate is the closest verified number rather than an exact match;
+their sample is small (n=10).
+
+**Effect on the conclusions.** The full evaluation was re-run on the calibrated simulator with the
+already-trained models (which were trained on the pre-calibration simulator and were not retrained,
+so this is also a shift test). The main conclusions hold: on severe patients the PPO agents abandon
+fewer sessions and achieve more probe lift than fixed difficulty and the staircase, with
+non-overlapping 95% CIs. Magnitudes are smaller than before calibration because severe patients
+now gain less from cues (sessions abandoned for the live agent 30% instead of 10%; probe lift 1.03
+instead of 2.26, x100).
+
+![Simulator validation](results/simulator_validation.png)
+
+**What is still an assumption** (not calibrated, to be validated clinically): where learning peaks
+and how much each success teaches (the learning-peak ablation shows the conclusions depend on it);
+the cue discount on learning; the mix of phonemic and semantic components inside each cue; fatigue
+magnitudes (only the direction is checked); dropout; response times; the three named cohorts'
+parameters beyond the checks above (severe in particular has no verified published counterpart); the
+item bank (placeholder); and the absence of any dependence of cue effectiveness on the previous
+error type.
+
+**Out-of-distribution patients** ([`results/robustness.md`](results/robustness.md),
+`uv run python -m eval.robustness`). Three cohorts with parameters strictly outside the training
+ranges, 200 patients each, mean [95% CI]:
+
+| cohort (outside training on) | policy | sessions abandoned | learning gain x100 | probe lift x100 |
+|---|---|---|---|---|
+| very severe (ability) | fixed / staircase | 1.00 / 1.00 | 0.00 / 0.00 | 0.00 / 0.00 |
+| | PPO proxy / PPO simulation objective | 0.97 [0.95, 0.99] / 0.98 [0.96, 0.99] | 0.00 / 0.00 | 0.01 / 0.00 |
+| | oracle | 0.94 [0.91, 0.97] | 0.01 | 0.01 |
+| fast fatigue (fatigue rate and recovery) | fixed / staircase | 0.47 [0.40, 0.54] / 0.27 [0.20, 0.33] | 1.55 / 2.27 | 2.55 / 2.70 |
+| | PPO proxy / PPO simulation objective | 0.12 [0.08, 0.16] / 0.14 [0.09, 0.18] | 3.07 [2.92, 3.21] / 3.05 | 2.95 / 2.99 |
+| | oracle | 0.07 [0.04, 0.11] | 3.42 | 3.14 |
+| semantic responders (phonemic and semantic responsiveness) | fixed / staircase | 0.07 / 0.05 | 4.50 / 4.38 | 4.16 [3.95, 4.37] / 3.45 |
+| | PPO proxy / PPO simulation objective | 0.03 / 0.03 | 4.92 / 5.45 [5.25, 5.66] | 3.53 / 3.98 |
+| | oracle | 0.02 | 5.69 | 4.08 |
+
+Patients more severe than any seen in training are beyond every policy, including the oracle: no
+choice of tier or cue keeps them practising. For fast-fatiguing patients the agents stay close to
+the oracle and keep abandonment at 12-14% versus 47% for fixed difficulty. For semantic responders
+the simulation-objective PPO is second only to the oracle on learning gain, although it never saw
+such patients; fixed tier 2 keeps the highest probe lift there, as on moderate patients.
+
+**Scorer noise.** The observed outcome is flipped with probability 0.05 or 0.10 (evaluation only;
+the patient's true responses and all metrics are unaffected). Paired against no noise on the same
+patients, 10% noise changes learning gain by at most 0.23 points (x100) and probe lift by at most
+0.32 points for any adaptive policy and cohort, and leaves the severe-cohort results unchanged within
+their 95% CIs (full table in `results/robustness.md`). Fixed difficulty ignores outcomes and is
+unaffected by construction.
 
 ## Agents (`agents/`)
 
@@ -331,7 +419,8 @@ in the environment, that alternating tiers 1 and 2 scores less than holding tier
   practised words, so a policy that practises only easy words gets easy probes. An earlier draft
   that rewarded the true p on probes indeed drove the agent to tier 1.
 
-**Live agent.** A live demo is played by a healthy person who answers almost everything correctly,
+**Live agent.** (Judge traces below were recorded before the simulator calibration; the agents and the
+service did not change, so the live behaviour is the same.) A live demo is played by a healthy person who answers almost everything correctly,
 which is far outside the simulated patient population. `scripts/judge_demo.py` plays three scripted
 "judges" through the HTTP API (`/next_trial` + `/update`, review probes included) against each
 candidate agent, 30 trials each:
@@ -362,12 +451,14 @@ a much lower true control error (about 0.11) and higher learning gain and probe 
 
 ## Results
 
-**Full evaluation** (`uv run python -m eval.compare --config configs/eval.yaml`, about 20 s): 200
-held-out test patients per cohort, 40 trials (every 5th a review probe), dropout on. Every policy
-faces the same patients with the same random outcome stream; PPO is run with each of its 3 training
-seeds and averaged per patient (per-seed results in `results/comparison_seeds.csv`). Intervals are
-95% percentile bootstrap intervals over patients; differences between policies are **paired**
-(same patients) in `results/paired_differences.csv`. Full tables, including % of oracle:
+**Full evaluation** (`uv run python -m eval.compare --config configs/eval.yaml`, about 20 s) on the
+calibrated simulator: 200 held-out test patients per cohort, 40 trials (every 5th a review probe),
+dropout on. Every policy faces the same patients with the same random outcome stream; PPO is run
+with each of its 3 training seeds and averaged per patient (per-seed results in
+`results/comparison_seeds.csv`). The trained models (PPO, the bandit's fitted prior) were trained on
+the pre-calibration simulator and are evaluated unchanged. Intervals are 95% percentile bootstrap
+intervals over patients; differences between policies are **paired** (same patients) in
+`results/paired_differences.csv`. Full tables, including % of oracle:
 [`results/comparison.md`](results/comparison.md).
 
 The **oracle** reads the patient's hidden state and picks, among allowed actions, the one whose true
@@ -383,24 +474,24 @@ share of sessions abandoned. Bold = best non-oracle policy for that metric.
 
 | cohort | policy | in band | \|p-0.85\| | learning gain | probe recall | probe lift | quit |
 |---|---|---|---|---|---|---|---|
-| mild anomic | fixed (tier 2) | 0.46 | **0.066 [0.064, 0.068]** | **3.53 [3.37, 3.68]** | 0.92 | **2.84 [2.69, 2.99]** | 0.01 |
-| mild anomic | staircase | 0.81 | 0.137 [0.135, 0.140] | 3.06 [2.94, 3.18] | 0.86 | 2.29 [2.16, 2.42] | 0.01 |
-| mild anomic | contextual bandit | 0.48 | 0.088 [0.085, 0.090] | 3.00 [2.86, 3.15] | 0.93 | 1.61 [1.50, 1.73] | 0.01 |
-| mild anomic | PPO, proxy reward | **0.86** | 0.129 [0.127, 0.131] | 2.61 [2.50, 2.72] | 0.90 | 1.71 [1.61, 1.81] | **0.00** |
-| mild anomic | PPO, simulation objective | 0.40 | 0.087 [0.085, 0.089] | 2.77 [2.63, 2.90] | 0.94 | 1.74 [1.63, 1.86] | 0.00 |
-| mild anomic | oracle (privileged) | 0.47 | 0.068 [0.065, 0.070] | 3.53 [3.36, 3.68] | 0.92 | 2.84 [2.70, 2.99] | 0.01 |
-| moderate Broca's | fixed (tier 2) | 0.52 | 0.110 [0.102, 0.117] | 4.56 [4.36, 4.75] | 0.75 | **4.40 [4.22, 4.58]** | 0.02 |
-| moderate Broca's | staircase | 0.59 | 0.155 [0.151, 0.160] | 3.99 [3.85, 4.12] | 0.77 | 3.02 [2.89, 3.15] | 0.04 |
-| moderate Broca's | contextual bandit | 0.62 | 0.074 [0.072, 0.077] | 4.68 [4.51, 4.85] | 0.83 | 3.14 [3.00, 3.29] | 0.01 |
-| moderate Broca's | PPO, proxy reward | **0.83** | 0.112 [0.109, 0.115] | 4.20 [4.05, 4.35] | 0.81 | 2.95 [2.82, 3.08] | **0.00** |
-| moderate Broca's | PPO, simulation objective | 0.62 | **0.065 [0.063, 0.068]** | **4.77 [4.61, 4.93]** | 0.84 | 3.43 [3.28, 3.58] | 0.00 |
-| moderate Broca's | oracle (privileged) | 0.59 | 0.048 [0.047, 0.049] | 5.07 [4.90, 5.25] | 0.87 | 3.33 [3.18, 3.48] | 0.00 |
-| severe | fixed (tier 2) | 0.02 | 0.516 [0.507, 0.525] | 0.11 [0.09, 0.13] | 0.26 | 0.22 [0.19, 0.26] | 0.77 |
-| severe | staircase | 0.11 | 0.342 [0.333, 0.352] | 1.27 [1.15, 1.40] | 0.48 | 1.49 [1.38, 1.60] | 0.29 |
-| severe | contextual bandit | 0.24 | 0.284 [0.274, 0.293] | 1.71 [1.57, 1.86] | 0.49 | 1.78 [1.65, 1.92] | 0.17 |
-| severe | PPO, proxy reward | **0.33** | **0.240 [0.232, 0.248]** | **2.08 [1.92, 2.23]** | 0.55 | **2.26 [2.11, 2.41]** | **0.10** |
-| severe | PPO, simulation objective | 0.29 | 0.251 [0.243, 0.260] | 2.04 [1.88, 2.20] | 0.53 | 2.20 [2.05, 2.34] | 0.12 |
-| severe | oracle (privileged) | 0.37 | 0.214 [0.206, 0.222] | 2.27 [2.11, 2.44] | 0.58 | 2.51 [2.35, 2.67] | 0.07 |
+| mild anomic | fixed (tier 2) | 0.49 | **0.062 [0.059, 0.064]** | **3.71 [3.53, 3.87]** | 0.92 | **3.06 [2.90, 3.21]** | 0.01 [0.00, 0.01] |
+| mild anomic | staircase | 0.77 | 0.094 [0.092, 0.095] | 3.62 [3.48, 3.77] | 0.88 | 2.81 [2.67, 2.96] | 0.01 [0.00, 0.03] |
+| mild anomic | contextual bandit | 0.51 | 0.073 [0.071, 0.075] | 3.38 [3.22, 3.55] | 0.93 | 2.00 [1.88, 2.12] | 0.01 [0.00, 0.03] |
+| mild anomic | PPO, proxy reward | **0.79** | 0.094 [0.093, 0.095] | 3.28 [3.14, 3.42] | 0.91 | 2.25 [2.13, 2.37] | **0.00 [0.00, 0.00]** |
+| mild anomic | PPO, simulation objective | 0.43 | 0.078 [0.075, 0.080] | 3.18 [3.03, 3.35] | 0.93 | 2.13 [2.01, 2.26] | 0.00 [0.00, 0.01] |
+| mild anomic | oracle (privileged) | 0.54 | 0.063 [0.060, 0.065] | 3.88 [3.72, 4.03] | 0.90 | 3.37 [3.22, 3.52] | 0.01 [0.00, 0.01] |
+| moderate Broca's | fixed (tier 2) | 0.50 | 0.122 [0.114, 0.130] | 4.81 [4.59, 5.03] | 0.75 | **4.34 [4.16, 4.54]** | 0.04 [0.01, 0.06] |
+| moderate Broca's | staircase | 0.57 | 0.143 [0.137, 0.149] | 4.59 [4.42, 4.76] | 0.75 | 3.55 [3.41, 3.68] | 0.04 [0.01, 0.07] |
+| moderate Broca's | contextual bandit | 0.60 | 0.070 [0.065, 0.074] | 5.43 [5.22, 5.63] | 0.80 | 3.74 [3.59, 3.89] | 0.01 [0.00, 0.04] |
+| moderate Broca's | PPO, proxy reward | **0.76** | 0.089 [0.086, 0.093] | 5.13 [4.96, 5.31] | 0.80 | 3.69 [3.55, 3.84] | **0.00 [0.00, 0.01]** |
+| moderate Broca's | PPO, simulation objective | 0.62 | **0.057 [0.054, 0.061]** | **5.67 [5.47, 5.86]** | 0.82 | 4.10 [3.94, 4.25] | 0.00 [0.00, 0.01] |
+| moderate Broca's | oracle (privileged) | 0.59 | 0.043 [0.041, 0.046] | 5.85 [5.64, 6.06] | 0.83 | 4.10 [3.94, 4.25] | 0.00 [0.00, 0.00] |
+| severe | fixed (tier 2) | 0.02 | 0.533 [0.524, 0.541] | 0.08 [0.06, 0.10] | 0.25 | 0.15 [0.12, 0.18] | 0.79 [0.73, 0.84] |
+| severe | staircase | 0.05 | 0.423 [0.414, 0.432] | 0.47 [0.41, 0.55] | 0.38 | 0.66 [0.58, 0.73] | 0.48 [0.41, 0.56] |
+| severe | contextual bandit | 0.10 | 0.385 [0.375, 0.394] | 0.66 [0.58, 0.76] | 0.38 | 0.75 [0.66, 0.85] | 0.39 [0.32, 0.46] |
+| severe | PPO, proxy reward | **0.13** | **0.354 [0.345, 0.363]** | **0.83 [0.72, 0.94]** | 0.42 | **1.03 [0.92, 1.14]** | **0.30 [0.24, 0.36]** |
+| severe | PPO, simulation objective | 0.11 | 0.367 [0.357, 0.376] | 0.76 [0.66, 0.86] | 0.41 | 0.95 [0.86, 1.06] | 0.33 [0.27, 0.39] |
+| severe | oracle (privileged) | 0.15 | 0.330 [0.321, 0.340] | 0.96 [0.85, 1.06] | 0.44 | 1.19 [1.07, 1.30] | 0.21 [0.16, 0.27] |
 
 ![Policy comparison](results/comparison.png)
 
@@ -410,72 +501,57 @@ abandoned and naming improvement) is generated by the same command: [`results/pi
 ![Rolling accuracy](results/rolling_accuracy.png)
 
 What this shows, honestly:
-- **Where difficulty matters most (severe patients), every adaptive policy beats fixed difficulty
-  by a wide, tight margin.** Paired against fixed tier 2: learning gain +1.9 points [1.8, 2.1] for
-  PPO (simulation objective), +2.0 for proxy PPO, +1.6 for the contextual bandit; abandoned
-  sessions fall from 77% to 10-17%. PPO reaches about 90% of the oracle's learning gain and probe
-  lift there.
-- **Among adaptive policies, PPO trained on the simulation objective is the most consistent.** It
-  beats the contextual bandit on learning gain and probe lift on moderate and severe patients
-  (paired: +0.09 [0.04, 0.14] and +0.29 [0.21, 0.38] on moderate; +0.33 [0.26, 0.39] and +0.41
-  [0.34, 0.48] on severe) and beats proxy PPO on moderate patients (gain +0.57 [0.53, 0.62]); on
-  severe patients the two PPO rewards are within 0.1 points of each other.
-- **Proxy-trained PPO holds the band best (0.86, 0.83) but partly games it.** Its true control error
-  on mild and moderate patients (0.129, 0.112) is 1.5-1.7 times the simulation-objective policy's
-  (0.087, 0.065), and on mild patients close to the staircase's (0.137): it steers the 8-trial
-  rolling accuracy rather than true difficulty. Time in band is therefore never reported alone.
-- **On mild patients, fixed tier 2 is as good as the oracle**, because for these patients tier 2
-  without a cue already sits at the simulator's learning peak (the oracle mostly chooses exactly
-  that). Adaptive policies pay for exploration and caution there (see below).
-- **Observed probe recall mostly measures how easy the practised words were.** It is high for
-  policies that practise easy words (mild patients: PPO simulation objective 0.94, contextual bandit
-  0.93) while their probe lift is low (1.74, 1.61 vs 2.84 for fixed tier 2). On a real patient probe
-  recall is what can be measured, so it must be read together with the difficulty of practised words.
-- **Severe patients remain hard for every policy**, including the oracle (rolling accuracy below the
-  band). One cause is the clinical rule "cue only after an error": their best action (tier 1 + first
-  sound, p~0.84) cannot be repeated after a success. Whether to keep the rule is to be validated
-  clinically (`cue_only_after_error`).
+- **Where difficulty matters most (severe patients), the adaptive policies beat fixed difficulty and
+  the staircase.** Sessions abandoned: fixed 79%, staircase 48% [42, 56], contextual bandit 39%,
+  proxy PPO 30% [24, 36], simulation-objective PPO 33%, oracle 22%. Probe lift: fixed 0.15, staircase
+  0.66 [0.58, 0.73], proxy PPO 1.03 [0.92, 1.14]. Paired against fixed: proxy PPO probe lift +0.88
+  [0.79, 0.97] and 49 points fewer abandoned sessions [42, 55]. Severe patients remain hard for every
+  policy, including the oracle (rolling accuracy far below the band); one cause is the clinical rule
+  "cue only after an error", whose value is to be validated clinically (`cue_only_after_error`).
+- **On moderate patients the simulation-objective PPO is the best adaptive policy**: learning gain
+  5.67 [5.48, 5.88] (oracle 5.85) and probe lift equal to the oracle's; paired against the
+  contextual bandit +0.24 [0.18, 0.30] gain and +0.36 [0.30, 0.42] lift, against proxy PPO +0.54
+  [0.48, 0.59] gain. On severe patients the two PPO rewards are within 0.1 points.
+- **Proxy-trained PPO holds the band best but partly games it**: time in band 0.79 / 0.76 on mild /
+  moderate patients, with a true control error 1.2-1.6 times the simulation-objective policy's (it
+  steers the 8-trial rolling accuracy rather than true difficulty). Time in band is never reported
+  alone.
+- **On mild patients fixed tier 2 is close to the oracle on learning gain (3.71 vs 3.88)**, because
+  for these patients tier 2 without a cue sits near the simulator's learning peak; adaptive policies
+  pay for exploration and caution (see below).
+- **Observed probe recall mostly measures how easy the practised words were**: it is high for
+  policies that practise easy words (mild patients: contextual bandit and simulation-objective PPO
+  0.93-0.94) while their probe lift is lower than fixed tier 2's. On a real patient probe recall is
+  what can be measured, so it must be read together with the difficulty of practised words.
 
-Earlier 50-patient runs with the Beta bandit and the proxy + probe reward:
-[dropout on](results/sanity_dropout_on.md), [dropout off](results/sanity_dropout_off.md).
-Adding the probe bonus to the observable reward changed almost nothing (the agent cannot choose
-probe items, and a correct-probe bonus mostly rewards easy practice, which the band term already
-limits). The Beta bandit spends most of mild sessions on tier 1: its discounting pulls unvisited arms
-back to the tier-1 prior mean 0.80, inside the tolerance window.
-
-**Dropout on vs off** (50-patient runs). With dropout off, the mild and moderate rows are unchanged within their
-confidence intervals. The effect is on severe patients and on policies that let failures accumulate:
-fixed tier 2 abandons 76% of severe sessions (22 of 40 trials on average; learning gain 0.12 without
-dropout, 0.10 with), the staircase 38%, the contextual bandit 20%, proxy PPO 8%. Dropout is the
-mechanism by which frustration costs practice volume; it widens the gap between adaptive and fixed
-difficulty only where the fixed tier is wrong for the patient.
+Earlier 50-patient runs with the Beta bandit and the proxy + probe reward (on the calibrated
+simulator): [dropout on](results/sanity_dropout_on.md), [dropout off](results/sanity_dropout_off.md).
 
 ### Why fixed difficulty can win learning gain in the simulator
 
-Fixed tier 2 has the highest learning gain and probe lift on mild patients (3.53, 2.84, equal to
-the oracle) and the highest probe lift on moderate ones (4.40). We did not tune the simulator to reverse this. The
-mechanism is visible in the "learn eff." column of the full tables (the mean expected learning per
-trial implied by the learning rule at the true p; 1.0 = every trial at the peak with no cue):
-learning gain tracks how much of the session is spent near the simulator's
-learning peak (p = 0.85) **without cues** (successes with cues teach less, by assumption).
+Fixed tier 2 is close to the oracle on mild patients (learning gain 3.71 vs 3.88) and has the highest
+probe lift on moderate patients (4.34). We did not tune the simulator to reverse this. The mechanism
+is visible in the "learn eff." column of the 50-patient tables (the mean expected learning per trial
+implied by the learning rule at the true p; 1.0 = every trial at the peak with no cue): learning gain
+tracks how much of the session is spent near the simulator's learning peak (p = 0.85) **without
+cues** (successes with cues teach less, by assumption).
 
-- For mild patients, tier 2 happens to give p of about 0.90, right next to the peak, every trial,
-  with no cue (learn eff. 0.78). Adaptive policies spend part of the session exploring, start on
-  tier 1 where p is about 0.96 and little is learned, and use cues after errors, all of which lower
-  learning per trial.
-- It is the *matching* that matters, not "fixed": on mild patients fixed tier 1 gets a learning
-  gain of 1.72 and fixed tier 3 gets 2.36; on moderate patients fixed tier 1 gets 4.86 while fixed
-  tier 3 gets 0.45 with 82% of sessions abandoned. Picking the right fixed tier for each patient requires
-  exactly the knowledge an adaptive policy acquires; worksheets do not make that choice per patient.
+- For mild patients tier 2 gives p near the peak on every trial with no cue (learn eff. 0.81).
+  Adaptive policies spend part of the session exploring, start on tier 1 where little is learned,
+  and use cues after errors, all of which lower learning per trial.
+- It is the *matching* that matters, not "fixed" (200 patients each): on mild patients fixed tier 1
+  gets a learning gain of 2.63 and fixed tier 3 3.58; on moderate patients fixed tier 1 gets 5.95 (the
+  best of any policy there) while fixed tier 3 gets 1.04 with 47% of sessions abandoned. Picking the
+  right fixed tier for each patient requires exactly the knowledge an adaptive policy acquires;
+  worksheets do not make that choice per patient.
 
 What this **does** mean: in this simulator, with a single 40-trial session, a policy that sits at
-the learning peak from the first trial is hard to beat, and exploration has a real cost.
-What it **does not** mean: that fixed difficulty is a good strategy. The result depends on
-assumptions we cannot validate yet (the location of the learning peak, the cue discount, item-specific
-learning, a single session with no boredom or disengagement effects for items that are too easy) and
-it reverses as soon as the fixed tier does not match the patient (see the learning-peak ablation
-below). A multi-session evaluation and
-multi-session evaluation are planned.
+the learning peak from the first trial is hard to beat, and exploration has a real cost. What it
+**does not** mean: that fixed difficulty is a good strategy. The result depends on uncalibrated
+assumptions (the location of the learning peak, the cue discount, item-specific learning, a single
+session with no boredom or disengagement for items that are too easy) and reverses as soon as the
+fixed tier does not match the patient (see the learning-peak ablation). A multi-session evaluation is
+planned.
 
 **Error-type x cue features.** The contextual bandit has six features crossing the last error type
 (sound, meaning, no response) with the cue family (phonemic, semantic). **The simulator does not
@@ -499,26 +575,29 @@ target at all).
 ![Learning-peak ablation](results/ablation_learning_peak.png)
 
 - **The 85% target is load-bearing.** If learning actually peaked at 0.5, every policy that aims for
-  85% would learn little with mild patients (oracle 0.23, contextual bandit 0.27, simulation-objective
-  PPO trained at 0.85: 0.11, x100), while the harder-running staircase gets 1.22.
+  85% would learn little with mild patients (oracle 0.39, contextual bandit 0.23, simulation-objective
+  PPO trained at 0.85: 0.13, x100), while the harder-running staircase gets 1.08.
 - **Optimising the true objective recovers most of the loss.** The learning-only PPO retrained at
-  peak 0.5 reaches 2.23 [2.11, 2.35] on mild patients and 3.00 [2.87, 3.16] on moderate ones, the best
-  of all policies there. At peak 0.85 it is close to the others (mild 3.16, moderate 4.77). This is
+  peak 0.5 reaches 1.91 [1.79, 2.03] on mild patients and 3.97 [3.79, 4.16] on moderate ones, the best
+  of all policies there. At peak 0.85 it is close to the others (mild 3.44, moderate 5.55). This is
   the argument for learning the target from the true objective rather than fixing it at 85%: the
   agent then follows wherever learning actually peaks.
-- **It is not uniformly best.** On severe patients at peak 0.5 the staircase (4.06) beats it (3.33),
-  and at peak 0.7 fixed tier 2 is best on moderate patients (5.17), again because that tier happens
-  to match. The retrained agents inherit every other simulator assumption.
+- **It is not uniformly best.** On severe patients at peak 0.5 the staircase (4.62) beats it (3.34),
+  and at peak 0.7 fixed tier 2 is best on moderate patients (5.93), again because that tier happens
+  to match. The retrained agents inherit every other simulator assumption, and, like all models in
+  this repository, were trained on the pre-calibration simulator.
 
 **2. Dropout on vs off.** Dropout matters only for severe patients: abandoned sessions with dropout
-on are 77% for fixed tier 2, 29% for the staircase, 17% for the contextual bandit, 10-12% for PPO and
-7% for the oracle; learning gain changes by at most 0.1 points (x100) when dropout is switched off.
+on are 79% for fixed tier 2, 48% for the staircase, 39% for the contextual bandit, 30-33% for PPO
+and 21% for the oracle; learning gain changes by at most about 0.07 points (x100) when dropout is
+switched off.
 
 **3. Reward variants (PPO, 3 seeds each).** Band only, band + climb, full proxy and full proxy +
-probe bonus are indistinguishable on every metric in every cohort (time in band 0.82-0.88 on mild and
-moderate patients; learning gain within about 0.2 points): the band term drives the behaviour and the
-other observable terms change little. Only the simulation objective changes it (lower control error,
-higher learning gain and probe lift on moderate patients, much less time in band).
+probe bonus are indistinguishable on every metric in every cohort (time in band 0.74-0.81 on mild and
+moderate patients; learning gain within 0.15 points of each other in each cohort): the band term
+drives the behaviour and the other observable terms change little. Only the simulation objective
+changes it (lower control error, higher learning gain and probe lift on moderate patients, much less
+time in band).
 
 ## Learning from clinician overrides: DITTO-style (`agents/ditto.py`, `train/ditto_ppo.py`)
 
@@ -536,21 +615,21 @@ overrides from the dashboard use the same pipeline (`--overrides runs/overrides.
 
 **Result.** Plain DITTO-style tuning adopts the preference but **overgeneralises**: with only 10
 demonstrations, nothing tells the shared network to leave other states alone, so it gives the
-first-sound cue after *every* error and the policy's behaviour degrades (time in band on mild
-patients 0.85 -> 0.35). We add **accepted-choice anchors**: on the dashboard, every agent choice the
+first-sound cue after *every* error and the policy's behaviour shifts (time in band on mild
+patients 0.78 -> 0.52). We add **accepted-choice anchors**: on the dashboard, every agent choice the
 clinician saw and did not override is an implicit acceptance, so a KL term keeps the policy close to
 the reference on those states (weight and learning rate chosen by a small sweep scored only on the
 override patients' states). Full report: [`results/ditto_report.md`](results/ditto_report.md).
 
 | held-out states | n | top action = clinician's cue, before -> after: plain | with anchors | top action unchanged (anchors) |
 |---|---|---|---|---|
-| after a sound error (preference applies) | 273 | 0.35 -> 1.00 | **0.35 -> 0.96** | 0.38 |
-| after other errors (cues allowed, preference does not apply) | 557 | 0.38 -> 1.00 | **0.38 -> 0.40** | 0.93 |
-| all other states | 2902 | 0.00 -> 0.00 | 0.00 -> 0.00 | **0.99** |
+| after a sound error (preference applies) | 424 | 0.36 -> 1.00 | **0.36 -> 0.89** | 0.45 |
+| after other errors (cues allowed, preference does not apply) | 488 | 0.31 -> 0.99 | **0.31 -> 0.36** | 0.87 |
+| all other states | 2700 | 0.00 -> 0.00 | 0.00 -> 0.00 | **0.99** |
 
-With anchors, after 10 overrides the policy makes the clinician's choice in 96% of matching held-out
-states, leaves states after other errors essentially unchanged, and keeps 99% of all other decisions
-identical; time in band, control error, learning gain and probe recall on the three test cohorts are
+(Calibrated simulator; before calibration the anchored adoption was 0.96.) With anchors, after 10
+overrides the policy makes the clinician's choice in 89% of matching held-out states, leaves states
+after other errors almost unchanged (0.31 -> 0.36), and keeps 99% of all other decisions identical; time in band, control error, learning gain and probe recall on the three test cohorts are
 unchanged within noise. The anchors are our addition to DITTO and are only as good as the assumption
 that a non-override means acceptance.
 
@@ -563,21 +642,25 @@ models and two cohorts ([`results/live_ditto_validation.md`](results/live_ditto_
 
 | model | cohort | P(clinician's cue) after a sound error, before -> after | top action = clinician's cue, before -> after | other state types, top action unchanged |
 |---|---|---|---|---|
-| PPO, proxy reward (live agent) | moderate Broca's | 0.35 -> 0.97 ± 0.01 | 0.37 -> 0.98 ± 0.01 | 0.98 |
-| PPO, proxy reward (live agent) | population | 0.37 -> 0.91 ± 0.10 | 0.37 -> 0.93 ± 0.09 | 0.97 |
-| PPO, simulation objective | moderate Broca's | 0.03 -> 0.90 ± 0.02 | 0.02 -> 0.92 ± 0.01 | 1.00 |
-| PPO, simulation objective | population | 0.04 -> 0.84 ± 0.05 | 0.04 -> 0.89 ± 0.04 | 0.99 |
+| PPO, proxy reward (live agent) | moderate Broca's | 0.35 -> 0.93 ± 0.04 | 0.38 -> 0.95 ± 0.04 | 0.97 |
+| PPO, proxy reward (live agent) | population | 0.35 -> 0.90 ± 0.04 | 0.36 -> 0.93 ± 0.04 | 0.97 |
+| PPO, simulation objective | moderate Broca's | 0.04 -> 0.89 ± 0.04 | 0.04 -> 0.90 ± 0.04 | 0.99 |
+| PPO, simulation objective | population | 0.10 -> 0.80 ± 0.13 | 0.10 -> 0.84 ± 0.13 | 0.99 |
 
-The effect holds on fresh states (top action switches in 89-98% of matching states, ± over the 5
-override sets). For the live agent 2-3% of other state types change their top action, slightly more
-than the 0% seen on the states used for tuning. Each update takes about 0.33 s on CPU.
+The effect holds on fresh states (calibrated simulator; top action switches in 84-95% of matching
+states, ± over the 5 override sets). For the live agent 3% of other state types change their top
+action, slightly more than the 0% seen on the states used for tuning. Each update takes well under a
+second on CPU (0.3-0.6 s, depending on machine load).
 
 ## Known limitations
 - With an 8-trial window, rolling accuracy only takes values k/8, so the [0.75, 0.90] band means
   exactly 6/8 or 7/8. Even a perfect controller holding p = 0.85 is in band only ~62% of the time
   (Binomial(8, 0.85)). This is why we also report true control error, and will report % of a privileged oracle.
-- The simulator is a parametric model; magnitudes are assumptions pending clinical review. The
-  bandit's fitted prior inherits these assumptions.
+- The simulator is a parametric model. 14 group-level statistics are calibrated against published
+  data (Simulator validity); the learning rule, fatigue magnitudes, dropout and cue mixes remain
+  assumptions to be validated clinically. All trained models (PPO, the bandit's fitted prior) were
+  trained before the calibration and evaluated on the calibrated simulator without retraining;
+  retraining on it is the next step (the live demo model was deliberately left unchanged).
 - One action per trial applies the cue to the *next* item; real cueing happens within an item after
   a failed attempt. Kept for the agreed interface.
 
@@ -594,7 +677,7 @@ the **direction** of an effect; specific numeric values are marked `ASSUMPTION` 
 | cited for | reference | where |
 |---|---|---|
 | 85% target accuracy (theoretical, not shown for aphasia) | Wilson, Shenhav, Straccia & Cohen (2019). The Eighty Five Percent Rule for optimal learning. *Nature Communications* 10, 4646. | `configs/clinical.yaml` |
-| Phonemic cues have larger immediate effects than semantic cues | Meteyard & Bose (2018). What does a cue do? Comparing phonological and semantic cues for picture naming in aphasia. *JSLHR* 61(3), 658–674. | `configs/clinical.yaml` |
+| Phonemic cues have larger immediate effects than semantic cues; cue-effect and between-patient SD calibration targets | Meteyard & Bose (2018). What does a cue do? Comparing phonological and semantic cues for picture naming in aphasia. *JSLHR* 61(3), 658–674. | `configs/clinical.yaml`, `configs/sim.yaml`, `data/calibration_targets.yaml` |
 | Discounted Thompson sampling for non-stationary bandits | Raj & Kalyani (2017). Taming non-stationary bandits: A Bayesian approach. arXiv:1707.09727. | `configs/bandit.yaml` |
 | Word frequency and length predict naming accuracy in aphasia | Nickels & Howard (1995). Aphasic naming: What matters? *Neuropsychologia* 33(10), 1281–1303. | `configs/sim.yaml` (items) |
 | Naming therapy gains are largely item-specific, limited generalisation | Nickels (2002). Therapy for naming disorders: Revisiting, revising, and reviewing. *Aphasiology* 16(10–11), 935–979. | `configs/sim.yaml` (learning) |
@@ -607,5 +690,8 @@ the **direction** of an effect; specific numeric values are marked `ASSUMPTION` 
 | Invalid-action masking in policy-gradient methods | Huang & Ontañón (2022). A Closer Look at Invalid Action Masking in Policy Gradient Algorithms. *FLAIRS-35*. | `envs/aphasia_env.py` |
 | PPO implementation | Raffin et al. (2021). Stable-Baselines3: Reliable Reinforcement Learning Implementations. *JMLR* 22(268). | `train/train_ppo.py` |
 | Group-relative policy optimisation (GRPO), explored only | Shao et al. (2024). DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models. arXiv:2402.03300. | `train/grpo_smoke.py` |
+| Group-level picture-naming accuracy, error mix and frequency effect (calibration targets) | Kittredge, Dell, Verkuilen & Schwartz (2008). Where is the effect of frequency in word production? Insights from aphasic picture-naming errors. *Cognitive Neuropsychology* 25(4), 463-492. | `data/calibration_targets.yaml` |
+| Per-patient PNT data by aphasia type (calibration targets) | Dell, Martin & Schwartz (2007). A case-series test of the interactive two-step model of lexical access: Predicting word repetition from picture naming. *Journal of Memory and Language* 56(4), 490-520. | `data/calibration_targets.yaml` |
+| Within-session fatigue in naming (direction) | Mirman, Krason, Thothathiri & Middleton (2024). Effect of fatigue on word production in aphasia. *Proceedings of CogSci* 46. | `data/calibration_targets.yaml` |
 | Learning from demonstrated feedback (DITTO), method followed for override learning | Shaikh et al. (2025). Show, Don't Tell: Aligning Language Models with Demonstrated Feedback. ICLR 2025. | `agents/ditto.py` |
 | Direct preference optimisation (DPO loss) | Rafailov, Sharma, Mitchell, Ermon, Manning & Finn (2023). Direct Preference Optimization: Your Language Model is Secretly a Reward Model. *NeurIPS* 36. | `agents/ditto.py` |

@@ -5,27 +5,27 @@ DITTO-style tuning from 10 overrides (simulated clinician: after a 'sound' error
 
 | held-out states | n | P(rule cue) before -> after | top action = rule cue before -> after | top action unchanged | total variation vs original |
 |---|---|---|---|---|---|
-| after a sound error (rule applies) | 273 | 0.34 -> 1.00 | 0.35 -> 1.00 | 0.35 | 0.672 |
-| after other errors (cues allowed, rule does not apply) | 557 | 0.36 -> 0.99 | 0.38 -> 1.00 | 0.38 | 0.645 |
-| all other states | 2902 | 0.00 -> 0.00 | 0.00 -> 0.00 | 0.71 | 0.279 |
+| after a sound error (rule applies) | 424 | 0.35 -> 0.99 | 0.36 -> 1.00 | 0.36 | 0.656 |
+| after other errors (cues allowed, rule does not apply) | 488 | 0.32 -> 0.98 | 0.31 -> 0.99 | 0.30 | 0.676 |
+| all other states | 2700 | 0.00 -> 0.00 | 0.00 -> 0.00 | 0.71 | 0.273 |
 
 | cohort | in band before -> after | control error | learning gain x100 | probe recall |
 |---|---|---|---|---|
-| mild_anomic | 0.85 -> 0.35 | 0.130 -> 0.109 | 2.38 -> 1.83 | 0.92 -> 0.95 |
-| moderate_broca | 0.84 -> 0.59 | 0.105 -> 0.059 | 4.28 -> 4.58 | 0.82 -> 0.88 |
-| severe | 0.33 -> 0.38 | 0.246 -> 0.219 | 2.10 -> 2.28 | 0.55 -> 0.57 |
+| mild_anomic | 0.78 -> 0.52 | 0.095 -> 0.089 | 3.03 -> 2.75 | 0.93 -> 0.94 |
+| moderate_broca | 0.76 -> 0.67 | 0.084 -> 0.053 | 5.21 -> 5.57 | 0.81 -> 0.83 |
+| severe | 0.10 -> 0.13 | 0.359 -> 0.329 | 0.74 -> 0.91 | 0.40 -> 0.42 |
 
 **DITTO-style + accepted-choice anchors** (anchor weight 5.0)
 
 | held-out states | n | P(rule cue) before -> after | top action = rule cue before -> after | top action unchanged | total variation vs original |
 |---|---|---|---|---|---|
-| after a sound error (rule applies) | 273 | 0.34 -> 0.94 | 0.35 -> 0.96 | 0.38 | 0.612 |
-| after other errors (cues allowed, rule does not apply) | 557 | 0.36 -> 0.38 | 0.38 -> 0.40 | 0.93 | 0.057 |
-| all other states | 2902 | 0.00 -> 0.00 | 0.00 -> 0.00 | 0.99 | 0.006 |
+| after a sound error (rule applies) | 424 | 0.35 -> 0.85 | 0.36 -> 0.89 | 0.45 | 0.513 |
+| after other errors (cues allowed, rule does not apply) | 488 | 0.32 -> 0.35 | 0.31 -> 0.36 | 0.87 | 0.085 |
+| all other states | 2700 | 0.00 -> 0.00 | 0.00 -> 0.00 | 0.99 | 0.008 |
 
 | cohort | in band before -> after | control error | learning gain x100 | probe recall |
 |---|---|---|---|---|
-| mild_anomic | 0.85 -> 0.84 | 0.130 -> 0.129 | 2.38 -> 2.37 | 0.92 -> 0.92 |
-| moderate_broca | 0.84 -> 0.85 | 0.105 -> 0.109 | 4.28 -> 4.12 | 0.82 -> 0.83 |
-| severe | 0.33 -> 0.34 | 0.246 -> 0.242 | 2.10 -> 2.09 | 0.55 -> 0.56 |
+| mild_anomic | 0.78 -> 0.77 | 0.095 -> 0.096 | 3.03 -> 3.01 | 0.93 -> 0.93 |
+| moderate_broca | 0.76 -> 0.77 | 0.084 -> 0.085 | 5.21 -> 5.14 | 0.81 -> 0.81 |
+| severe | 0.10 -> 0.10 | 0.359 -> 0.354 | 0.74 -> 0.76 | 0.40 -> 0.39 |
 
