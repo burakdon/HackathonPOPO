@@ -810,3 +810,27 @@ the **direction** of an effect; specific numeric values are marked `ASSUMPTION` 
 | Group-relative policy optimisation (GRPO), explored only | Shao et al. (2024). DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models. arXiv:2402.03300. | `train/grpo_smoke.py` |
 | Learning from demonstrated feedback (DITTO), method followed for override learning | Shaikh et al. (2025). Show, Don't Tell: Aligning Language Models with Demonstrated Feedback. ICLR 2025. | `agents/ditto.py` |
 | Direct preference optimisation (DPO loss) | Rafailov, Sharma, Mitchell, Ermon, Manning & Finn (2023). Direct Preference Optimization: Your Language Model is Secretly a Reward Model. *NeurIPS* 36. | `agents/ditto.py` |
+
+## NeuroCue therapy environment on the patient engine (`neurocue/`)
+
+The simulator above (`sim/`) is the hackathon-brief patient: a logistic model with a learning peak
+at 85% success, one 40-trial session, no days and no forgetting. `patientmodel/` is the research
+engine that replaced it (see `patientmodel/README.md`): the Dell semantic-phonological model
+reproducing published fits, a population prior fitted to PSST, word-level errors, cues calibrated to
+cued-naming data, and a learning layer fitted to a four-week retrieval-practice study. `neurocue/`
+is the therapy environment built on that engine; it keeps this repository's patterns (observation
+from observables only, hard action masks, MaskablePPO, paired evaluation with common random
+numbers, `agents/ditto.py` for clinician demonstrations) and changes the problem:
+
+- **Episode** = a course: four sessions on days 0, 3, 7, 10 of 40 trials on 20 personally hard words,
+  judged by predicted unaided retention 7 and 28 days after the course (Middleton et al. 2019's design).
+- **Action** = which word (due / repeat / weakest / strongest) x which cue (none / first sound /
+  meaning / whole word). Spacing, difficulty targeting and scaffolding are all the agent's.
+- **Reward** `privileged` = change in predicted retention after every trial (telescopes exactly to
+  the objective); `observable` = unaided correct responses, which a real session could compute.
+- **Baselines** (`neurocue/baselines.py`): spaced retrieval, massed, the cueing hierarchy, errorless,
+  weakest-first with hierarchy, random.
+
+Run: `uv run python -m neurocue.evaluate --n 100` (baselines), `uv run python -m neurocue.train_ppo`,
+then `uv run python -m neurocue.evaluate --ppo models/engine_ppo_privileged_seed0.zip`. Results in
+`results/engine_trainer*.md`.

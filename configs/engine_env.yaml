@@ -1,0 +1,16 @@
+# NeuroCue therapy environment (neurocue/env.py): a treatment course on one engine patient.
+# Episode = `schedule_days` practice sessions of `trials_per_session` trials each, then unaided
+# retention tests on `test_days` (Middleton, Rawson & Verkuilen 2019 used sessions on days 0, 3, 7,
+# 10 and tests 7 and 28 days after the last one).
+n_items: 20                 # personally hard words chosen per patient
+baseline_range: [0.05, 0.55]   # unaided P(correct) of a word for it to be chosen (Middleton treated unnameable items)
+schedule_days: [0, 3, 7, 10]
+trials_per_session: 40
+test_days: [17, 38]
+history: 8                  # trials of memory in the observation vector
+probe_trials: 500           # SP-model trials per item when computing baselines and cue effects
+reward: privileged          # privileged: change in predicted retention at the first test day (exact, sim-only)
+                            # observable: +1 per unaided correct, +(1 - effort) per cued correct
+whole_word_only_after_error: false   # clinical mask: the word may only be given right after an error on that item
+cohort: population          # population | mild | moderate | severe | very_severe
+splits: {train: 0, val: 1, test: 2}
