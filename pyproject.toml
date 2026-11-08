@@ -47,3 +47,7 @@ addopts = "-q"
 
 [tool.uv]
 package = false
+
+# Only for `pip install -e ".[llm]"` (e.g. on Colab); uv does not build the project (package = false).
+[tool.setuptools.packages.find]
+include = ["agents*", "core*", "envs*", "eval*", "evaluation*", "service*", "sim*", "speech*", "train*", "training*"]

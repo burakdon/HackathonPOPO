@@ -42,6 +42,10 @@ class LLMConfig(BaseModel):
     revision: str | None = None           # pinned Hugging Face revision of the base model
     device: Literal["auto", "cpu", "mps", "cuda"] = "auto"
     dtype: Literal["bfloat16", "float16", "float32"] = "bfloat16"
+    # "generate": free greedy generation, then parse. "score": compute the log-probability of every
+    # valid option and take the most likely one (output is always a valid option; also used to
+    # sample DITTO alternatives in training).
+    decoding: Literal["generate", "score"] = "generate"
     max_new_tokens: int = Field(ge=4, le=64)
     timeout_s: float = Field(gt=0)
     runs_dir: str                         # where training runs (adapters + manifests) live

@@ -81,22 +81,41 @@ class LLMRuntime:
                 self.model.load_adapter(str(path), adapter_name=name)
             self.adapters[name] = str(path)
 
+    def _adapter_ctx(self, adapter: str | None):
+        """Activate `adapter` (None = the unadapted base). Caller holds the lock."""
+        import contextlib
+        if adapter is not None and adapter not in self.adapters:
+            raise KeyError(f"adapter {adapter!r} is not loaded")
+        if adapter is None:
+            return self.model.disable_adapter() if self.adapters else contextlib.nullcontext()
+        self.model.set_adapter(adapter)
+        return contextlib.nullcontext()
+
+    def score(self, msgs: list[dict[str, str]], candidates: list[str], adapter: str | None = None) -> tuple[list[float], float]:
+        """Summed log-probability of each candidate answer (closed by the end-of-turn token) given the
+        prompt, in one batched forward pass. Uses the training code's encoder so scores match the
+        quantities DITTO optimises. Returns (log-probs, seconds)."""
+        import torch
+
+        from training.ditto import Encoder, answer_logps      # lazy: training imports this module
+        with self._lock:
+            self._load()
+            enc = Encoder(self.tokenizer, self.device)
+            prompt = enc.prompt_ids(msgs)
+            ctx = self._adapter_ctx(adapter)
+            t0 = time.perf_counter()
+            with ctx, torch.inference_mode():
+                lp = answer_logps(self.model, enc, [(prompt, enc.answer_ids(c)) for c in candidates])
+            return [float(x) for x in lp.float().cpu()], time.perf_counter() - t0
+
     def generate(self, msgs: list[dict[str, str]], adapter: str | None = None) -> tuple[str, float]:
         """Greedy decoding with `adapter` active (None = the unadapted base). Returns (text, seconds)."""
-        import contextlib
-
         import torch
         with self._lock:
             self._load()
             prompt = chat_prompt(self.tokenizer, msgs)
             ids = self.tokenizer(prompt, return_tensors="pt").to(self.device)
-            if adapter is not None and adapter not in self.adapters:
-                raise KeyError(f"adapter {adapter!r} is not loaded")
-            if adapter is None:
-                ctx = self.model.disable_adapter() if self.adapters else contextlib.nullcontext()
-            else:
-                self.model.set_adapter(adapter)
-                ctx = contextlib.nullcontext()
+            ctx = self._adapter_ctx(adapter)
             t0 = time.perf_counter()
             with ctx, torch.inference_mode():
                 out = self.model.generate(**ids, max_new_tokens=self.cfg.max_new_tokens, do_sample=False,
@@ -113,7 +132,7 @@ _shared_lock = threading.Lock()
 
 def shared_runtime(cfg: LLMConfig) -> LLMRuntime:
     """One runtime per (model, revision, device, dtype) per process."""
-    key = (cfg.base_model, cfg.revision, cfg.device, cfg.dtype)
+    key = (cfg.base_model, cfg.revision, cfg.device, cfg.dtype, cfg.decoding)
     with _shared_lock:
         if key not in _shared:
             _shared[key] = LLMRuntime(cfg)

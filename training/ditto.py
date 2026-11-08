@@ -187,6 +187,18 @@ def answer_logps(model, enc: Encoder, items) -> "torch.Tensor":
     return (lp * m).sum(-1)
 
 
+def sample_options(model, enc: Encoder, prompt: list[int], options: list[str], n: int, temperature: float,
+                   gen) -> list[str]:
+    """n alternatives drawn from the policy's distribution over the valid options (softmax of their
+    summed log-probabilities / temperature), for decoding = "score": the alternatives are then always
+    valid actions, matching how that policy decides at inference."""
+    import torch
+    with torch.inference_mode():
+        lp = answer_logps(model, enc, [(prompt, enc.answer_ids(o)) for o in options]).float().cpu()
+    probs = torch.softmax(lp / temperature, dim=0)
+    return [options[i] for i in torch.multinomial(probs, n, replacement=True, generator=gen).tolist()]
+
+
 def sample(model, enc: Encoder, prompt: list[int], n: int, cfg: dict, max_new: int) -> list[str]:
     import torch
     ids = torch.tensor([prompt], device=enc.device)
@@ -234,6 +246,7 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
         "run_id": run_id, "method": "DITTO (SFT + iterative DPO with expert/replay/intermodel comparisons)",
         "status": "running", "started": datetime.now(timezone.utc).isoformat(), "smoke": smoke,
         "base_model": base, "base_revision": revision, "template": TEMPLATE_SETTINGS,
+        "dtype": pcfg.llm.dtype, "decoding": pcfg.llm.decoding,
         "history_in_prompt": pcfg.history_in_prompt,
         "demonstrations": {"path": cfg["demonstrations"], "extra_path": extra_demos,
                            "example_ids": [r["example_id"] for r in rows], "hash": examples_hash(rows),
@@ -252,7 +265,8 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
         t_start = time.time()
         dev = manifest["device"]
         tok = AutoTokenizer.from_pretrained(base, revision=revision)
-        model = AutoModelForCausalLM.from_pretrained(base, revision=revision, dtype=torch.bfloat16).to(dev)
+        model = AutoModelForCausalLM.from_pretrained(base, revision=revision,
+                                                     dtype=getattr(torch, pcfg.llm.dtype)).to(dev)
         model.config.use_cache = False
         enc = Encoder(tok, dev)
         lcfg = cfg["lora"]
@@ -290,12 +304,18 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
         model.add_adapter("ditto", lora)
         copy_adapter_weights(model, "sft", "ditto")
         cache: dict[int, dict[str, list[str]]] = {}
+        options = {r["example_id"]: r["options"] for r in rows}
+        gen = torch.Generator().manual_seed(seed)
         for t in range(d["rounds"]):
             model.set_adapter("ditto")
             model.eval()
             model.config.use_cache = True
-            cache[t] = {eid: sample(model, enc, prompts[eid], d["samples_per_prompt"], d, pcfg.llm.max_new_tokens)
-                        for eid in prompts}
+            if pcfg.llm.decoding == "score":
+                cache[t] = {eid: sample_options(model, enc, prompts[eid], options[eid], d["samples_per_prompt"],
+                                                d["temperature"], gen) for eid in prompts}
+            else:
+                cache[t] = {eid: sample(model, enc, prompts[eid], d["samples_per_prompt"], d, pcfg.llm.max_new_tokens)
+                            for eid in prompts}
             model.config.use_cache = False
             acc = {r["example_id"]: r["accepted"] for r in rows}
             n_samples = sum(len(v) for v in cache[t].values())

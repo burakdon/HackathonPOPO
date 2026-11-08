@@ -43,8 +43,9 @@ def bandit_for(ctx: DecisionContext, bcfg, clinical, seed: int) -> BanditDecisio
     return b
 
 
-def evaluate(run_id: str, split: str, rounds: bool, conditions: list[str] | None = None) -> dict:
-    pcfg, clinical, bcfg = load_practice(), load_clinical(), load_beta_bandit()
+def evaluate(run_id: str, split: str, rounds: bool, conditions: list[str] | None = None,
+             practice: str = "configs/practice.yaml") -> dict:
+    pcfg, clinical, bcfg = load_practice(practice), load_clinical(), load_beta_bandit()
     reg = ModelRegistry(pcfg)
     manifest = reg.run(run_id)
     if set(manifest["demonstrations"]["example_ids"]) & {r["example_id"] for r in load_examples(
@@ -88,7 +89,7 @@ def evaluate(run_id: str, split: str, rounds: bool, conditions: list[str] | None
     return {"run_id": run_id, "split": split, "created": datetime.now(timezone.utc).isoformat(),
             "dataset_hash": examples_hash(rows), "example_ids": [r["example_id"] for r in rows],
             "base_model": pcfg.llm.base_model, "base_revision": pcfg.llm.revision,
-            "trained_on": manifest["demonstrations"]["example_ids"], "results": results}
+            "decoding": pcfg.llm.decoding, "trained_on": manifest["demonstrations"]["example_ids"], "results": results}
 
 
 def to_markdown(rep: dict) -> str:
@@ -134,9 +135,11 @@ def main() -> None:
     ap.add_argument("--rounds", action="store_true", help="also evaluate intermediate DITTO rounds")
     ap.add_argument("--conditions", nargs="*", default=None)
     ap.add_argument("--markdown", default=None, help="also write a Markdown summary here (e.g. results/...)")
+    ap.add_argument("--practice", default="configs/practice.yaml",
+                    help="practice config: base model, decoding, runs and eval directories")
     args = ap.parse_args()
-    rep = evaluate(args.run, args.split, args.rounds, args.conditions)
-    pcfg = load_practice()
+    rep = evaluate(args.run, args.split, args.rounds, args.conditions, args.practice)
+    pcfg = load_practice(args.practice)
     out = resolve(pcfg.eval_dir) / f"{args.run}-{args.split}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(rep, indent=1))

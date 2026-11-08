@@ -121,7 +121,8 @@ class ModelRegistry:
             elif version.startswith(("sft:", "ditto:")):
                 adapter, path, m = self.adapter_path(version)
                 runtime.ensure_adapter(adapter, path)
-                detail.update({"adapter": str(path.relative_to(resolve("."))), "run_id": m["run_id"],
+                rel = path.relative_to(resolve(".")) if path.is_relative_to(resolve(".")) else path
+                detail.update({"adapter": str(rel), "run_id": m["run_id"],
                                "trained_on": m["demonstrations"]["example_ids"]})
             else:
                 raise KeyError(f"unknown model version {version!r}")

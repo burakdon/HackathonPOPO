@@ -76,6 +76,11 @@ class LLMDecisionPolicy:
 
     def generate(self, ctx: DecisionContext, options: list[PracticeAction]) -> tuple[str, float]:
         msgs = messages(ctx, options, self.history_in_prompt, self.few_shot)
+        if getattr(getattr(self.runtime, "cfg", None), "decoding", "generate") == "score":
+            keys = [format_action(o) for o in options]
+            fut = self.executor.submit(self.runtime.score, msgs, keys, self.adapter)
+            lps, dt = fut.result(timeout=self.timeout_s)
+            return keys[max(range(len(keys)), key=lps.__getitem__)], dt
         fut = self.executor.submit(self.runtime.generate, msgs, self.adapter)
         return fut.result(timeout=self.timeout_s)
 
