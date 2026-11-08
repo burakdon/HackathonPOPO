@@ -40,15 +40,19 @@ PSST codes correctness only. `scripts/code_psst_responses.py` machine-codes its 
 PNT-style types with a confidence; a clinician on the team adjudicated the 278 uncertain noun rows
 (`data/derived/CODING_GUIDE.md`; agreement in `results/psst_coder_agreement.md`: the machine's
 semantic and phonological-nonword calls held up, its formal, mixed and unrelated calls mostly did
-not, so those are now never high confidence and a further 111 rows await review). Table 2c of
-`results/engine_validation.md` compares error-only mixes. Semantic shares match (0.21 both). The
-engine makes about twice the real share of formal and three times the real share of unrelated word
-errors, a third of the real mixed share, and too few nonwords (0.30 against 0.51). Item difficulty
-is not the cause: on the 13 BNT items the synthetic nonword share is 0.35. The population prior
-(log p/s mean 0.5, from Dell's Philadelphia patients) is: a mean near 0 gives nonword 0.48 but
-leaves the formal and unrelated excess, which comes from the SP model's six-word neighbourhood and
-is a known approximation of that model, not a sampling choice. The prior is retuned only after the
-second adjudication round, since those rows are the formal and mixed ones.
+not). Those 278 rows are then ground truth for `scripts/learn_coder.py`, a random forest on 42
+features of the target/response pair that codes the remaining 111 uncertain noun rows; by
+leave-one-target-out cross-validation it is right 48% of the time on nine categories and 66% on the
+five SP error types, against 32% and 36% for the rules (`results/psst_coder_learned.md`). Order of
+precedence downstream: clinician > learned > rules. Table 2c of `results/engine_validation.md`
+compares error-only mixes on that basis. Real patients on these items: semantic 0.29, formal about
+0.01 (the clinician kept 3 of 91 formal calls, so the learned coder never predicts it; the true
+share lies between that and 0.10), mixed 0.04, unrelated 0.05, nonword 0.61. The engine: 0.21,
+0.22, 0.04, 0.23, 0.30. Item difficulty is not the cause (synthetic nonword share on the 13 BNT
+items is 0.35). The population prior (log p/s mean 0.5, from Dell's Philadelphia patients) explains
+the nonword shortfall: a mean near -0.5 gives nonword 0.63. The formal and unrelated excess comes
+from the SP model's six-word neighbourhood, a known approximation of that model, and no prior
+setting removes it. The prior has not been retuned yet.
 
 ## Known limitations
 

@@ -58,13 +58,14 @@ original `utterances.tsv`).
 6. **When in doubt**, pick the category a speech-language pathologist would write on a PNT score
    sheet, and write a word in `notes`. Disagreement with the machine is the point.
 
-## Round 2
+## Round 2 (optional)
 
 Your first 278 codes are in and counted (thank you). They showed that the machine's `formal` and `mixed`
-calls are unreliable even when it was confident (you kept 3 of 91 formal), so those rows are now on
-the sheet too: the 111 BNT rows with an empty `final_category` are the second round, about half an
-hour. Same rules: blank accepts the machine's code. The first-round rows keep your codes; do not
-retype them.
+calls are unreliable even when it was confident (you kept 3 of 91 formal). Rather than ask for more
+of your time, a model trained on your 278 codes (`scripts/learn_coder.py`) now codes the remaining
+111 noun rows; its guess and confidence are in `learned_category` and `learned_prob`. If you ever
+have another half hour, those 111 rows are the ones to look at, lowest `learned_prob` first, and
+anything you put in `final_category` overrides the model.
 
 ## What happens with your codes
 

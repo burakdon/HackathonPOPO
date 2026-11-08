@@ -120,25 +120,29 @@ def main() -> None:
     if coded_path.exists():
         adj_path = ROOT / "data" / "derived" / "psst_adjudication.csv"
         final: dict[str, str] = {}
+        learned: dict[str, str] = {}
         if adj_path.exists():
             with open(adj_path) as f:
                 for r in csv.DictReader(f):
                     if r.get("final_category"):
                         final[r["utterance_id"]] = r["final_category"]
+                    elif r.get("learned_category"):
+                        learned[r["utterance_id"]] = r["learned_category"]
         n_final = 0
         with open(coded_path) as f:
             for r in csv.DictReader(f):
                 if r["test"] != "BNT":
                     continue
-                cat = final.get(r["utterance_id"]) or r["category"]
+                cat = final.get(r["utterance_id"]) or learned.get(r["utterance_id"]) or r["category"]
                 n_final += r["utterance_id"] in final
-                if r["confidence"] == "low" and r["utterance_id"] not in final:
+                if r["confidence"] == "low" and r["utterance_id"] not in final and r["utterance_id"] not in learned:
                     cat = "low_confidence"
                 real_mix[band(float(r["aq_index"]))][cat] += 1
         merge = {"correct": "correct", "correct_variant": "correct", "semantic": "semantic", "formal": "formal", "mixed": "mixed",
                  "unrelated": "unrelated", "nonword_phon": "nonword", "nonword_other": "nonword", "fragment": "nonword"}
         lines += ["\n**2b. Real response-type mix by band, PSST BNT items, machine-coded with clinician adjudication** "
-                  f"({'with ' + str(n_final) + ' adjudicated rows' if n_final else 'no adjudication yet'}; low-confidence rows shown separately; "
+                  f"({'with ' + str(n_final) + ' adjudicated rows' if n_final else 'no adjudication yet'}"
+                  f"{' and ' + str(len(learned)) + ' rows coded by the learned coder' if learned else ''}; low-confidence rows shown separately; "
                   "fragments counted as nonwords; multiword = descriptions, circumlocutions and strung attempts, which the engine does not produce)\n",
                   "| band | n | " + " | ".join(NAMING_CATEGORIES) + " | multiword | low confidence |", "|---|---|" + "---|" * (len(NAMING_CATEGORIES) + 2)]
         for b in ("AQ<50", "AQ 50-69", "AQ 70-84", "AQ 85+"):

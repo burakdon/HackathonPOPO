@@ -257,18 +257,23 @@ def main() -> None:
     # Preserve any adjudication already entered: the clinician's final_category and notes are kept
     # by utterance_id, and a row they judged stays on the sheet even if it is now high confidence.
     previous: dict[str, dict] = {}
+    extra = ["final_category", "notes"]
     if ADJ.exists():
         with open(ADJ) as f:
-            for r in csv.DictReader(f):
+            rd = csv.DictReader(f)
+            extra = [k for k in rd.fieldnames if k not in FIELDS] or extra
+            for r in rd:
                 if r.get("final_category") or r.get("notes"):
-                    previous[r["utterance_id"]] = {"final_category": r["final_category"], "notes": r["notes"]}
+                    previous[r["utterance_id"]] = {k: r.get(k, "") for k in extra}
+    # Learned codes (scripts/learn_coder.py) are recomputed by that script; do not carry stale ones.
+    blank = {k: "" for k in extra}
     adj = [c for c in coded if c["confidence"] != "high" or c["utterance_id"] in previous]
     adj.sort(key=lambda c: (c["test"] != "BNT", c["confidence"] != "medium", c["prompt"]))
     with open(ADJ, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=FIELDS + ["final_category", "notes"])
+        w = csv.DictWriter(f, fieldnames=FIELDS + extra)
         w.writeheader()
         for c in adj:
-            w.writerow({**c, **previous.get(c["utterance_id"], {"final_category": "", "notes": ""})})
+            w.writerow({**c, **blank, **previous.get(c["utterance_id"], {})})
     if previous:
         agree = sum(1 for c in adj if c["utterance_id"] in previous and previous[c["utterance_id"]]["final_category"] in ("", c["category"]))
         print(f"kept {len(previous)} adjudicated rows; the machine now agrees with the clinician on {agree} of them")

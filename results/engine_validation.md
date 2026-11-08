@@ -21,14 +21,14 @@ Overall: real 0.44, curve 0.47, synthetic 0.49. Correlation of accuracy with AQ:
 | AQ 70-84 | 0.55 | 0.10 | 0.09 | 0.02 | 0.11 | 0.13 | 0.00 |
 | AQ 85+ | 0.64 | 0.09 | 0.09 | 0.02 | 0.08 | 0.07 | 0.00 |
 
-**2b. Real response-type mix by band, PSST BNT items, machine-coded with clinician adjudication** (with 278 adjudicated rows; low-confidence rows shown separately; fragments counted as nonwords; multiword = descriptions, circumlocutions and strung attempts, which the engine does not produce)
+**2b. Real response-type mix by band, PSST BNT items, machine-coded with clinician adjudication** (with 278 adjudicated rows and 111 rows coded by the learned coder; low-confidence rows shown separately; fragments counted as nonwords; multiword = descriptions, circumlocutions and strung attempts, which the engine does not produce)
 
 | band | n | correct | semantic | formal | mixed | unrelated | nonword | multiword | low confidence |
 |---|---|---|---|---|---|---|---|---|---|
-| AQ<50 | 85 | 0.21 | 0.18 | 0.05 | 0.05 | 0.13 | 0.39 | 0.00 | 0.00 |
-| AQ 50-69 | 246 | 0.46 | 0.13 | 0.06 | 0.08 | 0.02 | 0.24 | 0.02 | 0.00 |
-| AQ 70-84 | 395 | 0.50 | 0.09 | 0.05 | 0.07 | 0.04 | 0.23 | 0.02 | 0.00 |
-| AQ 85+ | 348 | 0.66 | 0.06 | 0.03 | 0.02 | 0.02 | 0.20 | 0.01 | 0.00 |
+| AQ<50 | 85 | 0.21 | 0.21 | 0.00 | 0.02 | 0.11 | 0.45 | 0.00 | 0.00 |
+| AQ 50-69 | 246 | 0.46 | 0.17 | 0.00 | 0.03 | 0.01 | 0.30 | 0.02 | 0.00 |
+| AQ 70-84 | 395 | 0.50 | 0.14 | 0.00 | 0.03 | 0.03 | 0.28 | 0.02 | 0.00 |
+| AQ 85+ | 348 | 0.66 | 0.09 | 0.00 | 0.01 | 0.01 | 0.22 | 0.01 | 0.00 |
 
 Compare with table 2 (synthetic). Caveat: BNT items are 15 hard, low-frequency nouns; the synthetic cohort names a 481-item bank, so item difficulty is not matched here. Among errors only, the shares are more comparable.
 
@@ -36,11 +36,11 @@ Compare with table 2 (synthetic). Caveat: BNT items are 15 hard, low-frequency n
 
 | band | real n | real semantic | real formal | real mixed | real unrelated | real nonword | syn n | syn semantic | syn formal | syn mixed | syn unrelated | syn nonword |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| AQ<50 | 67 | 0.22 | 0.06 | 0.06 | 0.16 | 0.49 | 194 | 0.16 | 0.19 | 0.02 | 0.21 | 0.42 |
-| AQ 50-69 | 128 | 0.25 | 0.11 | 0.16 | 0.03 | 0.45 | 473 | 0.19 | 0.23 | 0.03 | 0.22 | 0.33 |
-| AQ 70-84 | 188 | 0.18 | 0.11 | 0.14 | 0.08 | 0.49 | 450 | 0.22 | 0.20 | 0.05 | 0.24 | 0.29 |
-| AQ 85+ | 113 | 0.19 | 0.11 | 0.05 | 0.05 | 0.60 | 368 | 0.26 | 0.25 | 0.06 | 0.22 | 0.21 |
-| all | 496 | 0.21 | 0.10 | 0.11 | 0.07 | 0.51 | 1485 | 0.21 | 0.22 | 0.04 | 0.23 | 0.30 |
+| AQ<50 | 67 | 0.27 | 0.00 | 0.03 | 0.13 | 0.57 | 194 | 0.16 | 0.19 | 0.02 | 0.21 | 0.42 |
+| AQ 50-69 | 128 | 0.33 | 0.01 | 0.05 | 0.02 | 0.59 | 473 | 0.19 | 0.23 | 0.03 | 0.22 | 0.33 |
+| AQ 70-84 | 188 | 0.29 | 0.01 | 0.05 | 0.06 | 0.59 | 450 | 0.22 | 0.20 | 0.05 | 0.24 | 0.29 |
+| AQ 85+ | 113 | 0.27 | 0.01 | 0.02 | 0.02 | 0.69 | 368 | 0.26 | 0.25 | 0.06 | 0.22 | 0.21 |
+| all | 496 | 0.29 | 0.01 | 0.04 | 0.05 | 0.61 | 1485 | 0.21 | 0.22 | 0.04 | 0.23 | 0.30 |
 
 Reading 2c: where real and synthetic differ by more than a few hundredths in the pooled row, the engine's population prior or realizer is the suspect, not the PSST sample; the real column still depends on the machine codes for rows the clinician has not seen.
 
