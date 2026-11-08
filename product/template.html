@@ -86,6 +86,10 @@ button { cursor: pointer }
 .sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100% }
 .sum div { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 16px; font-size: 1.05rem }
 .sum b { display: block; font-size: 2.2rem }
+.moods { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; width: 100% }
+.moods button { border: 2px solid var(--line); background: var(--surface); border-radius: 8px; padding: 16px 8px; display: grid; justify-items: center; gap: 8px; font-size: 1.15rem; font-weight: 700; color: var(--ink) }
+.moods button:hover { border-color: var(--accent) }
+.mood-row { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 12px; align-items: center }
 .overlay { position: fixed; inset: 0; background: rgba(10, 20, 24, .55); display: grid; place-items: center; z-index: 15; padding: 16px }
 
 /* ---------- CLINICIAN ---------- */
@@ -149,7 +153,7 @@ textarea { width: 100%; min-height: 96px; border: 1px solid var(--line); border-
 .foot { padding-block: 0 30px; color: var(--muted); font-size: .9rem; max-width: 90ch }
 
 @media (max-width: 1000px) { .clin { grid-template-columns: 1fr } .rail { position: static; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) } .two { grid-template-columns: 1fr } }
-@media (max-width: 640px) { .stats, .sum, .features { grid-template-columns: 1fr } .form { grid-template-columns: 1fr } .seg { margin-left: 0 } .hb-row { grid-template-columns: 110px minmax(0, 1fr) 50px } }
+@media (max-width: 640px) { .moods { grid-template-columns: repeat(2, minmax(0, 1fr)) } .stats, .sum, .features { grid-template-columns: 1fr } .form { grid-template-columns: 1fr } .seg { margin-left: 0 } .hb-row { grid-template-columns: 110px minmax(0, 1fr) 50px } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important } }
 </style>
 
@@ -183,6 +187,12 @@ const LADDERS = {
 };
 const MIC = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M8.5 21h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const SPEAKER = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const MOOD = { 4: "Good", 3: "Okay", 2: "Low", 1: "Very low" };
+const MOOD_COLOR = { 4: "var(--good)", 3: "var(--accent)", 2: "var(--c-hint)", 1: "var(--bad)" };
+function face(level, size = 64) {   // simple line face; mouth curvature follows the mood
+  const mouth = { 4: "M20 38 Q32 50 44 38", 3: "M21 40 Q32 44 43 40", 2: "M21 43 Q32 38 43 43", 1: "M20 45 Q32 33 44 45" }[level];
+  return `<svg width="${size}" height="${size}" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="23" cy="26" r="3.2" fill="currentColor"/><circle cx="41" cy="26" r="3.2" fill="currentColor"/><path d="${mouth}" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>`;
+}
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const S = { view: "clinician", sel: "maria", tablet: "maria", patients: structuredClone(MOCK.patients),
   log: {}, sugg: {}, standing: {}, openSession: null, proposal: null, run: null };
@@ -224,8 +234,8 @@ function pick(level, seen) {
 function start() {
   const pl = plan();
   S.run = { level: pl.level, n: pl.pictures_per_session, done: [], seen: new Set(), item: null, tries: 0, hints: [], kind: null,
-            phase: "ask", streak: 0, firstTries: [], note: "", review: [], reviewDone: [] };
-  next();
+            phase: "mood", streak: 0, firstTries: [], note: "", review: [], reviewDone: [], mood: null };
+  renderTablet();
 }
 function next() {
   const r = S.run;
@@ -271,7 +281,7 @@ function save() {
     named_with_hint: r.done.filter((d) => d.named && !d.solo).length / n,
     errors: { sound: r.done.filter((d) => d.kind === "sound").length, wrong_word: r.done.filter((d) => d.kind === "meaning").length, no_answer: r.done.filter((d) => d.kind === "no_response").length },
     review_recall: r.reviewDone.length ? r.reviewDone.filter((x) => x.ok).length / r.reviewDone.length : null,
-    mean_level: r.done.reduce((a, d) => a + d.level, 0) / n, ended_early: false, minutes: Math.round(n * 1.2), trials });
+    mood: r.mood, mean_level: r.done.reduce((a, d) => a + d.level, 0) / n, ended_early: false, minutes: Math.round(n * 1.2), trials });
 }
 function hintView(h, item) {
   if (h === "describe") return `<div class="t-say">Tell me about it.</div><div class="features"><div>What group is it in?</div><div>What is it used for?</div><div>Where do you find it?</div></div>`;
@@ -292,6 +302,9 @@ function renderTablet() {
     body = `<div class="t-body"><div class="t-title">Hello, ${esc(p.first)}.</div>
       <div class="t-say">Today's practice: ${pl.pictures_per_session} pictures, about ${pl.session_minutes} minutes.</div>
       <button class="big" id="go">Start</button></div>`;
+  } else if (r.phase === "mood") {
+    body = `<div class="t-body"><div class="t-title">How are you feeling today?</div>
+      <div class="moods">${[4, 3, 2, 1].map((m) => `<button data-mood="${m}" aria-label="${MOOD[m]}" style="color:${MOOD_COLOR[m]}">${face(m)}<span style="color:var(--ink)">${MOOD[m]}</span></button>`).join("")}</div></div>`;
   } else if (r.phase === "end") {
     const n = r.done.length, solo = r.done.filter((d) => d.solo).length, helped = r.done.filter((d) => d.named && !d.solo).length;
     const rv = r.reviewDone.length ? `${r.reviewDone.filter((x) => x.ok).length} of ${r.reviewDone.length}` : "–";
@@ -335,6 +348,7 @@ function renderTablet() {
   on("tg", () => { finishPicture(false); afterPicture(); });
   on("pause", () => breakOverlay(false));
   document.querySelectorAll("[data-heard]").forEach((b) => (b.onclick = () => heard(b.dataset.heard)));
+  document.querySelectorAll("[data-mood]").forEach((b) => (b.onclick = () => { S.run.mood = +b.dataset.mood; next(); }));
   document.querySelectorAll("[data-say]").forEach((b) => (b.onclick = () => say(b.dataset.say)));
 }
 function breakOverlay(auto) {
@@ -360,7 +374,13 @@ function attention(p) {
   if (gap >= 3 && !last.live) out.push(`No practice for ${gap} days`);
   const early = thisWeek(p).filter((s) => s.ended_early).length;
   if (early) out.push(`Stopped early in ${early} session${early > 1 ? "s" : ""} after repeated misses`);
+  const low = lowMood(p);
+  if (low) out.push(`Low mood before ${low[0]} of the last ${low[1]} sessions. Consider depression screening (for example SADQ-10) or referral`);
   return out;
+}
+function lowMood(p) {
+  const m = real(p).filter((s) => s.mood).slice(-4), n = m.filter((s) => s.mood <= 2).length;
+  return m.length >= 3 && n >= 3 ? [n, m.length] : null;
 }
 function trend(p) { const r = real(p), k = Math.min(3, Math.floor(r.length / 2)); return avg(r.slice(-k), "named_without_hint") - avg(r.slice(0, k), "named_without_hint"); }
 function status(p) { if (attention(p).length) return ["attn", "Needs attention"]; return trend(p) >= .08 ? ["up", "Improving"] : ["ok", "On track"]; }
@@ -407,8 +427,8 @@ function page(p) {
     <div class="card stat"><div class="k">Practice this week</div><div class="v num">${Math.round(mins)} <span class="muted" style="font-size:1rem">of ${p.goal_minutes} min</span></div><div class="d num">${wk.length} of ${p.plan.days.length} planned days</div></div>
     <div class="card stat attn ${att.length ? "" : "none"}"><div class="k">Flags</div><div class="v">${att.length ? att.map(esc).join("<br>") : "None this week"}</div></div>
   </div>
-  <div class="card chart"><h2>Naming over the last two weeks</h2>${chart(p)}
-    <div class="legend"><span><i style="background:var(--accent)"></i>Named on their own</span><span><i style="background:var(--c-hint)"></i>Named with a hint</span><span><i style="background:var(--bad);width:9px;height:9px;border-radius:50%"></i>Stopped early</span></div></div>
+  <div class="card chart"><h2>Naming and mood over the last two weeks</h2>${chart(p)}
+    <div class="legend"><span><i style="background:var(--accent)"></i>Named on their own</span><span><i style="background:var(--c-hint)"></i>Named with a hint</span><span><i style="background:var(--bad);width:9px;height:9px;border-radius:50%"></i>Stopped early</span></div>${moodChart(p)}</div>
   <div class="two">${seeing(p)}${helps(p)}</div>
   ${review(p)}
   ${notes(p)}
@@ -416,7 +436,7 @@ function page(p) {
   <div class="card"><h2>Plan history</h2><div class="log">${S.log[p.id].slice().reverse().map((l) => `<div><b>${esc(l.when)}</b><br>${esc(l.what)}</div>`).join("")}</div></div>`;
 }
 function chart(p) {
-  const ss = p.sessions, W = 680, H = 240, L = 46, R = 14, T = 14, B = 34;
+  const ss = p.sessions, W = 680, H = 240, L = 80, R = 14, T = 14, B = 34;
   const x = (i) => L + (ss.length === 1 ? 0 : (i * (W - L - R)) / (ss.length - 1)), y = (v) => T + (1 - v) * (H - T - B);
   const solo = ss.map((s, i) => `${x(i)},${y(s.named_without_hint)}`).join(" ");
   const tot = ss.map((s, i) => `${x(i)},${y(s.named_without_hint + s.named_with_hint)}`);
@@ -436,8 +456,26 @@ function seeing(p) {
     <dt>Main error type</dt><dd>${top[2][0].toUpperCase() + top[2].slice(1)} · ${pct(top[1] / tot)} of misses, last 5 sessions</dd>
     <dt>Difficult items</dt><dd>${ws.hard.length ? ws.hard.map(esc).join(", ") : "None"}</dd>
     <dt>Mastered items</dt><dd>${ws.mastered.length ? ws.mastered.map(esc).join(", ") : "None yet"}</dd>
+    <dt>Mood before practice</dt><dd>${moodSummary(p)}</dd>
     <dt>Completion</dt><dd>${early ? `${real(p).length - early} of ${real(p).length} sessions completed; ${early} stopped after consecutive misses` : `All ${real(p).length} sessions completed`}${last.review_recall != null ? ` · delayed recall ${pct(last.review_recall)} last session` : ""}</dd>
   </dl></div>`;
+}
+function moodSummary(p) {
+  const m = real(p).filter((s) => s.mood).slice(-5);
+  if (!m.length) return "Not recorded";
+  const c = { 4: 0, 3: 0, 2: 0, 1: 0 }; m.forEach((s) => c[s.mood]++);
+  const most = [4, 3, 2, 1].sort((a, b) => c[b] - c[a])[0], low = c[2] + c[1];
+  return `Mostly ${MOOD[most].toLowerCase()} · ${low ? `low before ${low} of the last ${m.length} sessions` : `no low days in the last ${m.length} sessions`}`;
+}
+function moodChart(p) {
+  const ss = p.sessions, W = 680, H = 120, L = 80, R = 14, T = 12, B = 12;
+  const x = (i) => L + (ss.length === 1 ? 0 : (i * (W - L - R)) / (ss.length - 1)), y = (m) => T + ((4 - m) / 3) * (H - T - B);
+  const pts = ss.map((s, i) => [i, s.mood]).filter(([, m]) => m);
+  const line = pts.map(([i, m]) => `${x(i)},${y(m)}`).join(" ");
+  const grid = [4, 3, 2, 1].map((m) => `<line x1="${L}" x2="${W - R}" y1="${y(m)}" y2="${y(m)}" stroke="var(--line)"/><text x="${L - 10}" y="${y(m) + 5}" text-anchor="end" font-size="14" fill="var(--muted)">${MOOD[m]}</text>`).join("");
+  const dots = pts.map(([i, m]) => `<circle cx="${x(i)}" cy="${y(m)}" r="5.5" fill="${MOOD_COLOR[m]}"><title>${label(ss[i])}: ${MOOD[m]}</title></circle>`).join("");
+  return `<div class="label" style="font-weight:700;margin-top:6px">Mood before practice</div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mood reported before each session">${grid}<polyline points="${line}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 4"/>${dots}</svg>`;
 }
 function helps(p) {
   const he = hintEffect(p), st = S.standing[p.id];
