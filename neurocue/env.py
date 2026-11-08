@@ -152,13 +152,16 @@ class EngineTherapyEnv(gym.Env):
         pt = Patient(spec.patient_id, spec.s, spec.p, self.model, self.realizer, aq=spec.aq,
                      rng=np.random.default_rng(int(seeds[1])))
         tp = TreatablePatient(pt, probe_trials=self.cfg.probe_trials)
-        # Personally hard words: scan the harder half of the bank in a patient-specific order until
-        # n_items fall inside the baseline range (Middleton treated words the participant could not name).
-        order = np.random.default_rng(int(seeds[2])).permutation(len(self.bank))
+        return tp, self.choose_items(tp, int(seeds[2]))
+
+    def choose_items(self, tp: TreatablePatient, seed: int) -> list[Item]:
+        """Personally hard words: scan the harder half of the bank in a patient-specific order until
+        n_items fall inside the baseline range (Middleton treated words the participant could not name)."""
+        order = np.random.default_rng(seed).permutation(len(self.bank))
         hard = sorted(order, key=lambda i: -self.bank[i].difficulty)[: len(self.bank) // 2]
         lo, hi = self.cfg.baseline_range
         chosen: list[Item] = []
-        for i in np.random.default_rng(int(seeds[2]) + 1).permutation(hard):
+        for i in np.random.default_rng(seed + 1).permutation(hard):
             it = self.bank[i]
             if lo <= tp.baseline_probability(it) <= hi:
                 chosen.append(it)
@@ -168,7 +171,7 @@ class EngineTherapyEnv(gym.Env):
             rest = [self.bank[i] for i in hard if self.bank[i] not in chosen]
             rest.sort(key=lambda it: min(abs(tp.baseline_probability(it) - lo), abs(tp.baseline_probability(it) - hi)))
             chosen += rest[: self.cfg.n_items - len(chosen)]
-        return tp, chosen
+        return chosen
 
     # ------------------------------------------------------------------ objective
     def retention(self, day: float) -> float:
@@ -238,7 +241,11 @@ class EngineTherapyEnv(gym.Env):
         options = options or {}
         k = int(options["patient_index"]) if "patient_index" in options else int(self.np_random.integers(2**31 - 1))
         self.patient_index = k
-        self.tp, self.items = self._build_patient(k)
+        if "patient" in options:        # a caller-built patient (demo console); items chosen for it unless given
+            self.tp = options["patient"]
+            self.items = options.get("items") or self.choose_items(self.tp, int(options.get("item_seed", k)))
+        else:
+            self.tp, self.items = self._build_patient(k)
         self.stats = [ItemStats() for _ in self.items]
         self.history: list[dict] = []
         self.session, self.trial_in_session, self.trial_index = 0, 0, 0
@@ -286,7 +293,7 @@ class EngineTherapyEnv(gym.Env):
             if self.session >= self.n_sessions:
                 terminated = True
                 self.session = self.n_sessions - 1          # keep indices valid for the final observation
-        info: dict = {"response": rec}
+        info: dict = {"response": rec, "retention_now": self.retention(self.cfg.test_days[0])}
         if terminated:
             info["retention"] = {d: self.retention(d) for d in self.cfg.test_days}
             info["start_retention"] = self.start_retention

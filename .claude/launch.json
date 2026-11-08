@@ -4,8 +4,29 @@
     {
       "name": "cueagain",
       "runtimeExecutable": "uv",
-      "runtimeArgs": ["run", "--extra", "llm", "--extra", "speech", "uvicorn", "service.app:app", "--port", "8000"],
+      "runtimeArgs": [
+        "run",
+        "--extra",
+        "llm",
+        "--extra",
+        "speech",
+        "uvicorn",
+        "service.app:app",
+        "--port",
+        "8000"
+      ],
       "port": 8000
+    },
+    {
+      "name": "neurocue-demo",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": [
+        "run",
+        "python",
+        "-m",
+        "neurocue.demo.server"
+      ],
+      "port": 8765
     }
   ]
 }
