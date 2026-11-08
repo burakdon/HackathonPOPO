@@ -1,0 +1,809 @@
+category,voice,exercise_id,target,said,heard,expected_outcome,expected_error,actual_outcome,actual_error,matched_name,ok,reason,word_confidence,transcribe_ms,clip
+correct_word,Samantha,ex-cat,cat,cat,cat,correct,,correct,,cat,True,"One word, “cat”, matches “cat”.",0.402,787.8,runs/scorer_clips/Samantha/9d989e8d27.wav
+alt_word,Samantha,ex-cat,cat,kitty,Kitty //,correct,,correct,,kitty,True,"One word, “kitty”, matches “kitty”.",0.594,296.5,runs/scorer_clips/Samantha/95d79f53b5.wav
+alt_word,Samantha,ex-cat,cat,kitten,Kitten,correct,,correct,,kitten,True,"One word, “kitten”, matches “kitten”.",0.535,292.3,runs/scorer_clips/Samantha/44060752d7.wav
+plural,Samantha,ex-cat,cat,cats,Cats,correct,,correct,,cat,True,"One word, “cats”, the plural of “cat”.",0.4,296.7,runs/scorer_clips/Samantha/8ebf601f8b.wav
+filler_word,Samantha,ex-cat,cat,"um, cat",I'm Kat.,correct,,unclear,,,False,More than one word (“I'm Kat.”); only single-word answers are scored.,,300.0,runs/scorer_clips/Samantha/435047fc5d.wav
+wrong_word,Samantha,ex-cat,cat,dog,Dog,incorrect,meaning,incorrect,meaning,,True,"One word, “dog”, a different word from “cat”.",0.173,279.4,runs/scorer_clips/Samantha/e49512524f.wav
+near_miss,Samantha,ex-cat,cat,tat,TAT,incorrect,sound,incorrect,sound,,True,"One word, “tat”, sounds close to “cat”.",0.293,1748.3,runs/scorer_clips/Samantha/3811d14d3b.wav
+its_a,Samantha,ex-cat,cat,it's a cat,It's a cat.,unclear,,unclear,,,True,More than one word (“It's a cat.”); only single-word answers are scored.,,381.1,runs/scorer_clips/Samantha/1fddd74fd9.wav
+dont_know,Samantha,ex-cat,cat,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,340.3,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-cat,cat,,[empty],unclear,,unclear,,,True,No speech detected.,,46.6,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-cat,cat,cat,Look at that.,correct,,unclear,,,False,More than one word (“Look at that.”); only single-word answers are scored.,,977.7,runs/scorer_clips/Daniel/9d989e8d27.wav
+alt_word,Daniel,ex-cat,cat,kitty,KITTY,correct,,correct,,kitty,True,"One word, “kitty”, matches “kitty”.",0.335,614.6,runs/scorer_clips/Daniel/95d79f53b5.wav
+alt_word,Daniel,ex-cat,cat,kitten,Get him.,correct,,unclear,,,False,More than one word (“Get him.”); only single-word answers are scored.,,329.2,runs/scorer_clips/Daniel/44060752d7.wav
+plural,Daniel,ex-cat,cat,cats,Cats.,correct,,unclear,,,False,The recognizer wasn't confident it heard “cats” (0.07).,0.072,982.1,runs/scorer_clips/Daniel/8ebf601f8b.wav
+filler_word,Daniel,ex-cat,cat,"um, cat","Um, cat.",correct,,correct,,cat,True,"After removing fillers and repeats, one word, “cat”, matches “cat”.",0.284,343.1,runs/scorer_clips/Daniel/435047fc5d.wav
+wrong_word,Daniel,ex-cat,cat,dog,Dog,incorrect,meaning,incorrect,meaning,,True,"One word, “dog”, a different word from “cat”.",0.31,322.4,runs/scorer_clips/Daniel/e49512524f.wav
+near_miss,Daniel,ex-cat,cat,tat,That,incorrect,sound,incorrect,sound,,True,"One word, “that”, sounds close to “cat”.",0.118,320.6,runs/scorer_clips/Daniel/3811d14d3b.wav
+its_a,Daniel,ex-cat,cat,it's a cat,It's a cat.,unclear,,unclear,,,True,More than one word (“It's a cat.”); only single-word answers are scored.,,346.3,runs/scorer_clips/Daniel/1fddd74fd9.wav
+dont_know,Daniel,ex-cat,cat,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,339.3,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-cat,cat,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-cat,cat,cat,Head.,correct,,incorrect,meaning,,False,"One word, “head”, a different word from “cat”.",0.3,326.7,runs/scorer_clips/Karen/9d989e8d27.wav
+alt_word,Karen,ex-cat,cat,kitty,Kitty,correct,,correct,,kitty,True,"One word, “kitty”, matches “kitty”.",0.476,321.9,runs/scorer_clips/Karen/95d79f53b5.wav
+alt_word,Karen,ex-cat,cat,kitten,Kitchin',correct,,incorrect,sound,,False,"One word, “kitchin”, sounds close to “cat”.",0.347,1580.6,runs/scorer_clips/Karen/44060752d7.wav
+plural,Karen,ex-cat,cat,cats,Heads,correct,,unclear,,,False,The recognizer wasn't confident it heard “heads” (0.09).,0.094,323.2,runs/scorer_clips/Karen/8ebf601f8b.wav
+filler_word,Karen,ex-cat,cat,"um, cat","thumb, head.",correct,,unclear,,,False,"More than one word (“thumb, head.”); only single-word answers are scored.",,334.8,runs/scorer_clips/Karen/435047fc5d.wav
+wrong_word,Karen,ex-cat,cat,dog,Dog,incorrect,meaning,incorrect,meaning,,True,"One word, “dog”, a different word from “cat”.",0.104,323.0,runs/scorer_clips/Karen/e49512524f.wav
+near_miss,Karen,ex-cat,cat,tat,Ted.,incorrect,sound,incorrect,meaning,,False,"One word, “ted”, a different word from “cat”.",0.218,2564.0,runs/scorer_clips/Karen/3811d14d3b.wav
+its_a,Karen,ex-cat,cat,it's a cat,It's a cat.,unclear,,unclear,,,True,More than one word (“It's a cat.”); only single-word answers are scored.,,353.5,runs/scorer_clips/Karen/1fddd74fd9.wav
+dont_know,Karen,ex-cat,cat,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,342.8,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-cat,cat,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-cat,cat,cat,Cuts.,correct,,incorrect,sound,,False,"One word, “cuts”, sounds close to “cat”.",0.57,327.5,runs/scorer_clips/Moira/9d989e8d27.wav
+alt_word,Moira,ex-cat,cat,kitty,Kitty.,correct,,correct,,kitty,True,"One word, “kitty”, matches “kitty”.",0.576,321.7,runs/scorer_clips/Moira/95d79f53b5.wav
+alt_word,Moira,ex-cat,cat,kitten,kitten.,correct,,correct,,kitten,True,"One word, “kitten”, matches “kitten”.",0.319,495.8,runs/scorer_clips/Moira/44060752d7.wav
+plural,Moira,ex-cat,cat,cats,cuts,correct,,incorrect,sound,,False,"One word, “cuts”, sounds close to “cat”.",0.709,317.5,runs/scorer_clips/Moira/8ebf601f8b.wav
+filler_word,Moira,ex-cat,cat,"um, cat","Um, cuts.",correct,,incorrect,sound,,False,"After removing fillers and repeats, one word, “cuts”, sounds close to “cat”.",0.341,343.7,runs/scorer_clips/Moira/435047fc5d.wav
+wrong_word,Moira,ex-cat,cat,dog,dog.,incorrect,meaning,incorrect,meaning,,True,"One word, “dog”, a different word from “cat”.",0.368,319.5,runs/scorer_clips/Moira/e49512524f.wav
+near_miss,Moira,ex-cat,cat,tat,Touch.,incorrect,sound,unclear,,,False,The recognizer wasn't confident it heard “touch” (0.07).,0.067,977.9,runs/scorer_clips/Moira/3811d14d3b.wav
+its_a,Moira,ex-cat,cat,it's a cat,It's a cut.,unclear,,unclear,,,True,More than one word (“It's a cut.”); only single-word answers are scored.,,342.8,runs/scorer_clips/Moira/1fddd74fd9.wav
+dont_know,Moira,ex-cat,cat,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,345.0,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-cat,cat,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-dog,dog,dog,Dog,correct,,correct,,dog,True,"One word, “dog”, matches “dog”.",0.173,,runs/scorer_clips/Samantha/e49512524f.wav
+alt_word,Samantha,ex-dog,dog,puppy,Happy,correct,,incorrect,sound,,False,"One word, “happy”, sounds close to “dog”.",0.671,345.7,runs/scorer_clips/Samantha/26d33687bd.wav
+alt_word,Samantha,ex-dog,dog,doggy,Doggy,correct,,correct,,doggy,True,"One word, “doggy”, matches “doggy”.",0.499,351.3,runs/scorer_clips/Samantha/f03b0a8932.wav
+plural,Samantha,ex-dog,dog,dogs,Dogs,correct,,correct,,dog,True,"One word, “dogs”, the plural of “dog”.",0.481,326.4,runs/scorer_clips/Samantha/cc90fda9b1.wav
+filler_word,Samantha,ex-dog,dog,"um, dog","Um, Dog.",correct,,correct,,dog,True,"After removing fillers and repeats, one word, “dog”, matches “dog”.",0.649,341.8,runs/scorer_clips/Samantha/cc4c59ec49.wav
+wrong_word,Samantha,ex-dog,dog,cat,cat,incorrect,meaning,incorrect,meaning,,True,"One word, “cat”, a different word from “dog”.",0.402,,runs/scorer_clips/Samantha/9d989e8d27.wav
+near_miss,Samantha,ex-dog,dog,bog,bug.,incorrect,sound,incorrect,meaning,,False,"One word, “bug”, a different word from “dog”.",0.544,327.3,runs/scorer_clips/Samantha/7ae7a24fc3.wav
+its_a,Samantha,ex-dog,dog,it's a dog,It's a dog.,unclear,,unclear,,,True,More than one word (“It's a dog.”); only single-word answers are scored.,,347.0,runs/scorer_clips/Samantha/4a6654d185.wav
+dont_know,Samantha,ex-dog,dog,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-dog,dog,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-dog,dog,dog,Dog,correct,,correct,,dog,True,"One word, “dog”, matches “dog”.",0.31,,runs/scorer_clips/Daniel/e49512524f.wav
+alt_word,Daniel,ex-dog,dog,puppy,Happy,correct,,incorrect,sound,,False,"One word, “happy”, sounds close to “dog”.",0.468,326.8,runs/scorer_clips/Daniel/26d33687bd.wav
+alt_word,Daniel,ex-dog,dog,doggy,Dolby.,correct,,incorrect,meaning,,False,"One word, “dolby”, a different word from “dog”.",0.605,336.9,runs/scorer_clips/Daniel/f03b0a8932.wav
+plural,Daniel,ex-dog,dog,dogs,dogs.,correct,,correct,,dog,True,"One word, “dogs”, the plural of “dog”.",0.774,327.2,runs/scorer_clips/Daniel/cc90fda9b1.wav
+filler_word,Daniel,ex-dog,dog,"um, dog","Um, dog.",correct,,correct,,dog,True,"After removing fillers and repeats, one word, “dog”, matches “dog”.",0.486,344.6,runs/scorer_clips/Daniel/cc4c59ec49.wav
+wrong_word,Daniel,ex-dog,dog,cat,Look at that.,incorrect,meaning,unclear,,,False,More than one word (“Look at that.”); only single-word answers are scored.,,,runs/scorer_clips/Daniel/9d989e8d27.wav
+near_miss,Daniel,ex-dog,dog,bog,dog,incorrect,sound,correct,,dog,False,"One word, “dog”, matches “dog”.",0.5,322.6,runs/scorer_clips/Daniel/7ae7a24fc3.wav
+its_a,Daniel,ex-dog,dog,it's a dog,It's a dog.,unclear,,unclear,,,True,More than one word (“It's a dog.”); only single-word answers are scored.,,340.8,runs/scorer_clips/Daniel/4a6654d185.wav
+dont_know,Daniel,ex-dog,dog,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-dog,dog,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-dog,dog,dog,Dog,correct,,correct,,dog,True,"One word, “dog”, matches “dog”.",0.104,,runs/scorer_clips/Karen/e49512524f.wav
+alt_word,Karen,ex-dog,dog,puppy,Happy,correct,,incorrect,sound,,False,"One word, “happy”, sounds close to “dog”.",0.546,327.9,runs/scorer_clips/Karen/26d33687bd.wav
+alt_word,Karen,ex-dog,dog,doggy,Doggy,correct,,correct,,doggy,True,"One word, “doggy”, matches “doggy”.",0.644,347.7,runs/scorer_clips/Karen/f03b0a8932.wav
+plural,Karen,ex-dog,dog,dogs,Dogs,correct,,correct,,dog,True,"One word, “dogs”, the plural of “dog”.",0.263,316.5,runs/scorer_clips/Karen/cc90fda9b1.wav
+filler_word,Karen,ex-dog,dog,"um, dog","Come, Dog.",correct,,unclear,,,False,"More than one word (“Come, Dog.”); only single-word answers are scored.",,332.9,runs/scorer_clips/Karen/cc4c59ec49.wav
+wrong_word,Karen,ex-dog,dog,cat,Head.,incorrect,meaning,incorrect,meaning,,True,"One word, “head”, a different word from “dog”.",0.3,,runs/scorer_clips/Karen/9d989e8d27.wav
+near_miss,Karen,ex-dog,dog,bog,bug.,incorrect,sound,incorrect,meaning,,False,"One word, “bug”, a different word from “dog”.",0.131,987.8,runs/scorer_clips/Karen/7ae7a24fc3.wav
+its_a,Karen,ex-dog,dog,it's a dog,It's a dog.,unclear,,unclear,,,True,More than one word (“It's a dog.”); only single-word answers are scored.,,359.3,runs/scorer_clips/Karen/4a6654d185.wav
+dont_know,Karen,ex-dog,dog,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-dog,dog,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-dog,dog,dog,dog.,correct,,correct,,dog,True,"One word, “dog”, matches “dog”.",0.368,,runs/scorer_clips/Moira/e49512524f.wav
+alt_word,Moira,ex-dog,dog,puppy,Puppy,correct,,correct,,puppy,True,"One word, “puppy”, matches “puppy”.",0.652,322.4,runs/scorer_clips/Moira/26d33687bd.wav
+alt_word,Moira,ex-dog,dog,doggy,Doggy,correct,,correct,,doggy,True,"One word, “doggy”, matches “doggy”.",0.654,339.8,runs/scorer_clips/Moira/f03b0a8932.wav
+plural,Moira,ex-dog,dog,dogs,Dogs.,correct,,correct,,dog,True,"One word, “dogs”, the plural of “dog”.",0.306,323.3,runs/scorer_clips/Moira/cc90fda9b1.wav
+filler_word,Moira,ex-dog,dog,"um, dog","Um, dog.",correct,,correct,,dog,True,"After removing fillers and repeats, one word, “dog”, matches “dog”.",0.514,341.9,runs/scorer_clips/Moira/cc4c59ec49.wav
+wrong_word,Moira,ex-dog,dog,cat,Cuts.,incorrect,meaning,incorrect,meaning,,True,"One word, “cuts”, a different word from “dog”.",0.57,,runs/scorer_clips/Moira/9d989e8d27.wav
+near_miss,Moira,ex-dog,dog,bog,bug. .,incorrect,sound,unclear,,,False,The recognizer wasn't confident it heard “bug” (0.10).,0.097,1937.6,runs/scorer_clips/Moira/7ae7a24fc3.wav
+its_a,Moira,ex-dog,dog,it's a dog,It's a dog.,unclear,,unclear,,,True,More than one word (“It's a dog.”); only single-word answers are scored.,,342.1,runs/scorer_clips/Moira/4a6654d185.wav
+dont_know,Moira,ex-dog,dog,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-dog,dog,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-apple,apple,apple,Apple,correct,,correct,,apple,True,"One word, “apple”, matches “apple”.",0.762,318.3,runs/scorer_clips/Samantha/d0be2dc421.wav
+plural,Samantha,ex-apple,apple,apples,Apples,correct,,correct,,apple,True,"One word, “apples”, the plural of “apple”.",0.681,352.1,runs/scorer_clips/Samantha/76c2436b59.wav
+filler_word,Samantha,ex-apple,apple,"um, apple",I'm Apple.,correct,,unclear,,,False,More than one word (“I'm Apple.”); only single-word answers are scored.,,335.2,runs/scorer_clips/Samantha/9b1e2cb3df.wav
+wrong_word,Samantha,ex-apple,apple,orange,Orange.,incorrect,meaning,incorrect,meaning,,True,"One word, “orange”, a different word from “apple”.",0.354,324.0,runs/scorer_clips/Samantha/ef0ebbb772.wav
+near_miss,Samantha,ex-apple,apple,opple,Awkel.,incorrect,sound,incorrect,unclassified,,False,"One word, “awkel”, not a dictionary word and not close to “apple”.",0.21,337.6,runs/scorer_clips/Samantha/d706f52abc.wav
+its_a,Samantha,ex-apple,apple,it's an apple,It's an Apple.,unclear,,unclear,,,True,More than one word (“It's an Apple.”); only single-word answers are scored.,,344.7,runs/scorer_clips/Samantha/7ddbb978b2.wav
+dont_know,Samantha,ex-apple,apple,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-apple,apple,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-apple,apple,apple,Apple.,correct,,correct,,apple,True,"One word, “apple”, matches “apple”.",0.445,319.7,runs/scorer_clips/Daniel/d0be2dc421.wav
+plural,Daniel,ex-apple,apple,apples,Apples,correct,,correct,,apple,True,"One word, “apples”, the plural of “apple”.",0.675,329.6,runs/scorer_clips/Daniel/76c2436b59.wav
+filler_word,Daniel,ex-apple,apple,"um, apple","Come, Apple.",correct,,unclear,,,False,"More than one word (“Come, Apple.”); only single-word answers are scored.",,2254.7,runs/scorer_clips/Daniel/9b1e2cb3df.wav
+wrong_word,Daniel,ex-apple,apple,orange,orange.,incorrect,meaning,incorrect,meaning,,True,"One word, “orange”, a different word from “apple”.",0.594,317.3,runs/scorer_clips/Daniel/ef0ebbb772.wav
+near_miss,Daniel,ex-apple,apple,opple,buckle.,incorrect,sound,incorrect,meaning,,False,"One word, “buckle”, a different word from “apple”.",0.167,1342.9,runs/scorer_clips/Daniel/d706f52abc.wav
+its_a,Daniel,ex-apple,apple,it's an apple,It's an Apple.,unclear,,unclear,,,True,More than one word (“It's an Apple.”); only single-word answers are scored.,,341.5,runs/scorer_clips/Daniel/7ddbb978b2.wav
+dont_know,Daniel,ex-apple,apple,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-apple,apple,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-apple,apple,apple,Apple.,correct,,correct,,apple,True,"One word, “apple”, matches “apple”.",0.478,325.6,runs/scorer_clips/Karen/d0be2dc421.wav
+plural,Karen,ex-apple,apple,apples,Apples,correct,,correct,,apple,True,"One word, “apples”, the plural of “apple”.",0.614,338.8,runs/scorer_clips/Karen/76c2436b59.wav
+filler_word,Karen,ex-apple,apple,"um, apple","Come, Apple.",correct,,unclear,,,False,"More than one word (“Come, Apple.”); only single-word answers are scored.",,523.1,runs/scorer_clips/Karen/9b1e2cb3df.wav
+wrong_word,Karen,ex-apple,apple,orange,orange,incorrect,meaning,incorrect,meaning,,True,"One word, “orange”, a different word from “apple”.",0.629,366.4,runs/scorer_clips/Karen/ef0ebbb772.wav
+near_miss,Karen,ex-apple,apple,opple,Hoppoo,incorrect,sound,incorrect,unclassified,,False,"One word, “hoppoo”, not a dictionary word and not close to “apple”.",0.333,1185.6,runs/scorer_clips/Karen/d706f52abc.wav
+its_a,Karen,ex-apple,apple,it's an apple,It's an apple.,unclear,,unclear,,,True,More than one word (“It's an apple.”); only single-word answers are scored.,,366.6,runs/scorer_clips/Karen/7ddbb978b2.wav
+dont_know,Karen,ex-apple,apple,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-apple,apple,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-apple,apple,apple,Apple,correct,,correct,,apple,True,"One word, “apple”, matches “apple”.",0.276,768.2,runs/scorer_clips/Moira/d0be2dc421.wav
+plural,Moira,ex-apple,apple,apples,Apples,correct,,correct,,apple,True,"One word, “apples”, the plural of “apple”.",0.54,357.6,runs/scorer_clips/Moira/76c2436b59.wav
+filler_word,Moira,ex-apple,apple,"um, apple","Um, Agal.",correct,,incorrect,unclassified,,False,"After removing fillers and repeats, one word, “agal”, not a dictionary word and not close to “apple”.",0.41,367.4,runs/scorer_clips/Moira/9b1e2cb3df.wav
+wrong_word,Moira,ex-apple,apple,orange,orange.,incorrect,meaning,incorrect,meaning,,True,"One word, “orange”, a different word from “apple”.",0.686,334.8,runs/scorer_clips/Moira/ef0ebbb772.wav
+near_miss,Moira,ex-apple,apple,opple,Awful.,incorrect,sound,incorrect,sound,,True,"One word, “awful”, sounds close to “apple”.",0.432,356.4,runs/scorer_clips/Moira/d706f52abc.wav
+its_a,Moira,ex-apple,apple,it's an apple,It's an apple.,unclear,,unclear,,,True,More than one word (“It's an apple.”); only single-word answers are scored.,,356.1,runs/scorer_clips/Moira/7ddbb978b2.wav
+dont_know,Moira,ex-apple,apple,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-apple,apple,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-house,house,house,house,correct,,correct,,house,True,"One word, “house”, matches “house”.",0.466,348.3,runs/scorer_clips/Samantha/5be93480bd.wav
+alt_word,Samantha,ex-house,house,home,HUUM,correct,,incorrect,unclassified,,False,"One word, “huum”, not a dictionary word and not close to “house”.",0.287,350.6,runs/scorer_clips/Samantha/e83249bd3b.wav
+plural,Samantha,ex-house,house,houses,Houses,correct,,correct,,house,True,"One word, “houses”, the plural of “house”.",0.376,337.9,runs/scorer_clips/Samantha/dac6a0d764.wav
+filler_word,Samantha,ex-house,house,"um, house","Um, House.",correct,,correct,,house,True,"After removing fillers and repeats, one word, “house”, matches “house”.",0.461,367.5,runs/scorer_clips/Samantha/d42b9d3af7.wav
+wrong_word,Samantha,ex-house,house,tent,10.,incorrect,meaning,unclear,,,False,Only filler sounds (“10.”); no word to score.,,335.3,runs/scorer_clips/Samantha/899343d863.wav
+near_miss,Samantha,ex-house,house,mouse,Mouse,incorrect,sound,incorrect,sound,,True,"One word, “mouse”, sounds close to “house”.",0.29,326.1,runs/scorer_clips/Samantha/9e05e6832c.wav
+its_a,Samantha,ex-house,house,it's a house,It's a house.,unclear,,unclear,,,True,More than one word (“It's a house.”); only single-word answers are scored.,,351.5,runs/scorer_clips/Samantha/8dc0641bb8.wav
+dont_know,Samantha,ex-house,house,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-house,house,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-house,house,house,house,correct,,correct,,house,True,"One word, “house”, matches “house”.",0.64,333.9,runs/scorer_clips/Daniel/5be93480bd.wav
+alt_word,Daniel,ex-house,house,home,Home.,correct,,correct,,home,True,"One word, “home”, matches “home”.",0.32,1025.2,runs/scorer_clips/Daniel/e83249bd3b.wav
+plural,Daniel,ex-house,house,houses,Houses,correct,,correct,,house,True,"One word, “houses”, the plural of “house”.",0.372,320.1,runs/scorer_clips/Daniel/dac6a0d764.wav
+filler_word,Daniel,ex-house,house,"um, house","Um, house.",correct,,correct,,house,True,"After removing fillers and repeats, one word, “house”, matches “house”.",0.487,349.4,runs/scorer_clips/Daniel/d42b9d3af7.wav
+wrong_word,Daniel,ex-house,house,tent,10,incorrect,meaning,unclear,,,False,Only filler sounds (“10”); no word to score.,,976.6,runs/scorer_clips/Daniel/899343d863.wav
+near_miss,Daniel,ex-house,house,mouse,mouse,incorrect,sound,incorrect,sound,,True,"One word, “mouse”, sounds close to “house”.",0.775,366.1,runs/scorer_clips/Daniel/9e05e6832c.wav
+its_a,Daniel,ex-house,house,it's a house,it's a house.,unclear,,unclear,,,True,More than one word (“it's a house.”); only single-word answers are scored.,,347.9,runs/scorer_clips/Daniel/8dc0641bb8.wav
+dont_know,Daniel,ex-house,house,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-house,house,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-house,house,house,house,correct,,correct,,house,True,"One word, “house”, matches “house”.",0.64,328.0,runs/scorer_clips/Karen/5be93480bd.wav
+alt_word,Karen,ex-house,house,home,HUHM.,correct,,incorrect,unclassified,,False,"One word, “huhm”, not a dictionary word and not close to “house”.",0.319,1056.7,runs/scorer_clips/Karen/e83249bd3b.wav
+plural,Karen,ex-house,house,houses,Houses,correct,,correct,,house,True,"One word, “houses”, the plural of “house”.",0.372,333.5,runs/scorer_clips/Karen/dac6a0d764.wav
+filler_word,Karen,ex-house,house,"um, house",gum house,correct,,unclear,,,False,More than one word (“gum house”); only single-word answers are scored.,,532.5,runs/scorer_clips/Karen/d42b9d3af7.wav
+wrong_word,Karen,ex-house,house,tent,10.,incorrect,meaning,unclear,,,False,Only filler sounds (“10.”); no word to score.,,366.2,runs/scorer_clips/Karen/899343d863.wav
+near_miss,Karen,ex-house,house,mouse,Mouse,incorrect,sound,incorrect,sound,,True,"One word, “mouse”, sounds close to “house”.",0.348,325.2,runs/scorer_clips/Karen/9e05e6832c.wav
+its_a,Karen,ex-house,house,it's a house,It's a house.,unclear,,unclear,,,True,More than one word (“It's a house.”); only single-word answers are scored.,,367.4,runs/scorer_clips/Karen/8dc0641bb8.wav
+dont_know,Karen,ex-house,house,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-house,house,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-house,house,house,coz,correct,,incorrect,meaning,,False,"One word, “coz”, a different word from “house”.",0.439,1016.9,runs/scorer_clips/Moira/5be93480bd.wav
+alt_word,Moira,ex-house,house,home,Home.,correct,,correct,,home,True,"One word, “home”, matches “home”.",0.386,332.8,runs/scorer_clips/Moira/e83249bd3b.wav
+plural,Moira,ex-house,house,houses,Houses,correct,,correct,,house,True,"One word, “houses”, the plural of “house”.",0.592,342.2,runs/scorer_clips/Moira/dac6a0d764.wav
+filler_word,Moira,ex-house,house,"um, house","Um, cuz.",correct,,incorrect,unclassified,,False,"After removing fillers and repeats, one word, “cuz”, not a dictionary word and not close to “house”.",0.497,352.7,runs/scorer_clips/Moira/d42b9d3af7.wav
+wrong_word,Moira,ex-house,house,tent,intent.,incorrect,meaning,unclear,,,False,The recognizer wasn't confident it heard “intent” (0.09).,0.091,1631.3,runs/scorer_clips/Moira/899343d863.wav
+near_miss,Moira,ex-house,house,mouse,mouse.,incorrect,sound,incorrect,sound,,True,"One word, “mouse”, sounds close to “house”.",0.601,1041.0,runs/scorer_clips/Moira/9e05e6832c.wav
+its_a,Moira,ex-house,house,it's a house,It's a house.,unclear,,unclear,,,True,More than one word (“It's a house.”); only single-word answers are scored.,,375.3,runs/scorer_clips/Moira/8dc0641bb8.wav
+dont_know,Moira,ex-house,house,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-house,house,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-car,car,car,car,correct,,correct,,car,True,"One word, “car”, matches “car”.",0.626,323.2,runs/scorer_clips/Samantha/9e32521dd2.wav
+alt_word,Samantha,ex-car,car,automobile,Automobile.,correct,,correct,,automobile,True,"One word, “automobile”, matches “automobile”.",0.619,344.9,runs/scorer_clips/Samantha/e37e19ee16.wav
+plural,Samantha,ex-car,car,cars,Cars,correct,,correct,,car,True,"One word, “cars”, the plural of “car”.",0.499,337.6,runs/scorer_clips/Samantha/e1952705cc.wav
+filler_word,Samantha,ex-car,car,"um, car","Um, car.",correct,,correct,,car,True,"After removing fillers and repeats, one word, “car”, matches “car”.",0.233,356.1,runs/scorer_clips/Samantha/db9b218318.wav
+wrong_word,Samantha,ex-car,car,bus,bus.,incorrect,meaning,incorrect,meaning,,True,"One word, “bus”, a different word from “car”.",0.17,1429.9,runs/scorer_clips/Samantha/32c70cebf1.wav
+near_miss,Samantha,ex-car,car,tar,TAR,incorrect,sound,incorrect,sound,,True,"One word, “tar”, sounds close to “car”.",0.407,325.4,runs/scorer_clips/Samantha/680254bad1.wav
+its_a,Samantha,ex-car,car,it's a car,It's a car.,unclear,,unclear,,,True,More than one word (“It's a car.”); only single-word answers are scored.,,373.1,runs/scorer_clips/Samantha/0aa2220547.wav
+dont_know,Samantha,ex-car,car,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-car,car,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-car,car,car,Ahh.,correct,,unclear,,,False,Only filler sounds (“Ahh.”); no word to score.,,1386.4,runs/scorer_clips/Daniel/9e32521dd2.wav
+alt_word,Daniel,ex-car,car,automobile,automobile.,correct,,correct,,automobile,True,"One word, “automobile”, matches “automobile”.",0.586,330.2,runs/scorer_clips/Daniel/e37e19ee16.wav
+plural,Daniel,ex-car,car,cars,cause.,correct,,incorrect,sound,,False,"One word, “cause”, sounds close to “car”.",0.468,333.1,runs/scorer_clips/Daniel/e1952705cc.wav
+filler_word,Daniel,ex-car,car,"um, car",Um. Ah.,correct,,unclear,,,False,Only filler sounds (“Um. Ah.”); no word to score.,,397.1,runs/scorer_clips/Daniel/db9b218318.wav
+wrong_word,Daniel,ex-car,car,bus,bus,incorrect,meaning,incorrect,meaning,,True,"One word, “bus”, a different word from “car”.",0.566,365.4,runs/scorer_clips/Daniel/32c70cebf1.wav
+near_miss,Daniel,ex-car,car,tar,So,incorrect,sound,incorrect,meaning,,False,"One word, “so”, a different word from “car”.",0.125,335.5,runs/scorer_clips/Daniel/680254bad1.wav
+its_a,Daniel,ex-car,car,it's a car,It's a car.,unclear,,unclear,,,True,More than one word (“It's a car.”); only single-word answers are scored.,,366.5,runs/scorer_clips/Daniel/0aa2220547.wav
+dont_know,Daniel,ex-car,car,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-car,car,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-car,car,car,Huh,correct,,incorrect,meaning,,False,"One word, “huh”, a different word from “car”.",0.189,322.2,runs/scorer_clips/Karen/9e32521dd2.wav
+alt_word,Karen,ex-car,car,automobile,automobile.,correct,,correct,,automobile,True,"One word, “automobile”, matches “automobile”.",0.821,340.3,runs/scorer_clips/Karen/e37e19ee16.wav
+plural,Karen,ex-car,car,cars,Because,correct,,incorrect,meaning,,False,"One word, “because”, a different word from “car”.",0.205,347.4,runs/scorer_clips/Karen/e1952705cc.wav
+filler_word,Karen,ex-car,car,"um, car",Yum-pah,correct,,unclear,,,False,More than one word (“Yum-pah”); only single-word answers are scored.,,363.4,runs/scorer_clips/Karen/db9b218318.wav
+wrong_word,Karen,ex-car,car,bus,Best.,incorrect,meaning,unclear,,,False,The recognizer wasn't confident it heard “best” (0.09).,0.087,1476.4,runs/scorer_clips/Karen/32c70cebf1.wav
+near_miss,Karen,ex-car,car,tar,to a .,incorrect,sound,incorrect,meaning,,False,"After removing fillers and repeats, one word, “to”, a different word from “car”.",0.298,400.3,runs/scorer_clips/Karen/680254bad1.wav
+its_a,Karen,ex-car,car,it's a car,It's a car.,unclear,,unclear,,,True,More than one word (“It's a car.”); only single-word answers are scored.,,379.1,runs/scorer_clips/Karen/0aa2220547.wav
+dont_know,Karen,ex-car,car,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-car,car,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-car,car,car,Car S S S,correct,,unclear,,,False,More than one word (“Car S S S”); only single-word answers are scored.,,3285.1,runs/scorer_clips/Moira/9e32521dd2.wav
+alt_word,Moira,ex-car,car,automobile,automobile.,correct,,correct,,automobile,True,"One word, “automobile”, matches “automobile”.",0.454,333.8,runs/scorer_clips/Moira/e37e19ee16.wav
+plural,Moira,ex-car,car,cars,Cars,correct,,correct,,car,True,"One word, “cars”, the plural of “car”.",0.236,346.9,runs/scorer_clips/Moira/e1952705cc.wav
+filler_word,Moira,ex-car,car,"um, car","Um, Car.",correct,,correct,,car,True,"After removing fillers and repeats, one word, “car”, matches “car”.",0.699,363.3,runs/scorer_clips/Moira/db9b218318.wav
+wrong_word,Moira,ex-car,car,bus,PUS,incorrect,meaning,incorrect,meaning,,True,"One word, “pus”, a different word from “car”.",0.197,1433.2,runs/scorer_clips/Moira/32c70cebf1.wav
+near_miss,Moira,ex-car,car,tar,It's hard.,incorrect,sound,unclear,,,False,More than one word (“It's hard.”); only single-word answers are scored.,,360.2,runs/scorer_clips/Moira/680254bad1.wav
+its_a,Moira,ex-car,car,it's a car,It's a car.,unclear,,unclear,,,True,More than one word (“It's a car.”); only single-word answers are scored.,,366.4,runs/scorer_clips/Moira/0aa2220547.wav
+dont_know,Moira,ex-car,car,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-car,car,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-tree,tree,tree,Tree,correct,,correct,,tree,True,"One word, “tree”, matches “tree”.",0.287,322.2,runs/scorer_clips/Samantha/80655da8d8.wav
+plural,Samantha,ex-tree,tree,trees,Trees,correct,,correct,,tree,True,"One word, “trees”, the plural of “tree”.",0.348,339.3,runs/scorer_clips/Samantha/e6d7a4c138.wav
+filler_word,Samantha,ex-tree,tree,"um, tree","Um, tree.",correct,,correct,,tree,True,"After removing fillers and repeats, one word, “tree”, matches “tree”.",0.724,352.3,runs/scorer_clips/Samantha/34adf6deaf.wav
+wrong_word,Samantha,ex-tree,tree,flower,Flower,incorrect,meaning,incorrect,meaning,,True,"One word, “flower”, a different word from “tree”.",0.286,350.4,runs/scorer_clips/Samantha/5a46b8253d.wav
+near_miss,Samantha,ex-tree,tree,dree,3.,incorrect,sound,unclear,,,False,Only filler sounds (“3.”); no word to score.,,4316.2,runs/scorer_clips/Samantha/379497c032.wav
+its_a,Samantha,ex-tree,tree,it's a tree,It's a tree.,unclear,,unclear,,,True,More than one word (“It's a tree.”); only single-word answers are scored.,,347.1,runs/scorer_clips/Samantha/afee2c4ac0.wav
+dont_know,Samantha,ex-tree,tree,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-tree,tree,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-tree,tree,tree,Tree,correct,,correct,,tree,True,"One word, “tree”, matches “tree”.",0.491,357.7,runs/scorer_clips/Daniel/80655da8d8.wav
+plural,Daniel,ex-tree,tree,trees,trees.,correct,,correct,,tree,True,"One word, “trees”, the plural of “tree”.",0.873,513.6,runs/scorer_clips/Daniel/e6d7a4c138.wav
+filler_word,Daniel,ex-tree,tree,"um, tree","Um, tree.",correct,,correct,,tree,True,"After removing fillers and repeats, one word, “tree”, matches “tree”.",0.487,369.0,runs/scorer_clips/Daniel/34adf6deaf.wav
+wrong_word,Daniel,ex-tree,tree,flower,Flaw,incorrect,meaning,incorrect,meaning,,True,"One word, “flaw”, a different word from “tree”.",0.358,332.0,runs/scorer_clips/Daniel/5a46b8253d.wav
+near_miss,Daniel,ex-tree,tree,dree,Dree,incorrect,sound,incorrect,sound,,True,"One word, “dree”, spelled close to “tree” (not a dictionary word).",0.365,354.0,runs/scorer_clips/Daniel/379497c032.wav
+its_a,Daniel,ex-tree,tree,it's a tree,It's a tree.,unclear,,unclear,,,True,More than one word (“It's a tree.”); only single-word answers are scored.,,370.7,runs/scorer_clips/Daniel/afee2c4ac0.wav
+dont_know,Daniel,ex-tree,tree,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-tree,tree,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-tree,tree,tree,Tree,correct,,correct,,tree,True,"One word, “tree”, matches “tree”.",0.267,368.6,runs/scorer_clips/Karen/80655da8d8.wav
+plural,Karen,ex-tree,tree,trees,trees.,correct,,correct,,tree,True,"One word, “trees”, the plural of “tree”.",0.619,352.2,runs/scorer_clips/Karen/e6d7a4c138.wav
+filler_word,Karen,ex-tree,tree,"um, tree",Gum tree,correct,,unclear,,,False,More than one word (“Gum tree”); only single-word answers are scored.,,458.8,runs/scorer_clips/Karen/34adf6deaf.wav
+wrong_word,Karen,ex-tree,tree,flower,Flour,incorrect,meaning,incorrect,meaning,,True,"One word, “flour”, a different word from “tree”.",0.516,353.5,runs/scorer_clips/Karen/5a46b8253d.wav
+near_miss,Karen,ex-tree,tree,dree,Andre,incorrect,sound,unclear,,,False,The recognizer wasn't confident it heard “andre” (0.00).,0.002,4919.0,runs/scorer_clips/Karen/379497c032.wav
+its_a,Karen,ex-tree,tree,it's a tree,It's a tree.,unclear,,unclear,,,True,More than one word (“It's a tree.”); only single-word answers are scored.,,396.2,runs/scorer_clips/Karen/afee2c4ac0.wav
+dont_know,Karen,ex-tree,tree,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-tree,tree,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-tree,tree,tree,Tree,correct,,correct,,tree,True,"One word, “tree”, matches “tree”.",0.15,356.2,runs/scorer_clips/Moira/80655da8d8.wav
+plural,Moira,ex-tree,tree,trees,Trees,correct,,correct,,tree,True,"One word, “trees”, the plural of “tree”.",0.175,369.7,runs/scorer_clips/Moira/e6d7a4c138.wav
+filler_word,Moira,ex-tree,tree,"um, tree","Um, tree.",correct,,correct,,tree,True,"After removing fillers and repeats, one word, “tree”, matches “tree”.",0.537,369.0,runs/scorer_clips/Moira/34adf6deaf.wav
+wrong_word,Moira,ex-tree,tree,flower,Flower,incorrect,meaning,incorrect,meaning,,True,"One word, “flower”, a different word from “tree”.",0.228,1075.1,runs/scorer_clips/Moira/5a46b8253d.wav
+near_miss,Moira,ex-tree,tree,dree,3,incorrect,sound,unclear,,,False,Only filler sounds (“3”); no word to score.,,410.3,runs/scorer_clips/Moira/379497c032.wav
+its_a,Moira,ex-tree,tree,it's a tree,It's a tree.,unclear,,unclear,,,True,More than one word (“It's a tree.”); only single-word answers are scored.,,394.3,runs/scorer_clips/Moira/afee2c4ac0.wav
+dont_know,Moira,ex-tree,tree,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-tree,tree,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-fish,fish,fish,Fish.,correct,,correct,,fish,True,"One word, “fish”, matches “fish”.",0.611,341.5,runs/scorer_clips/Samantha/64875fccca.wav
+filler_word,Samantha,ex-fish,fish,"um, fish","Um, Fish.",correct,,correct,,fish,True,"After removing fillers and repeats, one word, “fish”, matches “fish”.",0.505,377.4,runs/scorer_clips/Samantha/d3294d6ad3.wav
+wrong_word,Samantha,ex-fish,fish,bird,Bird.,incorrect,meaning,incorrect,meaning,,True,"One word, “bird”, a different word from “fish”.",0.31,346.0,runs/scorer_clips/Samantha/cd92815bf6.wav
+near_miss,Samantha,ex-fish,fish,vish,Bish,incorrect,sound,incorrect,sound,,True,"One word, “bish”, sounds close to “fish”.",0.496,364.4,runs/scorer_clips/Samantha/0ad9dffecf.wav
+its_a,Samantha,ex-fish,fish,it's a fish,It's a fish.,unclear,,unclear,,,True,More than one word (“It's a fish.”); only single-word answers are scored.,,347.3,runs/scorer_clips/Samantha/56d3edb65e.wav
+dont_know,Samantha,ex-fish,fish,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-fish,fish,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-fish,fish,fish,Fish.,correct,,correct,,fish,True,"One word, “fish”, matches “fish”.",0.591,361.7,runs/scorer_clips/Daniel/64875fccca.wav
+filler_word,Daniel,ex-fish,fish,"um, fish",I'm fish.,correct,,unclear,,,False,More than one word (“I'm fish.”); only single-word answers are scored.,,388.9,runs/scorer_clips/Daniel/d3294d6ad3.wav
+wrong_word,Daniel,ex-fish,fish,bird,But...,incorrect,meaning,incorrect,meaning,,True,"One word, “but”, a different word from “fish”.",0.377,358.1,runs/scorer_clips/Daniel/cd92815bf6.wav
+near_miss,Daniel,ex-fish,fish,vish,VISH.,incorrect,sound,incorrect,sound,,True,"One word, “vish”, spelled close to “fish” (not a dictionary word).",0.491,1098.3,runs/scorer_clips/Daniel/0ad9dffecf.wav
+its_a,Daniel,ex-fish,fish,it's a fish,It's a fish.,unclear,,unclear,,,True,More than one word (“It's a fish.”); only single-word answers are scored.,,348.6,runs/scorer_clips/Daniel/56d3edb65e.wav
+dont_know,Daniel,ex-fish,fish,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-fish,fish,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-fish,fish,fish,fish,correct,,correct,,fish,True,"One word, “fish”, matches “fish”.",0.712,368.7,runs/scorer_clips/Karen/64875fccca.wav
+filler_word,Karen,ex-fish,fish,"um, fish","gum, fish.",correct,,unclear,,,False,"More than one word (“gum, fish.”); only single-word answers are scored.",,374.4,runs/scorer_clips/Karen/d3294d6ad3.wav
+wrong_word,Karen,ex-fish,fish,bird,Good.,incorrect,meaning,unclear,,,False,The recognizer wasn't confident it heard “good” (0.09).,0.093,357.5,runs/scorer_clips/Karen/cd92815bf6.wav
+near_miss,Karen,ex-fish,fish,vish,VISH,incorrect,sound,incorrect,sound,,True,"One word, “vish”, spelled close to “fish” (not a dictionary word).",0.303,325.4,runs/scorer_clips/Karen/0ad9dffecf.wav
+its_a,Karen,ex-fish,fish,it's a fish,It's a fish.,unclear,,unclear,,,True,More than one word (“It's a fish.”); only single-word answers are scored.,,339.6,runs/scorer_clips/Karen/56d3edb65e.wav
+dont_know,Karen,ex-fish,fish,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-fish,fish,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-fish,fish,fish,Fish.,correct,,correct,,fish,True,"One word, “fish”, matches “fish”.",0.513,323.7,runs/scorer_clips/Moira/64875fccca.wav
+filler_word,Moira,ex-fish,fish,"um, fish","Um, Fish.",correct,,correct,,fish,True,"After removing fillers and repeats, one word, “fish”, matches “fish”.",0.461,340.0,runs/scorer_clips/Moira/d3294d6ad3.wav
+wrong_word,Moira,ex-fish,fish,bird,bird.,incorrect,meaning,incorrect,meaning,,True,"One word, “bird”, a different word from “fish”.",0.454,327.5,runs/scorer_clips/Moira/cd92815bf6.wav
+near_miss,Moira,ex-fish,fish,vish,Fish.,incorrect,sound,correct,,fish,False,"One word, “fish”, matches “fish”.",0.176,337.1,runs/scorer_clips/Moira/0ad9dffecf.wav
+its_a,Moira,ex-fish,fish,it's a fish,It's a fish.,unclear,,unclear,,,True,More than one word (“It's a fish.”); only single-word answers are scored.,,340.6,runs/scorer_clips/Moira/56d3edb65e.wav
+dont_know,Moira,ex-fish,fish,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-fish,fish,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-key,key,key,Key,correct,,correct,,key,True,"One word, “key”, matches “key”.",0.48,317.7,runs/scorer_clips/Samantha/a62f2225bf.wav
+plural,Samantha,ex-key,key,keys,Keys.,correct,,correct,,key,True,"One word, “keys”, the plural of “key”.",0.313,345.7,runs/scorer_clips/Samantha/5944ae2541.wav
+filler_word,Samantha,ex-key,key,"um, key","Um, key.",correct,,correct,,key,True,"After removing fillers and repeats, one word, “key”, matches “key”.",0.365,341.0,runs/scorer_clips/Samantha/5a4d038577.wav
+wrong_word,Samantha,ex-key,key,lock,Lock.,incorrect,meaning,incorrect,meaning,,True,"One word, “lock”, a different word from “key”.",0.312,333.9,runs/scorer_clips/Samantha/e117797422.wav
+near_miss,Samantha,ex-key,key,tee,T,incorrect,sound,incorrect,sound,,True,"One word, “t”, sounds close to “key”.",0.147,339.0,runs/scorer_clips/Samantha/62a2f664b0.wav
+its_a,Samantha,ex-key,key,it's a key,It's a key.,unclear,,unclear,,,True,More than one word (“It's a key.”); only single-word answers are scored.,,346.5,runs/scorer_clips/Samantha/5e6a0d10c6.wav
+dont_know,Samantha,ex-key,key,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-key,key,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-key,key,key,See.,correct,,unclear,,,False,The recognizer wasn't confident it heard “see” (0.08).,0.081,1221.2,runs/scorer_clips/Daniel/a62f2225bf.wav
+plural,Daniel,ex-key,key,keys,Please.,correct,,incorrect,meaning,,False,"One word, “please”, a different word from “key”.",0.229,322.4,runs/scorer_clips/Daniel/5944ae2541.wav
+filler_word,Daniel,ex-key,key,"um, key",I'm P.,correct,,unclear,,,False,More than one word (“I'm P.”); only single-word answers are scored.,,1132.3,runs/scorer_clips/Daniel/5a4d038577.wav
+wrong_word,Daniel,ex-key,key,lock,block.,incorrect,meaning,incorrect,meaning,,True,"One word, “block”, a different word from “key”.",0.272,1469.3,runs/scorer_clips/Daniel/e117797422.wav
+near_miss,Daniel,ex-key,key,tee,T,incorrect,sound,incorrect,sound,,True,"One word, “t”, sounds close to “key”.",0.128,319.7,runs/scorer_clips/Daniel/62a2f664b0.wav
+its_a,Daniel,ex-key,key,it's a key,It's a key.,unclear,,unclear,,,True,More than one word (“It's a key.”); only single-word answers are scored.,,347.4,runs/scorer_clips/Daniel/5e6a0d10c6.wav
+dont_know,Daniel,ex-key,key,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-key,key,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-key,key,key,Key,correct,,correct,,key,True,"One word, “key”, matches “key”.",0.444,318.5,runs/scorer_clips/Karen/a62f2225bf.wav
+plural,Karen,ex-key,key,keys,Keyes.,correct,,correct,,key,True,"One word, “keyes”, the plural of “key”.",0.265,323.5,runs/scorer_clips/Karen/5944ae2541.wav
+filler_word,Karen,ex-key,key,"um, key","Come, Key.",correct,,unclear,,,False,"More than one word (“Come, Key.”); only single-word answers are scored.",,344.8,runs/scorer_clips/Karen/5a4d038577.wav
+wrong_word,Karen,ex-key,key,lock,Love.,incorrect,meaning,incorrect,meaning,,True,"One word, “love”, a different word from “key”.",0.589,326.0,runs/scorer_clips/Karen/e117797422.wav
+near_miss,Karen,ex-key,key,tee,T,incorrect,sound,incorrect,sound,,True,"One word, “t”, sounds close to “key”.",0.174,331.6,runs/scorer_clips/Karen/62a2f664b0.wav
+its_a,Karen,ex-key,key,it's a key,It's a key.,unclear,,unclear,,,True,More than one word (“It's a key.”); only single-word answers are scored.,,343.8,runs/scorer_clips/Karen/5e6a0d10c6.wav
+dont_know,Karen,ex-key,key,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-key,key,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-key,key,key,Key,correct,,correct,,key,True,"One word, “key”, matches “key”.",0.352,320.5,runs/scorer_clips/Moira/a62f2225bf.wav
+plural,Moira,ex-key,key,keys,keys.,correct,,correct,,key,True,"One word, “keys”, the plural of “key”.",0.671,361.3,runs/scorer_clips/Moira/5944ae2541.wav
+filler_word,Moira,ex-key,key,"um, key","Um, key.",correct,,correct,,key,True,"After removing fillers and repeats, one word, “key”, matches “key”.",0.414,332.8,runs/scorer_clips/Moira/5a4d038577.wav
+wrong_word,Moira,ex-key,key,lock,Good luck.,incorrect,meaning,unclear,,,False,More than one word (“Good luck.”); only single-word answers are scored.,,1080.6,runs/scorer_clips/Moira/e117797422.wav
+near_miss,Moira,ex-key,key,tee,T,incorrect,sound,unclear,,,False,The recognizer wasn't confident it heard “t” (0.07).,0.071,2267.9,runs/scorer_clips/Moira/62a2f664b0.wav
+its_a,Moira,ex-key,key,it's a key,It's a key.,unclear,,unclear,,,True,More than one word (“It's a key.”); only single-word answers are scored.,,399.6,runs/scorer_clips/Moira/5e6a0d10c6.wav
+dont_know,Moira,ex-key,key,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-key,key,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-banana,banana,banana,Banana,correct,,correct,,banana,True,"One word, “banana”, matches “banana”.",0.524,7040.4,runs/scorer_clips/Samantha/250e77f12a.wav
+plural,Samantha,ex-banana,banana,bananas,bananas.,correct,,correct,,banana,True,"One word, “bananas”, the plural of “banana”.",0.434,3152.9,runs/scorer_clips/Samantha/d13218f1b0.wav
+filler_word,Samantha,ex-banana,banana,"um, banana","Um, Banana",correct,,correct,,banana,True,"After removing fillers and repeats, one word, “banana”, matches “banana”.",0.708,334.3,runs/scorer_clips/Samantha/4a92c42935.wav
+wrong_word,Samantha,ex-banana,banana,grape,Great.,incorrect,meaning,incorrect,meaning,,True,"One word, “great”, a different word from “banana”.",0.621,323.6,runs/scorer_clips/Samantha/bc8a2f8cde.wav
+near_miss,Samantha,ex-banana,banana,panana,Hanana,incorrect,sound,incorrect,sound,,True,"One word, “hanana”, spelled close to “banana” (not a dictionary word).",0.451,328.1,runs/scorer_clips/Samantha/d99cc1fb89.wav
+its_a,Samantha,ex-banana,banana,it's a banana,It's a banana.,unclear,,unclear,,,True,More than one word (“It's a banana.”); only single-word answers are scored.,,338.4,runs/scorer_clips/Samantha/7715369d92.wav
+dont_know,Samantha,ex-banana,banana,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-banana,banana,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-banana,banana,banana,Banana,correct,,correct,,banana,True,"One word, “banana”, matches “banana”.",0.261,335.2,runs/scorer_clips/Daniel/250e77f12a.wav
+plural,Daniel,ex-banana,banana,bananas,bananas.,correct,,correct,,banana,True,"One word, “bananas”, the plural of “banana”.",0.715,330.1,runs/scorer_clips/Daniel/d13218f1b0.wav
+filler_word,Daniel,ex-banana,banana,"um, banana","Um, banana.",correct,,correct,,banana,True,"After removing fillers and repeats, one word, “banana”, matches “banana”.",0.415,343.1,runs/scorer_clips/Daniel/4a92c42935.wav
+wrong_word,Daniel,ex-banana,banana,grape,Great.,incorrect,meaning,incorrect,meaning,,True,"One word, “great”, a different word from “banana”.",0.72,324.1,runs/scorer_clips/Daniel/bc8a2f8cde.wav
+near_miss,Daniel,ex-banana,banana,panana,Banana,incorrect,sound,correct,,banana,False,"One word, “banana”, matches “banana”.",0.652,321.2,runs/scorer_clips/Daniel/d99cc1fb89.wav
+its_a,Daniel,ex-banana,banana,it's a banana,it's a banana.,unclear,,unclear,,,True,More than one word (“it's a banana.”); only single-word answers are scored.,,344.5,runs/scorer_clips/Daniel/7715369d92.wav
+dont_know,Daniel,ex-banana,banana,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-banana,banana,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-banana,banana,banana,Banana Nana.,correct,,unclear,,,False,More than one word (“Banana Nana.”); only single-word answers are scored.,,8911.2,runs/scorer_clips/Karen/250e77f12a.wav
+plural,Karen,ex-banana,banana,bananas,Bananas,correct,,correct,,banana,True,"One word, “bananas”, the plural of “banana”.",0.621,4235.0,runs/scorer_clips/Karen/d13218f1b0.wav
+filler_word,Karen,ex-banana,banana,"um, banana","Thumb, Banana",correct,,unclear,,,False,"More than one word (“Thumb, Banana”); only single-word answers are scored.",,365.3,runs/scorer_clips/Karen/4a92c42935.wav
+wrong_word,Karen,ex-banana,banana,grape,Grade. . .,incorrect,meaning,unclear,,,False,The recognizer wasn't confident it heard “grade” (0.05).,0.052,6478.9,runs/scorer_clips/Karen/bc8a2f8cde.wav
+near_miss,Karen,ex-banana,banana,panana,Banana,incorrect,sound,correct,,banana,False,"One word, “banana”, matches “banana”.",0.327,6906.1,runs/scorer_clips/Karen/d99cc1fb89.wav
+its_a,Karen,ex-banana,banana,it's a banana,It's a banana.,unclear,,unclear,,,True,More than one word (“It's a banana.”); only single-word answers are scored.,,357.3,runs/scorer_clips/Karen/7715369d92.wav
+dont_know,Karen,ex-banana,banana,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-banana,banana,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-banana,banana,banana,Banana,correct,,correct,,banana,True,"One word, “banana”, matches “banana”.",0.358,322.6,runs/scorer_clips/Moira/250e77f12a.wav
+plural,Moira,ex-banana,banana,bananas,bananas.,correct,,correct,,banana,True,"One word, “bananas”, the plural of “banana”.",0.4,1179.9,runs/scorer_clips/Moira/d13218f1b0.wav
+filler_word,Moira,ex-banana,banana,"um, banana","Um, banana.",correct,,correct,,banana,True,"After removing fillers and repeats, one word, “banana”, matches “banana”.",0.357,365.8,runs/scorer_clips/Moira/4a92c42935.wav
+wrong_word,Moira,ex-banana,banana,grape,Great.,incorrect,meaning,incorrect,meaning,,True,"One word, “great”, a different word from “banana”.",0.635,351.8,runs/scorer_clips/Moira/bc8a2f8cde.wav
+near_miss,Moira,ex-banana,banana,panana,Banana,incorrect,sound,correct,,banana,False,"One word, “banana”, matches “banana”.",0.45,349.6,runs/scorer_clips/Moira/d99cc1fb89.wav
+its_a,Moira,ex-banana,banana,it's a banana,It's a banana.,unclear,,unclear,,,True,More than one word (“It's a banana.”); only single-word answers are scored.,,364.7,runs/scorer_clips/Moira/7715369d92.wav
+dont_know,Moira,ex-banana,banana,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-banana,banana,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-chair,chair,chair,Chair.,correct,,correct,,chair,True,"One word, “chair”, matches “chair”.",0.359,355.4,runs/scorer_clips/Samantha/851e13a653.wav
+plural,Samantha,ex-chair,chair,chairs,Cheers!,correct,,incorrect,sound,,False,"One word, “cheers”, sounds close to “chair”.",0.679,366.5,runs/scorer_clips/Samantha/1d8f9c1a54.wav
+filler_word,Samantha,ex-chair,chair,"um, chair","Umm, chair.",correct,,correct,,chair,True,"After removing fillers and repeats, one word, “chair”, matches “chair”.",0.514,367.4,runs/scorer_clips/Samantha/c696caeff7.wav
+wrong_word,Samantha,ex-chair,chair,table,Table,incorrect,meaning,incorrect,meaning,,True,"One word, “table”, a different word from “chair”.",0.36,364.1,runs/scorer_clips/Samantha/c3ee137d4f.wav
+near_miss,Samantha,ex-chair,chair,share,Share,incorrect,sound,incorrect,sound,,True,"One word, “share”, sounds close to “chair”.",0.548,988.6,runs/scorer_clips/Samantha/aab90dfe8c.wav
+its_a,Samantha,ex-chair,chair,it's a chair,It's a chair.,unclear,,unclear,,,True,More than one word (“It's a chair.”); only single-word answers are scored.,,365.2,runs/scorer_clips/Samantha/33e99ae9cf.wav
+dont_know,Samantha,ex-chair,chair,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-chair,chair,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-chair,chair,chair,Sure.,correct,,unclear,,,False,The recognizer wasn't confident it heard “sure” (0.05).,0.05,1023.2,runs/scorer_clips/Daniel/851e13a653.wav
+plural,Daniel,ex-chair,chair,chairs,Cheers.,correct,,incorrect,sound,,False,"One word, “cheers”, sounds close to “chair”.",0.451,362.0,runs/scorer_clips/Daniel/1d8f9c1a54.wav
+filler_word,Daniel,ex-chair,chair,"um, chair",I'm sure.,correct,,unclear,,,False,More than one word (“I'm sure.”); only single-word answers are scored.,,375.1,runs/scorer_clips/Daniel/c696caeff7.wav
+wrong_word,Daniel,ex-chair,chair,table,Table.,incorrect,meaning,incorrect,meaning,,True,"One word, “table”, a different word from “chair”.",0.69,361.1,runs/scorer_clips/Daniel/c3ee137d4f.wav
+near_miss,Daniel,ex-chair,chair,share,Share.,incorrect,sound,incorrect,sound,,True,"One word, “share”, sounds close to “chair”.",0.32,1008.3,runs/scorer_clips/Daniel/aab90dfe8c.wav
+its_a,Daniel,ex-chair,chair,it's a chair,It's a chair.,unclear,,unclear,,,True,More than one word (“It's a chair.”); only single-word answers are scored.,,361.9,runs/scorer_clips/Daniel/33e99ae9cf.wav
+dont_know,Daniel,ex-chair,chair,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-chair,chair,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-chair,chair,chair,Cheers!,correct,,incorrect,sound,,False,"One word, “cheers”, sounds close to “chair”.",0.765,346.9,runs/scorer_clips/Karen/851e13a653.wav
+plural,Karen,ex-chair,chair,chairs,Cheers.,correct,,incorrect,sound,,False,"One word, “cheers”, sounds close to “chair”.",0.88,337.7,runs/scorer_clips/Karen/1d8f9c1a54.wav
+filler_word,Karen,ex-chair,chair,"um, chair","Come, cheer.",correct,,unclear,,,False,"More than one word (“Come, cheer.”); only single-word answers are scored.",,370.2,runs/scorer_clips/Karen/c696caeff7.wav
+wrong_word,Karen,ex-chair,chair,table,Table,incorrect,meaning,incorrect,meaning,,True,"One word, “table”, a different word from “chair”.",0.347,333.1,runs/scorer_clips/Karen/c3ee137d4f.wav
+near_miss,Karen,ex-chair,chair,share,Shit.,incorrect,sound,unclear,,,False,The recognizer wasn't confident it heard “shit” (0.07).,0.075,1044.2,runs/scorer_clips/Karen/aab90dfe8c.wav
+its_a,Karen,ex-chair,chair,it's a chair,It's a chair.,unclear,,unclear,,,True,More than one word (“It's a chair.”); only single-word answers are scored.,,382.9,runs/scorer_clips/Karen/33e99ae9cf.wav
+dont_know,Karen,ex-chair,chair,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-chair,chair,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-chair,chair,chair,Chair.,correct,,correct,,chair,True,"One word, “chair”, matches “chair”.",0.399,344.0,runs/scorer_clips/Moira/851e13a653.wav
+plural,Moira,ex-chair,chair,chairs,Chairs.,correct,,correct,,chair,True,"One word, “chairs”, the plural of “chair”.",0.564,361.8,runs/scorer_clips/Moira/1d8f9c1a54.wav
+filler_word,Moira,ex-chair,chair,"um, chair","Umm, Chair.",correct,,correct,,chair,True,"After removing fillers and repeats, one word, “chair”, matches “chair”.",0.631,380.1,runs/scorer_clips/Moira/c696caeff7.wav
+wrong_word,Moira,ex-chair,chair,table,Table.,incorrect,meaning,incorrect,meaning,,True,"One word, “table”, a different word from “chair”.",0.375,334.6,runs/scorer_clips/Moira/c3ee137d4f.wav
+near_miss,Moira,ex-chair,chair,share,Share.,incorrect,sound,incorrect,sound,,True,"One word, “share”, sounds close to “chair”.",0.331,1048.6,runs/scorer_clips/Moira/aab90dfe8c.wav
+its_a,Moira,ex-chair,chair,it's a chair,It's a chair.,unclear,,unclear,,,True,More than one word (“It's a chair.”); only single-word answers are scored.,,342.8,runs/scorer_clips/Moira/33e99ae9cf.wav
+dont_know,Moira,ex-chair,chair,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-chair,chair,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-bicycle,bicycle,bicycle,bicycle.,correct,,correct,,bicycle,True,"One word, “bicycle”, matches “bicycle”.",0.514,342.4,runs/scorer_clips/Samantha/a3e3318b0a.wav
+alt_word,Samantha,ex-bicycle,bicycle,bike,Bye!,correct,,incorrect,sound,,False,"One word, “bye”, sounds close to “bicycle”.",0.344,325.8,runs/scorer_clips/Samantha/44d5369032.wav
+plural,Samantha,ex-bicycle,bicycle,bicycles,Bicycles,correct,,correct,,bicycle,True,"One word, “bicycles”, the plural of “bicycle”.",0.695,370.9,runs/scorer_clips/Samantha/27ba199ad8.wav
+filler_word,Samantha,ex-bicycle,bicycle,"um, bicycle","Umm, Bicycle",correct,,correct,,bicycle,True,"After removing fillers and repeats, one word, “bicycle”, matches “bicycle”.",0.338,365.7,runs/scorer_clips/Samantha/1091823ac5.wav
+wrong_word,Samantha,ex-bicycle,bicycle,train,Train,incorrect,meaning,incorrect,meaning,,True,"One word, “train”, a different word from “bicycle”.",0.78,340.7,runs/scorer_clips/Samantha/94efdd6f62.wav
+near_miss,Samantha,ex-bicycle,bicycle,picycle,physical,incorrect,sound,incorrect,sound,,True,"One word, “physical”, sounds close to “bicycle”.",0.589,385.4,runs/scorer_clips/Samantha/f9172d4b2d.wav
+its_a,Samantha,ex-bicycle,bicycle,it's a bicycle,It's a bicycle.,unclear,,unclear,,,True,More than one word (“It's a bicycle.”); only single-word answers are scored.,,388.9,runs/scorer_clips/Samantha/6896306a7e.wav
+dont_know,Samantha,ex-bicycle,bicycle,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-bicycle,bicycle,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-bicycle,bicycle,bicycle,bicycle.,correct,,correct,,bicycle,True,"One word, “bicycle”, matches “bicycle”.",0.773,343.3,runs/scorer_clips/Daniel/a3e3318b0a.wav
+alt_word,Daniel,ex-bicycle,bicycle,bike,Bye.,correct,,incorrect,sound,,False,"One word, “bye”, sounds close to “bicycle”.",0.424,352.2,runs/scorer_clips/Daniel/44d5369032.wav
+plural,Daniel,ex-bicycle,bicycle,bicycles,bicycles.,correct,,correct,,bicycle,True,"One word, “bicycles”, the plural of “bicycle”.",0.721,331.3,runs/scorer_clips/Daniel/27ba199ad8.wav
+filler_word,Daniel,ex-bicycle,bicycle,"um, bicycle","Umm, bicycle.",correct,,correct,,bicycle,True,"After removing fillers and repeats, one word, “bicycle”, matches “bicycle”.",0.779,345.6,runs/scorer_clips/Daniel/1091823ac5.wav
+wrong_word,Daniel,ex-bicycle,bicycle,train,Train,incorrect,meaning,incorrect,meaning,,True,"One word, “train”, a different word from “bicycle”.",0.685,342.5,runs/scorer_clips/Daniel/94efdd6f62.wav
+near_miss,Daniel,ex-bicycle,bicycle,picycle,physical,incorrect,sound,incorrect,sound,,True,"One word, “physical”, sounds close to “bicycle”.",0.683,348.0,runs/scorer_clips/Daniel/f9172d4b2d.wav
+its_a,Daniel,ex-bicycle,bicycle,it's a bicycle,It's a bicycle.,unclear,,unclear,,,True,More than one word (“It's a bicycle.”); only single-word answers are scored.,,437.5,runs/scorer_clips/Daniel/6896306a7e.wav
+dont_know,Daniel,ex-bicycle,bicycle,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-bicycle,bicycle,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-bicycle,bicycle,bicycle,bicycle.,correct,,correct,,bicycle,True,"One word, “bicycle”, matches “bicycle”.",0.773,351.0,runs/scorer_clips/Karen/a3e3318b0a.wav
+alt_word,Karen,ex-bicycle,bicycle,bike,Bye.,correct,,incorrect,sound,,False,"One word, “bye”, sounds close to “bicycle”.",0.477,354.0,runs/scorer_clips/Karen/44d5369032.wav
+plural,Karen,ex-bicycle,bicycle,bicycles,bicycles,correct,,correct,,bicycle,True,"One word, “bicycles”, the plural of “bicycle”.",0.699,335.7,runs/scorer_clips/Karen/27ba199ad8.wav
+filler_word,Karen,ex-bicycle,bicycle,"um, bicycle","Come, bicycle.",correct,,unclear,,,False,"More than one word (“Come, bicycle.”); only single-word answers are scored.",,368.6,runs/scorer_clips/Karen/1091823ac5.wav
+wrong_word,Karen,ex-bicycle,bicycle,train,Train,incorrect,meaning,incorrect,meaning,,True,"One word, “train”, a different word from “bicycle”.",0.636,357.6,runs/scorer_clips/Karen/94efdd6f62.wav
+near_miss,Karen,ex-bicycle,bicycle,picycle,physical.,incorrect,sound,incorrect,sound,,True,"One word, “physical”, sounds close to “bicycle”.",0.317,345.3,runs/scorer_clips/Karen/f9172d4b2d.wav
+its_a,Karen,ex-bicycle,bicycle,it's a bicycle,It's a bicycle.,unclear,,unclear,,,True,More than one word (“It's a bicycle.”); only single-word answers are scored.,,344.7,runs/scorer_clips/Karen/6896306a7e.wav
+dont_know,Karen,ex-bicycle,bicycle,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-bicycle,bicycle,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-bicycle,bicycle,bicycle,bicycle.,correct,,correct,,bicycle,True,"One word, “bicycle”, matches “bicycle”.",0.831,334.7,runs/scorer_clips/Moira/a3e3318b0a.wav
+alt_word,Moira,ex-bicycle,bicycle,bike,Bye.,correct,,incorrect,sound,,False,"One word, “bye”, sounds close to “bicycle”.",0.241,1037.9,runs/scorer_clips/Moira/44d5369032.wav
+plural,Moira,ex-bicycle,bicycle,bicycles,Bicycles,correct,,correct,,bicycle,True,"One word, “bicycles”, the plural of “bicycle”.",0.689,329.3,runs/scorer_clips/Moira/27ba199ad8.wav
+filler_word,Moira,ex-bicycle,bicycle,"um, bicycle","arm, bicycle",correct,,unclear,,,False,"More than one word (“arm, bicycle”); only single-word answers are scored.",,361.8,runs/scorer_clips/Moira/1091823ac5.wav
+wrong_word,Moira,ex-bicycle,bicycle,train,Train.,incorrect,meaning,incorrect,meaning,,True,"One word, “train”, a different word from “bicycle”.",0.502,323.7,runs/scorer_clips/Moira/94efdd6f62.wav
+near_miss,Moira,ex-bicycle,bicycle,picycle,physical.,incorrect,sound,incorrect,sound,,True,"One word, “physical”, sounds close to “bicycle”.",0.365,342.7,runs/scorer_clips/Moira/f9172d4b2d.wav
+its_a,Moira,ex-bicycle,bicycle,it's a bicycle,It's a bicycle.,unclear,,unclear,,,True,More than one word (“It's a bicycle.”); only single-word answers are scored.,,354.1,runs/scorer_clips/Moira/6896306a7e.wav
+dont_know,Moira,ex-bicycle,bicycle,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-bicycle,bicycle,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-umbrella,umbrella,umbrella,umbrella,correct,,correct,,umbrella,True,"One word, “umbrella”, matches “umbrella”.",0.743,335.6,runs/scorer_clips/Samantha/3ff95ac9e6.wav
+alt_word,Samantha,ex-umbrella,umbrella,brolly,Brawley,correct,,incorrect,sound,,False,"One word, “brawley”, sounds close to “umbrella”.",0.617,362.9,runs/scorer_clips/Samantha/600b8e9de3.wav
+plural,Samantha,ex-umbrella,umbrella,umbrellas,umbrellas,correct,,correct,,umbrella,True,"One word, “umbrellas”, the plural of “umbrella”.",0.818,368.0,runs/scorer_clips/Samantha/9bbcceb32e.wav
+filler_word,Samantha,ex-umbrella,umbrella,"um, umbrella","Umm, Umbrella",correct,,correct,,umbrella,True,"After removing fillers and repeats, one word, “umbrella”, matches “umbrella”.",0.78,347.5,runs/scorer_clips/Samantha/972c50ed45.wav
+wrong_word,Samantha,ex-umbrella,umbrella,raincoat,Raincoat.,incorrect,meaning,incorrect,meaning,,True,"One word, “raincoat”, a different word from “umbrella”.",0.646,346.0,runs/scorer_clips/Samantha/4318f82eac.wav
+near_miss,Samantha,ex-umbrella,umbrella,ombrella,Umbrella,incorrect,sound,correct,,umbrella,False,"One word, “umbrella”, matches “umbrella”.",0.589,321.5,runs/scorer_clips/Samantha/eedeb7fa1b.wav
+its_a,Samantha,ex-umbrella,umbrella,it's an umbrella,It's an umbrella.,unclear,,unclear,,,True,More than one word (“It's an umbrella.”); only single-word answers are scored.,,364.9,runs/scorer_clips/Samantha/1e4ec43234.wav
+dont_know,Samantha,ex-umbrella,umbrella,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-umbrella,umbrella,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-umbrella,umbrella,umbrella,Umbrella,correct,,correct,,umbrella,True,"One word, “umbrella”, matches “umbrella”.",0.661,323.1,runs/scorer_clips/Daniel/3ff95ac9e6.wav
+alt_word,Daniel,ex-umbrella,umbrella,brolly,Broly.,correct,,incorrect,sound,,False,"One word, “broly”, spelled close to “umbrella” (not a dictionary word).",0.598,342.0,runs/scorer_clips/Daniel/600b8e9de3.wav
+plural,Daniel,ex-umbrella,umbrella,umbrellas,Umbrellas,correct,,correct,,umbrella,True,"One word, “umbrellas”, the plural of “umbrella”.",0.685,370.6,runs/scorer_clips/Daniel/9bbcceb32e.wav
+filler_word,Daniel,ex-umbrella,umbrella,"um, umbrella",Umbrella,correct,,correct,,umbrella,True,"One word, “umbrella”, matches “umbrella”.",0.601,367.0,runs/scorer_clips/Daniel/972c50ed45.wav
+wrong_word,Daniel,ex-umbrella,umbrella,raincoat,raincoat,incorrect,meaning,incorrect,meaning,,True,"One word, “raincoat”, a different word from “umbrella”.",0.708,436.9,runs/scorer_clips/Daniel/4318f82eac.wav
+near_miss,Daniel,ex-umbrella,umbrella,ombrella,Umbrella,incorrect,sound,correct,,umbrella,False,"One word, “umbrella”, matches “umbrella”.",0.62,352.6,runs/scorer_clips/Daniel/eedeb7fa1b.wav
+its_a,Daniel,ex-umbrella,umbrella,it's an umbrella,It's an umbrella.,unclear,,unclear,,,True,More than one word (“It's an umbrella.”); only single-word answers are scored.,,360.1,runs/scorer_clips/Daniel/1e4ec43234.wav
+dont_know,Daniel,ex-umbrella,umbrella,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-umbrella,umbrella,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-umbrella,umbrella,umbrella,umbrella.,correct,,correct,,umbrella,True,"One word, “umbrella”, matches “umbrella”.",0.611,347.3,runs/scorer_clips/Karen/3ff95ac9e6.wav
+alt_word,Karen,ex-umbrella,umbrella,brolly,Rolly.,correct,,incorrect,sound,,False,"One word, “rolly”, sounds close to “umbrella”.",0.421,398.8,runs/scorer_clips/Karen/600b8e9de3.wav
+plural,Karen,ex-umbrella,umbrella,umbrellas,umbrellas,correct,,correct,,umbrella,True,"One word, “umbrellas”, the plural of “umbrella”.",0.914,339.8,runs/scorer_clips/Karen/9bbcceb32e.wav
+filler_word,Karen,ex-umbrella,umbrella,"um, umbrella","Come, Umbrella",correct,,unclear,,,False,"More than one word (“Come, Umbrella”); only single-word answers are scored.",,360.8,runs/scorer_clips/Karen/972c50ed45.wav
+wrong_word,Karen,ex-umbrella,umbrella,raincoat,Raincode.,incorrect,meaning,incorrect,unclassified,,False,"One word, “raincode”, not a dictionary word and not close to “umbrella”.",0.525,338.5,runs/scorer_clips/Karen/4318f82eac.wav
+near_miss,Karen,ex-umbrella,umbrella,ombrella,umbrella.,incorrect,sound,correct,,umbrella,False,"One word, “umbrella”, matches “umbrella”.",0.215,374.6,runs/scorer_clips/Karen/eedeb7fa1b.wav
+its_a,Karen,ex-umbrella,umbrella,it's an umbrella,It's an umbrella.,unclear,,unclear,,,True,More than one word (“It's an umbrella.”); only single-word answers are scored.,,392.5,runs/scorer_clips/Karen/1e4ec43234.wav
+dont_know,Karen,ex-umbrella,umbrella,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-umbrella,umbrella,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-umbrella,umbrella,umbrella,Umbrella,correct,,correct,,umbrella,True,"One word, “umbrella”, matches “umbrella”.",0.622,353.3,runs/scorer_clips/Moira/3ff95ac9e6.wav
+alt_word,Moira,ex-umbrella,umbrella,brolly,Brawley,correct,,incorrect,sound,,False,"One word, “brawley”, sounds close to “umbrella”.",0.573,361.8,runs/scorer_clips/Moira/600b8e9de3.wav
+plural,Moira,ex-umbrella,umbrella,umbrellas,umbrellas,correct,,correct,,umbrella,True,"One word, “umbrellas”, the plural of “umbrella”.",0.776,399.8,runs/scorer_clips/Moira/9bbcceb32e.wav
+filler_word,Moira,ex-umbrella,umbrella,"um, umbrella",Umbrella,correct,,correct,,umbrella,True,"One word, “umbrella”, matches “umbrella”.",0.611,366.9,runs/scorer_clips/Moira/972c50ed45.wav
+wrong_word,Moira,ex-umbrella,umbrella,raincoat,Raincoat,incorrect,meaning,incorrect,meaning,,True,"One word, “raincoat”, a different word from “umbrella”.",0.393,378.9,runs/scorer_clips/Moira/4318f82eac.wav
+near_miss,Moira,ex-umbrella,umbrella,ombrella,umbrella,incorrect,sound,correct,,umbrella,False,"One word, “umbrella”, matches “umbrella”.",0.596,336.1,runs/scorer_clips/Moira/eedeb7fa1b.wav
+its_a,Moira,ex-umbrella,umbrella,it's an umbrella,It's an umbrella.,unclear,,unclear,,,True,More than one word (“It's an umbrella.”); only single-word answers are scored.,,369.3,runs/scorer_clips/Moira/1e4ec43234.wav
+dont_know,Moira,ex-umbrella,umbrella,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-umbrella,umbrella,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-rabbit,rabbit,rabbit,Rabbit,correct,,correct,,rabbit,True,"One word, “rabbit”, matches “rabbit”.",0.286,1168.5,runs/scorer_clips/Samantha/6d0ebbbdce.wav
+alt_word,Samantha,ex-rabbit,rabbit,bunny,Bunny,correct,,correct,,bunny,True,"One word, “bunny”, matches “bunny”.",0.171,3233.0,runs/scorer_clips/Samantha/8bb4ebd4c9.wav
+plural,Samantha,ex-rabbit,rabbit,rabbits,Rabbits,correct,,correct,,rabbit,True,"One word, “rabbits”, the plural of “rabbit”.",0.581,320.8,runs/scorer_clips/Samantha/2787dd15b9.wav
+filler_word,Samantha,ex-rabbit,rabbit,"um, rabbit","Um, rabbit.",correct,,correct,,rabbit,True,"After removing fillers and repeats, one word, “rabbit”, matches “rabbit”.",0.475,360.2,runs/scorer_clips/Samantha/7980d07f61.wav
+wrong_word,Samantha,ex-rabbit,rabbit,mouse,Mouse,incorrect,meaning,incorrect,meaning,,True,"One word, “mouse”, a different word from “rabbit”.",0.29,,runs/scorer_clips/Samantha/9e05e6832c.wav
+near_miss,Samantha,ex-rabbit,rabbit,wabbit,Webit.,incorrect,sound,incorrect,sound,,True,"One word, “webit”, spelled close to “rabbit” (not a dictionary word).",0.409,325.9,runs/scorer_clips/Samantha/559f95e681.wav
+its_a,Samantha,ex-rabbit,rabbit,it's a rabbit,It's a rabbit.,unclear,,unclear,,,True,More than one word (“It's a rabbit.”); only single-word answers are scored.,,361.0,runs/scorer_clips/Samantha/5b5487d472.wav
+dont_know,Samantha,ex-rabbit,rabbit,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-rabbit,rabbit,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-rabbit,rabbit,rabbit,Rabbit,correct,,correct,,rabbit,True,"One word, “rabbit”, matches “rabbit”.",0.271,311.0,runs/scorer_clips/Daniel/6d0ebbbdce.wav
+alt_word,Daniel,ex-rabbit,rabbit,bunny,Bunny,correct,,correct,,bunny,True,"One word, “bunny”, matches “bunny”.",0.535,323.6,runs/scorer_clips/Daniel/8bb4ebd4c9.wav
+plural,Daniel,ex-rabbit,rabbit,rabbits,Rabbits,correct,,correct,,rabbit,True,"One word, “rabbits”, the plural of “rabbit”.",0.637,317.5,runs/scorer_clips/Daniel/2787dd15b9.wav
+filler_word,Daniel,ex-rabbit,rabbit,"um, rabbit","Um, rabbit.",correct,,correct,,rabbit,True,"After removing fillers and repeats, one word, “rabbit”, matches “rabbit”.",0.462,341.3,runs/scorer_clips/Daniel/7980d07f61.wav
+wrong_word,Daniel,ex-rabbit,rabbit,mouse,mouse,incorrect,meaning,incorrect,meaning,,True,"One word, “mouse”, a different word from “rabbit”.",0.775,,runs/scorer_clips/Daniel/9e05e6832c.wav
+near_miss,Daniel,ex-rabbit,rabbit,wabbit,Wabbit,incorrect,sound,incorrect,sound,,True,"One word, “wabbit”, spelled close to “rabbit” (not a dictionary word).",0.408,998.6,runs/scorer_clips/Daniel/559f95e681.wav
+its_a,Daniel,ex-rabbit,rabbit,it's a rabbit,It's a rabbit.,unclear,,unclear,,,True,More than one word (“It's a rabbit.”); only single-word answers are scored.,,353.3,runs/scorer_clips/Daniel/5b5487d472.wav
+dont_know,Daniel,ex-rabbit,rabbit,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-rabbit,rabbit,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-rabbit,rabbit,rabbit,Rabbid.,correct,,incorrect,sound,,False,"One word, “rabbid”, spelled close to “rabbit” (not a dictionary word).",0.456,2152.5,runs/scorer_clips/Karen/6d0ebbbdce.wav
+alt_word,Karen,ex-rabbit,rabbit,bunny,Bunny.,correct,,correct,,bunny,True,"One word, “bunny”, matches “bunny”.",0.281,337.9,runs/scorer_clips/Karen/8bb4ebd4c9.wav
+plural,Karen,ex-rabbit,rabbit,rabbits,Rabbids.,correct,,incorrect,sound,,False,"One word, “rabbids”, spelled close to “rabbit” (not a dictionary word).",0.409,325.0,runs/scorer_clips/Karen/2787dd15b9.wav
+filler_word,Karen,ex-rabbit,rabbit,"um, rabbit","gum, rabbit.",correct,,unclear,,,False,"More than one word (“gum, rabbit.”); only single-word answers are scored.",,361.7,runs/scorer_clips/Karen/7980d07f61.wav
+wrong_word,Karen,ex-rabbit,rabbit,mouse,Mouse,incorrect,meaning,incorrect,meaning,,True,"One word, “mouse”, a different word from “rabbit”.",0.348,,runs/scorer_clips/Karen/9e05e6832c.wav
+near_miss,Karen,ex-rabbit,rabbit,wabbit,Wabbid,incorrect,sound,incorrect,sound,,True,"One word, “wabbid”, spelled close to “rabbit” (not a dictionary word).",0.399,331.3,runs/scorer_clips/Karen/559f95e681.wav
+its_a,Karen,ex-rabbit,rabbit,it's a rabbit,It's a rabbit.,unclear,,unclear,,,True,More than one word (“It's a rabbit.”); only single-word answers are scored.,,347.1,runs/scorer_clips/Karen/5b5487d472.wav
+dont_know,Karen,ex-rabbit,rabbit,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-rabbit,rabbit,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-rabbit,rabbit,rabbit,Rabbits,correct,,correct,,rabbit,True,"One word, “rabbits”, the plural of “rabbit”.",0.558,340.4,runs/scorer_clips/Moira/6d0ebbbdce.wav
+alt_word,Moira,ex-rabbit,rabbit,bunny,Funny.,correct,,incorrect,sound,,False,"One word, “funny”, sounds close to “rabbit”.",0.101,1711.3,runs/scorer_clips/Moira/8bb4ebd4c9.wav
+plural,Moira,ex-rabbit,rabbit,rabbits,Rabbits,correct,,correct,,rabbit,True,"One word, “rabbits”, the plural of “rabbit”.",0.572,320.5,runs/scorer_clips/Moira/2787dd15b9.wav
+filler_word,Moira,ex-rabbit,rabbit,"um, rabbit","Um, Rabbits.",correct,,correct,,rabbit,True,"After removing fillers and repeats, one word, “rabbits”, the plural of “rabbit”.",0.441,339.5,runs/scorer_clips/Moira/7980d07f61.wav
+wrong_word,Moira,ex-rabbit,rabbit,mouse,mouse.,incorrect,meaning,incorrect,meaning,,True,"One word, “mouse”, a different word from “rabbit”.",0.601,,runs/scorer_clips/Moira/9e05e6832c.wav
+near_miss,Moira,ex-rabbit,rabbit,wabbit,Wuppets.,incorrect,sound,incorrect,unclassified,,False,"One word, “wuppets”, not a dictionary word and not close to “rabbit”.",0.381,1116.2,runs/scorer_clips/Moira/559f95e681.wav
+its_a,Moira,ex-rabbit,rabbit,it's a rabbit,It's a rabbit.,unclear,,unclear,,,True,More than one word (“It's a rabbit.”); only single-word answers are scored.,,344.2,runs/scorer_clips/Moira/5b5487d472.wav
+dont_know,Moira,ex-rabbit,rabbit,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-rabbit,rabbit,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-glasses,glasses,glasses,Glasses,correct,,correct,,glasses,True,"One word, “glasses”, matches “glasses”.",0.583,315.2,runs/scorer_clips/Samantha/ba22ef34f8.wav
+alt_word,Samantha,ex-glasses,glasses,spectacles,Spectacles.,correct,,correct,,spectacles,True,"One word, “spectacles”, matches “spectacles”.",0.692,325.9,runs/scorer_clips/Samantha/6b7d75a954.wav
+alt_word,Samantha,ex-glasses,glasses,eyeglasses,eyeglasses.,correct,,correct,,eyeglasses,True,"One word, “eyeglasses”, matches “eyeglasses”.",0.882,334.3,runs/scorer_clips/Samantha/0844fed5f7.wav
+filler_word,Samantha,ex-glasses,glasses,"um, glasses","Umm, glasses.",correct,,correct,,glasses,True,"After removing fillers and repeats, one word, “glasses”, matches “glasses”.",0.765,345.3,runs/scorer_clips/Samantha/ff8096452c.wav
+wrong_word,Samantha,ex-glasses,glasses,hat,Hat.,incorrect,meaning,unclear,,,False,The recognizer wasn't confident it heard “hat” (0.08).,0.078,1495.4,runs/scorer_clips/Samantha/10e5866050.wav
+near_miss,Samantha,ex-glasses,glasses,blasses,Blosses.,incorrect,sound,incorrect,sound,,True,"One word, “blosses”, spelled close to “glasses” (not a dictionary word).",0.522,334.6,runs/scorer_clips/Samantha/79b667224b.wav
+its_a,Samantha,ex-glasses,glasses,it's a glasses,It's a glasses.,unclear,,unclear,,,True,More than one word (“It's a glasses.”); only single-word answers are scored.,,389.7,runs/scorer_clips/Samantha/5a06a3517a.wav
+dont_know,Samantha,ex-glasses,glasses,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-glasses,glasses,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-glasses,glasses,glasses,glasses.,correct,,correct,,glasses,True,"One word, “glasses”, matches “glasses”.",0.763,334.8,runs/scorer_clips/Daniel/ba22ef34f8.wav
+alt_word,Daniel,ex-glasses,glasses,spectacles,Spectacles.,correct,,correct,,spectacles,True,"One word, “spectacles”, matches “spectacles”.",0.808,359.6,runs/scorer_clips/Daniel/6b7d75a954.wav
+alt_word,Daniel,ex-glasses,glasses,eyeglasses,eyeglasses.,correct,,correct,,eyeglasses,True,"One word, “eyeglasses”, matches “eyeglasses”.",0.777,361.4,runs/scorer_clips/Daniel/0844fed5f7.wav
+filler_word,Daniel,ex-glasses,glasses,"um, glasses","Um, glasses.",correct,,correct,,glasses,True,"After removing fillers and repeats, one word, “glasses”, matches “glasses”.",0.869,366.7,runs/scorer_clips/Daniel/ff8096452c.wav
+wrong_word,Daniel,ex-glasses,glasses,hat,hurt,incorrect,meaning,incorrect,meaning,,True,"One word, “hurt”, a different word from “glasses”.",0.423,1007.1,runs/scorer_clips/Daniel/10e5866050.wav
+near_miss,Daniel,ex-glasses,glasses,blasses,Blesses.,incorrect,sound,incorrect,sound,,True,"One word, “blesses”, sounds close to “glasses”.",0.456,376.6,runs/scorer_clips/Daniel/79b667224b.wav
+its_a,Daniel,ex-glasses,glasses,it's a glasses,it's a glasses.,unclear,,unclear,,,True,More than one word (“it's a glasses.”); only single-word answers are scored.,,385.9,runs/scorer_clips/Daniel/5a06a3517a.wav
+dont_know,Daniel,ex-glasses,glasses,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-glasses,glasses,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-glasses,glasses,glasses,Glasses,correct,,correct,,glasses,True,"One word, “glasses”, matches “glasses”.",0.576,341.2,runs/scorer_clips/Karen/ba22ef34f8.wav
+alt_word,Karen,ex-glasses,glasses,spectacles,Spectacles,correct,,correct,,spectacles,True,"One word, “spectacles”, matches “spectacles”.",0.804,347.4,runs/scorer_clips/Karen/6b7d75a954.wav
+alt_word,Karen,ex-glasses,glasses,eyeglasses,eyeglasses,correct,,correct,,eyeglasses,True,"One word, “eyeglasses”, matches “eyeglasses”.",0.69,376.8,runs/scorer_clips/Karen/0844fed5f7.wav
+filler_word,Karen,ex-glasses,glasses,"um, glasses",gum glasses,correct,,unclear,,,False,More than one word (“gum glasses”); only single-word answers are scored.,,381.9,runs/scorer_clips/Karen/ff8096452c.wav
+wrong_word,Karen,ex-glasses,glasses,hat,Head.,incorrect,meaning,incorrect,meaning,,True,"One word, “head”, a different word from “glasses”.",0.351,357.7,runs/scorer_clips/Karen/10e5866050.wav
+near_miss,Karen,ex-glasses,glasses,blasses,blesses.,incorrect,sound,incorrect,sound,,True,"One word, “blesses”, sounds close to “glasses”.",0.489,374.4,runs/scorer_clips/Karen/79b667224b.wav
+its_a,Karen,ex-glasses,glasses,it's a glasses,It's a glasses.,unclear,,unclear,,,True,More than one word (“It's a glasses.”); only single-word answers are scored.,,396.3,runs/scorer_clips/Karen/5a06a3517a.wav
+dont_know,Karen,ex-glasses,glasses,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-glasses,glasses,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-glasses,glasses,glasses,glasses.,correct,,correct,,glasses,True,"One word, “glasses”, matches “glasses”.",0.553,356.0,runs/scorer_clips/Moira/ba22ef34f8.wav
+alt_word,Moira,ex-glasses,glasses,spectacles,Spectacles,correct,,correct,,spectacles,True,"One word, “spectacles”, matches “spectacles”.",0.696,356.1,runs/scorer_clips/Moira/6b7d75a954.wav
+alt_word,Moira,ex-glasses,glasses,eyeglasses,eyeglasses,correct,,correct,,eyeglasses,True,"One word, “eyeglasses”, matches “eyeglasses”.",0.878,366.1,runs/scorer_clips/Moira/0844fed5f7.wav
+filler_word,Moira,ex-glasses,glasses,"um, glasses","Um, glasses.",correct,,correct,,glasses,True,"After removing fillers and repeats, one word, “glasses”, matches “glasses”.",0.798,387.0,runs/scorer_clips/Moira/ff8096452c.wav
+wrong_word,Moira,ex-glasses,glasses,hat,Huts.,incorrect,meaning,incorrect,meaning,,True,"One word, “huts”, a different word from “glasses”.",0.412,365.7,runs/scorer_clips/Moira/10e5866050.wav
+near_miss,Moira,ex-glasses,glasses,blasses,glasses.,incorrect,sound,correct,,glasses,False,"One word, “glasses”, matches “glasses”.",0.882,344.9,runs/scorer_clips/Moira/79b667224b.wav
+its_a,Moira,ex-glasses,glasses,it's a glasses,It's a glasses.,unclear,,unclear,,,True,More than one word (“It's a glasses.”); only single-word answers are scored.,,365.5,runs/scorer_clips/Moira/5a06a3517a.wav
+dont_know,Moira,ex-glasses,glasses,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-glasses,glasses,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-carrot,carrot,carrot,Carrot,correct,,correct,,carrot,True,"One word, “carrot”, matches “carrot”.",0.611,379.4,runs/scorer_clips/Samantha/d8bfad4b74.wav
+plural,Samantha,ex-carrot,carrot,carrots,Carrots,correct,,correct,,carrot,True,"One word, “carrots”, the plural of “carrot”.",0.693,363.3,runs/scorer_clips/Samantha/f890d49474.wav
+filler_word,Samantha,ex-carrot,carrot,"um, carrot","Um, carrot.",correct,,correct,,carrot,True,"After removing fillers and repeats, one word, “carrot”, matches “carrot”.",0.651,376.3,runs/scorer_clips/Samantha/01137c8389.wav
+wrong_word,Samantha,ex-carrot,carrot,potato,Potato,incorrect,meaning,incorrect,meaning,,True,"One word, “potato”, a different word from “carrot”.",0.112,365.6,runs/scorer_clips/Samantha/3e2e95f5ad.wav
+near_miss,Samantha,ex-carrot,carrot,tarrot,Terat,incorrect,sound,incorrect,unclassified,,False,"One word, “terat”, not a dictionary word and not close to “carrot”.",0.323,365.9,runs/scorer_clips/Samantha/ef1fee303c.wav
+its_a,Samantha,ex-carrot,carrot,it's a carrot,It's a carrot.,unclear,,unclear,,,True,More than one word (“It's a carrot.”); only single-word answers are scored.,,403.9,runs/scorer_clips/Samantha/d7cb885dbd.wav
+dont_know,Samantha,ex-carrot,carrot,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-carrot,carrot,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-carrot,carrot,carrot,Carrot,correct,,correct,,carrot,True,"One word, “carrot”, matches “carrot”.",0.76,367.4,runs/scorer_clips/Daniel/d8bfad4b74.wav
+plural,Daniel,ex-carrot,carrot,carrots,Carrots,correct,,correct,,carrot,True,"One word, “carrots”, the plural of “carrot”.",0.645,366.2,runs/scorer_clips/Daniel/f890d49474.wav
+filler_word,Daniel,ex-carrot,carrot,"um, carrot","Um, Carrot.",correct,,correct,,carrot,True,"After removing fillers and repeats, one word, “carrot”, matches “carrot”.",0.691,400.9,runs/scorer_clips/Daniel/01137c8389.wav
+wrong_word,Daniel,ex-carrot,carrot,potato,potato.,incorrect,meaning,incorrect,meaning,,True,"One word, “potato”, a different word from “carrot”.",0.594,2787.8,runs/scorer_clips/Daniel/3e2e95f5ad.wav
+near_miss,Daniel,ex-carrot,carrot,tarrot,Tear it.,incorrect,sound,unclear,,,False,More than one word (“Tear it.”); only single-word answers are scored.,,1119.3,runs/scorer_clips/Daniel/ef1fee303c.wav
+its_a,Daniel,ex-carrot,carrot,it's a carrot,It's a carrot.,unclear,,unclear,,,True,More than one word (“It's a carrot.”); only single-word answers are scored.,,367.1,runs/scorer_clips/Daniel/d7cb885dbd.wav
+dont_know,Daniel,ex-carrot,carrot,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-carrot,carrot,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-carrot,carrot,carrot,parrot,correct,,incorrect,sound,,False,"One word, “parrot”, sounds close to “carrot”.",0.631,323.1,runs/scorer_clips/Karen/d8bfad4b74.wav
+plural,Karen,ex-carrot,carrot,carrots,parrots,correct,,incorrect,sound,,False,"One word, “parrots”, sounds close to “carrot”.",0.684,331.0,runs/scorer_clips/Karen/f890d49474.wav
+filler_word,Karen,ex-carrot,carrot,"um, carrot","thumb, parrot",correct,,unclear,,,False,"More than one word (“thumb, parrot”); only single-word answers are scored.",,339.0,runs/scorer_clips/Karen/01137c8389.wav
+wrong_word,Karen,ex-carrot,carrot,potato,Potato,incorrect,meaning,incorrect,meaning,,True,"One word, “potato”, a different word from “carrot”.",0.555,333.7,runs/scorer_clips/Karen/3e2e95f5ad.wav
+near_miss,Karen,ex-carrot,carrot,tarrot,Terrid.,incorrect,sound,incorrect,unclassified,,False,"One word, “terrid”, not a dictionary word and not close to “carrot”.",0.3,1023.7,runs/scorer_clips/Karen/ef1fee303c.wav
+its_a,Karen,ex-carrot,carrot,it's a carrot,It's a carrot.,unclear,,unclear,,,True,More than one word (“It's a carrot.”); only single-word answers are scored.,,365.2,runs/scorer_clips/Karen/d7cb885dbd.wav
+dont_know,Karen,ex-carrot,carrot,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-carrot,carrot,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-carrot,carrot,carrot,Carrots,correct,,correct,,carrot,True,"One word, “carrots”, the plural of “carrot”.",0.672,323.2,runs/scorer_clips/Moira/d8bfad4b74.wav
+plural,Moira,ex-carrot,carrot,carrots,Carrots,correct,,correct,,carrot,True,"One word, “carrots”, the plural of “carrot”.",0.742,318.8,runs/scorer_clips/Moira/f890d49474.wav
+filler_word,Moira,ex-carrot,carrot,"um, carrot","Um, carrots.",correct,,correct,,carrot,True,"After removing fillers and repeats, one word, “carrots”, the plural of “carrot”.",0.763,344.9,runs/scorer_clips/Moira/01137c8389.wav
+wrong_word,Moira,ex-carrot,carrot,potato,potato.,incorrect,meaning,incorrect,meaning,,True,"One word, “potato”, a different word from “carrot”.",0.458,322.6,runs/scorer_clips/Moira/3e2e95f5ad.wav
+near_miss,Moira,ex-carrot,carrot,tarrot,Terrets,incorrect,sound,incorrect,unclassified,,False,"One word, “terrets”, not a dictionary word and not close to “carrot”.",0.351,331.9,runs/scorer_clips/Moira/ef1fee303c.wav
+its_a,Moira,ex-carrot,carrot,it's a carrot,It's a carrot.,unclear,,unclear,,,True,More than one word (“It's a carrot.”); only single-word answers are scored.,,344.2,runs/scorer_clips/Moira/d7cb885dbd.wav
+dont_know,Moira,ex-carrot,carrot,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-carrot,carrot,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-hammer,hammer,hammer,Hammer //,correct,,correct,,hammer,True,"One word, “hammer”, matches “hammer”.",0.416,347.2,runs/scorer_clips/Samantha/7cc918f959.wav
+plural,Samantha,ex-hammer,hammer,hammers,Hammers,correct,,correct,,hammer,True,"One word, “hammers”, the plural of “hammer”.",0.651,416.1,runs/scorer_clips/Samantha/5528a5c097.wav
+filler_word,Samantha,ex-hammer,hammer,"um, hammer","Um, Hammer.",correct,,correct,,hammer,True,"After removing fillers and repeats, one word, “hammer”, matches “hammer”.",0.511,349.9,runs/scorer_clips/Samantha/a7b465c0cd.wav
+wrong_word,Samantha,ex-hammer,hammer,saw,Saw,incorrect,meaning,incorrect,meaning,,True,"One word, “saw”, a different word from “hammer”.",0.364,348.3,runs/scorer_clips/Samantha/29596a43a2.wav
+near_miss,Samantha,ex-hammer,hammer,mammer,mammer,incorrect,sound,incorrect,sound,,True,"One word, “mammer”, spelled close to “hammer” (not a dictionary word).",0.696,370.2,runs/scorer_clips/Samantha/fac561f64f.wav
+its_a,Samantha,ex-hammer,hammer,it's a hammer,It's a hammer.,unclear,,unclear,,,True,More than one word (“It's a hammer.”); only single-word answers are scored.,,386.2,runs/scorer_clips/Samantha/332b6a74cb.wav
+dont_know,Samantha,ex-hammer,hammer,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-hammer,hammer,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-hammer,hammer,hammer,Hammer,correct,,correct,,hammer,True,"One word, “hammer”, matches “hammer”.",0.335,364.8,runs/scorer_clips/Daniel/7cc918f959.wav
+plural,Daniel,ex-hammer,hammer,hammers,Hammers,correct,,correct,,hammer,True,"One word, “hammers”, the plural of “hammer”.",0.583,363.8,runs/scorer_clips/Daniel/5528a5c097.wav
+filler_word,Daniel,ex-hammer,hammer,"um, hammer","Um, Hammer.",correct,,correct,,hammer,True,"After removing fillers and repeats, one word, “hammer”, matches “hammer”.",0.31,386.4,runs/scorer_clips/Daniel/a7b465c0cd.wav
+wrong_word,Daniel,ex-hammer,hammer,saw,So,incorrect,meaning,incorrect,meaning,,True,"One word, “so”, a different word from “hammer”.",0.165,359.5,runs/scorer_clips/Daniel/29596a43a2.wav
+near_miss,Daniel,ex-hammer,hammer,mammer,MAMA,incorrect,sound,incorrect,meaning,,False,"One word, “mama”, a different word from “hammer”.",0.238,1083.0,runs/scorer_clips/Daniel/fac561f64f.wav
+its_a,Daniel,ex-hammer,hammer,it's a hammer,It's a hammer.,unclear,,unclear,,,True,More than one word (“It's a hammer.”); only single-word answers are scored.,,385.0,runs/scorer_clips/Daniel/332b6a74cb.wav
+dont_know,Daniel,ex-hammer,hammer,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-hammer,hammer,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-hammer,hammer,hammer,Hema,correct,,incorrect,unclassified,,False,"One word, “hema”, not a dictionary word and not close to “hammer”.",0.707,369.1,runs/scorer_clips/Karen/7cc918f959.wav
+plural,Karen,ex-hammer,hammer,hammers,Hammers,correct,,correct,,hammer,True,"One word, “hammers”, the plural of “hammer”.",0.561,361.1,runs/scorer_clips/Karen/5528a5c097.wav
+filler_word,Karen,ex-hammer,hammer,"um, hammer","Come, Hema.",correct,,unclear,,,False,"More than one word (“Come, Hema.”); only single-word answers are scored.",,387.8,runs/scorer_clips/Karen/a7b465c0cd.wav
+wrong_word,Karen,ex-hammer,hammer,saw,So,incorrect,meaning,incorrect,meaning,,True,"One word, “so”, a different word from “hammer”.",0.459,344.5,runs/scorer_clips/Karen/29596a43a2.wav
+near_miss,Karen,ex-hammer,hammer,mammer,Mema //,incorrect,sound,incorrect,unclassified,,False,"One word, “mema”, not a dictionary word and not close to “hammer”.",0.333,375.6,runs/scorer_clips/Karen/fac561f64f.wav
+its_a,Karen,ex-hammer,hammer,it's a hammer,It's a hammer.,unclear,,unclear,,,True,More than one word (“It's a hammer.”); only single-word answers are scored.,,365.9,runs/scorer_clips/Karen/332b6a74cb.wav
+dont_know,Karen,ex-hammer,hammer,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-hammer,hammer,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-hammer,hammer,hammer,Hummer.,correct,,incorrect,sound,,False,"One word, “hummer”, sounds close to “hammer”.",0.646,352.8,runs/scorer_clips/Moira/7cc918f959.wav
+plural,Moira,ex-hammer,hammer,hammers,Hummers.,correct,,incorrect,sound,,False,"One word, “hummers”, spelled close to “hammer” (not a dictionary word).",0.583,358.9,runs/scorer_clips/Moira/5528a5c097.wav
+filler_word,Moira,ex-hammer,hammer,"um, hammer","Um, Hummer.",correct,,incorrect,sound,,False,"After removing fillers and repeats, one word, “hummer”, sounds close to “hammer”.",0.593,381.7,runs/scorer_clips/Moira/a7b465c0cd.wav
+wrong_word,Moira,ex-hammer,hammer,saw,So.,incorrect,meaning,incorrect,meaning,,True,"One word, “so”, a different word from “hammer”.",0.598,358.6,runs/scorer_clips/Moira/29596a43a2.wav
+near_miss,Moira,ex-hammer,hammer,mammer,Memmer.,incorrect,sound,incorrect,sound,,True,"One word, “memmer”, sounds close to “hammer”.",0.232,1216.2,runs/scorer_clips/Moira/fac561f64f.wav
+its_a,Moira,ex-hammer,hammer,it's a hammer,It's a hammer.,unclear,,unclear,,,True,More than one word (“It's a hammer.”); only single-word answers are scored.,,377.2,runs/scorer_clips/Moira/332b6a74cb.wav
+dont_know,Moira,ex-hammer,hammer,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-hammer,hammer,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-kangaroo,kangaroo,kangaroo,Kangaroo,correct,,correct,,kangaroo,True,"One word, “kangaroo”, matches “kangaroo”.",0.907,369.5,runs/scorer_clips/Samantha/7d94bcd892.wav
+plural,Samantha,ex-kangaroo,kangaroo,kangaroos,Kangaroos,correct,,correct,,kangaroo,True,"One word, “kangaroos”, the plural of “kangaroo”.",0.853,364.6,runs/scorer_clips/Samantha/10d36f6aa2.wav
+filler_word,Samantha,ex-kangaroo,kangaroo,"um, kangaroo","Um, Kangaroo",correct,,correct,,kangaroo,True,"After removing fillers and repeats, one word, “kangaroo”, matches “kangaroo”.",0.915,368.3,runs/scorer_clips/Samantha/d6508740c4.wav
+wrong_word,Samantha,ex-kangaroo,kangaroo,koala,Koala,incorrect,meaning,incorrect,meaning,,True,"One word, “koala”, a different word from “kangaroo”.",0.571,368.4,runs/scorer_clips/Samantha/7a7363eeef.wav
+near_miss,Samantha,ex-kangaroo,kangaroo,tangaroo,Tangaroo,incorrect,sound,incorrect,sound,,True,"One word, “tangaroo”, spelled close to “kangaroo” (not a dictionary word).",0.66,348.8,runs/scorer_clips/Samantha/019006fff9.wav
+its_a,Samantha,ex-kangaroo,kangaroo,it's a kangaroo,It's a kangaroo.,unclear,,unclear,,,True,More than one word (“It's a kangaroo.”); only single-word answers are scored.,,400.8,runs/scorer_clips/Samantha/9410a81757.wav
+dont_know,Samantha,ex-kangaroo,kangaroo,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-kangaroo,kangaroo,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-kangaroo,kangaroo,kangaroo,Kangaroo,correct,,correct,,kangaroo,True,"One word, “kangaroo”, matches “kangaroo”.",0.814,365.6,runs/scorer_clips/Daniel/7d94bcd892.wav
+plural,Daniel,ex-kangaroo,kangaroo,kangaroos,Kangaroos.,correct,,correct,,kangaroo,True,"One word, “kangaroos”, the plural of “kangaroo”.",0.84,378.2,runs/scorer_clips/Daniel/10d36f6aa2.wav
+filler_word,Daniel,ex-kangaroo,kangaroo,"um, kangaroo","Um, Kangaroo.",correct,,correct,,kangaroo,True,"After removing fillers and repeats, one word, “kangaroo”, matches “kangaroo”.",0.895,388.9,runs/scorer_clips/Daniel/d6508740c4.wav
+wrong_word,Daniel,ex-kangaroo,kangaroo,koala,koala,incorrect,meaning,incorrect,meaning,,True,"One word, “koala”, a different word from “kangaroo”.",0.546,1142.1,runs/scorer_clips/Daniel/7a7363eeef.wav
+near_miss,Daniel,ex-kangaroo,kangaroo,tangaroo,Tangeroo,incorrect,sound,incorrect,sound,,True,"One word, “tangeroo”, spelled close to “kangaroo” (not a dictionary word).",0.634,354.0,runs/scorer_clips/Daniel/019006fff9.wav
+its_a,Daniel,ex-kangaroo,kangaroo,it's a kangaroo,It's a kangaroo.,unclear,,unclear,,,True,More than one word (“It's a kangaroo.”); only single-word answers are scored.,,396.4,runs/scorer_clips/Daniel/9410a81757.wav
+dont_know,Daniel,ex-kangaroo,kangaroo,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-kangaroo,kangaroo,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-kangaroo,kangaroo,kangaroo,Kangaroo,correct,,correct,,kangaroo,True,"One word, “kangaroo”, matches “kangaroo”.",0.838,368.0,runs/scorer_clips/Karen/7d94bcd892.wav
+plural,Karen,ex-kangaroo,kangaroo,kangaroos,Kangaroos,correct,,correct,,kangaroo,True,"One word, “kangaroos”, the plural of “kangaroo”.",0.807,373.2,runs/scorer_clips/Karen/10d36f6aa2.wav
+filler_word,Karen,ex-kangaroo,kangaroo,"um, kangaroo","gum, kangaroo",correct,,unclear,,,False,"More than one word (“gum, kangaroo”); only single-word answers are scored.",,402.8,runs/scorer_clips/Karen/d6508740c4.wav
+wrong_word,Karen,ex-kangaroo,kangaroo,koala,koala.,incorrect,meaning,incorrect,meaning,,True,"One word, “koala”, a different word from “kangaroo”.",0.533,1629.2,runs/scorer_clips/Karen/7a7363eeef.wav
+near_miss,Karen,ex-kangaroo,kangaroo,tangaroo,Changaroo,incorrect,sound,incorrect,sound,,True,"One word, “changaroo”, spelled close to “kangaroo” (not a dictionary word).",0.469,360.2,runs/scorer_clips/Karen/019006fff9.wav
+its_a,Karen,ex-kangaroo,kangaroo,it's a kangaroo,It's a kangaroo.,unclear,,unclear,,,True,More than one word (“It's a kangaroo.”); only single-word answers are scored.,,407.5,runs/scorer_clips/Karen/9410a81757.wav
+dont_know,Karen,ex-kangaroo,kangaroo,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-kangaroo,kangaroo,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-kangaroo,kangaroo,kangaroo,Kangaroo,correct,,correct,,kangaroo,True,"One word, “kangaroo”, matches “kangaroo”.",0.709,354.2,runs/scorer_clips/Moira/7d94bcd892.wav
+plural,Moira,ex-kangaroo,kangaroo,kangaroos,kangaroos,correct,,correct,,kangaroo,True,"One word, “kangaroos”, the plural of “kangaroo”.",0.791,372.6,runs/scorer_clips/Moira/10d36f6aa2.wav
+filler_word,Moira,ex-kangaroo,kangaroo,"um, kangaroo","Um, kangaroo.",correct,,correct,,kangaroo,True,"After removing fillers and repeats, one word, “kangaroo”, matches “kangaroo”.",0.675,394.0,runs/scorer_clips/Moira/d6508740c4.wav
+wrong_word,Moira,ex-kangaroo,kangaroo,koala,Kewala //,incorrect,meaning,incorrect,unclassified,,False,"One word, “kewala”, not a dictionary word and not close to “kangaroo”.",0.314,392.0,runs/scorer_clips/Moira/7a7363eeef.wav
+near_miss,Moira,ex-kangaroo,kangaroo,tangaroo,Tungaroo,incorrect,sound,incorrect,sound,,True,"One word, “tungaroo”, spelled close to “kangaroo” (not a dictionary word).",0.561,350.8,runs/scorer_clips/Moira/019006fff9.wav
+its_a,Moira,ex-kangaroo,kangaroo,it's a kangaroo,It's a kangaroo.,unclear,,unclear,,,True,More than one word (“It's a kangaroo.”); only single-word answers are scored.,,383.3,runs/scorer_clips/Moira/9410a81757.wav
+dont_know,Moira,ex-kangaroo,kangaroo,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-kangaroo,kangaroo,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-octopus,octopus,octopus,Octopus,correct,,correct,,octopus,True,"One word, “octopus”, matches “octopus”.",0.853,6068.9,runs/scorer_clips/Samantha/460b8dde3c.wav
+plural,Samantha,ex-octopus,octopus,octopuses,Octopuses.,correct,,correct,,octopus,True,"One word, “octopuses”, the plural of “octopus”.",0.788,429.1,runs/scorer_clips/Samantha/e31bee7a3e.wav
+filler_word,Samantha,ex-octopus,octopus,"um, octopus","Umm, octopus",correct,,correct,,octopus,True,"After removing fillers and repeats, one word, “octopus”, matches “octopus”.",0.76,380.6,runs/scorer_clips/Samantha/8a7279cb92.wav
+wrong_word,Samantha,ex-octopus,octopus,squid,Squid.,incorrect,meaning,incorrect,meaning,,True,"One word, “squid”, a different word from “octopus”.",0.506,366.2,runs/scorer_clips/Samantha/6fd21efc3b.wav
+near_miss,Samantha,ex-octopus,octopus,actopus,Activus,incorrect,sound,incorrect,sound,,True,"One word, “activus”, spelled close to “octopus” (not a dictionary word).",0.168,4586.0,runs/scorer_clips/Samantha/346374572f.wav
+its_a,Samantha,ex-octopus,octopus,it's an octopus,It's an octopus.,unclear,,unclear,,,True,More than one word (“It's an octopus.”); only single-word answers are scored.,,396.3,runs/scorer_clips/Samantha/6812d15f1c.wav
+dont_know,Samantha,ex-octopus,octopus,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-octopus,octopus,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-octopus,octopus,octopus,Octopus,correct,,correct,,octopus,True,"One word, “octopus”, matches “octopus”.",0.909,364.7,runs/scorer_clips/Daniel/460b8dde3c.wav
+plural,Daniel,ex-octopus,octopus,octopuses,Octopuses,correct,,correct,,octopus,True,"One word, “octopuses”, the plural of “octopus”.",0.813,380.1,runs/scorer_clips/Daniel/e31bee7a3e.wav
+filler_word,Daniel,ex-octopus,octopus,"um, octopus","Umm, Octopus.",correct,,correct,,octopus,True,"After removing fillers and repeats, one word, “octopus”, matches “octopus”.",0.76,387.1,runs/scorer_clips/Daniel/8a7279cb92.wav
+wrong_word,Daniel,ex-octopus,octopus,squid,Squid.,incorrect,meaning,incorrect,meaning,,True,"One word, “squid”, a different word from “octopus”.",0.444,348.9,runs/scorer_clips/Daniel/6fd21efc3b.wav
+near_miss,Daniel,ex-octopus,octopus,actopus,Activus,incorrect,sound,incorrect,sound,,True,"One word, “activus”, spelled close to “octopus” (not a dictionary word).",0.226,368.6,runs/scorer_clips/Daniel/346374572f.wav
+its_a,Daniel,ex-octopus,octopus,it's an octopus,It's an octopus.,unclear,,unclear,,,True,More than one word (“It's an octopus.”); only single-word answers are scored.,,382.7,runs/scorer_clips/Daniel/6812d15f1c.wav
+dont_know,Daniel,ex-octopus,octopus,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-octopus,octopus,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-octopus,octopus,octopus,Octopus,correct,,correct,,octopus,True,"One word, “octopus”, matches “octopus”.",0.706,349.4,runs/scorer_clips/Karen/460b8dde3c.wav
+plural,Karen,ex-octopus,octopus,octopuses,Octopuses,correct,,correct,,octopus,True,"One word, “octopuses”, the plural of “octopus”.",0.721,384.8,runs/scorer_clips/Karen/e31bee7a3e.wav
+filler_word,Karen,ex-octopus,octopus,"um, octopus","Come, octopus.",correct,,unclear,,,False,"More than one word (“Come, octopus.”); only single-word answers are scored.",,373.1,runs/scorer_clips/Karen/8a7279cb92.wav
+wrong_word,Karen,ex-octopus,octopus,squid,Squid.,incorrect,meaning,incorrect,meaning,,True,"One word, “squid”, a different word from “octopus”.",0.434,360.2,runs/scorer_clips/Karen/6fd21efc3b.wav
+near_miss,Karen,ex-octopus,octopus,actopus,Activus,incorrect,sound,incorrect,sound,,True,"One word, “activus”, spelled close to “octopus” (not a dictionary word).",0.276,365.5,runs/scorer_clips/Karen/346374572f.wav
+its_a,Karen,ex-octopus,octopus,it's an octopus,It's an octopus.,unclear,,unclear,,,True,More than one word (“It's an octopus.”); only single-word answers are scored.,,394.6,runs/scorer_clips/Karen/6812d15f1c.wav
+dont_know,Karen,ex-octopus,octopus,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-octopus,octopus,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-octopus,octopus,octopus,Octopus,correct,,correct,,octopus,True,"One word, “octopus”, matches “octopus”.",0.743,388.4,runs/scorer_clips/Moira/460b8dde3c.wav
+plural,Moira,ex-octopus,octopus,octopuses,Octopuses.,correct,,correct,,octopus,True,"One word, “octopuses”, the plural of “octopus”.",0.731,375.1,runs/scorer_clips/Moira/e31bee7a3e.wav
+filler_word,Moira,ex-octopus,octopus,"um, octopus","Umm, Octopus.",correct,,correct,,octopus,True,"After removing fillers and repeats, one word, “octopus”, matches “octopus”.",0.731,377.4,runs/scorer_clips/Moira/8a7279cb92.wav
+wrong_word,Moira,ex-octopus,octopus,squid,Squid.,incorrect,meaning,incorrect,meaning,,True,"One word, “squid”, a different word from “octopus”.",0.31,1045.1,runs/scorer_clips/Moira/6fd21efc3b.wav
+near_miss,Moira,ex-octopus,octopus,actopus,Activus,incorrect,sound,incorrect,sound,,True,"One word, “activus”, spelled close to “octopus” (not a dictionary word).",0.208,1052.8,runs/scorer_clips/Moira/346374572f.wav
+its_a,Moira,ex-octopus,octopus,it's an octopus,It's an octopus.,unclear,,unclear,,,True,More than one word (“It's an octopus.”); only single-word answers are scored.,,394.0,runs/scorer_clips/Moira/6812d15f1c.wav
+dont_know,Moira,ex-octopus,octopus,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-octopus,octopus,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-anchor,anchor,anchor,Anchor,correct,,correct,,anchor,True,"One word, “anchor”, matches “anchor”.",0.759,345.3,runs/scorer_clips/Samantha/f06df609ae.wav
+plural,Samantha,ex-anchor,anchor,anchors,Anchors,correct,,correct,,anchor,True,"One word, “anchors”, the plural of “anchor”.",0.714,362.3,runs/scorer_clips/Samantha/e61e00f86d.wav
+filler_word,Samantha,ex-anchor,anchor,"um, anchor","umm, anchor",correct,,correct,,anchor,True,"After removing fillers and repeats, one word, “anchor”, matches “anchor”.",0.585,368.5,runs/scorer_clips/Samantha/82559b1781.wav
+wrong_word,Samantha,ex-anchor,anchor,boat,both.,incorrect,meaning,incorrect,meaning,,True,"One word, “both”, a different word from “anchor”.",0.387,344.6,runs/scorer_clips/Samantha/2a50ddf929.wav
+near_miss,Samantha,ex-anchor,anchor,onchor,Onchir.,incorrect,sound,incorrect,sound,,True,"One word, “onchir”, spelled close to “anchor” (not a dictionary word).",0.261,1383.0,runs/scorer_clips/Samantha/3458a026f2.wav
+its_a,Samantha,ex-anchor,anchor,it's an anchor,It's an anchor.,unclear,,unclear,,,True,More than one word (“It's an anchor.”); only single-word answers are scored.,,366.3,runs/scorer_clips/Samantha/f92f5065dc.wav
+dont_know,Samantha,ex-anchor,anchor,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-anchor,anchor,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-anchor,anchor,anchor,Anger.,correct,,incorrect,sound,,False,"One word, “anger”, sounds close to “anchor”.",0.279,346.4,runs/scorer_clips/Daniel/f06df609ae.wav
+plural,Daniel,ex-anchor,anchor,anchors,and goes.,correct,,unclear,,,False,More than one word (“and goes.”); only single-word answers are scored.,,354.5,runs/scorer_clips/Daniel/e61e00f86d.wav
+filler_word,Daniel,ex-anchor,anchor,"um, anchor","Um, anger.",correct,,incorrect,sound,,False,"After removing fillers and repeats, one word, “anger”, sounds close to “anchor”.",0.8,373.8,runs/scorer_clips/Daniel/82559b1781.wav
+wrong_word,Daniel,ex-anchor,anchor,boat,boat,incorrect,meaning,incorrect,meaning,,True,"One word, “boat”, a different word from “anchor”.",0.722,963.7,runs/scorer_clips/Daniel/2a50ddf929.wav
+near_miss,Daniel,ex-anchor,anchor,onchor,on show.,incorrect,sound,unclear,,,False,More than one word (“on show.”); only single-word answers are scored.,,378.9,runs/scorer_clips/Daniel/3458a026f2.wav
+its_a,Daniel,ex-anchor,anchor,it's an anchor,It's an anchor.,unclear,,unclear,,,True,More than one word (“It's an anchor.”); only single-word answers are scored.,,377.9,runs/scorer_clips/Daniel/f92f5065dc.wav
+dont_know,Daniel,ex-anchor,anchor,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-anchor,anchor,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-anchor,anchor,anchor,Anchor,correct,,correct,,anchor,True,"One word, “anchor”, matches “anchor”.",0.554,1126.3,runs/scorer_clips/Karen/f06df609ae.wav
+plural,Karen,ex-anchor,anchor,anchors,Anchors,correct,,correct,,anchor,True,"One word, “anchors”, the plural of “anchor”.",0.539,355.4,runs/scorer_clips/Karen/e61e00f86d.wav
+filler_word,Karen,ex-anchor,anchor,"um, anchor","Come, Henka.",correct,,unclear,,,False,"More than one word (“Come, Henka.”); only single-word answers are scored.",,383.6,runs/scorer_clips/Karen/82559b1781.wav
+wrong_word,Karen,ex-anchor,anchor,boat,boat.,incorrect,meaning,incorrect,meaning,,True,"One word, “boat”, a different word from “anchor”.",0.174,2333.7,runs/scorer_clips/Karen/2a50ddf929.wav
+near_miss,Karen,ex-anchor,anchor,onchor,Ancha.,incorrect,sound,incorrect,sound,,True,"One word, “ancha”, spelled close to “anchor” (not a dictionary word).",0.307,1109.9,runs/scorer_clips/Karen/3458a026f2.wav
+its_a,Karen,ex-anchor,anchor,it's an anchor,It's an anchor.,unclear,,unclear,,,True,More than one word (“It's an anchor.”); only single-word answers are scored.,,376.0,runs/scorer_clips/Karen/f92f5065dc.wav
+dont_know,Karen,ex-anchor,anchor,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-anchor,anchor,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-anchor,anchor,anchor,Anchor,correct,,correct,,anchor,True,"One word, “anchor”, matches “anchor”.",0.653,359.2,runs/scorer_clips/Moira/f06df609ae.wav
+plural,Moira,ex-anchor,anchor,anchors,Anchors,correct,,correct,,anchor,True,"One word, “anchors”, the plural of “anchor”.",0.646,358.7,runs/scorer_clips/Moira/e61e00f86d.wav
+filler_word,Moira,ex-anchor,anchor,"um, anchor","Um, anchor.",correct,,correct,,anchor,True,"After removing fillers and repeats, one word, “anchor”, matches “anchor”.",0.712,389.2,runs/scorer_clips/Moira/82559b1781.wav
+wrong_word,Moira,ex-anchor,anchor,boat,Boats.,incorrect,meaning,incorrect,meaning,,True,"One word, “boats”, a different word from “anchor”.",0.451,1910.8,runs/scorer_clips/Moira/2a50ddf929.wav
+near_miss,Moira,ex-anchor,anchor,onchor,Onshore.,incorrect,sound,incorrect,meaning,,False,"One word, “onshore”, a different word from “anchor”.",0.302,333.9,runs/scorer_clips/Moira/3458a026f2.wav
+its_a,Moira,ex-anchor,anchor,it's an anchor,It's an anchor.,unclear,,unclear,,,True,More than one word (“It's an anchor.”); only single-word answers are scored.,,338.2,runs/scorer_clips/Moira/f92f5065dc.wav
+dont_know,Moira,ex-anchor,anchor,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-anchor,anchor,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-helicopter,helicopter,helicopter,Helicopter.,correct,,correct,,helicopter,True,"One word, “helicopter”, matches “helicopter”.",0.678,332.8,runs/scorer_clips/Samantha/5bf059881b.wav
+alt_word,Samantha,ex-helicopter,helicopter,chopper,Chopper.,correct,,correct,,chopper,True,"One word, “chopper”, matches “chopper”.",0.743,325.3,runs/scorer_clips/Samantha/83184585e7.wav
+plural,Samantha,ex-helicopter,helicopter,helicopters,Helicopters.,correct,,correct,,helicopter,True,"One word, “helicopters”, the plural of “helicopter”.",0.781,332.1,runs/scorer_clips/Samantha/47438f835c.wav
+filler_word,Samantha,ex-helicopter,helicopter,"um, helicopter","Umm, Helicopter",correct,,correct,,helicopter,True,"After removing fillers and repeats, one word, “helicopter”, matches “helicopter”.",0.646,345.3,runs/scorer_clips/Samantha/91f327934b.wav
+wrong_word,Samantha,ex-helicopter,helicopter,airplane,aeroplane,incorrect,meaning,incorrect,unclassified,,False,"One word, “aeroplane”, not a dictionary word and not close to “helicopter”.",0.703,324.6,runs/scorer_clips/Samantha/32e6c5c2ad.wav
+near_miss,Samantha,ex-helicopter,helicopter,melicopter,Melecopter.,incorrect,sound,incorrect,sound,,True,"One word, “melecopter”, spelled close to “helicopter” (not a dictionary word).",0.508,334.4,runs/scorer_clips/Samantha/1a81748b91.wav
+its_a,Samantha,ex-helicopter,helicopter,it's a helicopter,It's a helicopter.,unclear,,unclear,,,True,More than one word (“It's a helicopter.”); only single-word answers are scored.,,338.9,runs/scorer_clips/Samantha/128fb6006b.wav
+dont_know,Samantha,ex-helicopter,helicopter,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-helicopter,helicopter,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-helicopter,helicopter,helicopter,Helicopter.,correct,,correct,,helicopter,True,"One word, “helicopter”, matches “helicopter”.",0.612,326.9,runs/scorer_clips/Daniel/5bf059881b.wav
+alt_word,Daniel,ex-helicopter,helicopter,chopper,Chalka.,correct,,incorrect,unclassified,,False,"One word, “chalka”, not a dictionary word and not close to “helicopter”.",0.611,337.4,runs/scorer_clips/Daniel/83184585e7.wav
+plural,Daniel,ex-helicopter,helicopter,helicopters,Helicopters,correct,,correct,,helicopter,True,"One word, “helicopters”, the plural of “helicopter”.",0.695,339.8,runs/scorer_clips/Daniel/47438f835c.wav
+filler_word,Daniel,ex-helicopter,helicopter,"um, helicopter","Umm, helicopter.",correct,,correct,,helicopter,True,"After removing fillers and repeats, one word, “helicopter”, matches “helicopter”.",0.812,367.6,runs/scorer_clips/Daniel/91f327934b.wav
+wrong_word,Daniel,ex-helicopter,helicopter,airplane,airplane.,incorrect,meaning,incorrect,meaning,,True,"One word, “airplane”, a different word from “helicopter”.",0.724,343.2,runs/scorer_clips/Daniel/32e6c5c2ad.wav
+near_miss,Daniel,ex-helicopter,helicopter,melicopter,Melacopter.,incorrect,sound,incorrect,sound,,True,"One word, “melacopter”, spelled close to “helicopter” (not a dictionary word).",0.548,368.4,runs/scorer_clips/Daniel/1a81748b91.wav
+its_a,Daniel,ex-helicopter,helicopter,it's a helicopter,It's a helicopter.,unclear,,unclear,,,True,More than one word (“It's a helicopter.”); only single-word answers are scored.,,370.3,runs/scorer_clips/Daniel/128fb6006b.wav
+dont_know,Daniel,ex-helicopter,helicopter,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-helicopter,helicopter,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-helicopter,helicopter,helicopter,helicopter.,correct,,correct,,helicopter,True,"One word, “helicopter”, matches “helicopter”.",0.588,363.4,runs/scorer_clips/Karen/5bf059881b.wav
+alt_word,Karen,ex-helicopter,helicopter,chopper,Chopper,correct,,correct,,chopper,True,"One word, “chopper”, matches “chopper”.",0.669,365.4,runs/scorer_clips/Karen/83184585e7.wav
+plural,Karen,ex-helicopter,helicopter,helicopters,Helicopters.,correct,,correct,,helicopter,True,"One word, “helicopters”, the plural of “helicopter”.",0.72,377.9,runs/scorer_clips/Karen/47438f835c.wav
+filler_word,Karen,ex-helicopter,helicopter,"um, helicopter","Gum, helicopter",correct,,unclear,,,False,"More than one word (“Gum, helicopter”); only single-word answers are scored.",,370.7,runs/scorer_clips/Karen/91f327934b.wav
+wrong_word,Karen,ex-helicopter,helicopter,airplane,Airplane,incorrect,meaning,incorrect,meaning,,True,"One word, “airplane”, a different word from “helicopter”.",0.643,358.8,runs/scorer_clips/Karen/32e6c5c2ad.wav
+near_miss,Karen,ex-helicopter,helicopter,melicopter,Melly Copter.,incorrect,sound,unclear,,,False,More than one word (“Melly Copter.”); only single-word answers are scored.,,390.8,runs/scorer_clips/Karen/1a81748b91.wav
+its_a,Karen,ex-helicopter,helicopter,it's a helicopter,It's a helicopter.,unclear,,unclear,,,True,More than one word (“It's a helicopter.”); only single-word answers are scored.,,397.6,runs/scorer_clips/Karen/128fb6006b.wav
+dont_know,Karen,ex-helicopter,helicopter,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-helicopter,helicopter,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-helicopter,helicopter,helicopter,helicopter,correct,,correct,,helicopter,True,"One word, “helicopter”, matches “helicopter”.",0.915,345.8,runs/scorer_clips/Moira/5bf059881b.wav
+alt_word,Moira,ex-helicopter,helicopter,chopper,Chopper.,correct,,correct,,chopper,True,"One word, “chopper”, matches “chopper”.",0.707,344.9,runs/scorer_clips/Moira/83184585e7.wav
+plural,Moira,ex-helicopter,helicopter,helicopters,Helicopters,correct,,correct,,helicopter,True,"One word, “helicopters”, the plural of “helicopter”.",0.705,375.8,runs/scorer_clips/Moira/47438f835c.wav
+filler_word,Moira,ex-helicopter,helicopter,"um, helicopter","Umm, Helicopter",correct,,correct,,helicopter,True,"After removing fillers and repeats, one word, “helicopter”, matches “helicopter”.",0.568,382.6,runs/scorer_clips/Moira/91f327934b.wav
+wrong_word,Moira,ex-helicopter,helicopter,airplane,Airplane,incorrect,meaning,incorrect,meaning,,True,"One word, “airplane”, a different word from “helicopter”.",0.543,354.4,runs/scorer_clips/Moira/32e6c5c2ad.wav
+near_miss,Moira,ex-helicopter,helicopter,melicopter,Melecopter.,incorrect,sound,incorrect,sound,,True,"One word, “melecopter”, spelled close to “helicopter” (not a dictionary word).",0.617,367.5,runs/scorer_clips/Moira/1a81748b91.wav
+its_a,Moira,ex-helicopter,helicopter,it's a helicopter,It's a helicopter.,unclear,,unclear,,,True,More than one word (“It's a helicopter.”); only single-word answers are scored.,,371.0,runs/scorer_clips/Moira/128fb6006b.wav
+dont_know,Moira,ex-helicopter,helicopter,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-helicopter,helicopter,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-microscope,microscope,microscope,microscope.,correct,,correct,,microscope,True,"One word, “microscope”, matches “microscope”.",0.901,357.1,runs/scorer_clips/Samantha/34a95f2c94.wav
+plural,Samantha,ex-microscope,microscope,microscopes,Microscopes.,correct,,correct,,microscope,True,"One word, “microscopes”, the plural of “microscope”.",0.745,357.8,runs/scorer_clips/Samantha/d774c807fb.wav
+filler_word,Samantha,ex-microscope,microscope,"um, microscope","Um, microscope.",correct,,correct,,microscope,True,"After removing fillers and repeats, one word, “microscope”, matches “microscope”.",0.876,374.6,runs/scorer_clips/Samantha/50419ba630.wav
+wrong_word,Samantha,ex-microscope,microscope,telescope,telescope,incorrect,meaning,incorrect,sound,,False,"One word, “telescope”, sounds close to “microscope”.",0.689,347.6,runs/scorer_clips/Samantha/82f4516eee.wav
+near_miss,Samantha,ex-microscope,microscope,nicroscope,Nick Raskow,incorrect,sound,unclear,,,False,More than one word (“Nick Raskow”); only single-word answers are scored.,,366.0,runs/scorer_clips/Samantha/e4d2de9328.wav
+its_a,Samantha,ex-microscope,microscope,it's a microscope,It's a microscope.,unclear,,unclear,,,True,More than one word (“It's a microscope.”); only single-word answers are scored.,,391.5,runs/scorer_clips/Samantha/28ac2c2ddb.wav
+dont_know,Samantha,ex-microscope,microscope,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-microscope,microscope,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-microscope,microscope,microscope,microscope.,correct,,correct,,microscope,True,"One word, “microscope”, matches “microscope”.",0.717,368.4,runs/scorer_clips/Daniel/34a95f2c94.wav
+plural,Daniel,ex-microscope,microscope,microscopes,Microscopes.,correct,,correct,,microscope,True,"One word, “microscopes”, the plural of “microscope”.",0.758,376.6,runs/scorer_clips/Daniel/d774c807fb.wav
+filler_word,Daniel,ex-microscope,microscope,"um, microscope","Umm, microscope.",correct,,correct,,microscope,True,"After removing fillers and repeats, one word, “microscope”, matches “microscope”.",0.605,387.4,runs/scorer_clips/Daniel/50419ba630.wav
+wrong_word,Daniel,ex-microscope,microscope,telescope,telescope.,incorrect,meaning,incorrect,sound,,False,"One word, “telescope”, sounds close to “microscope”.",0.665,388.3,runs/scorer_clips/Daniel/82f4516eee.wav
+near_miss,Daniel,ex-microscope,microscope,nicroscope,Nick Rasko.,incorrect,sound,unclear,,,False,More than one word (“Nick Rasko.”); only single-word answers are scored.,,385.7,runs/scorer_clips/Daniel/e4d2de9328.wav
+its_a,Daniel,ex-microscope,microscope,it's a microscope,It's a microscope.,unclear,,unclear,,,True,More than one word (“It's a microscope.”); only single-word answers are scored.,,405.9,runs/scorer_clips/Daniel/28ac2c2ddb.wav
+dont_know,Daniel,ex-microscope,microscope,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-microscope,microscope,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-microscope,microscope,microscope,microscope.,correct,,correct,,microscope,True,"One word, “microscope”, matches “microscope”.",0.821,358.3,runs/scorer_clips/Karen/34a95f2c94.wav
+plural,Karen,ex-microscope,microscope,microscopes,Microscopes.,correct,,correct,,microscope,True,"One word, “microscopes”, the plural of “microscope”.",0.822,354.4,runs/scorer_clips/Karen/d774c807fb.wav
+filler_word,Karen,ex-microscope,microscope,"um, microscope",gum microscope,correct,,unclear,,,False,More than one word (“gum microscope”); only single-word answers are scored.,,350.0,runs/scorer_clips/Karen/50419ba630.wav
+wrong_word,Karen,ex-microscope,microscope,telescope,telescope.,incorrect,meaning,incorrect,sound,,False,"One word, “telescope”, sounds close to “microscope”.",0.392,364.4,runs/scorer_clips/Karen/82f4516eee.wav
+near_miss,Karen,ex-microscope,microscope,nicroscope,Nicroscope.,incorrect,sound,incorrect,sound,,True,"One word, “nicroscope”, spelled close to “microscope” (not a dictionary word).",0.462,368.9,runs/scorer_clips/Karen/e4d2de9328.wav
+its_a,Karen,ex-microscope,microscope,it's a microscope,It's a microscope.,unclear,,unclear,,,True,More than one word (“It's a microscope.”); only single-word answers are scored.,,369.0,runs/scorer_clips/Karen/28ac2c2ddb.wav
+dont_know,Karen,ex-microscope,microscope,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-microscope,microscope,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-microscope,microscope,microscope,microscope.,correct,,correct,,microscope,True,"One word, “microscope”, matches “microscope”.",0.929,353.4,runs/scorer_clips/Moira/34a95f2c94.wav
+plural,Moira,ex-microscope,microscope,microscopes,Microscopes,correct,,correct,,microscope,True,"One word, “microscopes”, the plural of “microscope”.",0.787,368.6,runs/scorer_clips/Moira/d774c807fb.wav
+filler_word,Moira,ex-microscope,microscope,"um, microscope","Umm, Microscope",correct,,correct,,microscope,True,"After removing fillers and repeats, one word, “microscope”, matches “microscope”.",0.592,386.7,runs/scorer_clips/Moira/50419ba630.wav
+wrong_word,Moira,ex-microscope,microscope,telescope,telescope.,incorrect,meaning,incorrect,sound,,False,"One word, “telescope”, sounds close to “microscope”.",0.706,345.8,runs/scorer_clips/Moira/82f4516eee.wav
+near_miss,Moira,ex-microscope,microscope,nicroscope,Necroscope.,incorrect,sound,incorrect,sound,,True,"One word, “necroscope”, spelled close to “microscope” (not a dictionary word).",0.656,363.0,runs/scorer_clips/Moira/e4d2de9328.wav
+its_a,Moira,ex-microscope,microscope,it's a microscope,It's a microscope.,unclear,,unclear,,,True,More than one word (“It's a microscope.”); only single-word answers are scored.,,368.1,runs/scorer_clips/Moira/28ac2c2ddb.wav
+dont_know,Moira,ex-microscope,microscope,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-microscope,microscope,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-giraffe,giraffe,giraffe,giraffe,correct,,correct,,giraffe,True,"One word, “giraffe”, matches “giraffe”.",0.658,370.6,runs/scorer_clips/Samantha/fac8f1a31d.wav
+plural,Samantha,ex-giraffe,giraffe,giraffes,giraffes.,correct,,correct,,giraffe,True,"One word, “giraffes”, the plural of “giraffe”.",0.835,360.9,runs/scorer_clips/Samantha/3246c51b2a.wav
+filler_word,Samantha,ex-giraffe,giraffe,"um, giraffe","Um, giraffe.",correct,,correct,,giraffe,True,"After removing fillers and repeats, one word, “giraffe”, matches “giraffe”.",0.826,379.4,runs/scorer_clips/Samantha/de2beaa2c7.wav
+wrong_word,Samantha,ex-giraffe,giraffe,zebra,Zebra.,incorrect,meaning,incorrect,meaning,,True,"One word, “zebra”, a different word from “giraffe”.",0.787,349.2,runs/scorer_clips/Samantha/38aa53de31.wav
+near_miss,Samantha,ex-giraffe,giraffe,diraffe,Dear Earth.,incorrect,sound,unclear,,,False,More than one word (“Dear Earth.”); only single-word answers are scored.,,1115.5,runs/scorer_clips/Samantha/c839f02212.wav
+its_a,Samantha,ex-giraffe,giraffe,it's a giraffe,It's a giraffe.,unclear,,unclear,,,True,More than one word (“It's a giraffe.”); only single-word answers are scored.,,405.3,runs/scorer_clips/Samantha/0149d5fbb1.wav
+dont_know,Samantha,ex-giraffe,giraffe,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-giraffe,giraffe,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-giraffe,giraffe,giraffe,giraffe,correct,,correct,,giraffe,True,"One word, “giraffe”, matches “giraffe”.",0.746,369.9,runs/scorer_clips/Daniel/fac8f1a31d.wav
+plural,Daniel,ex-giraffe,giraffe,giraffes,Giraffes.,correct,,correct,,giraffe,True,"One word, “giraffes”, the plural of “giraffe”.",0.596,375.3,runs/scorer_clips/Daniel/3246c51b2a.wav
+filler_word,Daniel,ex-giraffe,giraffe,"um, giraffe","Um, giraffe.",correct,,correct,,giraffe,True,"After removing fillers and repeats, one word, “giraffe”, matches “giraffe”.",0.749,388.7,runs/scorer_clips/Daniel/de2beaa2c7.wav
+wrong_word,Daniel,ex-giraffe,giraffe,zebra,Zebra.,incorrect,meaning,incorrect,meaning,,True,"One word, “zebra”, a different word from “giraffe”.",0.741,353.3,runs/scorer_clips/Daniel/38aa53de31.wav
+near_miss,Daniel,ex-giraffe,giraffe,diraffe,there are,incorrect,sound,unclear,,,False,More than one word (“there are”); only single-word answers are scored.,,368.6,runs/scorer_clips/Daniel/c839f02212.wav
+its_a,Daniel,ex-giraffe,giraffe,it's a giraffe,It's a giraffe.,unclear,,unclear,,,True,More than one word (“It's a giraffe.”); only single-word answers are scored.,,371.1,runs/scorer_clips/Daniel/0149d5fbb1.wav
+dont_know,Daniel,ex-giraffe,giraffe,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-giraffe,giraffe,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-giraffe,giraffe,giraffe,Giraffe,correct,,correct,,giraffe,True,"One word, “giraffe”, matches “giraffe”.",0.467,357.6,runs/scorer_clips/Karen/fac8f1a31d.wav
+plural,Karen,ex-giraffe,giraffe,giraffes,Giraffes.,correct,,correct,,giraffe,True,"One word, “giraffes”, the plural of “giraffe”.",0.687,375.2,runs/scorer_clips/Karen/3246c51b2a.wav
+filler_word,Karen,ex-giraffe,giraffe,"um, giraffe","Come, giraffe.",correct,,unclear,,,False,"More than one word (“Come, giraffe.”); only single-word answers are scored.",,440.7,runs/scorer_clips/Karen/de2beaa2c7.wav
+wrong_word,Karen,ex-giraffe,giraffe,zebra,Zebra,incorrect,meaning,incorrect,meaning,,True,"One word, “zebra”, a different word from “giraffe”.",0.687,363.7,runs/scorer_clips/Karen/38aa53de31.wav
+near_miss,Karen,ex-giraffe,giraffe,diraffe,Deriv,incorrect,sound,incorrect,unclassified,,False,"One word, “deriv”, not a dictionary word and not close to “giraffe”.",0.315,366.5,runs/scorer_clips/Karen/c839f02212.wav
+its_a,Karen,ex-giraffe,giraffe,it's a giraffe,It's a druff.,unclear,,unclear,,,True,More than one word (“It's a druff.”); only single-word answers are scored.,,392.2,runs/scorer_clips/Karen/0149d5fbb1.wav
+dont_know,Karen,ex-giraffe,giraffe,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-giraffe,giraffe,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-giraffe,giraffe,giraffe,to Ralph.,correct,,unclear,,,False,More than one word (“to Ralph.”); only single-word answers are scored.,,352.8,runs/scorer_clips/Moira/fac8f1a31d.wav
+plural,Moira,ex-giraffe,giraffe,giraffes,giraffes.,correct,,correct,,giraffe,True,"One word, “giraffes”, the plural of “giraffe”.",0.686,358.7,runs/scorer_clips/Moira/3246c51b2a.wav
+filler_word,Moira,ex-giraffe,giraffe,"um, giraffe","Um, to Ralph.",correct,,unclear,,,False,"More than one word (“Um, to Ralph.”); only single-word answers are scored.",,370.1,runs/scorer_clips/Moira/de2beaa2c7.wav
+wrong_word,Moira,ex-giraffe,giraffe,zebra,Zebra,incorrect,meaning,incorrect,meaning,,True,"One word, “zebra”, a different word from “giraffe”.",0.719,374.4,runs/scorer_clips/Moira/38aa53de31.wav
+near_miss,Moira,ex-giraffe,giraffe,diraffe,Deereth.,incorrect,sound,incorrect,unclassified,,False,"One word, “deereth”, not a dictionary word and not close to “giraffe”.",0.184,1142.6,runs/scorer_clips/Moira/c839f02212.wav
+its_a,Moira,ex-giraffe,giraffe,it's a giraffe,It's a giraffe.,unclear,,unclear,,,True,More than one word (“It's a giraffe.”); only single-word answers are scored.,,395.6,runs/scorer_clips/Moira/0149d5fbb1.wav
+dont_know,Moira,ex-giraffe,giraffe,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-giraffe,giraffe,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-pretzel,pretzel,pretzel,Pretzel,correct,,correct,,pretzel,True,"One word, “pretzel”, matches “pretzel”.",0.595,367.0,runs/scorer_clips/Samantha/de0decd6d8.wav
+plural,Samantha,ex-pretzel,pretzel,pretzels,Pretzels,correct,,correct,,pretzel,True,"One word, “pretzels”, the plural of “pretzel”.",0.71,365.9,runs/scorer_clips/Samantha/42d29c3c27.wav
+filler_word,Samantha,ex-pretzel,pretzel,"um, pretzel","Umm, Pretzel",correct,,correct,,pretzel,True,"After removing fillers and repeats, one word, “pretzel”, matches “pretzel”.",0.765,382.7,runs/scorer_clips/Samantha/d98fd7e0e0.wav
+wrong_word,Samantha,ex-pretzel,pretzel,cookie,Cookie,incorrect,meaning,incorrect,meaning,,True,"One word, “cookie”, a different word from “pretzel”.",0.358,337.0,runs/scorer_clips/Samantha/59c826fc85.wav
+near_miss,Samantha,ex-pretzel,pretzel,bretzel,Bretzel,incorrect,sound,incorrect,sound,,True,"One word, “bretzel”, spelled close to “pretzel” (not a dictionary word).",0.496,353.4,runs/scorer_clips/Samantha/b796696540.wav
+its_a,Samantha,ex-pretzel,pretzel,it's a pretzel,It's a pretzel.,unclear,,unclear,,,True,More than one word (“It's a pretzel.”); only single-word answers are scored.,,419.5,runs/scorer_clips/Samantha/1ea3d83af4.wav
+dont_know,Samantha,ex-pretzel,pretzel,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-pretzel,pretzel,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-pretzel,pretzel,pretzel,Cretzel,correct,,incorrect,sound,,False,"One word, “cretzel”, spelled close to “pretzel” (not a dictionary word).",0.458,3064.7,runs/scorer_clips/Daniel/de0decd6d8.wav
+plural,Daniel,ex-pretzel,pretzel,pretzels,Cretzels.,correct,,incorrect,sound,,False,"One word, “cretzels”, spelled close to “pretzel” (not a dictionary word).",0.562,378.7,runs/scorer_clips/Daniel/42d29c3c27.wav
+filler_word,Daniel,ex-pretzel,pretzel,"um, pretzel","Umm, Pretzel.",correct,,correct,,pretzel,True,"After removing fillers and repeats, one word, “pretzel”, matches “pretzel”.",0.666,375.6,runs/scorer_clips/Daniel/d98fd7e0e0.wav
+wrong_word,Daniel,ex-pretzel,pretzel,cookie,Booby.,incorrect,meaning,incorrect,meaning,,True,"One word, “booby”, a different word from “pretzel”.",0.289,1105.6,runs/scorer_clips/Daniel/59c826fc85.wav
+near_miss,Daniel,ex-pretzel,pretzel,bretzel,Bretzel.,incorrect,sound,incorrect,sound,,True,"One word, “bretzel”, spelled close to “pretzel” (not a dictionary word).",0.38,1176.7,runs/scorer_clips/Daniel/b796696540.wav
+its_a,Daniel,ex-pretzel,pretzel,it's a pretzel,It's a pretzel.,unclear,,unclear,,,True,More than one word (“It's a pretzel.”); only single-word answers are scored.,,409.0,runs/scorer_clips/Daniel/1ea3d83af4.wav
+dont_know,Daniel,ex-pretzel,pretzel,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-pretzel,pretzel,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-pretzel,pretzel,pretzel,Pretzel,correct,,correct,,pretzel,True,"One word, “pretzel”, matches “pretzel”.",0.495,1485.8,runs/scorer_clips/Karen/de0decd6d8.wav
+plural,Karen,ex-pretzel,pretzel,pretzels,critsles.,correct,,incorrect,unclassified,,False,"One word, “critsles”, not a dictionary word and not close to “pretzel”.",0.48,1755.4,runs/scorer_clips/Karen/42d29c3c27.wav
+filler_word,Karen,ex-pretzel,pretzel,"um, pretzel","gum, pretzel",correct,,unclear,,,False,"More than one word (“gum, pretzel”); only single-word answers are scored.",,375.1,runs/scorer_clips/Karen/d98fd7e0e0.wav
+wrong_word,Karen,ex-pretzel,pretzel,cookie,Cookie,incorrect,meaning,incorrect,meaning,,True,"One word, “cookie”, a different word from “pretzel”.",0.192,358.2,runs/scorer_clips/Karen/59c826fc85.wav
+near_miss,Karen,ex-pretzel,pretzel,bretzel,Ritzel //,incorrect,sound,incorrect,sound,,True,"One word, “ritzel”, sounds close to “pretzel”.",0.48,387.3,runs/scorer_clips/Karen/b796696540.wav
+its_a,Karen,ex-pretzel,pretzel,it's a pretzel,It's a pretzel.,unclear,,unclear,,,True,More than one word (“It's a pretzel.”); only single-word answers are scored.,,402.4,runs/scorer_clips/Karen/1ea3d83af4.wav
+dont_know,Karen,ex-pretzel,pretzel,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-pretzel,pretzel,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-pretzel,pretzel,pretzel,Pretzel,correct,,correct,,pretzel,True,"One word, “pretzel”, matches “pretzel”.",0.511,353.5,runs/scorer_clips/Moira/de0decd6d8.wav
+plural,Moira,ex-pretzel,pretzel,pretzels,Pretzels,correct,,correct,,pretzel,True,"One word, “pretzels”, the plural of “pretzel”.",0.657,364.8,runs/scorer_clips/Moira/42d29c3c27.wav
+filler_word,Moira,ex-pretzel,pretzel,"um, pretzel","arm, pretzel.",correct,,unclear,,,False,"More than one word (“arm, pretzel.”); only single-word answers are scored.",,393.2,runs/scorer_clips/Moira/d98fd7e0e0.wav
+wrong_word,Moira,ex-pretzel,pretzel,cookie,Cookie,incorrect,meaning,incorrect,meaning,,True,"One word, “cookie”, a different word from “pretzel”.",0.386,356.4,runs/scorer_clips/Moira/59c826fc85.wav
+near_miss,Moira,ex-pretzel,pretzel,bretzel,Bredsel.,incorrect,sound,incorrect,sound,,True,"One word, “bredsel”, spelled close to “pretzel” (not a dictionary word).",0.331,357.7,runs/scorer_clips/Moira/b796696540.wav
+its_a,Moira,ex-pretzel,pretzel,it's a pretzel,It's a pretzel.,unclear,,unclear,,,True,More than one word (“It's a pretzel.”); only single-word answers are scored.,,370.6,runs/scorer_clips/Moira/1ea3d83af4.wav
+dont_know,Moira,ex-pretzel,pretzel,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-pretzel,pretzel,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Samantha,ex-cactus,cactus,cactus,Cactus.,correct,,correct,,cactus,True,"One word, “cactus”, matches “cactus”.",0.595,379.1,runs/scorer_clips/Samantha/c3ee75fbaa.wav
+plural,Samantha,ex-cactus,cactus,cactuses,cactuses,correct,,correct,,cactus,True,"One word, “cactuses”, the plural of “cactus”.",0.716,394.0,runs/scorer_clips/Samantha/8fc301b032.wav
+filler_word,Samantha,ex-cactus,cactus,"um, cactus","Um, cactus.",correct,,correct,,cactus,True,"After removing fillers and repeats, one word, “cactus”, matches “cactus”.",0.684,378.1,runs/scorer_clips/Samantha/c1bd727734.wav
+wrong_word,Samantha,ex-cactus,cactus,flower,Flower,incorrect,meaning,incorrect,meaning,,True,"One word, “flower”, a different word from “cactus”.",0.286,,runs/scorer_clips/Samantha/5a46b8253d.wav
+near_miss,Samantha,ex-cactus,cactus,tactus,Contact us.,incorrect,sound,unclear,,,False,More than one word (“Contact us.”); only single-word answers are scored.,,1708.2,runs/scorer_clips/Samantha/15c16199e1.wav
+its_a,Samantha,ex-cactus,cactus,it's a cactus,It's a cactus.,unclear,,unclear,,,True,More than one word (“It's a cactus.”); only single-word answers are scored.,,412.6,runs/scorer_clips/Samantha/dc51e1ee2b.wav
+dont_know,Samantha,ex-cactus,cactus,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Samantha/c02a68f5c2.wav
+silence,Samantha,ex-cactus,cactus,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Daniel,ex-cactus,cactus,cactus,Actors.,correct,,incorrect,sound,,False,"One word, “actors”, sounds close to “cactus”.",0.487,359.4,runs/scorer_clips/Daniel/c3ee75fbaa.wav
+plural,Daniel,ex-cactus,cactus,cactuses,cactuses.,correct,,correct,,cactus,True,"One word, “cactuses”, the plural of “cactus”.",0.715,356.1,runs/scorer_clips/Daniel/8fc301b032.wav
+filler_word,Daniel,ex-cactus,cactus,"um, cactus","Umm, cactus.",correct,,correct,,cactus,True,"After removing fillers and repeats, one word, “cactus”, matches “cactus”.",0.881,372.9,runs/scorer_clips/Daniel/c1bd727734.wav
+wrong_word,Daniel,ex-cactus,cactus,flower,Flaw,incorrect,meaning,incorrect,meaning,,True,"One word, “flaw”, a different word from “cactus”.",0.358,,runs/scorer_clips/Daniel/5a46b8253d.wav
+near_miss,Daniel,ex-cactus,cactus,tactus,Contact us.,incorrect,sound,unclear,,,False,More than one word (“Contact us.”); only single-word answers are scored.,,350.3,runs/scorer_clips/Daniel/15c16199e1.wav
+its_a,Daniel,ex-cactus,cactus,it's a cactus,It's a cactus.,unclear,,unclear,,,True,More than one word (“It's a cactus.”); only single-word answers are scored.,,406.6,runs/scorer_clips/Daniel/dc51e1ee2b.wav
+dont_know,Daniel,ex-cactus,cactus,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Daniel/c02a68f5c2.wav
+silence,Daniel,ex-cactus,cactus,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Karen,ex-cactus,cactus,cactus,Practice,correct,,incorrect,sound,,False,"One word, “practice”, sounds close to “cactus”.",0.595,332.5,runs/scorer_clips/Karen/c3ee75fbaa.wav
+plural,Karen,ex-cactus,cactus,cactuses,practices.,correct,,incorrect,sound,,False,"One word, “practices”, sounds close to “cactus”.",0.474,348.2,runs/scorer_clips/Karen/8fc301b032.wav
+filler_word,Karen,ex-cactus,cactus,"um, cactus","thumb, cactus",correct,,unclear,,,False,"More than one word (“thumb, cactus”); only single-word answers are scored.",,367.0,runs/scorer_clips/Karen/c1bd727734.wav
+wrong_word,Karen,ex-cactus,cactus,flower,Flour,incorrect,meaning,incorrect,meaning,,True,"One word, “flour”, a different word from “cactus”.",0.516,,runs/scorer_clips/Karen/5a46b8253d.wav
+near_miss,Karen,ex-cactus,cactus,tactus,7 7 7 7 7 7 8,incorrect,sound,unclear,,,False,Only filler sounds (“7 7 7 7 7 7 8”); no word to score.,,3005.8,runs/scorer_clips/Karen/15c16199e1.wav
+its_a,Karen,ex-cactus,cactus,it's a cactus,It's a cactus.,unclear,,unclear,,,True,More than one word (“It's a cactus.”); only single-word answers are scored.,,398.3,runs/scorer_clips/Karen/dc51e1ee2b.wav
+dont_know,Karen,ex-cactus,cactus,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Karen/c02a68f5c2.wav
+silence,Karen,ex-cactus,cactus,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav
+correct_word,Moira,ex-cactus,cactus,cactus,Cactus,correct,,correct,,cactus,True,"One word, “cactus”, matches “cactus”.",0.587,347.1,runs/scorer_clips/Moira/c3ee75fbaa.wav
+plural,Moira,ex-cactus,cactus,cactuses,cactuses.,correct,,correct,,cactus,True,"One word, “cactuses”, the plural of “cactus”.",0.679,368.4,runs/scorer_clips/Moira/8fc301b032.wav
+filler_word,Moira,ex-cactus,cactus,"um, cactus","Umm, Cactus",correct,,correct,,cactus,True,"After removing fillers and repeats, one word, “cactus”, matches “cactus”.",0.668,379.3,runs/scorer_clips/Moira/c1bd727734.wav
+wrong_word,Moira,ex-cactus,cactus,flower,Flower,incorrect,meaning,incorrect,meaning,,True,"One word, “flower”, a different word from “cactus”.",0.228,,runs/scorer_clips/Moira/5a46b8253d.wav
+near_miss,Moira,ex-cactus,cactus,tactus,Tactus,incorrect,sound,incorrect,sound,,True,"One word, “tactus”, spelled close to “cactus” (not a dictionary word).",0.364,1132.2,runs/scorer_clips/Moira/15c16199e1.wav
+its_a,Moira,ex-cactus,cactus,it's a cactus,It's a cactus.,unclear,,unclear,,,True,More than one word (“It's a cactus.”); only single-word answers are scored.,,387.8,runs/scorer_clips/Moira/dc51e1ee2b.wav
+dont_know,Moira,ex-cactus,cactus,I don't know,I don't know.,incorrect,no_response,incorrect,no_response,,True,The answer “I don't know.” means “I don't know”.,,,runs/scorer_clips/Moira/c02a68f5c2.wav
+silence,Moira,ex-cactus,cactus,,[empty],unclear,,unclear,,,True,No speech detected.,,,runs/scorer_clips/silence.wav

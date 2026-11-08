@@ -42,9 +42,26 @@ class LLMConfig(BaseModel):
     revision: str | None = None           # pinned Hugging Face revision of the base model
     device: Literal["auto", "cpu", "mps", "cuda"] = "auto"
     dtype: Literal["bfloat16", "float16", "float32"] = "bfloat16"
+    # "generate": free greedy generation, then parse. "score": compute the log-probability of every
+    # valid option and take the most likely one (output is always a valid option; also used to
+    # sample DITTO alternatives in training).
+    decoding: Literal["generate", "score"] = "generate"
+    # Context window used to fit the "prompted_all" baseline's demonstrations (Qwen3: 32,768 native).
+    context_tokens: int = Field(default=32768, ge=1024)
+    # Prompt rendering (render_context). "v1": options as bare JSON. "v2": every option also labelled
+    # in words, with levels relative to the current picture ("one level easier") and hint names that
+    # match the error names ("meaning error" / "meaning hint"). Adapters only work with the format
+    # they were trained on; the run manifest records it.
+    prompt_format: Literal["v1", "v2"] = "v1"
+    # Training demonstrations for the "prompted_all" baseline (as many as fit the context window);
+    # set to the file the compared adapters were trained on.
+    prompted_all_demos: str = "data/demonstrations/demonstrator_a_v2.jsonl"
     max_new_tokens: int = Field(ge=4, le=64)
     timeout_s: float = Field(gt=0)
     runs_dir: str                         # where training runs (adapters + manifests) live
+    # Delivered adapters committed to the repo: <models_dir>/<run_id>/ holds the adapter files of the
+    # run's delivered stage (manifest field "delivered_stage") next to its manifest.
+    models_dir: str = "models/ditto_llm"
 
 
 class PracticeConfig(BaseModel):
@@ -204,6 +221,20 @@ def valid_options(ctx: DecisionContext, approved_cues: list[str], max_tier_step:
     return opts
 
 
+def contract_options(ctx: DecisionContext, approved_cues: list[str], max_tier_step: int,
+                     max_attempts: int) -> list[PracticeAction]:
+    """Options under the API contract (section 5 and review answer 3): retry only after an incorrect
+    attempt while tries are left, with an approved hint that has not already been shown on this
+    picture ("none" is not a hint the model can choose); next to a tier within `max_tier_step`."""
+    opts: list[PracticeAction] = []
+    if not ctx.latest.correct and ctx.current.attempts < max_attempts:
+        opts += [retry(c) for c in CUES
+                 if c != "none" and c in approved_cues and c not in ctx.current.hints_shown]
+    t = ctx.current.tier
+    opts += [next_ex(k) for k in (1, 2, 3) if abs(k - t) <= max_tier_step]
+    return opts
+
+
 # --------------------------------------------------------------------------------------------
 # Canonical text serialization (shared by data, training, evaluation and inference)
 
@@ -245,8 +276,29 @@ def parse_action(text: str) -> PracticeAction | None:
     return None
 
 
-def _attempt_line(a: AttemptSummary) -> str:
-    hint = "no hint" if a.hint == "none" else f"hint {a.hint}"
+# Prompt format v2: plain words for hints, shared by the attempt lines and the option labels.
+HINT_WORDS = {"none": "no hint", "first_sound": "first-sound hint", "first_letter": "first-letter hint",
+              "sentence_frame": "sentence-completion hint", "semantic": "meaning hint (a description)"}
+TASK_INSTRUCTION_V2 = (
+    "You help run picture-naming practice for an adult practising word finding. After each "
+    "confirmed attempt you choose what happens next: retry the same picture (optionally with one "
+    "of its predefined hints), or move on to a new picture at a difficulty level (tier 1 easiest, "
+    "3 hardest). Each option is a JSON object followed by its meaning in words. Choose exactly one "
+    "option and reply with its JSON object exactly as written, with nothing else."
+)
+
+
+def option_label(a: PracticeAction, current_tier: int) -> str:
+    """An option in words, with the level relative to the current picture (prompt format v2)."""
+    if a.operation == "retry_current":
+        return f"same picture again with the {HINT_WORDS[a.cue]}"
+    rel = {0: "same level", -1: "one level easier", 1: "one level harder"}.get(a.tier - current_tier,
+                                                                            f"tier {a.tier}")
+    return f"new picture, {rel} (tier {a.tier})"
+
+
+def _attempt_line(a: AttemptSummary, fmt: str = "v1") -> str:
+    hint = HINT_WORDS[a.hint].split(" (")[0] if fmt == "v2" else ("no hint" if a.hint == "none" else f"hint {a.hint}")
     if a.correct:
         res = "correct"
     elif a.error == "unclassified":
@@ -258,31 +310,42 @@ def _attempt_line(a: AttemptSummary) -> str:
     return f"{a.word}, tier {a.tier}, {hint}: {res}, {a.response_time_s:.1f} s"
 
 
-def render_context(ctx: DecisionContext, options: list[PracticeAction], history_in_prompt: int) -> str:
+def render_context(ctx: DecisionContext, options: list[PracticeAction], history_in_prompt: int,
+                   fmt: str = "v1") -> str:
     cur = ctx.current
-    shown = ", ".join(cur.hints_shown) if cur.hints_shown else "none"
     earlier = ctx.history[:-1][-history_in_prompt:] if history_in_prompt else []
+    if fmt == "v2":
+        shown = ", ".join(HINT_WORDS[h].split(" (")[0] for h in cur.hints_shown) if cur.hints_shown else "none"
+        opts = [f"{format_action(o)} = {option_label(o, cur.tier)}" for o in options]
+    else:
+        shown = ", ".join(cur.hints_shown) if cur.hints_shown else "none"
+        opts = [format_action(o) for o in options]
     lines = [
         f"Current picture: {cur.word} (tier {cur.tier})",
         f"Attempts on this picture: {cur.attempts}; hints already shown for it: {shown}",
-        f"Latest attempt: {_attempt_line(ctx.latest)}",
+        f"Latest attempt: {_attempt_line(ctx.latest, fmt)}",
         "Earlier attempts this session (oldest first):" if earlier else "Earlier attempts this session: none",
-        *[f"- {_attempt_line(a)}" for a in earlier],
+        *[f"- {_attempt_line(a, fmt)}" for a in earlier],
         f"Session time: {ctx.session_minutes:.0f} min",
         "Options:",
-        *[format_action(o) for o in options],
+        *opts,
     ]
     return "\n".join(lines)
 
 
+def task_instruction(fmt: str = "v1") -> str:
+    return TASK_INSTRUCTION_V2 if fmt == "v2" else TASK_INSTRUCTION
+
+
 def messages(ctx: DecisionContext, options: list[PracticeAction], history_in_prompt: int,
-             examples: list[tuple[str, str]] | None = None) -> list[dict[str, str]]:
+             examples: list[tuple[str, str]] | None = None, fmt: str = "v1") -> list[dict[str, str]]:
     """Chat messages for one decision. `examples` (rendered context, answer) turns this into the
-    few-shot prompted baseline; they are training demonstrations only, never test situations."""
-    msgs = [{"role": "system", "content": TASK_INSTRUCTION}]
+    few-shot prompted baseline; they are training demonstrations only, never test situations.
+    `fmt` is the prompt format (LLMConfig.prompt_format); examples must be rendered in the same one."""
+    msgs = [{"role": "system", "content": task_instruction(fmt)}]
     for ctx_text, answer in examples or []:
         msgs += [{"role": "user", "content": ctx_text}, {"role": "assistant", "content": answer}]
-    msgs.append({"role": "user", "content": render_context(ctx, options, history_in_prompt)})
+    msgs.append({"role": "user", "content": render_context(ctx, options, history_in_prompt, fmt)})
     return msgs
 
 

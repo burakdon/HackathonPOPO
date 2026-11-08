@@ -1,0 +1,36 @@
+[
+  {
+    "example_id": "x-0001",
+    "patient_id": "demo-ana",
+    "source": "correction",
+    "decision_id": "s-demo-01-d02",
+    "note_id": null,
+    "model_chose": {
+      "op": "retry",
+      "hint": "semantic"
+    },
+    "preferred": {
+      "op": "retry",
+      "hint": "first_sound"
+    },
+    "note": "For this patient, try a sound cue before another meaning cue.",
+    "status": "pending"
+  },
+  {
+    "example_id": "x-0002",
+    "patient_id": "demo-ana",
+    "source": "note",
+    "decision_id": "s-demo-01-d07",
+    "note_id": "n-0001",
+    "model_chose": {
+      "op": "retry",
+      "hint": "sentence_frame"
+    },
+    "preferred": {
+      "op": "retry",
+      "hint": "first_sound"
+    },
+    "note": "When meaning hints have repeatedly failed, try a first-sound hint before moving to another picture.",
+    "status": "pending"
+  }
+]

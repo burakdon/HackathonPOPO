@@ -1,0 +1,671 @@
+[
+  {
+    "exercise_id": "ex-cat",
+    "word": "cat",
+    "accepted": [
+      "kitty",
+      "kitten"
+    ],
+    "level": 1,
+    "image_url": "/media/images/cat.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “k…”",
+        "audio_url": "/media/hints/ex-cat/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter C.",
+        "audio_url": "/media/hints/ex-cat/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "A pet that says meow is a ___.",
+        "audio_url": "/media/hints/ex-cat/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A small furry pet that purrs.",
+        "audio_url": "/media/hints/ex-cat/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-cat/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-dog",
+    "word": "dog",
+    "accepted": [
+      "puppy",
+      "doggy"
+    ],
+    "level": 1,
+    "image_url": "/media/images/dog.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “d…”",
+        "audio_url": "/media/hints/ex-dog/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter D.",
+        "audio_url": "/media/hints/ex-dog/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "A pet that barks is a ___.",
+        "audio_url": "/media/hints/ex-dog/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A pet that wags its tail and fetches sticks.",
+        "audio_url": "/media/hints/ex-dog/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-dog/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-apple",
+    "word": "apple",
+    "accepted": [],
+    "level": 1,
+    "image_url": "/media/images/apple.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “a…”",
+        "audio_url": "/media/hints/ex-apple/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter A.",
+        "audio_url": "/media/hints/ex-apple/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "An ___ a day keeps the doctor away.",
+        "audio_url": "/media/hints/ex-apple/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A round red or green fruit that grows on trees.",
+        "audio_url": "/media/hints/ex-apple/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-apple/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-house",
+    "word": "house",
+    "accepted": [
+      "home"
+    ],
+    "level": 1,
+    "image_url": "/media/images/house.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “h…”",
+        "audio_url": "/media/hints/ex-house/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter H.",
+        "audio_url": "/media/hints/ex-house/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "A family lives in a ___.",
+        "audio_url": "/media/hints/ex-house/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A building where people live.",
+        "audio_url": "/media/hints/ex-house/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-house/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-car",
+    "word": "car",
+    "accepted": [
+      "automobile"
+    ],
+    "level": 1,
+    "image_url": "/media/images/car.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “k…”",
+        "audio_url": "/media/hints/ex-car/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter C.",
+        "audio_url": "/media/hints/ex-car/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "You drive a ___ on the road.",
+        "audio_url": "/media/hints/ex-car/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "It has four wheels and you drive it.",
+        "audio_url": "/media/hints/ex-car/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-car/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-tree",
+    "word": "tree",
+    "accepted": [],
+    "level": 1,
+    "image_url": "/media/images/tree.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “tr…”",
+        "audio_url": "/media/hints/ex-tree/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter T.",
+        "audio_url": "/media/hints/ex-tree/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "Birds build nests in a ___.",
+        "audio_url": "/media/hints/ex-tree/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "It is tall, has leaves and a trunk.",
+        "audio_url": "/media/hints/ex-tree/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-tree/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-fish",
+    "word": "fish",
+    "accepted": [],
+    "level": 1,
+    "image_url": "/media/images/fish.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “f…”",
+        "audio_url": "/media/hints/ex-fish/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter F.",
+        "audio_url": "/media/hints/ex-fish/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "It swims in the sea; it's a ___.",
+        "audio_url": "/media/hints/ex-fish/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "An animal with fins that lives in water.",
+        "audio_url": "/media/hints/ex-fish/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-fish/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-key",
+    "word": "key",
+    "accepted": [],
+    "level": 1,
+    "image_url": "/media/images/key.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “k…”",
+        "audio_url": "/media/hints/ex-key/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter K.",
+        "audio_url": "/media/hints/ex-key/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "You unlock the door with a ___.",
+        "audio_url": "/media/hints/ex-key/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A small metal thing that opens a lock.",
+        "audio_url": "/media/hints/ex-key/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-key/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-banana",
+    "word": "banana",
+    "accepted": [],
+    "level": 2,
+    "image_url": "/media/images/banana.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “b…”",
+        "audio_url": "/media/hints/ex-banana/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter B.",
+        "audio_url": "/media/hints/ex-banana/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "Monkeys love to eat a ___.",
+        "audio_url": "/media/hints/ex-banana/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A long yellow fruit you peel.",
+        "audio_url": "/media/hints/ex-banana/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-banana/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-chair",
+    "word": "chair",
+    "accepted": [],
+    "level": 2,
+    "image_url": "/media/images/chair.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “ch…”",
+        "audio_url": "/media/hints/ex-chair/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter C.",
+        "audio_url": "/media/hints/ex-chair/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "You sit down on a ___.",
+        "audio_url": "/media/hints/ex-chair/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "Furniture with four legs and a back, for sitting.",
+        "audio_url": "/media/hints/ex-chair/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-chair/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-bicycle",
+    "word": "bicycle",
+    "accepted": [
+      "bike"
+    ],
+    "level": 2,
+    "image_url": "/media/images/bicycle.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “b…”",
+        "audio_url": "/media/hints/ex-bicycle/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter B.",
+        "audio_url": "/media/hints/ex-bicycle/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "You pedal a ___.",
+        "audio_url": "/media/hints/ex-bicycle/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "It has two wheels and pedals.",
+        "audio_url": "/media/hints/ex-bicycle/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-bicycle/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-umbrella",
+    "word": "umbrella",
+    "accepted": [
+      "brolly"
+    ],
+    "level": 2,
+    "image_url": "/media/images/umbrella.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “u…”",
+        "audio_url": "/media/hints/ex-umbrella/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter U.",
+        "audio_url": "/media/hints/ex-umbrella/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "When it rains you open an ___.",
+        "audio_url": "/media/hints/ex-umbrella/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "It keeps you dry in the rain.",
+        "audio_url": "/media/hints/ex-umbrella/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-umbrella/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-rabbit",
+    "word": "rabbit",
+    "accepted": [
+      "bunny"
+    ],
+    "level": 2,
+    "image_url": "/media/images/rabbit.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “r…”",
+        "audio_url": "/media/hints/ex-rabbit/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter R.",
+        "audio_url": "/media/hints/ex-rabbit/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "A ___ has long ears and hops.",
+        "audio_url": "/media/hints/ex-rabbit/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A small animal with long ears that eats carrots.",
+        "audio_url": "/media/hints/ex-rabbit/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-rabbit/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-glasses",
+    "word": "glasses",
+    "accepted": [
+      "spectacles",
+      "eyeglasses"
+    ],
+    "level": 2,
+    "image_url": "/media/images/glasses.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “gl…”",
+        "audio_url": "/media/hints/ex-glasses/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter G.",
+        "audio_url": "/media/hints/ex-glasses/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "You wear ___ to see better.",
+        "audio_url": "/media/hints/ex-glasses/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "You wear them on your nose to help you see.",
+        "audio_url": "/media/hints/ex-glasses/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-glasses/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-carrot",
+    "word": "carrot",
+    "accepted": [],
+    "level": 2,
+    "image_url": "/media/images/carrot.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “k…”",
+        "audio_url": "/media/hints/ex-carrot/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter C.",
+        "audio_url": "/media/hints/ex-carrot/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "Rabbits like to eat a ___.",
+        "audio_url": "/media/hints/ex-carrot/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "An orange vegetable that grows in the ground.",
+        "audio_url": "/media/hints/ex-carrot/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-carrot/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-hammer",
+    "word": "hammer",
+    "accepted": [],
+    "level": 2,
+    "image_url": "/media/images/hammer.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “h…”",
+        "audio_url": "/media/hints/ex-hammer/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter H.",
+        "audio_url": "/media/hints/ex-hammer/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "You hit a nail with a ___.",
+        "audio_url": "/media/hints/ex-hammer/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A tool for hitting nails.",
+        "audio_url": "/media/hints/ex-hammer/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-hammer/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-kangaroo",
+    "word": "kangaroo",
+    "accepted": [],
+    "level": 3,
+    "image_url": "/media/images/kangaroo.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “k…”",
+        "audio_url": "/media/hints/ex-kangaroo/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter K.",
+        "audio_url": "/media/hints/ex-kangaroo/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "An Australian animal that hops is a ___.",
+        "audio_url": "/media/hints/ex-kangaroo/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "An animal from Australia that carries its baby in a pouch.",
+        "audio_url": "/media/hints/ex-kangaroo/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-kangaroo/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-octopus",
+    "word": "octopus",
+    "accepted": [],
+    "level": 3,
+    "image_url": "/media/images/octopus.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “o…”",
+        "audio_url": "/media/hints/ex-octopus/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter O.",
+        "audio_url": "/media/hints/ex-octopus/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "A sea animal with eight arms is an ___.",
+        "audio_url": "/media/hints/ex-octopus/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A sea creature with eight arms.",
+        "audio_url": "/media/hints/ex-octopus/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-octopus/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-anchor",
+    "word": "anchor",
+    "accepted": [],
+    "level": 3,
+    "image_url": "/media/images/anchor.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “a…”",
+        "audio_url": "/media/hints/ex-anchor/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter A.",
+        "audio_url": "/media/hints/ex-anchor/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "Sailors drop the ___ to stop the ship.",
+        "audio_url": "/media/hints/ex-anchor/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A heavy metal object that keeps a ship in place.",
+        "audio_url": "/media/hints/ex-anchor/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-anchor/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-helicopter",
+    "word": "helicopter",
+    "accepted": [
+      "chopper"
+    ],
+    "level": 3,
+    "image_url": "/media/images/helicopter.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “h…”",
+        "audio_url": "/media/hints/ex-helicopter/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter H.",
+        "audio_url": "/media/hints/ex-helicopter/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "It flies with spinning blades; it's a ___.",
+        "audio_url": "/media/hints/ex-helicopter/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "An aircraft with a big spinning rotor on top.",
+        "audio_url": "/media/hints/ex-helicopter/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-helicopter/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-microscope",
+    "word": "microscope",
+    "accepted": [],
+    "level": 3,
+    "image_url": "/media/images/microscope.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “m…”",
+        "audio_url": "/media/hints/ex-microscope/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter M.",
+        "audio_url": "/media/hints/ex-microscope/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "Scientists see tiny things with a ___.",
+        "audio_url": "/media/hints/ex-microscope/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A lab instrument that makes tiny things look big.",
+        "audio_url": "/media/hints/ex-microscope/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-microscope/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-giraffe",
+    "word": "giraffe",
+    "accepted": [],
+    "level": 3,
+    "image_url": "/media/images/giraffe.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “j…”",
+        "audio_url": "/media/hints/ex-giraffe/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter G.",
+        "audio_url": "/media/hints/ex-giraffe/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "The animal with the longest neck is a ___.",
+        "audio_url": "/media/hints/ex-giraffe/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A tall animal with a very long neck and spots.",
+        "audio_url": "/media/hints/ex-giraffe/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-giraffe/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-pretzel",
+    "word": "pretzel",
+    "accepted": [],
+    "level": 3,
+    "image_url": "/media/images/pretzel.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “pr…”",
+        "audio_url": "/media/hints/ex-pretzel/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter P.",
+        "audio_url": "/media/hints/ex-pretzel/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "A twisted salty snack is a ___.",
+        "audio_url": "/media/hints/ex-pretzel/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A twisted baked snack, often salty.",
+        "audio_url": "/media/hints/ex-pretzel/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-pretzel/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  },
+  {
+    "exercise_id": "ex-cactus",
+    "word": "cactus",
+    "accepted": [],
+    "level": 3,
+    "image_url": "/media/images/cactus.svg",
+    "hints": {
+      "first_sound": {
+        "text": "It starts with the sound “k…”",
+        "audio_url": "/media/hints/ex-cactus/first_sound.m4a"
+      },
+      "first_letter": {
+        "text": "It starts with the letter C.",
+        "audio_url": "/media/hints/ex-cactus/first_letter.m4a"
+      },
+      "sentence_frame": {
+        "text": "A spiky desert plant is a ___.",
+        "audio_url": "/media/hints/ex-cactus/sentence_frame.m4a"
+      },
+      "semantic": {
+        "text": "A spiky plant that grows in the desert.",
+        "audio_url": "/media/hints/ex-cactus/semantic.m4a"
+      }
+    },
+    "whole_word_audio_url": "/media/hints/ex-cactus/whole_word.m4a",
+    "attribution": "Twemoji 15.1.0, CC BY 4.0"
+  }
+]

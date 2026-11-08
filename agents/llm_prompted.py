@@ -14,21 +14,11 @@ import httpx
 import numpy as np
 
 from agents.llm_prompt import SYSTEM_PROMPT, parse_action, user_prompt
-from core.config import ClinicalConfig, load_yaml, resolve
+from core.config import ClinicalConfig, load_dotenv, load_yaml, resolve
 from core.masks import action_index
 from core.schema import Action, Outcome, State
 
 API = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-
-
-def load_dotenv(path: str = ".env") -> None:
-    p = resolve(path)
-    if p.exists():
-        for line in p.read_text().splitlines():
-            line = line.strip()
-            if line and not line.startswith("#") and "=" in line:
-                k, v = line.split("=", 1)
-                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
 class GeminiPolicy:

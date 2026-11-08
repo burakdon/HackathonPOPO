@@ -22,10 +22,13 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from core.config import load_clinical, resolve
-from core.practice import (AttemptSummary, CurrentExercise, DecisionContext, PracticeAction, format_action,
-                           load_items, load_practice, next_ex, retry, valid_options)
+from core.practice import (AttemptSummary, CurrentExercise, DecisionContext, PracticeAction, contract_options,
+                           format_action, load_items, load_practice, next_ex, retry, valid_options)
 
 OUT = "data/demonstrations/demonstrator_a_v1.jsonl"
+OUT_V2 = "data/demonstrations/demonstrator_a_v2.jsonl"
+OUT_V3 = "data/demonstrations/demonstrator_a_v3.jsonl"
+OUT_V4 = "data/demonstrations/demonstrator_a_v4.jsonl"
 FAST_S = 4.0          # demonstrator A: "fast" independent answer
 LATE_MIN = 20.0       # demonstrator A: "late in the session"
 ERROR_HINT = {"sound": "first_sound", "meaning": "semantic", "no_response": "sentence_frame",
@@ -46,7 +49,9 @@ def demonstrator_a(ctx: DecisionContext, options: list[PracticeAction]) -> tuple
     if ctx.session_minutes >= LATE_MIN:
         return "G", [easier.key()], "error late in the session: easier picture instead of a hint"
     n_hints = len(cur.hints_shown)
-    if n_hints >= 2 or retry("none").key() not in allowed:
+    # "No tries left" = no retry option at all (the contract never offers a plain retry, so the
+    # presence of retry("none") is not a usable signal).
+    if n_hints >= 2 or not any(o.operation == "retry_current" for o in options):
         return "F", [easier.key()], "still incorrect after two hints: easier picture"
     if n_hints == 0:
         return f"D-{L.error}", [retry(ERROR_HINT[L.error]).key()], "first error: hint matched to the error"
@@ -148,19 +153,20 @@ def build_context(spec: Spec, bank, rng: np.random.Generator) -> DecisionContext
     return DecisionContext(current=cur, history=history, session_minutes=spec.minutes)
 
 
-def build() -> list[dict]:
+def build(specs: list[Spec] | None = None, seed_offset: int = 0, version: str = "v1",
+          source: str = "team-authored (fictional scenario)", options_fn=valid_options) -> list[dict]:
     clinical, pcfg = load_clinical(), load_practice()
     bank = load_items(pcfg.items_path)
     rows = []
-    for k, spec in enumerate(SPECS):
-        rng = np.random.default_rng([2026, k])
+    for k, spec in enumerate(SPECS if specs is None else specs):
+        rng = np.random.default_rng([2026, seed_offset + k])
         ctx = build_context(spec, bank, rng)
-        opts = valid_options(ctx, clinical.approved_cues, clinical.max_tier_step, pcfg.max_attempts_per_exercise)
+        opts = options_fn(ctx, clinical.approved_cues, clinical.max_tier_step, pcfg.max_attempts_per_exercise)
         rule, accepted, why = demonstrator_a(ctx, opts)
         keys = [format_action(o) for o in opts]
         assert all(a in keys for a in accepted), (spec.family, accepted, keys)
         rows.append({
-            "example_id": f"demoA-v1-{spec.family}",
+            "example_id": f"demoA-{version}-{spec.family}",
             "split": spec.split,
             "family_id": spec.family,
             "context": ctx.model_dump(),
@@ -170,7 +176,7 @@ def build() -> list[dict]:
             "rule": rule,
             "note": why,
             "scope": "global",
-            "provenance": {"source": "team-authored (fictional scenario)",
+            "provenance": {"source": source,
                            "drafted_by": "AI assistant, from the written strategy of demonstrator A",
                            "review_status": "pending human review",
                            "demonstrator_id": "demonstrator-A"},
@@ -178,19 +184,152 @@ def build() -> list[dict]:
     return rows
 
 
+# ---- v2: the v1 situations unchanged plus generated training families (G001...).
+# Only the training split grows. Generated situations use as current picture only words that are
+# never the current picture of a dev or test situation, so none duplicates or rewords one of them.
+V2_PER_RULE = 9
+V2_SOURCE = "generated from the written strategy of demonstrator A (fictional scenario)"
+
+
+def v2_specs(seed: int = 7) -> list[Spec]:
+    held_out = {s.word for s in SPECS if s.split in ("dev", "test")}
+    words = [i.preferred_name for i in load_items().items if i.preferred_name not in held_out]
+    return rule_specs("G", "train", words, V2_PER_RULE, seed)
+
+
+def rule_specs(prefix: str, split: str, words: list[str], per_rule: int, seed: int) -> list[Spec]:
+    """`per_rule` situations per rule variant (11 variants) with current pictures drawn from `words`,
+    response times and session minutes spread across the 4 s and 20 min decision boundaries."""
+    rng = np.random.default_rng(seed)
+    pick = lambda xs: xs[int(rng.integers(len(xs)))]
+    early = lambda: float(round(rng.uniform(2, 19.5), 0))
+    late = lambda: float(round(rng.uniform(20, 32), 0))
+    rt_err = lambda: round(float(rng.uniform(4.0, 10.0)), 1)
+    errs = ["sound", "meaning", "no_response", "unclassified"]
+
+    def chain(first_errors: list[str]) -> list[tuple]:
+        """Earlier incorrect attempts on the picture, each shown with the hint the demonstrator gives
+        after the attempt before it (the first one without a hint)."""
+        out = []
+        for k, e in enumerate(first_errors):
+            out.append(("none" if k == 0 else ERROR_HINT[first_errors[k - 1]], e, rt_err()))
+        return out
+    makers = {
+        "A": lambda: (("ok", round(float(rng.uniform(1.2, 4.0)), 1)), [], early()),
+        "B": lambda: (("ok", round(float(rng.uniform(4.1, 9.5)), 1)), [], early()),
+        "C": lambda: (("ok", round(float(rng.uniform(2.0, 8.0)), 1)),
+                      chain([pick(errs) for _ in range(int(rng.integers(1, 3)))]), early()),
+        **{f"D-{e}": (lambda e=e: ((e, 12.0 if e == "no_response" else rt_err()), [], early())) for e in errs},
+        "E": lambda: ((pick(errs), rt_err()), chain([pick(["meaning", "no_response", "unclassified"])]),
+                      early()),
+        "E-alt": lambda: ((pick(errs), rt_err()), chain(["sound"]), early()),
+        "F": lambda: ((pick(errs), rt_err()), chain([pick(errs), pick(errs)]), early()),
+        "G": lambda: ((pick(errs), rt_err()), chain([pick(errs)] * int(rng.integers(0, 2))), late()),
+    }
+    specs, n = [], 0
+    for rule, make in makers.items():
+        for _ in range(per_rule):
+            n += 1
+            latest, prior, minutes = make()
+            specs.append(Spec(f"{prefix}{n:03d}", split, pick(words), latest, prior, minutes=minutes,
+                              n_earlier=int(rng.integers(1, 5))))
+    return specs
+
+
+def build_v2() -> list[dict]:
+    v1 = build()
+    gen = build(v2_specs(), seed_offset=1000, version="v2", source=V2_SOURCE)
+    return v1 + gen
+
+
+# ---- v3: larger held-out splits for evaluation. Training rows are exactly v2's 119. The new dev
+# (H001...) and test (T001...) situations use as current picture only the 10 pictures that are
+# never a current picture in training, split so dev and test share no picture. The v1 held-out rows
+# are kept as "dev_v1" and "test_v1" (unchanged apart from the split label).
+V3_DEV_WORDS = ["key", "glasses", "cactus"]                         # one per tier
+V3_TEST_WORDS = ["apple", "tree", "rabbit", "umbrella", "kangaroo", "helicopter", "pretzel"]
+V3_DEV_PER_RULE, V3_TEST_PER_RULE = 3, 5
+
+
+def build_v3() -> list[dict]:
+    v2 = build_v2()
+    train = [r for r in v2 if r["split"] == "train"]
+    dev = build(rule_specs("H", "dev", V3_DEV_WORDS, V3_DEV_PER_RULE, seed=11), seed_offset=2000,
+                version="v3", source=V2_SOURCE)
+    test = build(rule_specs("T", "test", V3_TEST_WORDS, V3_TEST_PER_RULE, seed=13), seed_offset=3000,
+                 version="v3", source=V2_SOURCE)
+    old = [{**r, "split": r["split"] + "_v1"} for r in v2 if r["split"] in ("dev", "test")]
+    return train + dev + test + old
+
+
+# ---- v4: the v3 situations with contract options, plus targeted training additions.
+# Options follow the API contract (core.practice.contract_options: a hint already shown on the picture
+# is never offered again, no plain retry); every label is re-derived with demonstrator_a and must equal
+# the v3 label. Additions (training only, training pictures only, families X001...):
+#   G      errors at 20+ minutes, half of them within 20-23 min (11 -> 31 G situations)
+#   G-     contrast: errors at 15-19.5 min that follow the hint rules (the 20-minute boundary from below)
+#   E-sem  "meaning hint failed -> first sound" (the case clinicians steer most)
+V4_ADD = {"G": 20, "G-": 12, "E-sem": 10}
+
+
+def v4_add_specs(seed: int = 17) -> list[Spec]:
+    held_out = {s.word for s in SPECS if s.split in ("dev", "test")}
+    words = [i.preferred_name for i in load_items().items if i.preferred_name not in held_out]
+    rng = np.random.default_rng(seed)
+    pick = lambda xs: xs[int(rng.integers(len(xs)))]
+    rt_err = lambda: round(float(rng.uniform(4.0, 10.0)), 1)
+    errs = ["sound", "meaning", "no_response", "unclassified"]
+
+    def chain(first_errors: list[str]) -> list[tuple]:
+        return [("none" if k == 0 else ERROR_HINT[first_errors[k - 1]], e, rt_err()) for k, e in enumerate(first_errors)]
+
+    specs, n = [], 0
+    for kind, count in V4_ADD.items():
+        for j in range(count):
+            n += 1
+            if kind == "G":
+                minutes = float(round(rng.uniform(20, 23.5), 0)) if j % 2 == 0 else float(round(rng.uniform(24, 32), 0))
+                prior = chain([pick(errs)] * int(rng.integers(0, 2)))
+            elif kind == "G-":
+                minutes = float(round(rng.uniform(15, 19.4), 0))
+                prior = chain([pick(errs)] * int(rng.integers(0, 2)))
+            else:
+                minutes = float(round(rng.uniform(2, 19), 0))
+                prior = chain(["meaning"])
+            specs.append(Spec(f"X{n:03d}", "train", pick(words), (pick(errs), rt_err()), prior, minutes=minutes,
+                              n_earlier=int(rng.integers(1, 5))))
+    return specs
+
+
+def build_v4() -> list[dict]:
+    clinical, pcfg = load_clinical(), load_practice()
+    out = []
+    for r in build_v3():
+        ctx = DecisionContext(**r["context"])
+        opts = contract_options(ctx, clinical.approved_cues, clinical.max_tier_step, pcfg.max_attempts_per_exercise)
+        rule, accepted, _ = demonstrator_a(ctx, opts)
+        assert accepted == r["accepted"] and rule == r["rule"], r["example_id"]
+        out.append({**r, "options": [format_action(o) for o in opts]})
+    add = build(v4_add_specs(), seed_offset=4000, version="v4", source=V2_SOURCE, options_fn=contract_options)
+    train = [r for r in out if r["split"] == "train"]
+    return train + add + [r for r in out if r["split"] != "train"]
+
+
 def dataset_hash(rows: list[dict]) -> str:
     return hashlib.sha256("\n".join(json.dumps(r, sort_keys=True) for r in rows).encode()).hexdigest()[:16]
 
 
 def main() -> None:
-    rows = build()
-    out = resolve(OUT)
+    import sys
+    version = next((v for v in ("v4", "v3", "v2") if f"--{v}" in sys.argv), "v1")
+    rows = {"v1": build, "v2": build_v2, "v3": build_v3, "v4": build_v4}[version]()
+    out = resolve({"v1": OUT, "v2": OUT_V2, "v3": OUT_V3, "v4": OUT_V4}[version])
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("".join(json.dumps(r) + "\n" for r in rows))
     from collections import Counter
-    print(f"wrote {len(rows)} examples to {OUT} (hash {dataset_hash(rows)})")
+    print(f"wrote {len(rows)} examples to {out.name} (hash {dataset_hash(rows)})")
     print("splits:", dict(Counter(r["split"] for r in rows)))
-    for split in ("train", "dev", "test"):
+    for split in sorted({r["split"] for r in rows}):
         print(split, dict(sorted(Counter(r["rule"] for r in rows if r["split"] == split).items())))
 
 

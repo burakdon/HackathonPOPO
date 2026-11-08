@@ -1,0 +1,17 @@
+{
+  "rule": {
+    "when": {
+      "failed_attempts_on_picture": {
+        "min": 2
+      },
+      "hints_tried_include": [
+        "semantic"
+      ]
+    },
+    "then": {
+      "op": "retry",
+      "hint": "first_sound"
+    },
+    "summary": "After 2 or more failed tries on a picture where a meaning hint was already given → give the first-sound hint."
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "attempt_id": "s-demo-01-a08",
+  "presentation_id": "p-04",
+  "counted": false,
+  "transcript": "",
+  "score": {
+    "outcome": "unclear",
+    "error_type": null,
+    "heard_word": null,
+    "matched_name": null,
+    "reason": "No speech detected.",
+    "signals": {
+      "audio_seconds": 2.4,
+      "no_speech_prob": 0.92,
+      "word_confidence": null
+    }
+  },
+  "next": {
+    "kind": "not_assessed",
+    "message": "Let's try another one.",
+    "hint": null,
+    "attempt_number": null,
+    "max_attempts": null,
+    "decision_id": null,
+    "word": null,
+    "whole_word_audio_url": null,
+    "picture": {
+      "presentation_id": "p-05",
+      "number": 5,
+      "of": 6,
+      "exercise_id": "ex-car",
+      "word": "car",
+      "level": 1,
+      "image_url": "/media/images/car.svg",
+      "attempt_number": 1,
+      "max_attempts": 3,
+      "hint": null
+    },
+    "session_complete": false,
+    "summary": null,
+    "break_suggested": false
+  }
+}

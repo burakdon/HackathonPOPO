@@ -1,0 +1,17 @@
+{
+  "example_id": "x-0001",
+  "patient_id": "demo-ana",
+  "source": "correction",
+  "decision_id": "s-demo-01-d02",
+  "note_id": null,
+  "model_chose": {
+    "op": "retry",
+    "hint": "semantic"
+  },
+  "preferred": {
+    "op": "retry",
+    "hint": "first_sound"
+  },
+  "note": "For this patient, try a sound cue before another meaning cue.",
+  "status": "pending"
+}

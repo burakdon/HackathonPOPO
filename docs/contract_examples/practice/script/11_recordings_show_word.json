@@ -1,0 +1,43 @@
+{
+  "attempt_id": "s-demo-01-a11",
+  "presentation_id": "p-05",
+  "counted": true,
+  "transcript": "train",
+  "score": {
+    "outcome": "incorrect",
+    "error_type": "meaning",
+    "heard_word": "train",
+    "matched_name": null,
+    "reason": "One word, “train”, a different word from “car”.",
+    "signals": {
+      "audio_seconds": 2.3,
+      "no_speech_prob": 0.03,
+      "word_confidence": 0.84
+    }
+  },
+  "next": {
+    "kind": "show_word",
+    "message": "This is a car. Say it with me.",
+    "hint": null,
+    "attempt_number": null,
+    "max_attempts": null,
+    "decision_id": "s-demo-01-d08",
+    "word": "car",
+    "whole_word_audio_url": "/media/hints/ex-car/whole_word.m4a",
+    "picture": {
+      "presentation_id": "p-06",
+      "number": 6,
+      "of": 6,
+      "exercise_id": "ex-tree",
+      "word": "tree",
+      "level": 1,
+      "image_url": "/media/images/tree.svg",
+      "attempt_number": 1,
+      "max_attempts": 3,
+      "hint": null
+    },
+    "session_complete": false,
+    "summary": null,
+    "break_suggested": false
+  }
+}

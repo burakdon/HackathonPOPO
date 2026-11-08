@@ -1,0 +1,206 @@
+# DITTO round 2 on Colab: delivered model `DITTO (SFT 200 steps + gentle setting g2, best dev round per seed)`
+
+GPU NVIDIA A100-SXM4-40GB, dtype bfloat16, commit `2d162a12`. Qwen3-1.7B, option scoring, prompt format v2. Training: 161 situations (v4) generated from demonstrator A's written strategy, pending human review. prompted = the 20 v1 training demonstrations in the prompt; prompted_all = as many v4 training demonstrations as fit the context window.
+
+## Tuning on dev (33 situations; test never read)
+
+| candidate | dev agreement (95% CI) | train min |
+|---|---|---|
+| SFT only, 60 steps | 24/33 (73%, CI 58-88%) | 0.6 |
+| SFT only, 120 steps | 22/33 (67%, CI 52-82%) | 0.5 |
+| SFT only, 200 steps | 25/33 (76%, CI 61-91%) | 0.8 |
+| SFT 200 + gentle DITTO g1, round1 (its SFT stage: 25/33; per stage {'sft': 25, 'round1': 28, 'round2': 23, 'round3': 27}) | 28/33 (85%, CI 73-97%) | 2.3 |
+| SFT 200 + gentle DITTO g2, round3 (its SFT stage: 25/33; per stage {'sft': 25, 'round1': 22, 'round2': 15, 'round3': 29}) | 29/33 (88%, CI 76-97%) | 2.4 |
+| SFT 200 + gentle DITTO g3, round1 (its SFT stage: 25/33; per stage {'sft': 25, 'round1': 29, 'round2': 28, 'round3': 27}) | 29/33 (88%, CI 76-97%) | 2.5 |
+
+Delivered: **DITTO (SFT 200 steps + gentle setting g2, best dev round per seed)**. Why: gentle DITTO g2 reaches 29/33 on dev at round3, above the best SFT-only candidate (25/33 at 200 steps).
+Seeds (dev agreement per stage): {"0": {"run": "sft200-g2-s0", "ditto_round": "round3", "ditto_dev": 29, "sft_dev": 25, "delivered_stage": "round3", "delivered_dev": 29}, "1": {"run": "sft200-g2-s1", "ditto_round": "round1", "ditto_dev": 26, "sft_dev": 26, "delivered_stage": "round1", "delivered_dev": 26}, "2": {"run": "sft200-g2-s2", "ditto_round": "round2", "ditto_dev": 26, "sft_dev": 22, "delivered_stage": "round2", "delivered_dev": 26}}. Delivered seed (chosen on dev): 0.
+
+## test (55 situations, evaluated once)
+
+| model | runs | agrees end to end (mean over seeds, 95% CI) | range over seeds | valid output | fallbacks | median latency |
+|---|---|---|---|---|---|---|
+| base | 1 | 16/55 (29%, CI 18-42%) |  | 55.0/55 | 0.0 | 57 ms |
+| prompted (20 demos) | 1 | 21/55 (38%, CI 25-51%) |  | 55.0/55 | 0.0 | 768 ms |
+| prompted_all (128 demos) | 1 | 15/55 (27%, CI 16-38%) |  | 55.0/55 | 0.0 | 6512 ms |
+| SFT | 3 | 42.33/55 (77%, CI 68-85%) | 40-44 | 55.0/55 | 0.0 | 78 ms |
+| DITTO [delivered] | 3 | 41.33/55 (75%, CI 65-84%) | 38-45 | 55.0/55 | 0.0 | 79 ms |
+| bandit | 1 | 15/55 (27%, CI 16-40%) |  | n/a | 0.0 | 0 ms |
+
+Paired differences on the same situations (SFT and DITTO averaged over seeds):
+
+| comparison | difference (percentage points) | 95% CI |
+|---|---|---|
+| DITTO - base | +46.1 | 32.1 to 59.4 |
+| DITTO - prompted | +37.0 | 18.2 to 55.8 |
+| DITTO - prompted_all | +47.9 | 29.1 to 65.5 |
+| DITTO - SFT | -1.8 | -7.3 to 4.2 |
+| DITTO - bandit | +47.9 | 32.1 to 63.0 |
+
+Per-rule agreement on test (SFT and DITTO: mean over seeds per situation):
+
+| rule | base | prompted | prompted_all | SFT | DITTO | bandit |
+|---|---|---|---|---|---|---|
+| A | 1/5 (20%, CI 0-60%) | 2/5 (40%, CI 0-80%) | 0/5 (0%, CI 0-0%) | 1.33/5 (27%, CI 0-53%) | 2.33/5 (47%, CI 7-87%) | 0/5 (0%, CI 0-0%) |
+| B | 4/5 (80%, CI 40-100%) | 4/5 (80%, CI 40-100%) | 3/5 (60%, CI 20-100%) | 4.33/5 (87%, CI 73-100%) | 3.33/5 (67%, CI 40-93%) | 3/5 (60%, CI 20-100%) |
+| C | 4/5 (80%, CI 40-100%) | 2/5 (40%, CI 0-80%) | 2/5 (40%, CI 0-80%) | 4/5 (80%, CI 67-93%) | 5/5 (100%, CI 100-100%) | 2/5 (40%, CI 0-80%) |
+| D-meaning | 4/5 (80%, CI 40-100%) | 0/5 (0%, CI 0-0%) | 0/5 (0%, CI 0-0%) | 4.67/5 (93%, CI 80-100%) | 5/5 (100%, CI 100-100%) | 1/5 (20%, CI 0-60%) |
+| D-no_response | 0/5 (0%, CI 0-0%) | 0/5 (0%, CI 0-0%) | 0/5 (0%, CI 0-0%) | 4.67/5 (93%, CI 80-100%) | 4.67/5 (93%, CI 80-100%) | 0/5 (0%, CI 0-0%) |
+| D-sound | 0/5 (0%, CI 0-0%) | 1/5 (20%, CI 0-60%) | 0/5 (0%, CI 0-0%) | 5/5 (100%, CI 100-100%) | 5/5 (100%, CI 100-100%) | 0/5 (0%, CI 0-0%) |
+| D-unclassified | 0/5 (0%, CI 0-0%) | 0/5 (0%, CI 0-0%) | 0/5 (0%, CI 0-0%) | 5/5 (100%, CI 100-100%) | 5/5 (100%, CI 100-100%) | 1/5 (20%, CI 0-60%) |
+| E | 2/5 (40%, CI 0-80%) | 5/5 (100%, CI 100-100%) | 0/5 (0%, CI 0-0%) | 3.67/5 (73%, CI 53-93%) | 3.67/5 (73%, CI 53-93%) | 0/5 (0%, CI 0-0%) |
+| E-alt | 0/5 (0%, CI 0-0%) | 0/5 (0%, CI 0-0%) | 0/5 (0%, CI 0-0%) | 5/5 (100%, CI 100-100%) | 4.33/5 (87%, CI 73-100%) | 2/5 (40%, CI 0-80%) |
+| F | 1/5 (20%, CI 0-60%) | 5/5 (100%, CI 100-100%) | 5/5 (100%, CI 100-100%) | 3.33/5 (67%, CI 47-87%) | 1.67/5 (33%, CI 7-67%) | 4/5 (80%, CI 40-100%) |
+| G | 0/5 (0%, CI 0-0%) | 2/5 (40%, CI 0-80%) | 5/5 (100%, CI 100-100%) | 1.33/5 (27%, CI 0-53%) | 1.33/5 (27%, CI 0-53%) | 2/5 (40%, CI 0-80%) |
+
+Full table (test):
+
+# Decision-model comparison: run `sft200-g2 (seeds 0, 1, 2)`, test split
+
+55 reserved situations (dataset hash `0b7c7f792a306f43`), never used in training or in prompts. Base model `Qwen/Qwen3-1.7B` @ `70d244c`. Generated by `evaluation/compare.py`; numbers are counts out of the number of situations. Agreement shown with a 95% percentile bootstrap interval over situations. Mock preferences of a fictional demonstrator; an exploratory check, not a statistical or clinical validation.
+
+| model | valid output | constraint violations | unparseable | fallbacks | agrees (valid outputs) | agrees end to end | median latency |
+|---|---|---|---|---|---|---|---|
+| base | 55/55 | 0/55 | 0/55 | 0/55 | 16/55 (29%, CI 18-42%) | 16/55 (29%, CI 18-42%) | 57 ms |
+| prompted (20 demonstrations in the prompt) | 55/55 | 0/55 | 0/55 | 0/55 | 21/55 (38%, CI 25-51%) | 21/55 (38%, CI 25-51%) | 768 ms |
+| prompted_all (128 demonstrations in the prompt) | 55/55 | 0/55 | 0/55 | 0/55 | 15/55 (27%, CI 16-38%) | 15/55 (27%, CI 16-38%) | 6512 ms |
+| sft:sft200-g2-s0 | 55/55 | 0/55 | 0/55 | 0/55 | 40/55 (73%, CI 60-84%) | 40/55 (73%, CI 60-84%) | 78 ms |
+| sft:sft200-g2-s1 | 55/55 | 0/55 | 0/55 | 0/55 | 44/55 (80%, CI 69-89%) | 44/55 (80%, CI 69-89%) | 78 ms |
+| sft:sft200-g2-s2 | 55/55 | 0/55 | 0/55 | 0/55 | 43/55 (78%, CI 67-89%) | 43/55 (78%, CI 67-89%) | 78 ms |
+| ditto:sft200-g2-s0@round3 | 55/55 | 0/55 | 0/55 | 0/55 | 41/55 (75%, CI 64-85%) | 41/55 (75%, CI 64-85%) | 79 ms |
+| ditto:sft200-g2-s1@round1 | 55/55 | 0/55 | 0/55 | 0/55 | 38/55 (69%, CI 58-82%) | 38/55 (69%, CI 58-82%) | 79 ms |
+| ditto:sft200-g2-s2@round2 | 55/55 | 0/55 | 0/55 | 0/55 | 45/55 (82%, CI 71-91%) | 45/55 (82%, CI 71-91%) | 78 ms |
+| bandit | n/a | n/a | n/a | 0/55 | n/a | 15/55 (27%, CI 16-40%) | 0 ms |
+
+Per situation (final action; ✓ = among the demonstrator's accepted actions, † = fallback to the bandit):
+
+| situation | rule | accepted | base | prompted | prompted_all | sft:sft200-g2-s0 | sft:sft200-g2-s1 | sft:sft200-g2-s2 | ditto:sft200-g2-s0@round3 | ditto:sft200-g2-s1@round1 | ditto:sft200-g2-s2@round2 | bandit |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| demoA-v3-T001 | A | next t2 | next t1 ✗ | next t1 ✗ | next t1 ✗ | next t1 ✗ | next t1 ✗ | next t1 ✗ | next t1 ✗ | next t2 ✓ | next t1 ✗ | next t1 ✗ |
+| demoA-v3-T002 | A | next t3 | next t2 ✗ | next t3 ✓ | next t2 ✗ | next t2 ✗ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t2 ✗ |
+| demoA-v3-T003 | A | next t3 | next t3 ✓ | next t3 ✓ | next t2 ✗ | next t2 ✗ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t2 ✗ |
+| demoA-v3-T004 | A | next t3 | next t1 ✗ | next t2 ✗ | next t2 ✗ | next t1 ✗ | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t1 ✗ |
+| demoA-v3-T005 | A | next t3 | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t1 ✗ | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t1 ✗ |
+| demoA-v3-T006 | B | next t3 | next t3 ✓ | next t2 ✗ | next t2 ✗ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t2 ✗ |
+| demoA-v3-T007 | B | next t2 | next t1 ✗ | next t2 ✓ | next t2 ✓ | next t3 ✗ | next t2 ✓ | next t2 ✓ | next t3 ✗ | next t3 ✗ | next t2 ✓ | next t1 ✗ |
+| demoA-v3-T008 | B | next t2 | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t1 ✗ | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t3 ✗ | next t2 ✓ | next t2 ✓ |
+| demoA-v3-T009 | B | next t3 | next t3 ✓ | next t3 ✓ | next t2 ✗ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ |
+| demoA-v3-T010 | B | next t1 | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t2 ✗ | next t2 ✗ | next t1 ✓ | next t1 ✓ |
+| demoA-v3-T011 | C | next t1 | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ |
+| demoA-v3-T012 | C | next t1 | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ |
+| demoA-v3-T013 | C | next t3 | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t2 ✗ |
+| demoA-v3-T014 | C | next t3 | next t3 ✓ | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t2 ✗ |
+| demoA-v3-T015 | C | next t3 | next t3 ✓ | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t2 ✗ |
+| demoA-v3-T016 | D-sound | retry first_sound | retry semantic ✗ | retry first_sound ✓ | next t1 ✗ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry semantic ✗ |
+| demoA-v3-T017 | D-sound | retry first_sound | retry semantic ✗ | next t2 ✗ | next t2 ✗ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry sentence_frame ✗ |
+| demoA-v3-T018 | D-sound | retry first_sound | retry semantic ✗ | next t2 ✗ | next t2 ✗ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | next t2 ✗ |
+| demoA-v3-T019 | D-sound | retry first_sound | retry semantic ✗ | next t2 ✗ | next t2 ✗ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry sentence_frame ✗ |
+| demoA-v3-T020 | D-sound | retry first_sound | next t3 ✗ | next t2 ✗ | next t2 ✗ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_letter ✗ |
+| demoA-v3-T021 | D-meaning | retry semantic | retry semantic ✓ | retry first_sound ✗ | next t1 ✗ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry sentence_frame ✗ |
+| demoA-v3-T022 | D-meaning | retry semantic | next t3 ✗ | next t2 ✗ | next t2 ✗ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ |
+| demoA-v3-T023 | D-meaning | retry semantic | retry semantic ✓ | retry first_sound ✗ | next t1 ✗ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | next t1 ✗ |
+| demoA-v3-T024 | D-meaning | retry semantic | retry semantic ✓ | next t2 ✗ | next t2 ✗ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry sentence_frame ✗ |
+| demoA-v3-T025 | D-meaning | retry semantic | retry semantic ✓ | retry first_sound ✗ | next t1 ✗ | retry semantic ✓ | retry semantic ✓ | retry sentence_frame ✗ | retry semantic ✓ | retry semantic ✓ | retry semantic ✓ | retry first_letter ✗ |
+| demoA-v3-T026 | D-no_response | retry sentence_frame | next t3 ✗ | retry first_sound ✗ | next t2 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | next t2 ✗ | retry first_sound ✗ |
+| demoA-v3-T027 | D-no_response | retry sentence_frame | retry semantic ✗ | next t2 ✗ | next t2 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | next t2 ✗ |
+| demoA-v3-T028 | D-no_response | retry sentence_frame | next t3 ✗ | next t2 ✗ | next t2 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | next t2 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry first_letter ✗ |
+| demoA-v3-T029 | D-no_response | retry sentence_frame | retry first_letter ✗ | retry first_sound ✗ | next t1 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | next t1 ✗ |
+| demoA-v3-T030 | D-no_response | retry sentence_frame | retry semantic ✗ | retry first_sound ✗ | next t1 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | next t1 ✗ |
+| demoA-v3-T031 | D-unclassified | retry sentence_frame | retry semantic ✗ | retry first_sound ✗ | next t1 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ |
+| demoA-v3-T032 | D-unclassified | retry sentence_frame | retry semantic ✗ | retry first_sound ✗ | next t1 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry semantic ✗ |
+| demoA-v3-T033 | D-unclassified | retry sentence_frame | retry semantic ✗ | next t2 ✗ | next t1 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | next t1 ✗ |
+| demoA-v3-T034 | D-unclassified | retry sentence_frame | retry first_sound ✗ | next t2 ✗ | next t2 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry first_letter ✗ |
+| demoA-v3-T035 | D-unclassified | retry sentence_frame | retry semantic ✗ | retry first_sound ✗ | next t2 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry first_sound ✗ |
+| demoA-v3-T036 | E | retry first_sound | retry first_sound ✓ | retry first_sound ✓ | next t1 ✗ | retry first_sound ✓ | retry first_sound ✓ | next t1 ✗ | retry first_sound ✓ | next t1 ✗ | retry first_sound ✓ | next t1 ✗ |
+| demoA-v3-T037 | E | retry first_sound | retry first_letter ✗ | retry first_sound ✓ | next t1 ✗ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_letter ✗ |
+| demoA-v3-T038 | E | retry first_sound | retry first_letter ✗ | retry first_sound ✓ | next t2 ✗ | retry first_sound ✓ | retry first_sound ✓ | next t2 ✗ | retry first_sound ✓ | next t2 ✗ | next t2 ✗ | next t2 ✗ |
+| demoA-v3-T039 | E | retry first_sound | retry first_letter ✗ | retry first_sound ✓ | next t2 ✗ | retry first_sound ✓ | next t2 ✗ | next t2 ✗ | retry first_sound ✓ | next t2 ✗ | retry first_sound ✓ | retry first_letter ✗ |
+| demoA-v3-T040 | E | retry first_sound | retry first_sound ✓ | retry first_sound ✓ | next t1 ✗ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry sentence_frame ✗ |
+| demoA-v3-T041 | E-alt | retry sentence_frame, retry semantic | retry first_letter ✗ | retry first_letter ✗ | next t2 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | next t2 ✗ |
+| demoA-v3-T042 | E-alt | retry sentence_frame, retry semantic | retry first_letter ✗ | retry first_letter ✗ | next t1 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | next t1 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ |
+| demoA-v3-T043 | E-alt | retry sentence_frame, retry semantic | retry first_letter ✗ | next t2 ✗ | next t2 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ |
+| demoA-v3-T044 | E-alt | retry sentence_frame, retry semantic | retry first_letter ✗ | retry first_letter ✗ | next t1 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | next t1 ✗ | retry sentence_frame ✓ | retry first_letter ✗ |
+| demoA-v3-T045 | E-alt | retry sentence_frame, retry semantic | retry first_letter ✗ | next t2 ✗ | next t2 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry first_letter ✗ |
+| demoA-v3-T046 | F | next t2 | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t3 ✗ | next t2 ✓ | next t3 ✗ | next t3 ✗ | next t3 ✗ | next t2 ✓ |
+| demoA-v3-T047 | F | next t1 | next t2 ✗ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ |
+| demoA-v3-T048 | F | next t2 | next t3 ✗ | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t3 ✗ | next t3 ✗ | next t3 ✗ | next t3 ✗ | next t3 ✗ | next t2 ✓ |
+| demoA-v3-T049 | F | next t2 | next t3 ✗ | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t3 ✗ | next t2 ✓ | next t3 ✗ | next t3 ✗ | next t2 ✓ | next t2 ✓ |
+| demoA-v3-T050 | F | next t2 | next t3 ✗ | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t3 ✗ | next t2 ✓ | next t3 ✗ | next t3 ✗ | next t2 ✓ | next t3 ✗ |
+| demoA-v3-T051 | G | next t1 | retry first_letter ✗ | retry first_sound ✗ | next t1 ✓ | retry first_sound ✗ | next t1 ✓ | next t1 ✓ | retry first_sound ✗ | next t1 ✓ | next t1 ✓ | next t2 ✗ |
+| demoA-v3-T052 | G | next t1 | retry first_sound ✗ | retry first_sound ✗ | next t1 ✓ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry sentence_frame ✗ |
+| demoA-v3-T053 | G | next t2 | retry first_sound ✗ | next t2 ✓ | next t2 ✓ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | next t2 ✓ |
+| demoA-v3-T054 | G | next t1 | next t2 ✗ | retry first_sound ✗ | next t1 ✓ | retry first_sound ✗ | next t1 ✓ | next t1 ✓ | retry first_sound ✗ | next t1 ✓ | next t1 ✓ | next t1 ✓ |
+| demoA-v3-T055 | G | next t2 | retry semantic ✗ | next t2 ✓ | next t2 ✓ | retry sentence_frame ✗ | retry semantic ✗ | retry semantic ✗ | retry semantic ✗ | retry semantic ✗ | retry semantic ✗ | retry first_letter ✗ |
+
+
+## test_v1 (10 situations, evaluated once)
+
+| model | runs | agrees end to end (mean over seeds, 95% CI) | range over seeds | valid output | fallbacks | median latency |
+|---|---|---|---|---|---|---|
+| base | 1 | 3/10 (30%, CI 10-60%) |  | 10.0/10 | 0.0 | 55 ms |
+| prompted (20 demos) | 1 | 5/10 (50%, CI 20-80%) |  | 10.0/10 | 0.0 | 465 ms |
+| prompted_all (128 demos) | 1 | 4/10 (40%, CI 10-70%) |  | 10.0/10 | 0.0 | 3915 ms |
+| SFT | 3 | 7.67/10 (77%, CI 57-93%) | 6-9 | 10.0/10 | 0.0 | 79 ms |
+| DITTO [delivered] | 3 | 7/10 (70%, CI 50-90%) | 6-8 | 10.0/10 | 0.0 | 71 ms |
+| bandit | 1 | 4/10 (40%, CI 10-70%) |  | n/a | 0.0 | 0 ms |
+
+Paired differences on the same situations (SFT and DITTO averaged over seeds):
+
+| comparison | difference (percentage points) | 95% CI |
+|---|---|---|
+| DITTO - base | +40.0 | -6.7 to 80.0 |
+| DITTO - prompted | +20.0 | -16.7 to 60.0 |
+| DITTO - prompted_all | +30.0 | -16.7 to 73.3 |
+| DITTO - SFT | -6.7 | -23.3 to 10.0 |
+| DITTO - bandit | +30.0 | -6.7 to 63.3 |
+
+Per-rule agreement on test_v1 (SFT and DITTO: mean over seeds per situation):
+
+| rule | base | prompted | prompted_all | SFT | DITTO | bandit |
+|---|---|---|---|---|---|---|
+| A | 0/2 (0%, CI 0-0%) | 0/2 (0%, CI 0-0%) | 0/2 (0%, CI 0-0%) | 1.67/2 (84%, CI 67-100%) | 1.67/2 (84%, CI 67-100%) | 0/2 (0%, CI 0-0%) |
+| B | 1/1 (100%, CI 100-100%) | 1/1 (100%, CI 100-100%) | 1/1 (100%, CI 100-100%) | 0.67/1 (67%, CI 67-67%) | 1/1 (100%, CI 100-100%) | 1/1 (100%, CI 100-100%) |
+| C | 0/1 (0%, CI 0-0%) | 1/1 (100%, CI 100-100%) | 0/1 (0%, CI 0-0%) | 0.67/1 (67%, CI 67-67%) | 1/1 (100%, CI 100-100%) | 1/1 (100%, CI 100-100%) |
+| D-sound | 0/1 (0%, CI 0-0%) | 1/1 (100%, CI 100-100%) | 0/1 (0%, CI 0-0%) | 1/1 (100%, CI 100-100%) | 0.67/1 (67%, CI 67-67%) | 1/1 (100%, CI 100-100%) |
+| D-unclassified | 0/1 (0%, CI 0-0%) | 0/1 (0%, CI 0-0%) | 0/1 (0%, CI 0-0%) | 1/1 (100%, CI 100-100%) | 1/1 (100%, CI 100-100%) | 0/1 (0%, CI 0-0%) |
+| E-alt | 0/1 (0%, CI 0-0%) | 0/1 (0%, CI 0-0%) | 0/1 (0%, CI 0-0%) | 1/1 (100%, CI 100-100%) | 1/1 (100%, CI 100-100%) | 0/1 (0%, CI 0-0%) |
+| F | 1/2 (50%, CI 0-100%) | 2/2 (100%, CI 100-100%) | 2/2 (100%, CI 100-100%) | 1.67/2 (84%, CI 67-100%) | 0.67/2 (34%, CI 33-33%) | 1/2 (50%, CI 0-100%) |
+| G | 1/1 (100%, CI 100-100%) | 0/1 (0%, CI 0-0%) | 1/1 (100%, CI 100-100%) | 0/1 (0%, CI 0-0%) | 0/1 (0%, CI 0-0%) | 0/1 (0%, CI 0-0%) |
+
+Full table (test_v1):
+
+# Decision-model comparison: run `sft200-g2 (seeds 0, 1, 2)`, test_v1 split
+
+10 reserved situations (dataset hash `c1d342c78007aab8`), never used in training or in prompts. Base model `Qwen/Qwen3-1.7B` @ `70d244c`. Generated by `evaluation/compare.py`; numbers are counts out of the number of situations. Agreement shown with a 95% percentile bootstrap interval over situations. Mock preferences of a fictional demonstrator; an exploratory check, not a statistical or clinical validation.
+
+| model | valid output | constraint violations | unparseable | fallbacks | agrees (valid outputs) | agrees end to end | median latency |
+|---|---|---|---|---|---|---|---|
+| base | 10/10 | 0/10 | 0/10 | 0/10 | 3/10 (30%, CI 10-60%) | 3/10 (30%, CI 10-60%) | 55 ms |
+| prompted (20 demonstrations in the prompt) | 10/10 | 0/10 | 0/10 | 0/10 | 5/10 (50%, CI 20-80%) | 5/10 (50%, CI 20-80%) | 465 ms |
+| prompted_all (128 demonstrations in the prompt) | 10/10 | 0/10 | 0/10 | 0/10 | 4/10 (40%, CI 10-70%) | 4/10 (40%, CI 10-70%) | 3915 ms |
+| sft:sft200-g2-s0 | 10/10 | 0/10 | 0/10 | 0/10 | 6/10 (60%, CI 30-90%) | 6/10 (60%, CI 30-90%) | 79 ms |
+| sft:sft200-g2-s1 | 10/10 | 0/10 | 0/10 | 0/10 | 8/10 (80%, CI 50-100%) | 8/10 (80%, CI 50-100%) | 80 ms |
+| sft:sft200-g2-s2 | 10/10 | 0/10 | 0/10 | 0/10 | 9/10 (90%, CI 70-100%) | 9/10 (90%, CI 70-100%) | 78 ms |
+| ditto:sft200-g2-s0@round3 | 10/10 | 0/10 | 0/10 | 0/10 | 6/10 (60%, CI 30-90%) | 6/10 (60%, CI 30-90%) | 72 ms |
+| ditto:sft200-g2-s1@round1 | 10/10 | 0/10 | 0/10 | 0/10 | 8/10 (80%, CI 50-100%) | 8/10 (80%, CI 50-100%) | 73 ms |
+| ditto:sft200-g2-s2@round2 | 10/10 | 0/10 | 0/10 | 0/10 | 7/10 (70%, CI 40-100%) | 7/10 (70%, CI 40-100%) | 69 ms |
+| bandit | n/a | n/a | n/a | 0/10 | n/a | 4/10 (40%, CI 10-70%) | 0 ms |
+
+Per situation (final action; ✓ = among the demonstrator's accepted actions, † = fallback to the bandit):
+
+| situation | rule | accepted | base | prompted | prompted_all | sft:sft200-g2-s0 | sft:sft200-g2-s1 | sft:sft200-g2-s2 | ditto:sft200-g2-s0@round3 | ditto:sft200-g2-s1@round1 | ditto:sft200-g2-s2@round2 | bandit |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| demoA-v1-F26 | A | next t2 | next t1 ✗ | next t1 ✗ | next t1 ✗ | next t1 ✗ | next t2 ✓ | next t2 ✓ | next t1 ✗ | next t2 ✓ | next t2 ✓ | next t1 ✗ |
+| demoA-v1-F27 | A | next t3 | next t2 ✗ | next t2 ✗ | next t2 ✗ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t2 ✗ |
+| demoA-v1-F28 | B | next t2 | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t1 ✗ | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t2 ✓ |
+| demoA-v1-F29 | C | next t3 | next t2 ✗ | next t3 ✓ | next t2 ✗ | next t2 ✗ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ | next t3 ✓ |
+| demoA-v1-F30 | D-sound | retry first_sound | next t1 ✗ | retry first_sound ✓ | next t1 ✗ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry first_sound ✓ | retry sentence_frame ✗ | retry first_sound ✓ |
+| demoA-v1-F31 | D-unclassified | retry sentence_frame | retry semantic ✗ | retry first_sound ✗ | next t2 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry first_sound ✗ |
+| demoA-v1-F32 | E-alt | retry sentence_frame, retry semantic | retry first_letter ✗ | retry first_letter ✗ | next t1 ✗ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | retry sentence_frame ✓ | next t1 ✗ |
+| demoA-v1-F33 | F | next t1 | next t2 ✗ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t1 ✓ | next t2 ✗ | next t1 ✓ | next t2 ✗ | next t2 ✗ |
+| demoA-v1-F34 | F | next t2 | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t2 ✓ | next t3 ✗ | next t2 ✓ | next t3 ✗ | next t3 ✗ | next t2 ✓ | next t2 ✓ |
+| demoA-v1-F35 | G | next t1 | next t1 ✓ | retry first_sound ✗ | next t1 ✓ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry first_sound ✗ | retry sentence_frame ✗ |
+
+
+Option scoring: every output is a valid option by construction.
+Mock preferences of a fictional demonstrator: an exploratory check, not a statistical or clinical validation.

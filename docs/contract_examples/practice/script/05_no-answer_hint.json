@@ -1,0 +1,36 @@
+{
+  "attempt_id": "s-demo-01-a05",
+  "presentation_id": "p-03",
+  "counted": true,
+  "transcript": null,
+  "score": {
+    "outcome": "incorrect",
+    "error_type": "no_response",
+    "heard_word": null,
+    "matched_name": null,
+    "reason": "The patient pressed “I'm not sure”.",
+    "signals": {
+      "audio_seconds": null,
+      "no_speech_prob": null,
+      "word_confidence": null
+    }
+  },
+  "next": {
+    "kind": "hint",
+    "message": "Here's a hint.",
+    "hint": {
+      "type": "sentence_frame",
+      "text": "An ___ a day keeps the doctor away.",
+      "audio_url": "/media/hints/ex-apple/sentence_frame.m4a"
+    },
+    "attempt_number": 2,
+    "max_attempts": 3,
+    "decision_id": "s-demo-01-d04",
+    "word": null,
+    "whole_word_audio_url": null,
+    "picture": null,
+    "session_complete": false,
+    "summary": null,
+    "break_suggested": false
+  }
+}

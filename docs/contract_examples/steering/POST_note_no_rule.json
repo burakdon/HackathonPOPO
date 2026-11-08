@@ -1,0 +1,9 @@
+{
+  "note_id": "n-0002",
+  "patient_id": "demo-ana",
+  "text": "She seems tired on Mondays.",
+  "rule": null,
+  "rule_source": "none",
+  "rule_status": "none",
+  "problem": "Notes can steer hints and difficulty only; this one doesn't ask for either."
+}

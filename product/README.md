@@ -48,3 +48,24 @@ All data access is in `template.html`: `MOCK.patients` (caseload, sessions, plan
 `/override`, `/learn_from_overrides`, a plan endpoint) that return the same shapes as
 `mock/data.json`. Feedback-to-plan suggestions use simple rules here (`parseFeedback`); the product
 would have a language model draft them, with the clinician approving each change.
+
+## Server mode (patient tablet, real API)
+Open the page with `?api` to run the tablet against the server API (`docs/API_CONTRACT.md` §4):
+
+```bash
+uv run uvicorn service.contract_mock:app --port 8001
+```
+then `http://localhost:8001/product/index.html?api#patient`. Until the backend exists, the mock server
+plays a scripted session for the demo patient Ana (`docs/contract_examples/`). Pointing `?api=http://host:port`
+at the real backend later needs no page changes.
+
+- Server patients appear first in the tablet's patient list (marked "server"). For them the picture,
+  scoring and every next step come from the server, "Say it" records the microphone, and "Hint"
+  sends "I'm not sure". The demo-input strip is hidden.
+- Simulated patients and the clinician view are unchanged; without `?api` the page makes no requests.
+- Not in the API yet, so skipped in server mode: the end-of-session "try a few again" review. The
+  mood check is shown but not sent.
+- `?api&fakemic` sends a short silent clip instead of using the microphone (for browsers that block it).
+
+After editing `template.html`, `uv run python -m scripts.render_product` rebuilds `index.html` and
+`page.html` from the existing mock data without rerunning the simulator.

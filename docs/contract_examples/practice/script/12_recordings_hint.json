@@ -1,0 +1,36 @@
+{
+  "attempt_id": "s-demo-01-a12",
+  "presentation_id": "p-06",
+  "counted": true,
+  "transcript": "free",
+  "score": {
+    "outcome": "incorrect",
+    "error_type": "sound",
+    "heard_word": "free",
+    "matched_name": null,
+    "reason": "One word, “free”, sounds close to “tree”.",
+    "signals": {
+      "audio_seconds": 1.6,
+      "no_speech_prob": 0.03,
+      "word_confidence": 0.84
+    }
+  },
+  "next": {
+    "kind": "hint",
+    "message": "Here's a hint.",
+    "hint": {
+      "type": "first_sound",
+      "text": "It starts with the sound “tr…”",
+      "audio_url": "/media/hints/ex-tree/first_sound.m4a"
+    },
+    "attempt_number": 2,
+    "max_attempts": 3,
+    "decision_id": "s-demo-01-d09",
+    "word": null,
+    "whole_word_audio_url": null,
+    "picture": null,
+    "session_complete": false,
+    "summary": null,
+    "break_suggested": false
+  }
+}
