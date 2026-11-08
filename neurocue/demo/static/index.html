@@ -443,7 +443,7 @@ $("#newp").onclick = async () => {
     const ma = P.models_available || {}; [...$("#pmodel").options].forEach(o => { o.disabled = !ma[o.value]; o.textContent = o.textContent.replace(/ · not loaded$/, "") + (ma[o.value] ? "" : " · not loaded"); });
     if (!ma[$("#pmodel").value]) $("#pmodel").value = ma.observable ? "observable" : "retention";
     $("#runnote").textContent = (ma.retention || ma.observable) ? "" : "no trained policy loaded on this server; the comparison runs spaced retrieval (no cues) instead";
-    $("#leg2").textContent = P.ppo_available ? "trained policy" : "spaced retrieval";
+    $("#leg2").textContent = P.ppo_available ? "retention-trained policy" : "spaced retrieval";
   } finally { $("#newp").disabled = false; }
 };
 
@@ -513,11 +513,15 @@ function drawChart() {
   ns("text", {x:L, y:H-4, fill:"var(--muted)"}).textContent = "predicted unaided retention of the practised words, one week after the course";
   const col = {spaced_hierarchy:"#8a948f", spaced_plain:"var(--accent)", ppo:"var(--accent)", ppo_retention:"var(--accent)", ppo_observable:"#9b7bdc", tuned:"var(--accent-2)"};
   const lab = {spaced_hierarchy:"hierarchy", spaced_plain:"spaced retrieval", ppo:"trained", ppo_retention:"retention-trained", ppo_observable:"clinic-trained", tuned:"after teaching"};
+  const ends = [];
   names.forEach(k => {
     const tr = courses[k].trials; const d = tr.map((t,i) => `${i?"L":"M"}${x(i).toFixed(1)},${y(t.retention).toFixed(1)}`).join(" ");
     ns("path", {d, fill:"none", stroke:col[k]||"#999", "stroke-width":2.2});
-    const last = tr[tr.length-1]; ns("text", {x:x(n-1)+6, y:y(last.retention)+4}).textContent = `${Math.round(last.retention*100)}% ${lab[k]||k}`;
+    const last = tr[tr.length-1]; ends.push({k, v: last.retention, yy: y(last.retention)});
   });
+  ends.sort((a, b) => a.yy - b.yy);
+  for (let i = 1; i < ends.length; i++) if (ends[i].yy - ends[i-1].yy < 13) ends[i].yy = ends[i-1].yy + 13;
+  ends.forEach(e => { ns("circle", {cx:x(n-1), cy:y(e.v), r:3.5, fill:col[e.k]||"#999"}); ns("text", {x:x(n-1)+8, y:e.yy+4, fill: col[e.k]||"var(--fg)"}).textContent = `${Math.round(e.v*100)}% ${lab[e.k]||e.k}`; });
   const start = courses[names[0]].start["17"]; ns("circle", {cx:x(0), cy:y(start), r:3, fill:"var(--fg)"});
 }
 function drawStrip(run) {
@@ -574,7 +578,7 @@ function drawOpportunity(run) {
   const cands = table.filter(r => ACTS.includes(r.action) && r.context !== "any_error");
   const best = cands.reduce((a, r) => (!a || r.mean_pp > a.mean_pp) ? r : a, null);
   const hl = $("#oppHeadline");
-  const which = (run.model === "observable") ? "the clinic-observable policy" : "the retention-trained policy";
+  const which = (run.model === "observable") ? "the clinic-trained policy" : "the retention-trained policy";
   if (best && best.mean_pp > 0.02) hl.innerHTML = `<b style="color:var(--correct)">A rule that helps exists against ${which}:</b> whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}: ${best.mean_pp >= 0 ? "+" : ""}${best.mean_pp.toFixed(2)} pp per moment over ${best.n} moments, about +${(best.mean_pp * best.n).toFixed(1)} pp on retention if adopted everywhere it applies. Cues pay only while a word is still weak, so this is a severe-patient, early-session effect.`;
   else if (best) hl.innerHTML = `<b>No correction improves on ${which} for this patient.</b> The cheapest deviation is "whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}" at ${best.mean_pp.toFixed(2)} pp per moment; every retry costs more, because an immediate retry loses the spacing benefit and a cued success lays a weaker trace. You can still teach a rule: the policy will adopt it (block C) and the course will show its price.`;
   else hl.textContent = "";
