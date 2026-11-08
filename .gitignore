@@ -16,3 +16,6 @@ runs/
 checkpoints/
 
 .DS_Store
+
+# Third-party raw data: re-fetch with scripts/fetch_data.py (see data/README.md)
+data/raw/

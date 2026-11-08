@@ -16,6 +16,7 @@ dependencies = [
     "tensorboard>=2.21.0",
     "matplotlib>=3.11.2",
     "python-multipart>=0.0.9",
+    "psstdata>=1.0.1",
 ]
 
 [project.optional-dependencies]
