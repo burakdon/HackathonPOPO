@@ -16,6 +16,10 @@ offered again). Greedy decoding, as served.
     uv run --extra llm python -m scripts.patient_steering_experiment --decoding score   # option scoring
 
 Trained runs are reused, so the second command only re-measures the same adapters.
+
+With anchors (training/patient_adapter.py), from the shared adapter v4_score-s0:
+    uv run --extra llm python -m scripts.patient_steering_experiment --decoding score \
+        --shared models/ditto_llm/v4_score-s0 --anchors 60 --tag anchored
 """
 from __future__ import annotations
 
@@ -65,8 +69,12 @@ def main() -> None:
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--decoding", choices=["generate", "score"], default="generate")
-    decoding = ap.parse_args().decoding
-    out = resolve(OUT)
+    ap.add_argument("--shared", default=SHARED)
+    ap.add_argument("--anchors", type=int, default=0, help="number of anchor situations (0 = none)")
+    ap.add_argument("--tag", default="", help="output subfolder and run-id prefix")
+    args = ap.parse_args()
+    decoding, shared_path = args.decoding, args.shared
+    out = resolve(OUT) / args.tag if args.tag else resolve(OUT)
     out.mkdir(parents=True, exist_ok=True)
     words = [i.preferred_name for i in load_items().items]
     eval_words = [w for w in words if w not in TRAIN_WORDS]
@@ -81,14 +89,47 @@ def main() -> None:
                             "options": [format_action(o) for o in contract_options(ctx, c.approved_cues, c.max_tier_step, 3)]})
     (out / "situations.json").write_text(json.dumps({"train": train_rows, "new": new_rows}, indent=1))
 
+    from agents.llm_runtime import LLMRuntime
+    from training.patient_adapter import anchor_rows, mix
+    pcfg = load_practice()
+    rt = LLMRuntime(pcfg.llm.model_copy(update={"decoding": decoding}))
+    rt.ensure_adapter("shared", resolve(shared_path))
+    rule = {"when": {"hints_tried_include": ["semantic"], "failed_attempts_on_picture": {"min": 2}},
+            "then": {"op": "retry", "hint": "first_sound"}}
+    anchors = []
+    if args.anchors:
+        train_ctx = [DecisionContext(**r["context"]) for r in
+                     (json.loads(line) for line in resolve("data/demonstrations/demonstrator_a_v4.jsonl").read_text().splitlines())
+                     if r["split"] == "train"]
+        anchors = anchor_rows(rt, "shared", train_ctx, [rule], pcfg.history_in_prompt, limit=args.anchors,
+                              fmt=pcfg.llm.prompt_format)
+        print(f"{len(anchors)} anchors from the shared adapter on training-split situations", flush=True)
+    # Free the model before training: a second copy in the trainer process would swap on a 24 GB laptop.
+    import gc
+    import torch
+    rt.model, rt.adapters = None, {}
+    gc.collect()
+    if torch.backends.mps.is_available():
+        torch.mps.empty_cache()
+
     base_cfg = yaml.safe_load(resolve("configs/ditto_llm.yaml").read_text())
+    if args.anchors:      # option-scoring sampling and a fixed SFT length (no early stop on a tiny batch)
+        p = yaml.safe_load(resolve(base_cfg["practice_config"]).read_text())
+        p["llm"]["decoding"] = decoding
+        (out / "practice.yaml").write_text(yaml.safe_dump(p, sort_keys=False))
+        base_cfg["practice_config"] = str((out / "practice.yaml").relative_to(resolve(".")))
+        base_cfg["sft"] = {**base_cfg["sft"], "max_steps": 40, "stop_loss": 0.0}
+        # the gentle DITTO setting of the shared adapter (round 2, g2)
+        base_cfg["ditto"].update({"learning_rate": 2.0e-5, "beta": 0.2, "rpo_alpha": 0.5, "steps_per_round": 30})
+    prefix = f"patient-{args.tag}" if args.tag else "patient-steer"
     runs = {}
     for n in SIZES:
         demo = out / f"examples_{n}.jsonl"
-        demo.write_text("".join(json.dumps(r) + "\n" for r in train_rows[:n]))
+        demo.write_text("".join(json.dumps(r) + "\n" for r in mix(train_rows[:n], anchors)))
         for seed in SEEDS:
-            rid = f"patient-steer-n{n}-s{seed}"
-            cfg = {**base_cfg, "demonstrations": str(demo), "init_adapter": SHARED, "seed": seed}
+            rid = f"{prefix}-n{n}-s{seed}"
+            cfg = {**base_cfg, "demonstrations": str(demo.relative_to(resolve("."))), "init_adapter": shared_path,
+                   "seed": seed}
             cpath = out / f"config_{rid}.yaml"
             cpath.write_text(yaml.safe_dump(cfg, sort_keys=False))
             man = resolve("runs/ditto") / rid / "manifest.json"
@@ -98,16 +139,13 @@ def main() -> None:
                 print(f"trained {rid} in {time.time() - t0:.0f} s", flush=True)
             runs[rid] = {"n": n, "seed": seed, "manifest": json.loads(man.read_text())}
 
-    from agents.llm_runtime import LLMRuntime
-    pcfg = load_practice()
-    rt = LLMRuntime(pcfg.llm.model_copy(update={"decoding": decoding}))
-    rt.ensure_adapter("shared", resolve(SHARED))
+    rt.ensure_adapter("shared", resolve(shared_path))           # reloads the base model
     for rid, info in runs.items():
         rt.ensure_adapter(rid.replace("-", "_"), resolve("runs/ditto") / rid / info["manifest"]["final_adapter"])
 
     def choose(adapter: str, r: dict) -> str:
         ctx = DecisionContext(**r["context"])
-        msgs = messages(ctx, [parse_action(o) for o in r["options"]], pcfg.history_in_prompt)
+        msgs = messages(ctx, [parse_action(o) for o in r["options"]], pcfg.history_in_prompt, fmt=pcfg.llm.prompt_format)
         if decoding == "score":
             lps, _ = rt.score(msgs, r["options"], adapter)
             return r["options"][int(np.argmax(lps))]
@@ -136,12 +174,12 @@ def main() -> None:
         print(results[-1], flush=True)
     shared_new = {v: [shared[r["example_id"]] for r in new_rows].count(v) for v in set(shared[r["example_id"]] for r in new_rows)}
     suffix = "" if decoding == "generate" else "_score"
-    (out / f"results{suffix}.json").write_text(json.dumps({"target": TARGET, "shared_adapter": SHARED, "results": results,
+    (out / f"results{suffix}.json").write_text(json.dumps({"target": TARGET, "shared_adapter": shared_path, "anchors": len(anchors), "results": results,
                                                   "shared_choices_on_new": shared_new,
                                                   "shared_invalid": sum(v.startswith("INVALID") for v in shared.values())},
                                                  indent=1))
     lines = [f"# Per-patient steering ({decoding}): 2 failed tries, meaning hint shown -> first-sound hint", "",
-             f"Shared adapter `{SHARED}`; per-patient adapters trained from it (training/ditto.py, init_adapter) on "
+             f"Shared adapter `{shared_path}`, {len(anchors)} anchors; per-patient adapters trained from it (training/ditto.py, init_adapter) on "
              "only the clinician examples. Options follow the contract (a hint already shown is never offered "
              f"again). Decoding: {decoding}. Generated by `scripts/patient_steering_experiment.py`.", "",
              "| examples | seed | (a) chooses first sound on its training examples: new / shared | "
