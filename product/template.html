@@ -143,6 +143,40 @@ textarea { width: 100%; min-height: 96px; border: 1px solid var(--line); border-
 .log { display: grid; gap: 10px }
 .log div { border-left: 3px solid var(--line); padding-left: 12px }
 .foot { padding-block: 0 30px; color: var(--muted); font-size: .9rem; max-width: 90ch }
+/* server-backed patient (Ana): real sessions, review with recordings, corrections, notes -> rule -> examples */
+.badge { display: inline-block; vertical-align: middle; font-size: .78rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 1px 7px; margin-left: 6px }
+.badge.live { color: var(--accent); border-color: var(--accent) }
+.pics { display: grid; gap: 12px }
+.pc { border: 1px solid var(--line); border-radius: 4px; overflow: hidden }
+.pc-head { display: flex; gap: 12px; align-items: center; padding: 10px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); flex-wrap: wrap }
+.pc-head img { width: 44px; height: 44px; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 4px }
+.pc-head b { font-size: 1.1rem }
+.steps { list-style: none; margin: 0; padding: 0 }
+.steps li { display: grid; grid-template-columns: 40px 92px minmax(0, 1fr); gap: 4px 12px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line) }
+.steps li:first-child { border-top: 0 }
+.steps .reason { grid-column: 3 / -1; color: var(--muted); font-size: .92rem }
+.steps .said { font-weight: 600 }
+.steps li.dec { background: var(--accent-soft) }
+.steps li.dec .src { color: var(--muted); font-size: .9rem }
+.steps .fix { grid-column: 3 / -1; display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
+.steps .fix select, .steps .fix input, .rf select { border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px; background: var(--surface); min-width: 0 }
+.steps .fix input { flex: 1 1 200px }
+.play { width: 34px; height: 34px; border: 1px solid var(--accent); color: var(--accent); background: var(--surface); border-radius: 4px; display: grid; place-items: center; padding: 0 }
+.linkbtn { border: 0; background: none; color: var(--accent); font-weight: 600; padding: 0; text-decoration: underline; text-underline-offset: 3px }
+.rf { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 12px; align-items: center }
+.matches { display: grid; gap: 8px }
+.matches label { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 10px 12px }
+.matches label.off { opacity: .55 }
+.matches input { width: 20px; height: 20px; margin-top: 2px; flex: none }
+.exlist { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none }
+.exlist li { border-left: 3px solid var(--accent); padding: 4px 0 4px 12px }
+.exlist.used li { border-left-color: var(--line) }
+.progress { height: 10px; border: 1px solid var(--line); background: var(--surface-2); border-radius: 2px; overflow: hidden }
+.progress span { display: block; height: 100%; background: var(--accent); transition: width .3s linear }
+.mstack { display: flex; gap: 10px; flex-wrap: wrap; align-items: center }
+.mstack select { border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; background: var(--surface-2); min-width: 0; width: min(100%, 420px) }
+.card .muted, .card h2 { overflow-wrap: anywhere }
+@media (max-width: 640px) { .steps li, .steps li.dec { grid-template-columns: 40px minmax(0, 1fr) } .steps li > :nth-child(3) { grid-column: 2 / -1 } .steps .reason, .steps .fix { grid-column: 1 / -1 } .rf { grid-template-columns: 1fr } }
 
 @media (max-width: 1000px) { .clin { grid-template-columns: 1fr } .rail { position: static; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) } .two { grid-template-columns: 1fr } }
 @media (max-width: 640px) { .moods { grid-template-columns: repeat(2, minmax(0, 1fr)) } .stats, .sum, .features { grid-template-columns: 1fr } .form { grid-template-columns: 1fr } .seg { margin-left: 0 } .hb-row { grid-template-columns: 110px minmax(0, 1fr) 50px } }
@@ -201,7 +235,8 @@ const $ = (id) => document.getElementById(id);
 function toast(m) { const t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
 function say(text) { try { const u = new SpeechSynthesisUtterance(text); u.rate = .85; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { toast("Audio is not available on this device."); } }
 
-function setView(v) { S.view = v; if (location.hash !== "#" + v) history.replaceState(null, "", "#" + v); render(); window.scrollTo(0, 0); }
+function setView(v) { S.view = v; if (location.hash !== "#" + v) history.replaceState(null, "", "#" + v); render(); window.scrollTo(0, 0);
+  if (v === "clinician" && (P(S.sel) || {}).server) clLoad(S.sel); }
 $("nav-patient").onclick = () => setView("patient");
 $("nav-clinician").onclick = () => setView("clinician");
 window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (v === "patient" || v === "clinician") { S.view = v; render(); } });
@@ -380,8 +415,8 @@ async function srvLoadPatients() {
       const p = await api(`/patients/${encodeURIComponent(row.id)}`);
       return { ...p, server: true, sessions: [], plan: { ...p.plan, days: DAYS.slice(0, p.plan.days_per_week) } };
     }));
-    if (S.srvPatients.length) S.tablet = S.srvPatients[0].id;
-    if (S.view === "patient") renderTablet();
+    if (S.srvPatients.length) { S.tablet = S.srvPatients[0].id; S.sel = S.srvPatients[0].id; clLoad(S.sel); }
+    render();
   } catch (e) { toast(`Server not reachable: ${e.message}`); }
 }
 function playOrSay(text) {
@@ -498,6 +533,7 @@ async function srvNoAnswer() {  // "Hint" = "I'm not sure" (§4 no-answer): coun
    CLINICIAN: review the week, see what helps, leave notes, adjust the exercises.
    ===================================================================== */
 const AS_OF = new Date(MOCK.as_of + "T12:00:00");
+const RO = API !== null;   // server mode: the simulator's patients are display only (only server patients can be steered)
 const real = (p) => p.sessions.filter((s) => !s.after);
 const lastReal = (p) => real(p)[real(p).length - 1];
 const thisWeek = (p) => p.sessions.filter((s) => s.live || (!s.after && (AS_OF - new Date(s.date + "T12:00:00")) / 864e5 < 7));
@@ -533,18 +569,18 @@ function wordStats(p) {
 function errorMix(p) { const t = { sound: 0, wrong_word: 0, no_answer: 0 }; for (const s of real(p).slice(-5)) for (const k in t) t[k] += s.errors[k]; return t; }
 
 function renderClinician() {
-  const p = P(S.sel);
+  const p = P(S.sel) || S.patients[0];
   $("app").innerHTML = `<div class="wrap clin">
-    <nav class="rail" aria-label="Your patients"><h2>Your patients</h2>${S.patients.map(railRow).join("")}</nav>
-    <section class="main">${page(p)}</section></div>
+    <nav class="rail" aria-label="Your patients"><h2>Your patients</h2>${S.srvPatients.map(srvRailRow).join("")}${S.patients.map(railRow).join("")}</nav>
+    <section class="main">${p.server ? srvPage(p) : page(p)}</section></div>
 `;
-  document.querySelectorAll(".prow").forEach((b) => (b.onclick = () => { S.sel = b.dataset.id; S.openSession = null; S.proposal = null; renderClinician(); window.scrollTo(0, 0); }));
-  wire(p);
+  document.querySelectorAll(".prow").forEach((b) => (b.onclick = () => { S.sel = b.dataset.id; S.openSession = null; S.proposal = null; renderClinician(); window.scrollTo(0, 0); if (P(S.sel).server) clLoad(S.sel); }));
+  p.server ? srvWire(p) : wire(p);
 }
 function railRow(p) {
   const mins = thisWeek(p).reduce((a, s) => a + s.minutes, 0), [c, t] = status(p), last = lastReal(p);
   return `<button class="prow" data-id="${p.id}" aria-current="${p.id === S.sel}"><b>${esc(p.name)}</b>
-    <span class="muted">${esc(p.type)}</span>
+    <span class="muted">${esc(p.type)}${RO ? " · simulated patient" : ""}</span>
     <span class="meter" aria-hidden="true"><span style="width:${Math.min(100, (mins / p.goal_minutes) * 100)}%"></span></span>
     <span class="top2"><span class="muted num">${Math.round(mins)}/${p.goal_minutes} min</span><span class="status ${c}">${t}</span></span></button>`;
 }
@@ -552,7 +588,8 @@ function page(p) {
   const r = real(p), last = lastReal(p), first = r[0], wk = thisWeek(p), mins = wk.reduce((a, s) => a + s.minutes, 0);
   const att = attention(p), delta = Math.round((last.named_without_hint - first.named_without_hint) * 100);
   return `
-  <div class="phead"><h1>${esc(p.name)}</h1>
+  ${RO ? `<div class="banner"><div><b>Simulated patient.</b> Display only: these sessions come from the simulator, not from the server, so they can't be reviewed or corrected.</div></div>` : ""}
+  <div class="phead"><h1>${esc(p.name)}${RO ? '<span class="badge">Simulated patient</span>' : ""}</h1>
     <p class="muted">${p.age} y · ${esc(p.type)} · ${p.months_post} mo post-stroke · last session ${last.live ? "today" : fmtDate(last.date)}</p></div>
   <div class="stats">
     <div class="card stat"><div class="k">Independent naming</div><div class="v num">${pct(last.named_without_hint)}</div><div class="d num">${delta >= 0 ? "+" : "−"}${Math.abs(delta)} pts since ${fmtDate(first.date)}</div></div>
@@ -563,8 +600,7 @@ function page(p) {
     <div class="legend"><span><i style="background:var(--accent)"></i>Independent</span><span><i style="background:var(--c-hint)"></i>With hint</span><span><i style="background:var(--bad);width:9px;height:9px;border-radius:50%"></i>Stopped early</span></div>${moodChart(p)}</div>
   <div class="two">${seeing(p)}${helps(p)}</div>
   ${review(p)}
-  ${notes(p)}
-  ${planCard(p)}
+  ${RO ? "" : notes(p) + planCard(p)}
   <div class="card"><h2>Plan history</h2><div class="log">${S.log[p.id].slice().reverse().map((l) => `<div><b>${esc(l.when)}</b><br>${esc(l.what)}</div>`).join("")}</div></div>`;
 }
 function chart(p) {
@@ -622,13 +658,13 @@ function review(p) {
     const k = s.trials.indexOf(t), prev = s.trials[k - 1], mine = sg.find((x) => x.s === i && x.k === k);
     const res = t.correct ? (t.hint === "none" ? ["good", "Independent"] : ["help", "With hint"]) : ["bad", RESULT[t.error] || "Missed"];
     const after = prev && !prev.correct && !s.live && !s.after ? prev.error : null;
-    const ctl = mine ? `<span class="mine">${HINT[mine.to]}</span>` : after ? `<select data-k="${k}" data-after="${after}" aria-label="Hint for next time"><option value="">Change…</option>${Object.keys(HINT).filter((h) => h !== "none" && h !== t.hint).map((h) => `<option value="${h}">${HINT[h]}</option>`).join("")}</select>` : "";
+    const ctl = RO ? "" : mine ? `<span class="mine">${HINT[mine.to]}</span>` : after ? `<select data-k="${k}" data-after="${after}" aria-label="Hint for next time"><option value="">Change…</option>${Object.keys(HINT).filter((h) => h !== "none" && h !== t.hint).map((h) => `<option value="${h}">${HINT[h]}</option>`).join("")}</select>` : "";
     return `<tr><td>${esc(t.word)}</td><td>${t.hint === "none" ? "–" : HINT[t.hint]}</td><td class="res ${res[0]}">${res[1]}</td><td>${ctl}</td></tr>`;
   }).join("");
   const counts = {}; for (const x of sg) { const key = x.after + "|" + x.to; counts[key] = (counts[key] || 0) + 1; }
   const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
   let banner = "";
-  if (best && best[1] >= 2 && !S.standing[p.id]) {
+  if (!RO && best && best[1] >= 2 && !S.standing[p.id]) {
     const [after, to] = best[0].split("|");
     banner = `<div class="banner"><div><b>${HINT[to]} after “${RESULT[after].toLowerCase()}”</b> · suggested ${best[1]}×</div>
       <div class="row" style="justify-content:flex-start"><button class="btn primary" id="standing" data-after="${after}" data-to="${to}">Apply to future sessions</button></div></div>`;
@@ -696,6 +732,9 @@ function apply(p, items, what) {
   if (S.run && S.tablet === p.id) S.run = null;
 }
 function wire(p) {
+  $("showall").onclick = () => { S.showAll = !S.showAll; renderClinician(); };
+  document.querySelectorAll(".sess button").forEach((b) => (b.onclick = () => { S.openSession = +b.dataset.s; renderClinician(); }));
+  if (RO) return;
   const fb = $("fb");
   document.querySelectorAll("[data-chip]").forEach((c) => (c.onclick = () => { fb.value = (fb.value ? fb.value.trim() + " " : "") + c.dataset.chip + "."; }));
   $("fb-go").onclick = () => { const text = fb.value.trim() || fb.placeholder; S.proposal = { id: p.id, text, items: parse(p, text) }; renderClinician(); };
@@ -704,8 +743,6 @@ function wire(p) {
     apply(p, items, `Note: “${S.proposal.text}”.`); S.proposal = null; renderClinician(); toast(items.length ? `Plan updated.` : "Nothing selected."); };
   const dx = $("fb-x"); if (dx) dx.onclick = () => { S.proposal = null; renderClinician(); };
   const sv = $("fb-save"); if (sv) sv.onclick = () => { S.log[p.id].push({ when: "Nov 7", what: `Note: “${S.proposal.text}”.` }); S.proposal = null; renderClinician(); toast("Note saved."); };
-  $("showall").onclick = () => { S.showAll = !S.showAll; renderClinician(); };
-  document.querySelectorAll(".sess button").forEach((b) => (b.onclick = () => { S.openSession = +b.dataset.s; renderClinician(); }));
   document.querySelectorAll("td select").forEach((s) => (s.onchange = () => {
     if (!s.value) return; const i = S.openSession ?? p.sessions.length - 1, k = +s.dataset.k;
     S.sugg[p.id].push({ s: i, k, to: s.value, after: p.sessions[i].trials[k - 1].error }); renderClinician(); toast("Saved for next session.");
@@ -733,6 +770,278 @@ function wire(p) {
     apply(p, [{ key: "personal_words", from: p.plan.personal_words, to: p.plan.personal_words.filter((x) => x !== w), why: `Remove personal word: ${w}` }]); renderClinician(); }));
   const pw = $("pw-add"); pw.onkeydown = (e) => { if (e.key === "Enter" && pw.value.trim()) { const w = pw.value.trim();
     apply(p, [{ key: "personal_words", from: p.plan.personal_words, to: [...p.plan.personal_words, w], why: `Add personal word: ${w}` }]); renderClinician(); toast(`Added “${w}”.`); } };
+}
+
+/* =====================================================================
+   SERVER CLINICIAN (docs/API_CONTRACT.md §3, §6, §7, §8). Server patients (the demo patient Ana) get
+   a page built from the server: sessions and charts, the review of every picture with its recordings
+   and the model's decisions, "I'd do this differently" corrections, note -> rule -> matching
+   situations -> examples, and the Train step. Demo shortcut for Train: progress for ~10 s, then the
+   prepared model (trained earlier on the same examples) is activated; POST /training-runs is never
+   called here because it starts a real 5-minute GPU job.
+   URL options: ?prepared=<model id> (default below), ?trainsec=<seconds>.
+   ===================================================================== */
+const PREPARED_MODEL = QS.get("prepared") || "ditto:demo-ana-after";
+const TRAIN_SECONDS = Math.max(1, +(QS.get("trainsec") || 10));
+const PLAY = '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor"/></svg>';
+const ERR = { sound: "Close in sound", meaning: "Wrong word", no_response: "No answer", unclassified: "Not classified" };
+const PRES = { independent: ["good", "Independent"], assisted: ["help", "With hint"], unsuccessful: ["bad", "Unsuccessful"], not_assessed: ["", "Not assessed"] };
+const enc = encodeURIComponent;
+const jsend = (path, body, method = "POST") => api(path, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+S.cl = {};
+
+const tierOf = (o) => (o ? o.tier ?? o.level : null);
+const sameOpt = (a, b) => !!a && !!b && a.op === b.op && (a.hint ?? null) === (b.hint ?? null) && tierOf(a) === tierOf(b);
+function optLabel(o, cur) {     // a decision option in clinical words; cur = the level the picture was at
+  if (!o) return "–";
+  if (o.op === "retry") return HINT[o.hint] || o.hint;
+  if (o.op === "next") {
+    const t = tierOf(o);
+    if (typeof t === "string") return { easier: "Next picture, easier", same: "Next picture, same level", harder: "Next picture, harder" }[t] || t;
+    return `Next picture, level ${t}` + (cur == null ? "" : t < cur ? " (easier)" : t > cur ? " (harder)" : " (same level)");
+  }
+  return o.op === "move_on" ? "Move on" : o.op;
+}
+function srcLabel(d) {
+  if (d.fallback_reason) return `fallback (${d.fallback_reason})`;
+  if (d.source === "rules") return "plan's hint order";
+  return d.source;
+}
+const fmtWhen = (iso) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+function sessLabels(ss) {      // date, plus a number when there are several sessions on one day
+  const n = {}; ss.forEach((s) => (n[s.date] = (n[s.date] || 0) + 1));
+  const k = {}; return ss.map((s) => (n[s.date] > 1 ? `${fmtDate(s.date)} #${(k[s.date] = (k[s.date] || 0) + 1)}` : fmtDate(s.date)));
+}
+
+async function clLoad(pid) {
+  const c = (S.cl[pid] ||= { open: null, note: null, editRule: false, matches: null, ticked: {}, train: null });
+  c.err = null;
+  try {
+    const [patient, sessions, examples, models, log] = await Promise.all([
+      api(`/patients/${enc(pid)}`), api(`/patients/${enc(pid)}/sessions`), api(`/patients/${enc(pid)}/examples`),
+      api(`/patients/${enc(pid)}/models`).catch(() => []), api(`/patients/${enc(pid)}/log`).catch(() => [])]);
+    Object.assign(c, { patient, sessions, examples, models, log, loaded: true });
+    const sp = S.srvPatients.find((x) => x.id === pid);
+    if (sp) Object.assign(sp, { name: patient.name, first: patient.first, simulated: patient.simulated, plan: { ...patient.plan, days: DAYS.slice(0, patient.plan.days_per_week) } });
+    if (!sessions.some((s) => s.session_id === c.open)) c.open = sessions.length ? sessions[sessions.length - 1].session_id : null;
+    c.review = c.open ? await api(`/sessions/${enc(c.open)}/review`) : null;
+  } catch (e) { c.err = e.message; }
+  if (S.view === "clinician" && S.sel === pid) renderClinician();
+}
+
+function srvRailRow(p) {
+  const c = S.cl[p.id] || {}, last = (c.sessions || []).slice(-1)[0];
+  return `<button class="prow" data-id="${p.id}" aria-current="${p.id === S.sel}"><b>${esc(p.name)}</b>
+    <span class="muted">${p.simulated ? "Simulated answers · " : ""}server record</span>
+    <span class="top2"><span class="muted num">${last ? `${fmtDate(last.date)} · ${pct(last.named_without_hint)} independent` : c.loaded ? "No sessions yet" : "…"}</span><span class="status ok">${(c.examples || []).filter((x) => x.status === "pending").length || 0} pending</span></span></button>`;
+}
+
+function srvPage(p) {
+  const c = S.cl[p.id];
+  if (!c || !c.loaded) return `<div class="card">${c && c.err ? `<div>Server error: ${esc(c.err)}</div><div><button class="btn" id="cl-retry">Retry</button></div>` : `<div class="muted">Loading ${esc(p.name)}…</div>`}</div>`;
+  const pt = c.patient, ss = c.sessions, last = ss[ss.length - 1];
+  const pending = c.examples.filter((x) => x.status === "pending"), used = c.examples.filter((x) => x.status !== "pending");
+  return `
+  <div class="phead"><h1>${esc(pt.name)}${pt.simulated ? '<span class="badge">Simulated</span>' : '<span class="badge live">Live</span>'}</h1>
+    <p class="muted">${esc(pt.about || "")}${last ? ` · last session ${fmtDate(last.date)}` : ""}</p></div>
+  ${c.err ? `<div class="banner"><div>Server error: ${esc(c.err)}</div></div>` : ""}
+  <div class="stats">
+    <div class="card stat"><div class="k">Independent naming</div><div class="v num">${last ? pct(last.named_without_hint) : "–"}</div><div class="d num">${last ? `${last.counts.independent} of ${last.counts.assessed} pictures, last session` : "No sessions yet"}</div></div>
+    <div class="card stat"><div class="k">Sessions</div><div class="v num">${ss.length}</div><div class="d num">${last ? `last: ${pct(last.named_with_hint)} with hint · ${pct(last.unsuccessful)} unsuccessful` : ""}</div></div>
+    <div class="card stat"><div class="k">Corrections</div><div class="v num">${pending.length} <span class="muted" style="font-size:1rem">pending</span></div><div class="d num">${used.length} already learned</div></div>
+  </div>
+  ${ss.length ? srvChart(c) : ""}
+  ${srvReview(c)}
+  ${srvNotes(p, c)}
+  ${srvExamples(p, c, pending, used)}
+  ${srvModels(c)}
+  <div class="card"><h2>Change log</h2><div class="log">${c.log.length ? c.log.slice().reverse().map((l) => `<div><b>${esc(fmtWhen(l.when))}</b> · ${esc(l.who || "")}<br>${esc(l.what)}</div>`).join("") : '<div class="muted">No changes yet.</div>'}</div></div>`;
+}
+
+function srvChart(c) {
+  const ss = c.sessions, labels = sessLabels(ss), W = 680, H = 230, L = 50, R = 10, T = 12, B = 34, n = ss.length;
+  const slot = (W - L - R) / n, bw = Math.min(64, slot * .6), x = (i) => L + (i + .5) * slot, y = (v) => T + (1 - v) * (H - T - B);
+  const grid = [0, .5, 1].map((v) => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 8}" y="${y(v) + 5}" text-anchor="end" font-size="14" fill="var(--muted)">${v * 100}%</text>`).join("");
+  const bars = ss.map((s, i) => {
+    const a = s.named_without_hint || 0, b = s.named_with_hint || 0, u = s.unsuccessful || 0, x0 = x(i) - bw / 2;
+    const seg = (from, h, fill) => h > 0 ? `<rect x="${x0}" y="${y(from + h)}" width="${bw}" height="${y(from) - y(from + h)}" fill="${fill}"/>` : "";
+    return `<g><title>${labels[i]}: ${pct(a)} independent, ${pct(b)} with hint, ${pct(u)} unsuccessful · ${s.model_version}</title>${seg(0, a, "var(--accent)")}${seg(a, b, "var(--c-hint)")}${seg(a + b, u, "var(--c-none)")}</g>`;
+  }).join("");
+  const every = Math.ceil(n / 8);
+  const ticks = ss.map((s, i) => (i % every && i !== n - 1 ? "" : `<text x="${x(i)}" y="${H - 8}" text-anchor="middle" font-size="14" fill="var(--muted)">${labels[i]}</text>`)).join("");
+  const em = { wrong_word: 0, sound: 0, no_answer: 0, unclassified: 0 }; ss.forEach((s) => { for (const k in em) em[k] += (s.errors || {})[k] || 0; });
+  return `<div class="card chart"><h2>Naming per session</h2>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of pictures named independently, with a hint, or not, per session">${grid}${bars}${ticks}</svg>
+    <div class="legend"><span><i style="background:var(--accent)"></i>Independent</span><span><i style="background:var(--c-hint)"></i>With hint</span><span><i style="background:var(--c-none)"></i>Unsuccessful</span></div>
+    <div class="muted">Errors, all sessions: wrong word ${em.wrong_word} · close in sound ${em.sound} · no answer ${em.no_answer}${em.unclassified ? ` · not classified ${em.unclassified}` : ""}</div></div>`;
+}
+
+function srvReview(c) {
+  const ss = c.sessions;
+  if (!ss.length) return `<div class="card"><h2>Session review</h2><div class="muted">No sessions yet. Start one on the patient tablet.</div></div>`;
+  const labels = sessLabels(ss), rv = c.review;
+  const tabs = `<div class="sess">${ss.map((s, j) => `<button data-sid="${s.session_id}" aria-pressed="${s.session_id === c.open}">${labels[j]}</button>`).join("")}</div>`;
+  if (!rv || rv.session_id !== c.open) return `<div class="card"><h2>Session review</h2>${tabs}<div class="muted">Loading…</div></div>`;
+  const sm = rv.summary, pics = rv.pictures, shown = S.showAll ? pics : pics.filter((pc) => pc.result !== "independent");
+  return `<div class="card"><h2>Session review</h2>${tabs}
+    <div class="muted num">${sm.counts.assessed} pictures assessed · ${pct(sm.named_without_hint)} independent · ${pct(sm.named_with_hint)} with hint · ${pct(sm.unsuccessful)} unsuccessful · ${Math.round(sm.minutes * 10) / 10} min · ${esc(sm.model_version)}</div>
+    <div class="row" style="justify-content:space-between;align-items:center"><b>${S.showAll ? `All pictures (${pics.length})` : `Needed help (${shown.length})`}</b>
+      <button class="btn" id="showall">${S.showAll ? "Needed help only" : "Show all"}</button></div>
+    ${shown.length ? `<div class="pics">${shown.map(srvPicture).join("")}</div>` : `<div class="muted">All pictures named independently.</div>`}</div>`;
+}
+function srvPicture(pc) {
+  const [cls, lbl] = PRES[pc.result] || ["", pc.result];
+  const rows = [];
+  for (const a of pc.attempts) {
+    const out = a.outcome === "correct" ? ["good", "Correct"] : a.outcome === "unclear" ? ["", "Unclear, not counted"] : ["bad", ERR[a.error_type] || "Incorrect"];
+    rows.push(`<li><span>${a.audio_url ? `<button class="play" data-audio="${esc(a.audio_url)}" aria-label="Play the recording">${PLAY}</button>` : ""}</span>
+      <span class="muted">${a.number ? `Try ${a.number}` : "Extra"}</span>
+      <span>${a.hint_shown ? `<span class="muted">After ${esc((HINT[a.hint_shown] || a.hint_shown).toLowerCase())}:</span> ` : ""}<span class="said">${a.transcript ? `“${esc(a.transcript)}”` : '<span class="muted">(no answer)</span>'}</span> · <span class="res ${out[0]}">${out[1]}</span></span>
+      ${a.reason ? `<div class="reason">${esc(a.reason)}</div>` : ""}</li>`);
+    for (const d of pc.decisions.filter((d) => d.after_attempt_id === a.attempt_id)) rows.push(srvDecision(d, pc.level));
+  }
+  for (const d of pc.decisions.filter((d) => !pc.attempts.some((a) => a.attempt_id === d.after_attempt_id))) rows.push(srvDecision(d, pc.level));
+  return `<div class="pc"><div class="pc-head"><img src="${API + pc.image_url}" alt=""><b>${esc(pc.word)}</b><span class="res ${cls}">${lbl}</span><span class="muted">Level ${pc.level}</span></div><ol class="steps">${rows.join("")}</ol></div>`;
+}
+function srvDecision(d, level) {
+  const cur = (d.context && d.context.current && d.context.current.tier) ?? level;
+  const cx = d.correction, alts = d.options.filter((o) => !sameOpt(o, d.action));
+  const locked = cx && cx.status !== "pending";
+  let fix = "";
+  if (cx) fix = `<div class="fix"><span class="mine">You preferred: ${esc(optLabel(cx.preferred, cur))}</span><span class="muted">· ${cx.status === "pending" ? "pending" : esc(cx.status)}</span>${locked ? "" : `<button class="linkbtn" data-redo="${d.decision_id}">Change</button>`}</div>`;
+  if ((!cx || S.redo === d.decision_id) && alts.length && !locked)
+    fix = `<div class="fix"><select data-pref="${d.decision_id}" aria-label="What you would do instead"><option value="">I'd do this differently…</option>${alts.map((o, i) => `<option value="${d.options.indexOf(o)}">${esc(optLabel(o, cur))}</option>`).join("")}</select>
+      <input type="text" data-cnote="${d.decision_id}" placeholder="Why (optional)" aria-label="Why"><button class="btn" data-csave="${d.decision_id}">Save</button></div>`;
+  return `<li class="dec"><span aria-hidden="true" class="muted">→</span><span class="muted">Next step</span>
+    <span><b>${esc(optLabel(d.action, cur))}</b> <span class="src">· ${esc(srcLabel(d))}</span></span>${fix}</li>`;
+}
+
+const RF_ERR = [["", "any answer"], ["correct", "correct"], ["meaning", "wrong word"], ["sound", "close in sound"], ["no_response", "no answer"]];
+const RF_THEN = [["retry:first_sound", "give the first-sound hint"], ["retry:first_letter", "give the first-letter hint"], ["retry:sentence_frame", "give the finish-the-sentence hint"], ["retry:semantic", "give the meaning hint"],
+  ["next:easier", "go to an easier picture"], ["next:same", "go to a picture at the same level"], ["next:harder", "go to a harder picture"]];
+function ruleText(r) {
+  const w = r.when || {}, parts = [];
+  if (w.last_error && w.last_error.length) parts.push(`the last answer was ${w.last_error.map((e) => (RF_ERR.find(([k]) => k === e) || [, e])[1]).join(" or ")}`);
+  if (w.failed_attempts_on_picture && w.failed_attempts_on_picture.min) parts.push(`${w.failed_attempts_on_picture.min} or more failed tries on the picture`);
+  if (w.hints_tried_include && w.hints_tried_include.length) parts.push(`${w.hints_tried_include.map((h) => HINT[h].toLowerCase()).join(" and ")} already given`);
+  if (w.hints_tried_exclude && w.hints_tried_exclude.length) parts.push(`no ${w.hints_tried_exclude.map((h) => HINT[h].toLowerCase()).join(" or ")} yet`);
+  if (w.missed_pictures_in_a_row && w.missed_pictures_in_a_row.min) parts.push(`${w.missed_pictures_in_a_row.min} or more missed pictures in a row`);
+  const t = r.then, then = t.op === "retry" ? `give the ${HINT[t.hint].toLowerCase()}` : `go to ${t.level === "same" ? "a picture at the same level" : `an ${t.level === "easier" ? "easier" : "harder"} picture`}`.replace("an harder", "a harder");
+  return `${parts.length ? "When " + parts.join(", ") : "Always"} → ${then}.`;
+}
+function ruleForm(r) {
+  const w = (r && r.when) || {}, t = r && r.then;
+  const sel = (id, opts, cur) => `<select id="${id}">${opts.map(([v, l]) => `<option value="${v}" ${String(v) === String(cur ?? "") ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
+  const thenKey = t ? (t.op === "retry" ? `retry:${t.hint}` : `next:${t.level}`) : "retry:first_sound";
+  return `<div class="rf">
+    <span>When the last answer was</span>${sel("rf-err", RF_ERR, (w.last_error || [])[0])}
+    <span>Failed tries on the picture, at least</span>${sel("rf-fail", [["", "any"], [1, 1], [2, 2], [3, 3]], (w.failed_attempts_on_picture || {}).min)}
+    <span>Hint already given</span>${sel("rf-inc", [["", "any"], ...Object.entries(HINT).filter(([k]) => k !== "none")], (w.hints_tried_include || [])[0])}
+    <span>Missed pictures in a row, at least</span>${sel("rf-miss", [["", "any"], [1, 1], [2, 2], [3, 3]], (w.missed_pictures_in_a_row || {}).min)}
+    <span><b>Then</b></span>${sel("rf-then", RF_THEN, thenKey)}</div>`;
+}
+function readRuleForm() {
+  const v = (id) => $(id).value, [op, arg] = v("rf-then").split(":");
+  const rule = { when: { last_error: v("rf-err") ? [v("rf-err")] : null, failed_attempts_on_picture: v("rf-fail") ? { min: +v("rf-fail"), max: null } : null,
+    hints_tried_include: v("rf-inc") ? [v("rf-inc")] : null, hints_tried_exclude: null, missed_pictures_in_a_row: v("rf-miss") ? { min: +v("rf-miss"), max: null } : null, level: null },
+    then: op === "retry" ? { op, hint: arg } : { op, level: arg } };
+  rule.summary = ruleText(rule);
+  return rule;
+}
+function srvNotes(p, c) {
+  const n = c.note;
+  let body = "";
+  if (n) {
+    const confirmed = n.rule_status === "confirmed";
+    if (n.rule && !c.editRule) body = `<div class="proposal"><b>${confirmed ? "Rule confirmed" : "Proposed rule"}</b><div>${esc(n.rule.summary || ruleText(n.rule))}</div>
+      ${confirmed ? "" : `<div class="row" style="justify-content:flex-start"><button class="btn primary" id="rule-ok">Confirm rule</button><button class="btn" id="rule-edit">Edit</button><button class="btn" id="rule-x">Discard</button></div>`}</div>`;
+    else body = `<div class="proposal">${n.rule ? "<b>Edit the rule</b>" : `<b>${esc(n.problem || "No rule could be drafted from this note.")}</b><span class="muted">Write it as a rule instead:</span>`}
+      ${ruleForm(n.rule)}<div class="row" style="justify-content:flex-start"><button class="btn primary" id="rule-form-ok">Confirm rule</button><button class="btn" id="rule-x">Discard</button></div></div>`;
+    if (confirmed && c.matches) {
+      const ok = c.matches.filter((m) => m.allowed && !m.already_agrees);
+      body += `<div class="matches"><b>Past situations this rule covers (${c.matches.length})</b>
+        ${c.matches.length ? c.matches.map((m) => { const off = !m.allowed || m.already_agrees;
+          return `<label class="${off ? "off" : ""}"><input type="checkbox" data-m="${m.decision_id}" ${off ? "disabled" : ""} ${c.ticked[m.decision_id] ? "checked" : ""}>
+            <span><b>${fmtDate(m.date)} · ${esc(m.word)}</b> · ${esc(m.situation)}<br><span class="muted">Chose ${esc(optLabel(m.model_chose))} · your rule says ${m.rule_says ? esc(optLabel(m.rule_says)) : "–"}${m.already_agrees ? " · already agrees" : !m.allowed ? " · not possible here" : ""}</span></span></label>`; }).join("") : '<div class="muted">No past situations match yet. New sessions will be checked against this rule.</div>'}
+        ${ok.length ? `<div><button class="btn primary" id="m-add">Add ticked as corrections</button></div>` : ""}</div>`;
+    }
+  }
+  return `<div class="card"><h2>Clinician notes</h2>
+    <textarea id="sn" aria-label="Note" placeholder="When meaning hints have repeatedly failed, try a first-sound hint before moving to another picture.">${n ? esc(n.text) : ""}</textarea>
+    <div><button class="btn primary" id="sn-go">Save note</button></div>${body}</div>`;
+}
+function srvExamples(p, c, pending, used) {
+  const row = (x) => `<li><b>${esc(optLabel(x.preferred))}</b> <span class="muted">instead of ${esc(optLabel(x.model_chose))} · ${x.source === "note" ? "from a note" : "your correction"}</span>${x.note ? `<br><span class="muted">“${esc(x.note)}”</span>` : ""}</li>`;
+  const t = c.train;
+  let train;
+  if (t && !t.done) train = `<div class="progress" aria-label="Training progress"><span style="width:${Math.round(t.pct * 100)}%"></span></div><div class="muted">${esc(t.stage)}</div>`;
+  else if (t && t.done) train = `<div class="banner"><div><b>${esc(p.first)}'s next sessions use the updated model.</b> Trained earlier on these examples (training takes about 5 minutes).</div></div>`;
+  else train = `<div><button class="btn primary" id="train" ${pending.length ? "" : "disabled"}>Train</button> <span class="muted">${pending.length ? `on ${pending.length} pending correction${pending.length > 1 ? "s" : ""}` : "Add a correction first"}</span></div>`;
+  return `<div class="card"><h2>Corrections</h2>
+    <div class="two"><div><b>Pending (${pending.length})</b>${pending.length ? `<ul class="exlist">${pending.map(row).join("")}</ul>` : '<div class="muted">None. Use “I’d do this differently” in the review, or a note.</div>'}</div>
+      <div><b>Already learned (${used.length})</b>${used.length ? `<ul class="exlist used">${used.map(row).join("")}</ul>` : '<div class="muted">None yet.</div>'}</div></div>
+    ${train}</div>`;
+}
+function srvModels(c) {
+  const ms = (c.models || []).filter((m) => m.available !== false);
+  if (!ms.length) return "";
+  const act = ms.find((m) => m.active) || {};
+  return `<div class="card"><h2>Model in use</h2><div class="mstack"><select id="m-pick" aria-label="Model">${ms.map((m) => `<option value="${esc(m.id)}" ${m.active ? "selected" : ""}>${esc(m.label)}${m.active ? " (in use)" : ""}</option>`).join("")}</select>
+    <button class="btn" id="m-use">Use for next sessions</button></div><div class="muted">${esc(act.label || "")} · ${esc(act.id || "")}</div></div>`;
+}
+
+function srvWire(p) {
+  const c = S.cl[p.id], pid = p.id, on = (id, f) => { const el = $(id); if (el) el.onclick = f; };
+  on("cl-retry", () => clLoad(pid));
+  if (!c || !c.loaded) return;
+  const busy = async (f, okMsg) => { try { await f(); if (okMsg) toast(okMsg); } catch (e) { toast(e.message); } };
+  on("showall", () => { S.showAll = !S.showAll; renderClinician(); });
+  document.querySelectorAll("[data-sid]").forEach((b) => (b.onclick = async () => {
+    c.open = b.dataset.sid; c.review = null; renderClinician();
+    await busy(async () => { c.review = await api(`/sessions/${enc(c.open)}/review`); }); renderClinician(); }));
+  document.querySelectorAll("[data-audio]").forEach((b) => (b.onclick = () => new Audio(API + b.dataset.audio).play().catch(() => toast("Could not play the recording."))));
+  document.querySelectorAll("[data-redo]").forEach((b) => (b.onclick = () => { S.redo = b.dataset.redo; renderClinician(); }));
+  document.querySelectorAll("[data-csave]").forEach((b) => (b.onclick = () => {
+    const id = b.dataset.csave, sel = document.querySelector(`[data-pref="${id}"]`), note = document.querySelector(`[data-cnote="${id}"]`).value.trim();
+    if (!sel.value) return toast("Choose what you would do instead.");
+    const d = c.review.pictures.flatMap((pc) => pc.decisions).find((x) => x.decision_id === id);
+    busy(async () => { await jsend(`/decisions/${enc(id)}/correction`, { preferred: d.options[+sel.value], note: note || null }); S.redo = null; await clLoad(pid); }, "Correction saved.");
+  }));
+  on("sn-go", () => {
+    const text = $("sn").value.trim() || $("sn").placeholder;
+    busy(async () => { c.note = await jsend(`/patients/${enc(pid)}/notes`, { text }); c.editRule = false; c.matches = null; c.ticked = {}; await clLoad(pid); });
+  });
+  const confirm = (rule) => busy(async () => {
+    c.note = await jsend(`/notes/${enc(c.note.note_id)}/rule`, { rule }, "PUT"); c.editRule = false;
+    c.matches = await api(`/notes/${enc(c.note.note_id)}/matches`);
+    c.ticked = {}; c.matches.forEach((m) => { if (m.allowed && !m.already_agrees) c.ticked[m.decision_id] = true; });
+    await clLoad(pid);
+  }, "Rule confirmed.");
+  on("rule-ok", () => confirm(c.note.rule));
+  on("rule-form-ok", () => confirm(readRuleForm()));
+  on("rule-edit", () => { c.editRule = true; renderClinician(); });
+  on("rule-x", () => { c.note = null; c.matches = null; c.editRule = false; renderClinician(); });
+  document.querySelectorAll("[data-m]").forEach((b) => (b.onchange = () => { c.ticked[b.dataset.m] = b.checked; }));
+  on("m-add", () => {
+    const ids = Object.keys(c.ticked).filter((k) => c.ticked[k]);
+    if (!ids.length) return toast("Tick at least one situation.");
+    busy(async () => { await jsend(`/notes/${enc(c.note.note_id)}/examples`, { decision_ids: ids }); c.note = null; c.matches = null; await clLoad(pid); }, `${ids.length} correction${ids.length > 1 ? "s" : ""} added.`);
+  });
+  on("train", () => {   // demo shortcut: show progress, then activate the model prepared earlier on the same examples
+    const stages = [[0, "Preparing the corrections…"], [.15, "Training on the corrections…"], [.8, "Checking the updated model on new situations…"]];
+    const t0 = Date.now(); c.train = { pct: 0, stage: stages[0][1] }; renderClinician();
+    const tick = setInterval(() => {
+      const f = Math.min(1, (Date.now() - t0) / (TRAIN_SECONDS * 1000));
+      c.train.pct = f; c.train.stage = stages.filter(([s]) => f >= s).pop()[1];
+      const bar = document.querySelector(".progress span"), lab = document.querySelector(".progress + .muted");
+      if (bar) bar.style.width = Math.round(f * 100) + "%"; if (lab) lab.textContent = c.train.stage;
+      if (f < 1) return;
+      clearInterval(tick);
+      busy(async () => { await jsend(`/patients/${enc(pid)}/active-model`, { version: PREPARED_MODEL }); c.train.done = true; await clLoad(pid); })
+        .then(() => { if (!c.train.done) { c.train = null; renderClinician(); } });
+    }, 250);
+  });
+  on("m-use", () => { const v = $("m-pick").value; busy(async () => { await jsend(`/patients/${enc(pid)}/active-model`, { version: v }); c.train = null; await clLoad(pid); }, "Model changed for the next sessions."); });
 }
 
 const h0 = location.hash.slice(1); if (h0 === "patient" || h0 === "clinician") S.view = h0;

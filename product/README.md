@@ -62,10 +62,44 @@ at the real backend later needs no page changes.
 - Server patients appear first in the tablet's patient list (marked "server"). For them the picture,
   scoring and every next step come from the server, "Say it" records the microphone, and "Hint"
   sends "I'm not sure". The demo-input strip is hidden.
-- Simulated patients and the clinician view are unchanged; without `?api` the page makes no requests.
+- Without `?api` the page makes no requests and works exactly as before.
 - Not in the API yet, so skipped in server mode: the end-of-session "try a few again" review. The
   mood check is shown but not sent.
 - `?api&fakemic` sends a short silent clip instead of using the microphone (for browsers that block it).
 
 After editing `template.html`, `uv run python -m scripts.render_product` rebuilds `index.html` and
 `page.html` from the existing mock data without rerunning the simulator.
+
+## Server mode: clinician view (Ana)
+With `?api`, server patients (the demo patient Ana) get a clinician page built from the server
+(`docs/API_CONTRACT.md` §3, §6, §7, §8). Maria, James, Ruth and David stay as hardcoded simulator data,
+labelled "Simulated patient", display only (charts and session list, no corrections, notes or plan
+changes), so nobody compares their precomputed results with Ana's real ones.
+
+Ana's page, top to bottom:
+- Header and numbers: `GET /patients/{id}` (with the "Simulated" badge when flagged), last session,
+  pending corrections.
+- Naming per session: stacked bars (independent / with hint / unsuccessful) from
+  `GET /patients/{id}/sessions`, plus the error mix.
+- Session review: `GET /sessions/{id}/review`. Each picture with its tries (transcript, result,
+  `meaning` shown as "Wrong word", the hint shown, the scorer's reason, a play button for `audio_url`),
+  and after each try the next step the model chose and its `source` ("fallback (reason)" when
+  `fallback_reason` is set).
+- "I'd do this differently…" on each decision: that decision's other `options` →
+  `POST /decisions/{id}/correction` with an optional note.
+- Clinician notes: `POST /patients/{id}/notes` → the drafted rule → Confirm (`PUT /notes/{id}/rule`).
+  If `rule` is `null`, the `problem` is shown with a "when ___ → then ___" form that builds the rule.
+  Then `GET /notes/{id}/matches` lists past situations with checkboxes (rows with `allowed: false` or
+  `already_agrees` are disabled) → `POST /notes/{id}/examples`.
+- Corrections: `GET /patients/{id}/examples`, pending and already learned shown separately.
+- **Train (demo shortcut):** shows progress for about 10 seconds, then activates the prepared model with
+  `POST /patients/{id}/active-model` and says "Trained earlier on these examples (training takes about
+  5 minutes)". It never calls `POST /training-runs` (a real 5-minute GPU job).
+  The prepared model ID defaults to `ditto:demo-ana-after`; override with `?prepared=<id>`, and the
+  duration with `?trainsec=<seconds>`.
+- Model in use: `GET /patients/{id}/models` + the same activate call, to reset Ana to the "before"
+  model between takes.
+- Change log: `GET /patients/{id}/log`.
+
+Opening the clinician view or picking Ana reloads her record, so a session just done on the tablet
+shows up straight away.
