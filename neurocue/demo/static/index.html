@@ -545,8 +545,8 @@ function drawOpportunity(run) {
   else if (best) hl.innerHTML = `<b>No correction improves on the trained policy for this patient.</b> The cheapest deviation is "whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}" at ${best.mean_pp.toFixed(2)} pp per moment; every retry costs more, because an immediate retry loses the spacing benefit and a cued success lays a weaker trace. You can still teach a rule: the policy will adopt it (block C) and the course will show its price.`;
   else hl.textContent = "";
   // contexts for the form
-  const ctxs = [...new Set(run.trials.filter(t => t.prev && t.prev !== "correct").map(t => t.prev))];
-  $("#tctx").innerHTML = ctxs.map(c => `<option value="${c}">${CTX_LABEL(c)}</option>`).join("") + `<option value="any_error">${CTX_LABEL("any_error")}</option>`;
+  const formCtxs = [...new Set(run.trials.filter(t => t.prev && t.prev !== "correct").map(t => t.prev))];
+  $("#tctx").innerHTML = formCtxs.map(c => `<option value="${c}">${CTX_LABEL(c)}</option>`).join("") + `<option value="any_error">${CTX_LABEL("any_error")}</option>`;
   $("#tapply").disabled = false; updatePrediction();
 }
 function prefill(ctx, rule, cue) { $("#tctx").value = ctx; $("#trule").value = rule; $("#tcue").value = cue === "none" ? "" : cue; updatePrediction(); $("#teach").scrollIntoView({behavior: "smooth", block: "start"}); }
