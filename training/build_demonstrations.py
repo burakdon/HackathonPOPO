@@ -26,6 +26,7 @@ from core.practice import (AttemptSummary, CurrentExercise, DecisionContext, Pra
                            load_items, load_practice, next_ex, retry, valid_options)
 
 OUT = "data/demonstrations/demonstrator_a_v1.jsonl"
+OUT_V2 = "data/demonstrations/demonstrator_a_v2.jsonl"
 FAST_S = 4.0          # demonstrator A: "fast" independent answer
 LATE_MIN = 20.0       # demonstrator A: "late in the session"
 ERROR_HINT = {"sound": "first_sound", "meaning": "semantic", "no_response": "sentence_frame",
@@ -148,19 +149,20 @@ def build_context(spec: Spec, bank, rng: np.random.Generator) -> DecisionContext
     return DecisionContext(current=cur, history=history, session_minutes=spec.minutes)
 
 
-def build() -> list[dict]:
+def build(specs: list[Spec] | None = None, seed_offset: int = 0, version: str = "v1",
+          source: str = "team-authored (fictional scenario)") -> list[dict]:
     clinical, pcfg = load_clinical(), load_practice()
     bank = load_items(pcfg.items_path)
     rows = []
-    for k, spec in enumerate(SPECS):
-        rng = np.random.default_rng([2026, k])
+    for k, spec in enumerate(SPECS if specs is None else specs):
+        rng = np.random.default_rng([2026, seed_offset + k])
         ctx = build_context(spec, bank, rng)
         opts = valid_options(ctx, clinical.approved_cues, clinical.max_tier_step, pcfg.max_attempts_per_exercise)
         rule, accepted, why = demonstrator_a(ctx, opts)
         keys = [format_action(o) for o in opts]
         assert all(a in keys for a in accepted), (spec.family, accepted, keys)
         rows.append({
-            "example_id": f"demoA-v1-{spec.family}",
+            "example_id": f"demoA-{version}-{spec.family}",
             "split": spec.split,
             "family_id": spec.family,
             "context": ctx.model_dump(),
@@ -170,7 +172,7 @@ def build() -> list[dict]:
             "rule": rule,
             "note": why,
             "scope": "global",
-            "provenance": {"source": "team-authored (fictional scenario)",
+            "provenance": {"source": source,
                            "drafted_by": "AI assistant, from the written strategy of demonstrator A",
                            "review_status": "pending human review",
                            "demonstrator_id": "demonstrator-A"},
@@ -178,17 +180,73 @@ def build() -> list[dict]:
     return rows
 
 
+# ---- v2: the v1 situations unchanged plus generated training families (G001...).
+# Only the training split grows. Generated situations use as current picture only words that are
+# never the current picture of a dev or test situation, so none duplicates or rewords one of them.
+V2_PER_RULE = 9
+V2_SOURCE = "generated from the written strategy of demonstrator A (fictional scenario)"
+
+
+def v2_specs(seed: int = 7) -> list[Spec]:
+    """About V2_PER_RULE situations per rule variant (11 variants), with times and session
+    minutes spread across the 4 s and 20 min decision boundaries."""
+    held_out = {s.word for s in SPECS if s.split in ("dev", "test")}
+    words = [i.preferred_name for i in load_items().items if i.preferred_name not in held_out]
+    rng = np.random.default_rng(seed)
+    pick = lambda xs: xs[int(rng.integers(len(xs)))]
+    early = lambda: float(round(rng.uniform(2, 19.5), 0))
+    late = lambda: float(round(rng.uniform(20, 32), 0))
+    rt_err = lambda: round(float(rng.uniform(4.0, 10.0)), 1)
+    errs = ["sound", "meaning", "no_response", "unclassified"]
+
+    def chain(first_errors: list[str]) -> list[tuple]:
+        """Earlier incorrect attempts on the picture, each shown with the hint the demonstrator gives
+        after the attempt before it (the first one without a hint)."""
+        out = []
+        for k, e in enumerate(first_errors):
+            out.append(("none" if k == 0 else ERROR_HINT[first_errors[k - 1]], e, rt_err()))
+        return out
+    makers = {
+        "A": lambda: (("ok", round(float(rng.uniform(1.2, 4.0)), 1)), [], early()),
+        "B": lambda: (("ok", round(float(rng.uniform(4.1, 9.5)), 1)), [], early()),
+        "C": lambda: (("ok", round(float(rng.uniform(2.0, 8.0)), 1)),
+                      chain([pick(errs) for _ in range(int(rng.integers(1, 3)))]), early()),
+        **{f"D-{e}": (lambda e=e: ((e, 12.0 if e == "no_response" else rt_err()), [], early())) for e in errs},
+        "E": lambda: ((pick(errs), rt_err()), chain([pick(["meaning", "no_response", "unclassified"])]),
+                      early()),
+        "E-alt": lambda: ((pick(errs), rt_err()), chain(["sound"]), early()),
+        "F": lambda: ((pick(errs), rt_err()), chain([pick(errs), pick(errs)]), early()),
+        "G": lambda: ((pick(errs), rt_err()), chain([pick(errs)] * int(rng.integers(0, 2))), late()),
+    }
+    specs, n = [], 0
+    for rule, make in makers.items():
+        for _ in range(V2_PER_RULE):
+            n += 1
+            latest, prior, minutes = make()
+            specs.append(Spec(f"G{n:03d}", "train", pick(words), latest, prior, minutes=minutes,
+                              n_earlier=int(rng.integers(1, 5))))
+    return specs
+
+
+def build_v2() -> list[dict]:
+    v1 = build()
+    gen = build(v2_specs(), seed_offset=1000, version="v2", source=V2_SOURCE)
+    return v1 + gen
+
+
 def dataset_hash(rows: list[dict]) -> str:
     return hashlib.sha256("\n".join(json.dumps(r, sort_keys=True) for r in rows).encode()).hexdigest()[:16]
 
 
 def main() -> None:
-    rows = build()
-    out = resolve(OUT)
+    import sys
+    v2 = "--v2" in sys.argv
+    rows = build_v2() if v2 else build()
+    out = resolve(OUT_V2 if v2 else OUT)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("".join(json.dumps(r) + "\n" for r in rows))
     from collections import Counter
-    print(f"wrote {len(rows)} examples to {OUT} (hash {dataset_hash(rows)})")
+    print(f"wrote {len(rows)} examples to {out.name} (hash {dataset_hash(rows)})")
     print("splits:", dict(Counter(r["split"] for r in rows)))
     for split in ("train", "dev", "test"):
         print(split, dict(sorted(Counter(r["rule"] for r in rows if r["split"] == split).items())))
