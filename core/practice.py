@@ -59,6 +59,9 @@ class LLMConfig(BaseModel):
     max_new_tokens: int = Field(ge=4, le=64)
     timeout_s: float = Field(gt=0)
     runs_dir: str                         # where training runs (adapters + manifests) live
+    # Delivered adapters committed to the repo: <models_dir>/<run_id>/ holds the adapter files of the
+    # run's delivered stage (manifest field "delivered_stage") next to its manifest.
+    models_dir: str = "models/ditto_llm"
 
 
 class PracticeConfig(BaseModel):

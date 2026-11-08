@@ -75,3 +75,16 @@ def test_every_shipped_demonstration_round_trips_through_the_team_format():
         assert back["preferred"] == row["preferred"], row["example_id"]
         assert back["options"] == row["options"], row["example_id"]
         assert example_messages(back, 4) == example_messages(row, 4), row["example_id"]
+
+
+def test_decide_action_id_returns_the_most_likely_available_action():
+    from training.team_format import decide_action_id
+
+    class Runtime:
+        def score(self, msgs, keys, adapter=None):
+            self.keys, self.text = keys, msgs[-1]["content"]
+            return [-5.0, -4.0, -3.0, -1.0], 0.01            # next tier 2 is the most likely
+
+    rt = Runtime()
+    assert decide_action_id(rt, STATE, "ditto", 4) == {"action_id": "act-n2"}
+    assert " = new picture, same level (tier 2)" in rt.text            # prompt format v2

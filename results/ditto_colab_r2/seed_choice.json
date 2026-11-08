@@ -1,0 +1,29 @@
+{
+ "seed_info": {
+  "0": {
+   "run": "sft200-g2-s0",
+   "ditto_round": "round3",
+   "ditto_dev": 29,
+   "sft_dev": 25,
+   "delivered_stage": "round3",
+   "delivered_dev": 29
+  },
+  "1": {
+   "run": "sft200-g2-s1",
+   "ditto_round": "round1",
+   "ditto_dev": 26,
+   "sft_dev": 26,
+   "delivered_stage": "round1",
+   "delivered_dev": 26
+  },
+  "2": {
+   "run": "sft200-g2-s2",
+   "ditto_round": "round2",
+   "ditto_dev": 26,
+   "sft_dev": 22,
+   "delivered_stage": "round2",
+   "delivered_dev": 26
+  }
+ },
+ "best_seed": 0
+}

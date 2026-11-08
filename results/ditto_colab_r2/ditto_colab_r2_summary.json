@@ -1,0 +1,368 @@
+{
+ "delivered": "DITTO (SFT 200 steps + gentle setting g2, best dev round per seed)",
+ "why": "gentle DITTO g2 reaches 29/33 on dev at round3, above the best SFT-only candidate (25/33 at 200 steps)",
+ "best_seed": 0,
+ "seed_info": {
+  "0": {
+   "run": "sft200-g2-s0",
+   "ditto_round": "round3",
+   "ditto_dev": 29,
+   "sft_dev": 25,
+   "delivered_stage": "round3",
+   "delivered_dev": 29
+  },
+  "1": {
+   "run": "sft200-g2-s1",
+   "ditto_round": "round1",
+   "ditto_dev": 26,
+   "sft_dev": 26,
+   "delivered_stage": "round1",
+   "delivered_dev": 26
+  },
+  "2": {
+   "run": "sft200-g2-s2",
+   "ditto_round": "round2",
+   "ditto_dev": 26,
+   "sft_dev": 22,
+   "delivered_stage": "round2",
+   "delivered_dev": 26
+  }
+ },
+ "analysis": {
+  "test": {
+   "summary": [
+    {
+     "model": "base",
+     "runs": 1,
+     "agree": "16/55 (29%, CI 18-42%)",
+     "range over seeds": "",
+     "valid output": "55.0/55",
+     "fallbacks": "0.0",
+     "median latency ms": 57
+    },
+    {
+     "model": "prompted (20 demos)",
+     "runs": 1,
+     "agree": "21/55 (38%, CI 25-51%)",
+     "range over seeds": "",
+     "valid output": "55.0/55",
+     "fallbacks": "0.0",
+     "median latency ms": 768
+    },
+    {
+     "model": "prompted_all (128 demos)",
+     "runs": 1,
+     "agree": "15/55 (27%, CI 16-38%)",
+     "range over seeds": "",
+     "valid output": "55.0/55",
+     "fallbacks": "0.0",
+     "median latency ms": 6512
+    },
+    {
+     "model": "SFT",
+     "runs": 3,
+     "agree": "42.33/55 (77%, CI 68-85%)",
+     "range over seeds": "40-44",
+     "valid output": "55.0/55",
+     "fallbacks": "0.0",
+     "median latency ms": 78
+    },
+    {
+     "model": "DITTO [delivered]",
+     "runs": 3,
+     "agree": "41.33/55 (75%, CI 65-84%)",
+     "range over seeds": "38-45",
+     "valid output": "55.0/55",
+     "fallbacks": "0.0",
+     "median latency ms": 79
+    },
+    {
+     "model": "bandit",
+     "runs": 1,
+     "agree": "15/55 (27%, CI 16-40%)",
+     "range over seeds": "",
+     "valid output": "n/a",
+     "fallbacks": "0.0",
+     "median latency ms": 0
+    }
+   ],
+   "paired": [
+    {
+     "comparison": "DITTO - base",
+     "difference": 46.1,
+     "95% CI": "32.1 to 59.4"
+    },
+    {
+     "comparison": "DITTO - prompted",
+     "difference": 37.0,
+     "95% CI": "18.2 to 55.8"
+    },
+    {
+     "comparison": "DITTO - prompted_all",
+     "difference": 47.9,
+     "95% CI": "29.1 to 65.5"
+    },
+    {
+     "comparison": "DITTO - SFT",
+     "difference": -1.8,
+     "95% CI": "-7.3 to 4.2"
+    },
+    {
+     "comparison": "DITTO - bandit",
+     "difference": 47.9,
+     "95% CI": "32.1 to 63.0"
+    }
+   ],
+   "per_rule": {
+    "A": {
+     "base": "1/5 (20%, CI 0-60%)",
+     "prompted": "2/5 (40%, CI 0-80%)",
+     "prompted_all": "0/5 (0%, CI 0-0%)",
+     "SFT": "1.33/5 (27%, CI 0-53%)",
+     "DITTO": "2.33/5 (47%, CI 7-87%)",
+     "bandit": "0/5 (0%, CI 0-0%)"
+    },
+    "B": {
+     "base": "4/5 (80%, CI 40-100%)",
+     "prompted": "4/5 (80%, CI 40-100%)",
+     "prompted_all": "3/5 (60%, CI 20-100%)",
+     "SFT": "4.33/5 (87%, CI 73-100%)",
+     "DITTO": "3.33/5 (67%, CI 40-93%)",
+     "bandit": "3/5 (60%, CI 20-100%)"
+    },
+    "C": {
+     "base": "4/5 (80%, CI 40-100%)",
+     "prompted": "2/5 (40%, CI 0-80%)",
+     "prompted_all": "2/5 (40%, CI 0-80%)",
+     "SFT": "4/5 (80%, CI 67-93%)",
+     "DITTO": "5/5 (100%, CI 100-100%)",
+     "bandit": "2/5 (40%, CI 0-80%)"
+    },
+    "D-meaning": {
+     "base": "4/5 (80%, CI 40-100%)",
+     "prompted": "0/5 (0%, CI 0-0%)",
+     "prompted_all": "0/5 (0%, CI 0-0%)",
+     "SFT": "4.67/5 (93%, CI 80-100%)",
+     "DITTO": "5/5 (100%, CI 100-100%)",
+     "bandit": "1/5 (20%, CI 0-60%)"
+    },
+    "D-no_response": {
+     "base": "0/5 (0%, CI 0-0%)",
+     "prompted": "0/5 (0%, CI 0-0%)",
+     "prompted_all": "0/5 (0%, CI 0-0%)",
+     "SFT": "4.67/5 (93%, CI 80-100%)",
+     "DITTO": "4.67/5 (93%, CI 80-100%)",
+     "bandit": "0/5 (0%, CI 0-0%)"
+    },
+    "D-sound": {
+     "base": "0/5 (0%, CI 0-0%)",
+     "prompted": "1/5 (20%, CI 0-60%)",
+     "prompted_all": "0/5 (0%, CI 0-0%)",
+     "SFT": "5/5 (100%, CI 100-100%)",
+     "DITTO": "5/5 (100%, CI 100-100%)",
+     "bandit": "0/5 (0%, CI 0-0%)"
+    },
+    "D-unclassified": {
+     "base": "0/5 (0%, CI 0-0%)",
+     "prompted": "0/5 (0%, CI 0-0%)",
+     "prompted_all": "0/5 (0%, CI 0-0%)",
+     "SFT": "5/5 (100%, CI 100-100%)",
+     "DITTO": "5/5 (100%, CI 100-100%)",
+     "bandit": "1/5 (20%, CI 0-60%)"
+    },
+    "E": {
+     "base": "2/5 (40%, CI 0-80%)",
+     "prompted": "5/5 (100%, CI 100-100%)",
+     "prompted_all": "0/5 (0%, CI 0-0%)",
+     "SFT": "3.67/5 (73%, CI 53-93%)",
+     "DITTO": "3.67/5 (73%, CI 53-93%)",
+     "bandit": "0/5 (0%, CI 0-0%)"
+    },
+    "E-alt": {
+     "base": "0/5 (0%, CI 0-0%)",
+     "prompted": "0/5 (0%, CI 0-0%)",
+     "prompted_all": "0/5 (0%, CI 0-0%)",
+     "SFT": "5/5 (100%, CI 100-100%)",
+     "DITTO": "4.33/5 (87%, CI 73-100%)",
+     "bandit": "2/5 (40%, CI 0-80%)"
+    },
+    "F": {
+     "base": "1/5 (20%, CI 0-60%)",
+     "prompted": "5/5 (100%, CI 100-100%)",
+     "prompted_all": "5/5 (100%, CI 100-100%)",
+     "SFT": "3.33/5 (67%, CI 47-87%)",
+     "DITTO": "1.67/5 (33%, CI 7-67%)",
+     "bandit": "4/5 (80%, CI 40-100%)"
+    },
+    "G": {
+     "base": "0/5 (0%, CI 0-0%)",
+     "prompted": "2/5 (40%, CI 0-80%)",
+     "prompted_all": "5/5 (100%, CI 100-100%)",
+     "SFT": "1.33/5 (27%, CI 0-53%)",
+     "DITTO": "1.33/5 (27%, CI 0-53%)",
+     "bandit": "2/5 (40%, CI 0-80%)"
+    }
+   }
+  },
+  "test_v1": {
+   "summary": [
+    {
+     "model": "base",
+     "runs": 1,
+     "agree": "3/10 (30%, CI 10-60%)",
+     "range over seeds": "",
+     "valid output": "10.0/10",
+     "fallbacks": "0.0",
+     "median latency ms": 55
+    },
+    {
+     "model": "prompted (20 demos)",
+     "runs": 1,
+     "agree": "5/10 (50%, CI 20-80%)",
+     "range over seeds": "",
+     "valid output": "10.0/10",
+     "fallbacks": "0.0",
+     "median latency ms": 465
+    },
+    {
+     "model": "prompted_all (128 demos)",
+     "runs": 1,
+     "agree": "4/10 (40%, CI 10-70%)",
+     "range over seeds": "",
+     "valid output": "10.0/10",
+     "fallbacks": "0.0",
+     "median latency ms": 3915
+    },
+    {
+     "model": "SFT",
+     "runs": 3,
+     "agree": "7.67/10 (77%, CI 57-93%)",
+     "range over seeds": "6-9",
+     "valid output": "10.0/10",
+     "fallbacks": "0.0",
+     "median latency ms": 79
+    },
+    {
+     "model": "DITTO [delivered]",
+     "runs": 3,
+     "agree": "7/10 (70%, CI 50-90%)",
+     "range over seeds": "6-8",
+     "valid output": "10.0/10",
+     "fallbacks": "0.0",
+     "median latency ms": 71
+    },
+    {
+     "model": "bandit",
+     "runs": 1,
+     "agree": "4/10 (40%, CI 10-70%)",
+     "range over seeds": "",
+     "valid output": "n/a",
+     "fallbacks": "0.0",
+     "median latency ms": 0
+    }
+   ],
+   "paired": [
+    {
+     "comparison": "DITTO - base",
+     "difference": 40.0,
+     "95% CI": "-6.7 to 80.0"
+    },
+    {
+     "comparison": "DITTO - prompted",
+     "difference": 20.0,
+     "95% CI": "-16.7 to 60.0"
+    },
+    {
+     "comparison": "DITTO - prompted_all",
+     "difference": 30.0,
+     "95% CI": "-16.7 to 73.3"
+    },
+    {
+     "comparison": "DITTO - SFT",
+     "difference": -6.7,
+     "95% CI": "-23.3 to 10.0"
+    },
+    {
+     "comparison": "DITTO - bandit",
+     "difference": 30.0,
+     "95% CI": "-6.7 to 63.3"
+    }
+   ],
+   "per_rule": {
+    "A": {
+     "base": "0/2 (0%, CI 0-0%)",
+     "prompted": "0/2 (0%, CI 0-0%)",
+     "prompted_all": "0/2 (0%, CI 0-0%)",
+     "SFT": "1.67/2 (84%, CI 67-100%)",
+     "DITTO": "1.67/2 (84%, CI 67-100%)",
+     "bandit": "0/2 (0%, CI 0-0%)"
+    },
+    "B": {
+     "base": "1/1 (100%, CI 100-100%)",
+     "prompted": "1/1 (100%, CI 100-100%)",
+     "prompted_all": "1/1 (100%, CI 100-100%)",
+     "SFT": "0.67/1 (67%, CI 67-67%)",
+     "DITTO": "1/1 (100%, CI 100-100%)",
+     "bandit": "1/1 (100%, CI 100-100%)"
+    },
+    "C": {
+     "base": "0/1 (0%, CI 0-0%)",
+     "prompted": "1/1 (100%, CI 100-100%)",
+     "prompted_all": "0/1 (0%, CI 0-0%)",
+     "SFT": "0.67/1 (67%, CI 67-67%)",
+     "DITTO": "1/1 (100%, CI 100-100%)",
+     "bandit": "1/1 (100%, CI 100-100%)"
+    },
+    "D-sound": {
+     "base": "0/1 (0%, CI 0-0%)",
+     "prompted": "1/1 (100%, CI 100-100%)",
+     "prompted_all": "0/1 (0%, CI 0-0%)",
+     "SFT": "1/1 (100%, CI 100-100%)",
+     "DITTO": "0.67/1 (67%, CI 67-67%)",
+     "bandit": "1/1 (100%, CI 100-100%)"
+    },
+    "D-unclassified": {
+     "base": "0/1 (0%, CI 0-0%)",
+     "prompted": "0/1 (0%, CI 0-0%)",
+     "prompted_all": "0/1 (0%, CI 0-0%)",
+     "SFT": "1/1 (100%, CI 100-100%)",
+     "DITTO": "1/1 (100%, CI 100-100%)",
+     "bandit": "0/1 (0%, CI 0-0%)"
+    },
+    "E-alt": {
+     "base": "0/1 (0%, CI 0-0%)",
+     "prompted": "0/1 (0%, CI 0-0%)",
+     "prompted_all": "0/1 (0%, CI 0-0%)",
+     "SFT": "1/1 (100%, CI 100-100%)",
+     "DITTO": "1/1 (100%, CI 100-100%)",
+     "bandit": "0/1 (0%, CI 0-0%)"
+    },
+    "F": {
+     "base": "1/2 (50%, CI 0-100%)",
+     "prompted": "2/2 (100%, CI 100-100%)",
+     "prompted_all": "2/2 (100%, CI 100-100%)",
+     "SFT": "1.67/2 (84%, CI 67-100%)",
+     "DITTO": "0.67/2 (34%, CI 33-33%)",
+     "bandit": "1/2 (50%, CI 0-100%)"
+    },
+    "G": {
+     "base": "1/1 (100%, CI 100-100%)",
+     "prompted": "0/1 (0%, CI 0-0%)",
+     "prompted_all": "1/1 (100%, CI 100-100%)",
+     "SFT": "0/1 (0%, CI 0-0%)",
+     "DITTO": "0/1 (0%, CI 0-0%)",
+     "bandit": "0/1 (0%, CI 0-0%)"
+    }
+   }
+  }
+ },
+ "gpu": "NVIDIA A100-SXM4-40GB",
+ "dtype": "bfloat16",
+ "commit": "2d162a12ac4e10e46f90a63d40e328988db66f3c",
+ "stage_minutes": {
+  "tuning_sft": 3.0,
+  "tuning_ditto": 8.5,
+  "seeds": 5.0,
+  "test": 8.8
+ }
+}

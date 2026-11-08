@@ -71,27 +71,36 @@ class ModelRegistry:
     def __init__(self, pcfg: PracticeConfig) -> None:
         self.pcfg = pcfg
         self.runs_dir = resolve(pcfg.llm.runs_dir)
+        self.models_dir = resolve(pcfg.llm.models_dir)
         self._policies: dict[str, LLMDecisionPolicy] = {}
         self._lock = threading.Lock()
         self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)   # one generation at a time
 
     # ---- discovery
     def runs(self) -> list[dict]:
-        out = []
-        if not self.runs_dir.exists():
-            return out
-        for m in sorted(self.runs_dir.glob("*/manifest.json")):
-            try:
-                out.append(json.loads(m.read_text()))
-            except json.JSONDecodeError:
+        """Training runs (runs_dir) and delivered adapters (models_dir); a run in runs_dir wins."""
+        out, seen = [], set()
+        for d in (self.runs_dir, self.models_dir):
+            if not d.exists():
                 continue
+            for m in sorted(d.glob("*/manifest.json")):
+                try:
+                    man = json.loads(m.read_text())
+                except json.JSONDecodeError:
+                    continue
+                if man.get("run_id") not in seen:
+                    seen.add(man.get("run_id"))
+                    out.append(man)
         return out
 
+    def run_dir(self, run_id: str) -> Path:
+        for d in (self.runs_dir, self.models_dir):
+            if (d / run_id / "manifest.json").exists():
+                return d / run_id
+        raise KeyError(f"no training run {run_id!r}")
+
     def run(self, run_id: str) -> dict:
-        p = self.runs_dir / run_id / "manifest.json"
-        if not p.exists():
-            raise KeyError(f"no training run {run_id!r}")
-        return json.loads(p.read_text())
+        return json.loads((self.run_dir(run_id) / "manifest.json").read_text())
 
     def versions(self) -> list[dict]:
         ok, why = llm_available()
@@ -127,8 +136,11 @@ class ModelRegistry:
         if m.get("prompt_format", "v1") != self.pcfg.llm.prompt_format:
             raise ValueError(f"run {run_id} was trained with prompt format {m.get('prompt_format', 'v1')}, "
                              f"but this config renders prompts in {self.pcfg.llm.prompt_format}")
-        sub = "sft" if kind == "sft" else (rnd or m["final_adapter"])
-        path = self.runs_dir / run_id / sub
+        sub = "sft" if kind == "sft" else (rnd or m.get("delivered_stage") or m["final_adapter"])
+        base = self.run_dir(run_id)
+        path = base / sub
+        if not path.exists() and sub == m.get("delivered_stage") and (base / "adapter_config.json").exists():
+            path = base                       # delivered layout: the stage's adapter files sit next to the manifest
         if not path.exists():
             raise FileNotFoundError(f"adapter files missing: {path}")
         name = re.sub(r"[^A-Za-z0-9_-]", "_", f"{kind}-{run_id}-{sub}")    # PEFT forbids "." in adapter names

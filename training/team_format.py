@@ -147,6 +147,16 @@ def to_action_id(model_text: str, state: dict, bank: ItemBank | None = None) -> 
     return {"action_id": ids[a.key()]}
 
 
+def decide_action_id(runtime, state: dict, adapter: str | None, history_in_prompt: int, fmt: str = "v2",
+                     bank: ItemBank | None = None) -> dict:
+    """patient_state -> {"action_id"} with option scoring (decoding = "score"): the most likely of the
+    state's available actions under `adapter` (None = the unadapted base). Always one of them."""
+    ctx, options, ids = to_trainer(state, bank)
+    keys = [format_action(o) for o in options]
+    lps, _ = runtime.score(messages(ctx, options, history_in_prompt, fmt=fmt), keys, adapter)
+    return {"action_id": ids[keys[max(range(len(keys)), key=lps.__getitem__)]]}
+
+
 def demonstration_to_row(demo: dict, state: dict, bank: ItemBank | None = None) -> dict:
     """demonstration.json + the patient_state it points to -> one trainer JSONL row."""
     ctx, options, ids = to_trainer(state, bank)
