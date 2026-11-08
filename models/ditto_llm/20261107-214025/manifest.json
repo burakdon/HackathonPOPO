@@ -1,0 +1,287 @@
+{
+ "run_id": "20261107-214025",
+ "method": "DITTO (SFT + iterative DPO with expert/replay/intermodel comparisons)",
+ "status": "completed",
+ "started": "2026-11-08T02:40:25.509742+00:00",
+ "smoke": false,
+ "base_model": "Qwen/Qwen3-1.7B",
+ "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+ "template": {
+  "add_generation_prompt": true,
+  "enable_thinking": false
+ },
+ "history_in_prompt": 4,
+ "demonstrations": {
+  "path": "data/demonstrations/demonstrator_a_v1.jsonl",
+  "extra_path": null,
+  "example_ids": [
+   "demoA-v1-F01",
+   "demoA-v1-F02",
+   "demoA-v1-F03",
+   "demoA-v1-F04",
+   "demoA-v1-F05",
+   "demoA-v1-F06",
+   "demoA-v1-F07",
+   "demoA-v1-F08",
+   "demoA-v1-F09",
+   "demoA-v1-F10",
+   "demoA-v1-F11",
+   "demoA-v1-F12",
+   "demoA-v1-F13",
+   "demoA-v1-F14",
+   "demoA-v1-F15",
+   "demoA-v1-F16",
+   "demoA-v1-F17",
+   "demoA-v1-F18",
+   "demoA-v1-F19",
+   "demoA-v1-F20"
+  ],
+  "hash": "a6044afcffbecf09",
+  "n": 20
+ },
+ "config": {
+  "practice_config": "configs/practice.yaml",
+  "demonstrations": "data/demonstrations/demonstrator_a_v1.jsonl",
+  "seed": 0,
+  "lora": {
+   "r": 16,
+   "alpha": 32,
+   "dropout": 0.0,
+   "target_modules": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj"
+   ]
+  },
+  "sft": {
+   "max_steps": 30,
+   "batch_size": 4,
+   "learning_rate": 0.0002,
+   "stop_loss": 0.15
+  },
+  "ditto": {
+   "rounds": 3,
+   "samples_per_prompt": 6,
+   "temperature": 1.0,
+   "top_k": 50,
+   "steps_per_round": 15,
+   "batch_size": 4,
+   "learning_rate": 5e-05,
+   "beta": 0.1,
+   "frac_expert": 0.7,
+   "frac_replay": 0.2,
+   "frac_intermodel": 0.1,
+   "rescale_batch": 3
+  }
+ },
+ "seed": 0,
+ "device": "mps",
+ "rounds": [
+  {
+   "round": 1,
+   "samples": 120,
+   "samples_matching_demonstrator": 45,
+   "samples_unparseable": 0,
+   "pairs": {
+    "available": {
+     "expert": 75,
+     "replay": 0,
+     "intermodel": 0
+    },
+    "used": {
+     "expert": 42,
+     "replay": 0,
+     "intermodel": 0
+    },
+    "dropped": {
+     "rejected_is_accepted": 45,
+     "equivalent_pair": 0
+    },
+    "target_total": 60
+   },
+   "steps": 15,
+   "loss": [
+    0.694,
+    0.6787,
+    0.6813,
+    0.6872,
+    0.6575,
+    0.6867,
+    0.692,
+    0.6624,
+    0.6325,
+    0.5886,
+    0.561,
+    0.6026,
+    0.5965,
+    0.4109,
+    0.5566
+   ],
+   "reward_accuracy": [
+    0.5,
+    0.75,
+    0.5,
+    0.75,
+    0.75,
+    0.5,
+    0.75,
+    0.75,
+    1.0,
+    0.75,
+    0.75,
+    0.5,
+    0.75,
+    1.0,
+    0.75
+   ],
+   "adapter": "round1"
+  },
+  {
+   "round": 2,
+   "samples": 120,
+   "samples_matching_demonstrator": 25,
+   "samples_unparseable": 59,
+   "pairs": {
+    "available": {
+     "expert": 95,
+     "replay": 75,
+     "intermodel": 409
+    },
+    "used": {
+     "expert": 42,
+     "replay": 12,
+     "intermodel": 6
+    },
+    "dropped": {
+     "rejected_is_accepted": 263,
+     "equivalent_pair": 118
+    },
+    "target_total": 60
+   },
+   "steps": 15,
+   "loss": [
+    1.2499,
+    0.7476,
+    0.6636,
+    0.4652,
+    0.242,
+    0.5693,
+    0.6167,
+    0.7071,
+    1.0224,
+    0.367,
+    0.8044,
+    0.4326,
+    0.1879,
+    0.1326,
+    0.5061
+   ],
+   "reward_accuracy": [
+    0.0,
+    0.5,
+    0.5,
+    0.75,
+    1.0,
+    0.5,
+    0.25,
+    0.75,
+    0.25,
+    0.75,
+    0.5,
+    0.5,
+    1.0,
+    1.0,
+    0.75
+   ],
+   "adapter": "round2"
+  },
+  {
+   "round": 3,
+   "samples": 120,
+   "samples_matching_demonstrator": 57,
+   "samples_unparseable": 1,
+   "pairs": {
+    "available": {
+     "expert": 63,
+     "replay": 170,
+     "intermodel": 1234
+    },
+    "used": {
+     "expert": 42,
+     "replay": 12,
+     "intermodel": 6
+    },
+    "dropped": {
+     "rejected_is_accepted": 473,
+     "equivalent_pair": 580
+    },
+    "target_total": 60
+   },
+   "steps": 15,
+   "loss": [
+    0.5728,
+    0.7374,
+    0.6327,
+    0.8038,
+    0.6978,
+    0.493,
+    0.6177,
+    0.5891,
+    0.6793,
+    0.579,
+    0.6642,
+    0.4249,
+    0.5328,
+    0.4951,
+    0.4585
+   ],
+   "reward_accuracy": [
+    0.5,
+    0.5,
+    0.5,
+    0.0,
+    0.5,
+    0.5,
+    1.0,
+    1.0,
+    0.75,
+    0.5,
+    0.5,
+    1.0,
+    1.0,
+    0.75,
+    0.75
+   ],
+   "adapter": "round3"
+  }
+ ],
+ "constraints": {
+  "approved_cues": [
+   "none",
+   "first_sound",
+   "first_letter",
+   "sentence_frame",
+   "semantic"
+  ],
+  "max_tier_step": 1,
+  "max_attempts_per_exercise": 3
+ },
+ "max_prompt_tokens": 317,
+ "sft": {
+  "steps": 6,
+  "loss": [
+   0.9319,
+   1.0661,
+   0.2632,
+   0.5238,
+   0.2625,
+   0.1411
+  ],
+  "adapter": "sft"
+ },
+ "final_adapter": "round3",
+ "seconds": 269.8,
+ "peak_mps_driver_gb": 4.11,
+ "finished": "2026-11-08T02:44:55.264849+00:00"
+}

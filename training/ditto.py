@@ -61,10 +61,11 @@ def examples_hash(rows: list[dict]) -> str:
     return hashlib.sha256("\n".join(json.dumps(r, sort_keys=True) for r in rows).encode()).hexdigest()[:16]
 
 
-def example_messages(row: dict, history_in_prompt: int, few_shot: list[tuple[str, str]] | None = None):
+def example_messages(row: dict, history_in_prompt: int, few_shot: list[tuple[str, str]] | None = None,
+                     fmt: str = "v1"):
     ctx = DecisionContext(**row["context"])
     opts = [parse_action(o) for o in row["options"]]
-    return messages(ctx, opts, history_in_prompt, few_shot)
+    return messages(ctx, opts, history_in_prompt, few_shot, fmt)
 
 
 def equivalent(a: str, b: str) -> bool:
@@ -187,6 +188,18 @@ def answer_logps(model, enc: Encoder, items) -> "torch.Tensor":
     return (lp * m).sum(-1)
 
 
+def sample_options(model, enc: Encoder, prompt: list[int], options: list[str], n: int, temperature: float,
+                   gen) -> list[str]:
+    """n alternatives drawn from the policy's distribution over the valid options (softmax of their
+    summed log-probabilities / temperature), for decoding = "score": the alternatives are then always
+    valid actions, matching how that policy decides at inference."""
+    import torch
+    with torch.inference_mode():
+        lp = answer_logps(model, enc, [(prompt, enc.answer_ids(o)) for o in options]).float().cpu()
+    probs = torch.softmax(lp / temperature, dim=0)
+    return [options[i] for i in torch.multinomial(probs, n, replacement=True, generator=gen).tolist()]
+
+
 def sample(model, enc: Encoder, prompt: list[int], n: int, cfg: dict, max_new: int) -> list[str]:
     import torch
     ids = torch.tensor([prompt], device=enc.device)
@@ -196,6 +209,25 @@ def sample(model, enc: Encoder, prompt: list[int], n: int, cfg: dict, max_new: i
                              num_return_sequences=n, max_new_tokens=max_new,
                              pad_token_id=enc.end, eos_token_id=enc.end)
     return [enc.tok.decode(o[len(prompt):], skip_special_tokens=True).strip() for o in out]
+
+
+def option_agreement(model, enc: Encoder, rows: list[dict], prompts: dict[str, list[int]]) -> int:
+    """How many rows' most likely valid option (summed log-probability, as decoding = "score") is
+    among the row's accepted actions. Used to evaluate the dev split after every stage."""
+    import torch
+    hits = 0
+    with torch.inference_mode():
+        for r in rows:
+            lp = answer_logps(model, enc, [(prompts[r["example_id"]], enc.answer_ids(o)) for o in r["options"]])
+            hits += r["options"][int(lp.argmax())] in r["accepted"]
+    return hits
+
+
+def select_stage(agreement: dict[str, int]) -> str:
+    """Best stage by dev agreement; ties go to the earlier stage ("sft" before "round1" ...), so DITTO
+    rounds are kept only when they improve on dev."""
+    order = list(agreement)
+    return max(order, key=lambda k: (agreement[k], -order.index(k)))
 
 
 # --------------------------------------------------------------------------------------------
@@ -234,6 +266,8 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
         "run_id": run_id, "method": "DITTO (SFT + iterative DPO with expert/replay/intermodel comparisons)",
         "status": "running", "started": datetime.now(timezone.utc).isoformat(), "smoke": smoke,
         "base_model": base, "base_revision": revision, "template": TEMPLATE_SETTINGS,
+        "dtype": pcfg.llm.dtype, "decoding": pcfg.llm.decoding, "init_adapter": cfg.get("init_adapter"),
+        "prompt_format": pcfg.llm.prompt_format,
         "history_in_prompt": pcfg.history_in_prompt,
         "demonstrations": {"path": cfg["demonstrations"], "extra_path": extra_demos,
                            "example_ids": [r["example_id"] for r in rows], "hash": examples_hash(rows),
@@ -252,14 +286,23 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
         t_start = time.time()
         dev = manifest["device"]
         tok = AutoTokenizer.from_pretrained(base, revision=revision)
-        model = AutoModelForCausalLM.from_pretrained(base, revision=revision, dtype=torch.bfloat16).to(dev)
+        model = AutoModelForCausalLM.from_pretrained(base, revision=revision,
+                                                     dtype=getattr(torch, pcfg.llm.dtype)).to(dev)
         model.config.use_cache = False
         enc = Encoder(tok, dev)
         lcfg = cfg["lora"]
         lora = LoraConfig(r=lcfg["r"], lora_alpha=lcfg["alpha"], lora_dropout=lcfg["dropout"],
                           target_modules=lcfg["target_modules"], task_type="CAUSAL_LM")
-        model = get_peft_model(model, lora, adapter_name="sft")
-        prompts = {r["example_id"]: enc.prompt_ids(example_messages(r, pcfg.history_in_prompt)) for r in rows}
+        if cfg.get("init_adapter"):
+            # Per-patient run: start from the shared adapter (same LoRA shape), which is also the
+            # starting point of the brief SFT stage and hence of the DPO reference.
+            from peft import PeftModel
+            model = PeftModel.from_pretrained(model, str(resolve(cfg["init_adapter"])), adapter_name="sft",
+                                              is_trainable=True)
+        else:
+            model = get_peft_model(model, lora, adapter_name="sft")
+        fmt = pcfg.llm.prompt_format
+        prompts = {r["example_id"]: enc.prompt_ids(example_messages(r, pcfg.history_in_prompt, fmt=fmt)) for r in rows}
         demo_ids = {r["example_id"]: enc.answer_ids(r["preferred"]) for r in rows}
         manifest["max_prompt_tokens"] = max(len(p) for p in prompts.values())
 
@@ -278,24 +321,49 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
             opt.step()
             opt.zero_grad()
             sft_log.append(round(loss.item(), 4))
-            if loss.item() < s["stop_loss"]:
+            if s.get("stop_loss") and loss.item() < s["stop_loss"]:       # 0 or null: fixed number of steps
                 break
         save_adapter(model, "sft", out / "sft")
         manifest["sft"] = {"steps": len(sft_log), "loss": sft_log, "adapter": "sft"}
         write_manifest()
         print(f"SFT: {len(sft_log)} steps, last loss {sft_log[-1]}")
 
+        # Optional selection on a held-out split (cfg["select_on"], e.g. "dev"): agreement after SFT
+        # (stage "sft") and after every DITTO round; the best stage becomes the run's final adapter.
+        sel_rows = load_examples(cfg["demonstrations"], cfg["select_on"]) if cfg.get("select_on") else []
+        if {r["example_id"] for r in sel_rows} & {r["example_id"] for r in rows}:
+            raise ValueError("selection rows overlap the training rows")
+        sel_prompts = {r["example_id"]: enc.prompt_ids(example_messages(r, pcfg.history_in_prompt, fmt=fmt))
+                       for r in sel_rows}
+        agreement: dict[str, int] = {}
+
+        def evaluate_stage(name: str) -> None:
+            if not sel_rows:
+                return
+            model.eval()
+            agreement[name] = option_agreement(model, enc, sel_rows, sel_prompts)
+            model.train()
+            print(f"{cfg['select_on']} agreement after {name}: {agreement[name]}/{len(sel_rows)}", flush=True)
+
+        evaluate_stage("sft")
+
         # ---- Stage 2: DITTO rounds
         d = cfg["ditto"]
         model.add_adapter("ditto", lora)
         copy_adapter_weights(model, "sft", "ditto")
         cache: dict[int, dict[str, list[str]]] = {}
+        options = {r["example_id"]: r["options"] for r in rows}
+        gen = torch.Generator().manual_seed(seed)
         for t in range(d["rounds"]):
             model.set_adapter("ditto")
             model.eval()
             model.config.use_cache = True
-            cache[t] = {eid: sample(model, enc, prompts[eid], d["samples_per_prompt"], d, pcfg.llm.max_new_tokens)
-                        for eid in prompts}
+            if pcfg.llm.decoding == "score":
+                cache[t] = {eid: sample_options(model, enc, prompts[eid], options[eid], d["samples_per_prompt"],
+                                                d["temperature"], gen) for eid in prompts}
+            else:
+                cache[t] = {eid: sample(model, enc, prompts[eid], d["samples_per_prompt"], d, pcfg.llm.max_new_tokens)
+                            for eid in prompts}
             model.config.use_cache = False
             acc = {r["example_id"]: r["accepted"] for r in rows}
             n_samples = sum(len(v) for v in cache[t].values())
@@ -339,12 +407,21 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
                     chunk = [pairs[i] for i in idx]
                     items = ([(prompts[e], enc.answer_ids(c)) for e, _, c, _ in chunk]
                              + [(prompts[e], enc.answer_ids(r)) for e, _, _, r in chunk])
-                    lp = answer_logps(model, enc, items)
+                    lp_tok, lp_mask = answer_token_logps(model, enc, items)
+                    lp = (lp_tok * lp_mask).sum(-1)
                     pc, pr = lp[:len(chunk)], lp[len(chunk):]
                     rc = torch.tensor([ref[i][0] for i in idx], device=dev)
                     rr = torch.tensor([ref[i][1] for i in idx], device=dev)
                     margin = d["beta"] * ((pc - rc) - (pr - rr))
                     loss = -torch.nn.functional.logsigmoid(margin).mean()
+                    if d.get("rpo_alpha"):
+                        # RPO-style term: per-token NLL of the demonstrated action (expert and replay
+                        # pairs, whose chosen side is the demonstration), so DPO cannot drift away
+                        # from what SFT learned.
+                        demo = torch.tensor([k != "intermodel" for _, k, _, _ in chunk], device=dev)
+                        if demo.any():
+                            nll = -(pc / lp_mask[:len(chunk)].sum(-1))[demo].mean()
+                            loss = loss + d["rpo_alpha"] * nll
                     loss.backward()
                     opt.step()
                     opt.zero_grad()
@@ -355,9 +432,20 @@ def run(cfg_path: str, run_id: str | None, smoke: bool, extra_demos: str | None)
             if dev == "mps":
                 torch.mps.empty_cache()
             rinfo["adapter"] = f"round{t + 1}"
+            model.set_adapter("ditto")
+            evaluate_stage(f"round{t + 1}")
+            if agreement:
+                rinfo[f"{cfg['select_on']}_agreement"] = agreement[f"round{t + 1}"]
             manifest["rounds"].append(rinfo)
             write_manifest()
         manifest["final_adapter"] = f"round{d['rounds']}"
+        if agreement:
+            chosen = select_stage(agreement)
+            manifest["selection"] = {"on": cfg["select_on"], "n": len(sel_rows), "agreement": agreement,
+                                     "selected": chosen, "last_round": f"round{d['rounds']}",
+                                     "rule": "best dev agreement; ties go to the earlier stage"}
+            manifest["final_adapter"] = chosen
+            print(f"selected {chosen} on {cfg['select_on']}: {agreement}", flush=True)
         manifest["status"] = "completed"
         manifest["seconds"] = round(time.time() - t_start, 1)
         if dev == "mps":

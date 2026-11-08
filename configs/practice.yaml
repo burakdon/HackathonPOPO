@@ -12,7 +12,7 @@ eval_dir: runs/eval
 # Model used by new practice sessions until another version is activated in the clinician view.
 # "bandit" = Beta-Bernoulli Thompson baseline (no GPU stack needed); "base" = unadapted LLM;
 # "prompted" = LLM with the training demonstrations in its prompt; "ditto:<run_id>" / "sft:<run_id>".
-default_model: bandit
+default_model: ditto:sft200-g2-s0
 llm:
   base_model: Qwen/Qwen3-1.7B
   revision: 70d244cc86ccca08cf5af4e1e306ecf908b1ad5e
@@ -21,3 +21,9 @@ llm:
   max_new_tokens: 24
   timeout_s: 20
   runs_dir: runs/ditto
+  models_dir: models/ditto_llm     # delivered adapters (committed)
+  # Delivered shared adapter sft200-g2-s0 (results/ditto_colab_r2_test.md) was trained with option
+  # scoring and prompt format v2; serving must use the same settings.
+  decoding: score
+  prompt_format: v2
+  prompted_all_demos: data/demonstrations/demonstrator_a_v4.jsonl

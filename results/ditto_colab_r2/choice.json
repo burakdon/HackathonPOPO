@@ -1,0 +1,107 @@
+{
+ "delivered": "DITTO (SFT 200 steps + gentle setting g2, best dev round per seed)",
+ "kind": "ditto",
+ "sft_steps": 200,
+ "gentle": "g2",
+ "why": "gentle DITTO g2 reaches 29/33 on dev at round3, above the best SFT-only candidate (25/33 at 200 steps)",
+ "sft_candidates": [
+  {
+   "candidate": "SFT only, 60 steps",
+   "name": "sft60",
+   "steps": 60,
+   "dev": 24,
+   "n": 33,
+   "dev (95% CI)": "24/33 (73%, CI 58-88%)",
+   "train min": 0.6
+  },
+  {
+   "candidate": "SFT only, 120 steps",
+   "name": "sft120",
+   "steps": 120,
+   "dev": 22,
+   "n": 33,
+   "dev (95% CI)": "22/33 (67%, CI 52-82%)",
+   "train min": 0.5
+  },
+  {
+   "candidate": "SFT only, 200 steps",
+   "name": "sft200",
+   "steps": 200,
+   "dev": 25,
+   "n": 33,
+   "dev (95% CI)": "25/33 (76%, CI 61-91%)",
+   "train min": 0.8
+  }
+ ],
+ "ditto_candidates": [
+  {
+   "candidate": "SFT 200 + gentle DITTO g1, round1",
+   "name": "sft200-g1",
+   "setting": "g1",
+   "round": "round1",
+   "dev": 28,
+   "n": 33,
+   "sft dev": 25,
+   "dev (95% CI)": "28/33 (85%, CI 73-97%)",
+   "per stage": {
+    "sft": 25,
+    "round1": 28,
+    "round2": 23,
+    "round3": 27
+   },
+   "train min": 2.3,
+   "settings": {
+    "learning_rate": 1e-05,
+    "beta": 0.3,
+    "rpo_alpha": 1.0,
+    "steps_per_round": 15
+   }
+  },
+  {
+   "candidate": "SFT 200 + gentle DITTO g2, round3",
+   "name": "sft200-g2",
+   "setting": "g2",
+   "round": "round3",
+   "dev": 29,
+   "n": 33,
+   "sft dev": 25,
+   "dev (95% CI)": "29/33 (88%, CI 76-97%)",
+   "per stage": {
+    "sft": 25,
+    "round1": 22,
+    "round2": 15,
+    "round3": 29
+   },
+   "train min": 2.4,
+   "settings": {
+    "learning_rate": 2e-05,
+    "beta": 0.2,
+    "rpo_alpha": 0.5,
+    "steps_per_round": 30
+   }
+  },
+  {
+   "candidate": "SFT 200 + gentle DITTO g3, round1",
+   "name": "sft200-g3",
+   "setting": "g3",
+   "round": "round1",
+   "dev": 29,
+   "n": 33,
+   "sft dev": 25,
+   "dev (95% CI)": "29/33 (88%, CI 76-97%)",
+   "per stage": {
+    "sft": 25,
+    "round1": 29,
+    "round2": 28,
+    "round3": 27
+   },
+   "train min": 2.5,
+   "settings": {
+    "learning_rate": 5e-06,
+    "beta": 0.5,
+    "rpo_alpha": 1.0,
+    "steps_per_round": 30
+   }
+  }
+ ]
+}

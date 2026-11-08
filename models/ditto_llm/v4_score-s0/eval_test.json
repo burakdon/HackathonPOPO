@@ -1,0 +1,5635 @@
+{
+ "run_id": "v4_score-s0",
+ "split": "test",
+ "created": "2026-11-08T04:41:43.496391+00:00",
+ "dataset_hash": "a56ee6b0d14a8531",
+ "example_ids": [
+  "demoA-v3-T001",
+  "demoA-v3-T002",
+  "demoA-v3-T003",
+  "demoA-v3-T004",
+  "demoA-v3-T005",
+  "demoA-v3-T006",
+  "demoA-v3-T007",
+  "demoA-v3-T008",
+  "demoA-v3-T009",
+  "demoA-v3-T010",
+  "demoA-v3-T011",
+  "demoA-v3-T012",
+  "demoA-v3-T013",
+  "demoA-v3-T014",
+  "demoA-v3-T015",
+  "demoA-v3-T016",
+  "demoA-v3-T017",
+  "demoA-v3-T018",
+  "demoA-v3-T019",
+  "demoA-v3-T020",
+  "demoA-v3-T021",
+  "demoA-v3-T022",
+  "demoA-v3-T023",
+  "demoA-v3-T024",
+  "demoA-v3-T025",
+  "demoA-v3-T026",
+  "demoA-v3-T027",
+  "demoA-v3-T028",
+  "demoA-v3-T029",
+  "demoA-v3-T030",
+  "demoA-v3-T031",
+  "demoA-v3-T032",
+  "demoA-v3-T033",
+  "demoA-v3-T034",
+  "demoA-v3-T035",
+  "demoA-v3-T036",
+  "demoA-v3-T037",
+  "demoA-v3-T038",
+  "demoA-v3-T039",
+  "demoA-v3-T040",
+  "demoA-v3-T041",
+  "demoA-v3-T042",
+  "demoA-v3-T043",
+  "demoA-v3-T044",
+  "demoA-v3-T045",
+  "demoA-v3-T046",
+  "demoA-v3-T047",
+  "demoA-v3-T048",
+  "demoA-v3-T049",
+  "demoA-v3-T050",
+  "demoA-v3-T051",
+  "demoA-v3-T052",
+  "demoA-v3-T053",
+  "demoA-v3-T054",
+  "demoA-v3-T055"
+ ],
+ "base_model": "Qwen/Qwen3-1.7B",
+ "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+ "decoding": "score",
+ "trained_on": [
+  "demoA-v1-F01",
+  "demoA-v1-F02",
+  "demoA-v1-F03",
+  "demoA-v1-F04",
+  "demoA-v1-F05",
+  "demoA-v1-F06",
+  "demoA-v1-F07",
+  "demoA-v1-F08",
+  "demoA-v1-F09",
+  "demoA-v1-F10",
+  "demoA-v1-F11",
+  "demoA-v1-F12",
+  "demoA-v1-F13",
+  "demoA-v1-F14",
+  "demoA-v1-F15",
+  "demoA-v1-F16",
+  "demoA-v1-F17",
+  "demoA-v1-F18",
+  "demoA-v1-F19",
+  "demoA-v1-F20",
+  "demoA-v2-G001",
+  "demoA-v2-G002",
+  "demoA-v2-G003",
+  "demoA-v2-G004",
+  "demoA-v2-G005",
+  "demoA-v2-G006",
+  "demoA-v2-G007",
+  "demoA-v2-G008",
+  "demoA-v2-G009",
+  "demoA-v2-G010",
+  "demoA-v2-G011",
+  "demoA-v2-G012",
+  "demoA-v2-G013",
+  "demoA-v2-G014",
+  "demoA-v2-G015",
+  "demoA-v2-G016",
+  "demoA-v2-G017",
+  "demoA-v2-G018",
+  "demoA-v2-G019",
+  "demoA-v2-G020",
+  "demoA-v2-G021",
+  "demoA-v2-G022",
+  "demoA-v2-G023",
+  "demoA-v2-G024",
+  "demoA-v2-G025",
+  "demoA-v2-G026",
+  "demoA-v2-G027",
+  "demoA-v2-G028",
+  "demoA-v2-G029",
+  "demoA-v2-G030",
+  "demoA-v2-G031",
+  "demoA-v2-G032",
+  "demoA-v2-G033",
+  "demoA-v2-G034",
+  "demoA-v2-G035",
+  "demoA-v2-G036",
+  "demoA-v2-G037",
+  "demoA-v2-G038",
+  "demoA-v2-G039",
+  "demoA-v2-G040",
+  "demoA-v2-G041",
+  "demoA-v2-G042",
+  "demoA-v2-G043",
+  "demoA-v2-G044",
+  "demoA-v2-G045",
+  "demoA-v2-G046",
+  "demoA-v2-G047",
+  "demoA-v2-G048",
+  "demoA-v2-G049",
+  "demoA-v2-G050",
+  "demoA-v2-G051",
+  "demoA-v2-G052",
+  "demoA-v2-G053",
+  "demoA-v2-G054",
+  "demoA-v2-G055",
+  "demoA-v2-G056",
+  "demoA-v2-G057",
+  "demoA-v2-G058",
+  "demoA-v2-G059",
+  "demoA-v2-G060",
+  "demoA-v2-G061",
+  "demoA-v2-G062",
+  "demoA-v2-G063",
+  "demoA-v2-G064",
+  "demoA-v2-G065",
+  "demoA-v2-G066",
+  "demoA-v2-G067",
+  "demoA-v2-G068",
+  "demoA-v2-G069",
+  "demoA-v2-G070",
+  "demoA-v2-G071",
+  "demoA-v2-G072",
+  "demoA-v2-G073",
+  "demoA-v2-G074",
+  "demoA-v2-G075",
+  "demoA-v2-G076",
+  "demoA-v2-G077",
+  "demoA-v2-G078",
+  "demoA-v2-G079",
+  "demoA-v2-G080",
+  "demoA-v2-G081",
+  "demoA-v2-G082",
+  "demoA-v2-G083",
+  "demoA-v2-G084",
+  "demoA-v2-G085",
+  "demoA-v2-G086",
+  "demoA-v2-G087",
+  "demoA-v2-G088",
+  "demoA-v2-G089",
+  "demoA-v2-G090",
+  "demoA-v2-G091",
+  "demoA-v2-G092",
+  "demoA-v2-G093",
+  "demoA-v2-G094",
+  "demoA-v2-G095",
+  "demoA-v2-G096",
+  "demoA-v2-G097",
+  "demoA-v2-G098",
+  "demoA-v2-G099"
+ ],
+ "results": {
+  "base": {
+   "n": 55,
+   "valid_output": 55,
+   "constraint_violations": 0,
+   "unparseable": 0,
+   "fallbacks": 0,
+   "agree_on_valid": 8,
+   "agree_end_to_end": 8,
+   "agree_end_to_end_ci95": [
+    0.05454545454545454,
+    0.2545454545454545
+   ],
+   "agree_on_valid_ci95": [
+    0.05454545454545454,
+    0.2545454545454545
+   ],
+   "model_detail": {},
+   "latency_ms_median": 57.8,
+   "latency_ms_max": 2902.4,
+   "per_example": [
+    {
+     "example_id": "demoA-v3-T001",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 2902.4
+    },
+    {
+     "example_id": "demoA-v3-T002",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 42.2
+    },
+    {
+     "example_id": "demoA-v3-T003",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 41.4
+    },
+    {
+     "example_id": "demoA-v3-T004",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 43.5
+    },
+    {
+     "example_id": "demoA-v3-T005",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 41.5
+    },
+    {
+     "example_id": "demoA-v3-T006",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 45.9
+    },
+    {
+     "example_id": "demoA-v3-T007",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 41.8
+    },
+    {
+     "example_id": "demoA-v3-T008",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 42.3
+    },
+    {
+     "example_id": "demoA-v3-T009",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 40.9
+    },
+    {
+     "example_id": "demoA-v3-T010",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 40.4
+    },
+    {
+     "example_id": "demoA-v3-T011",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 40.8
+    },
+    {
+     "example_id": "demoA-v3-T012",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 41.4
+    },
+    {
+     "example_id": "demoA-v3-T013",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 41.2
+    },
+    {
+     "example_id": "demoA-v3-T014",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 41.5
+    },
+    {
+     "example_id": "demoA-v3-T015",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 40.3
+    },
+    {
+     "example_id": "demoA-v3-T016",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 112.0
+    },
+    {
+     "example_id": "demoA-v3-T017",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 57.8
+    },
+    {
+     "example_id": "demoA-v3-T018",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 56.1
+    },
+    {
+     "example_id": "demoA-v3-T019",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 57.9
+    },
+    {
+     "example_id": "demoA-v3-T020",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 59.1
+    },
+    {
+     "example_id": "demoA-v3-T021",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 68.2
+    },
+    {
+     "example_id": "demoA-v3-T022",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 58.9
+    },
+    {
+     "example_id": "demoA-v3-T023",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 63.1
+    },
+    {
+     "example_id": "demoA-v3-T024",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 55.9
+    },
+    {
+     "example_id": "demoA-v3-T025",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 70.5
+    },
+    {
+     "example_id": "demoA-v3-T026",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 62.9
+    },
+    {
+     "example_id": "demoA-v3-T027",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 57.6
+    },
+    {
+     "example_id": "demoA-v3-T028",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 56.0
+    },
+    {
+     "example_id": "demoA-v3-T029",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 70.6
+    },
+    {
+     "example_id": "demoA-v3-T030",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 59.6
+    },
+    {
+     "example_id": "demoA-v3-T031",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 62.9
+    },
+    {
+     "example_id": "demoA-v3-T032",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 67.7
+    },
+    {
+     "example_id": "demoA-v3-T033",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 67.7
+    },
+    {
+     "example_id": "demoA-v3-T034",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 57.9
+    },
+    {
+     "example_id": "demoA-v3-T035",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 59.1
+    },
+    {
+     "example_id": "demoA-v3-T036",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 70.8
+    },
+    {
+     "example_id": "demoA-v3-T037",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 63.2
+    },
+    {
+     "example_id": "demoA-v3-T038",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 58.0
+    },
+    {
+     "example_id": "demoA-v3-T039",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 63.4
+    },
+    {
+     "example_id": "demoA-v3-T040",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 57.8
+    },
+    {
+     "example_id": "demoA-v3-T041",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 60.1
+    },
+    {
+     "example_id": "demoA-v3-T042",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 63.5
+    },
+    {
+     "example_id": "demoA-v3-T043",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 57.2
+    },
+    {
+     "example_id": "demoA-v3-T044",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 62.3
+    },
+    {
+     "example_id": "demoA-v3-T045",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 57.6
+    },
+    {
+     "example_id": "demoA-v3-T046",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 42.3
+    },
+    {
+     "example_id": "demoA-v3-T047",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 42.5
+    },
+    {
+     "example_id": "demoA-v3-T048",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 41.7
+    },
+    {
+     "example_id": "demoA-v3-T049",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 40.9
+    },
+    {
+     "example_id": "demoA-v3-T050",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 41.1
+    },
+    {
+     "example_id": "demoA-v3-T051",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 62.4
+    },
+    {
+     "example_id": "demoA-v3-T052",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 66.1
+    },
+    {
+     "example_id": "demoA-v3-T053",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 57.6
+    },
+    {
+     "example_id": "demoA-v3-T054",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 62.2
+    },
+    {
+     "example_id": "demoA-v3-T055",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"none\"}",
+     "source": "base",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 57.2
+    }
+   ]
+  },
+  "prompted": {
+   "n": 55,
+   "valid_output": 55,
+   "constraint_violations": 0,
+   "unparseable": 0,
+   "fallbacks": 0,
+   "agree_on_valid": 13,
+   "agree_end_to_end": 13,
+   "agree_end_to_end_ci95": [
+    0.12727272727272726,
+    0.34545454545454546
+   ],
+   "agree_on_valid_ci95": [
+    0.12727272727272726,
+    0.34545454545454546
+   ],
+   "model_detail": {
+    "few_shot_examples": 20
+   },
+   "latency_ms_median": 1028.8,
+   "latency_ms_max": 1198.5,
+   "per_example": [
+    {
+     "example_id": "demoA-v3-T001",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 221.3
+    },
+    {
+     "example_id": "demoA-v3-T002",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 220.2
+    },
+    {
+     "example_id": "demoA-v3-T003",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 219.9
+    },
+    {
+     "example_id": "demoA-v3-T004",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 321.5
+    },
+    {
+     "example_id": "demoA-v3-T005",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 321.8
+    },
+    {
+     "example_id": "demoA-v3-T006",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 218.6
+    },
+    {
+     "example_id": "demoA-v3-T007",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 317.3
+    },
+    {
+     "example_id": "demoA-v3-T008",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 321.9
+    },
+    {
+     "example_id": "demoA-v3-T009",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 218.8
+    },
+    {
+     "example_id": "demoA-v3-T010",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 218.5
+    },
+    {
+     "example_id": "demoA-v3-T011",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 220.0
+    },
+    {
+     "example_id": "demoA-v3-T012",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 220.1
+    },
+    {
+     "example_id": "demoA-v3-T013",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 220.5
+    },
+    {
+     "example_id": "demoA-v3-T014",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 220.8
+    },
+    {
+     "example_id": "demoA-v3-T015",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 220.9
+    },
+    {
+     "example_id": "demoA-v3-T016",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1028.3
+    },
+    {
+     "example_id": "demoA-v3-T017",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1032.9
+    },
+    {
+     "example_id": "demoA-v3-T018",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1028.4
+    },
+    {
+     "example_id": "demoA-v3-T019",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1043.3
+    },
+    {
+     "example_id": "demoA-v3-T020",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1045.5
+    },
+    {
+     "example_id": "demoA-v3-T021",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1191.3
+    },
+    {
+     "example_id": "demoA-v3-T022",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1026.5
+    },
+    {
+     "example_id": "demoA-v3-T023",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1187.3
+    },
+    {
+     "example_id": "demoA-v3-T024",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1028.8
+    },
+    {
+     "example_id": "demoA-v3-T025",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1171.6
+    },
+    {
+     "example_id": "demoA-v3-T026",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1051.1
+    },
+    {
+     "example_id": "demoA-v3-T027",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1014.8
+    },
+    {
+     "example_id": "demoA-v3-T028",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1030.5
+    },
+    {
+     "example_id": "demoA-v3-T029",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1196.5
+    },
+    {
+     "example_id": "demoA-v3-T030",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1173.6
+    },
+    {
+     "example_id": "demoA-v3-T031",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1191.0
+    },
+    {
+     "example_id": "demoA-v3-T032",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1193.0
+    },
+    {
+     "example_id": "demoA-v3-T033",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1193.6
+    },
+    {
+     "example_id": "demoA-v3-T034",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1045.2
+    },
+    {
+     "example_id": "demoA-v3-T035",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1048.0
+    },
+    {
+     "example_id": "demoA-v3-T036",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1198.5
+    },
+    {
+     "example_id": "demoA-v3-T037",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1051.5
+    },
+    {
+     "example_id": "demoA-v3-T038",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1044.7
+    },
+    {
+     "example_id": "demoA-v3-T039",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1051.3
+    },
+    {
+     "example_id": "demoA-v3-T040",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1034.2
+    },
+    {
+     "example_id": "demoA-v3-T041",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1049.0
+    },
+    {
+     "example_id": "demoA-v3-T042",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1051.7
+    },
+    {
+     "example_id": "demoA-v3-T043",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1015.7
+    },
+    {
+     "example_id": "demoA-v3-T044",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1033.1
+    },
+    {
+     "example_id": "demoA-v3-T045",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1016.0
+    },
+    {
+     "example_id": "demoA-v3-T046",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 220.5
+    },
+    {
+     "example_id": "demoA-v3-T047",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 325.3
+    },
+    {
+     "example_id": "demoA-v3-T048",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 226.4
+    },
+    {
+     "example_id": "demoA-v3-T049",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 221.2
+    },
+    {
+     "example_id": "demoA-v3-T050",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 220.7
+    },
+    {
+     "example_id": "demoA-v3-T051",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1053.2
+    },
+    {
+     "example_id": "demoA-v3-T052",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1191.6
+    },
+    {
+     "example_id": "demoA-v3-T053",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1047.0
+    },
+    {
+     "example_id": "demoA-v3-T054",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1051.5
+    },
+    {
+     "example_id": "demoA-v3-T055",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1016.5
+    }
+   ]
+  },
+  "prompted_all": {
+   "n": 55,
+   "valid_output": 15,
+   "constraint_violations": 0,
+   "unparseable": 0,
+   "fallbacks": 40,
+   "agree_on_valid": 5,
+   "agree_end_to_end": 14,
+   "agree_end_to_end_ci95": [
+    0.14545454545454545,
+    0.38181818181818183
+   ],
+   "agree_on_valid_ci95": [
+    0.13333333333333333,
+    0.6
+   ],
+   "model_detail": {
+    "few_shot_examples": 119,
+    "few_shot_available": 119,
+    "prompt_tokens_before_context": 23416,
+    "context_window": 32768
+   },
+   "latency_ms_median": 100.8,
+   "latency_ms_max": 10045.0,
+   "per_example": [
+    {
+     "example_id": "demoA-v3-T001",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1703.7
+    },
+    {
+     "example_id": "demoA-v3-T002",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1702.7
+    },
+    {
+     "example_id": "demoA-v3-T003",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1701.9
+    },
+    {
+     "example_id": "demoA-v3-T004",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 2518.7
+    },
+    {
+     "example_id": "demoA-v3-T005",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 2516.4
+    },
+    {
+     "example_id": "demoA-v3-T006",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1689.2
+    },
+    {
+     "example_id": "demoA-v3-T007",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 2499.5
+    },
+    {
+     "example_id": "demoA-v3-T008",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 2518.4
+    },
+    {
+     "example_id": "demoA-v3-T009",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1690.7
+    },
+    {
+     "example_id": "demoA-v3-T010",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1688.7
+    },
+    {
+     "example_id": "demoA-v3-T011",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1703.2
+    },
+    {
+     "example_id": "demoA-v3-T012",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 1699.6
+    },
+    {
+     "example_id": "demoA-v3-T013",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1703.6
+    },
+    {
+     "example_id": "demoA-v3-T014",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1701.7
+    },
+    {
+     "example_id": "demoA-v3-T015",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "prompted_all",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 1701.0
+    },
+    {
+     "example_id": "demoA-v3-T016",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"semantic\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 7.25 GiB. GPU 0 has a total capacity of 39.49 GiB of which 5.54 GiB is free. Including non-PyTorch memory, this process has 33.94 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 6176.0
+    },
+    {
+     "example_id": "demoA-v3-T017",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 7.26 GiB. GPU 0 has a total capacity of 39.49 GiB of which 5.54 GiB is free. Including non-PyTorch memory, this process has 33.94 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 169.5
+    },
+    {
+     "example_id": "demoA-v3-T018",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 7.25 GiB. GPU 0 has a total capacity of 39.49 GiB of which 4.28 GiB is free. Including non-PyTorch memory, this process has 35.20 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 196.5
+    },
+    {
+     "example_id": "demoA-v3-T019",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 7.27 GiB. GPU 0 has a total capacity of 39.49 GiB of which 1.00 GiB is free. Including non-PyTorch memory, this process has 38.48 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 10045.0
+    },
+    {
+     "example_id": "demoA-v3-T020",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 7.28 GiB. GPU 0 has a total capacity of 39.49 GiB of which 1.00 GiB is free. Including non-PyTorch memory, this process has 38.48 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 160.0
+    },
+    {
+     "example_id": "demoA-v3-T021",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 1.44 GiB. GPU 0 has a total capacity of 39.49 GiB of which 1.00 GiB is free. Including non-PyTorch memory, this process has 38.48 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 96.2
+    },
+    {
+     "example_id": "demoA-v3-T022",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"semantic\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 532.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 90.6
+    },
+    {
+     "example_id": "demoA-v3-T023",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 8.30 GiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 175.1
+    },
+    {
+     "example_id": "demoA-v3-T024",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 1.26 GiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 89.0
+    },
+    {
+     "example_id": "demoA-v3-T025",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 740.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 100.8
+    },
+    {
+     "example_id": "demoA-v3-T026",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 648.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 87.1
+    },
+    {
+     "example_id": "demoA-v3-T027",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 646.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 86.3
+    },
+    {
+     "example_id": "demoA-v3-T028",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 1.26 GiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 88.6
+    },
+    {
+     "example_id": "demoA-v3-T029",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 740.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 91.9
+    },
+    {
+     "example_id": "demoA-v3-T030",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 738.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 91.3
+    },
+    {
+     "example_id": "demoA-v3-T031",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 738.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 90.9
+    },
+    {
+     "example_id": "demoA-v3-T032",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"semantic\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 740.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 90.9
+    },
+    {
+     "example_id": "demoA-v3-T033",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 4.16 GiB. GPU 0 has a total capacity of 39.49 GiB of which 493.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 93.5
+    },
+    {
+     "example_id": "demoA-v3-T034",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 3.63 GiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 87.3
+    },
+    {
+     "example_id": "demoA-v3-T035",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 3.64 GiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 88.0
+    },
+    {
+     "example_id": "demoA-v3-T036",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 534.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 92.9
+    },
+    {
+     "example_id": "demoA-v3-T037",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 648.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 86.7
+    },
+    {
+     "example_id": "demoA-v3-T038",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 3.63 GiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 89.5
+    },
+    {
+     "example_id": "demoA-v3-T039",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 3.65 GiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 87.7
+    },
+    {
+     "example_id": "demoA-v3-T040",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 3.63 GiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 88.0
+    },
+    {
+     "example_id": "demoA-v3-T041",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 648.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 87.4
+    },
+    {
+     "example_id": "demoA-v3-T042",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 648.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 87.9
+    },
+    {
+     "example_id": "demoA-v3-T043",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 3.63 GiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 89.3
+    },
+    {
+     "example_id": "demoA-v3-T044",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 3.64 GiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 87.4
+    },
+    {
+     "example_id": "demoA-v3-T045",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 3.63 GiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the allo",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 87.4
+    },
+    {
+     "example_id": "demoA-v3-T046",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 554.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 489.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 71.1
+    },
+    {
+     "example_id": "demoA-v3-T047",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 554.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 487.44 MiB is free. Including non-PyTorch memory, this process has 39.01 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 69.5
+    },
+    {
+     "example_id": "demoA-v3-T048",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 554.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 1231.9
+    },
+    {
+     "example_id": "demoA-v3-T049",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 554.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 491.44 MiB is free. Including non-PyTorch memory, this process has 39.00 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 112.4
+    },
+    {
+     "example_id": "demoA-v3-T050",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 370.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 119.44 MiB is free. Including non-PyTorch memory, this process has 39.37 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 65.9
+    },
+    {
+     "example_id": "demoA-v3-T051",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 648.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 119.44 MiB is free. Including non-PyTorch memory, this process has 39.37 GiB memory in use. Of the al",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 87.3
+    },
+    {
+     "example_id": "demoA-v3-T052",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 8.31 GiB. GPU 0 has a total capacity of 39.49 GiB of which 6.23 GiB is free. Including non-PyTorch memory, this process has 33.25 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 2692.6
+    },
+    {
+     "example_id": "demoA-v3-T053",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"semantic\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 7.27 GiB. GPU 0 has a total capacity of 39.49 GiB of which 6.23 GiB is free. Including non-PyTorch memory, this process has 33.25 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 174.3
+    },
+    {
+     "example_id": "demoA-v3-T054",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 7.29 GiB. GPU 0 has a total capacity of 39.49 GiB of which 4.97 GiB is free. Including non-PyTorch memory, this process has 34.52 GiB memory in use. Of the alloca",
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 159.3
+    },
+    {
+     "example_id": "demoA-v3-T055",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": "model error: OutOfMemoryError: CUDA out of memory. Tried to allocate 1.26 GiB. GPU 0 has a total capacity of 39.49 GiB of which 73.44 MiB is free. Including non-PyTorch memory, this process has 39.41 GiB memory in use. Of the alloc",
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 123.8
+    }
+   ]
+  },
+  "sft:v4_score-s0": {
+   "n": 55,
+   "valid_output": 55,
+   "constraint_violations": 0,
+   "unparseable": 0,
+   "fallbacks": 0,
+   "agree_on_valid": 14,
+   "agree_end_to_end": 14,
+   "agree_end_to_end_ci95": [
+    0.14545454545454545,
+    0.36363636363636365
+   ],
+   "agree_on_valid_ci95": [
+    0.14545454545454545,
+    0.36363636363636365
+   ],
+   "model_detail": {},
+   "latency_ms_median": 80.1,
+   "latency_ms_max": 135.2,
+   "per_example": [
+    {
+     "example_id": "demoA-v3-T001",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 135.2
+    },
+    {
+     "example_id": "demoA-v3-T002",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.0
+    },
+    {
+     "example_id": "demoA-v3-T003",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 66.9
+    },
+    {
+     "example_id": "demoA-v3-T004",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 68.3
+    },
+    {
+     "example_id": "demoA-v3-T005",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 67.8
+    },
+    {
+     "example_id": "demoA-v3-T006",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 107.9
+    },
+    {
+     "example_id": "demoA-v3-T007",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 67.4
+    },
+    {
+     "example_id": "demoA-v3-T008",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.7
+    },
+    {
+     "example_id": "demoA-v3-T009",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 67.9
+    },
+    {
+     "example_id": "demoA-v3-T010",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 66.9
+    },
+    {
+     "example_id": "demoA-v3-T011",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 66.9
+    },
+    {
+     "example_id": "demoA-v3-T012",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 67.2
+    },
+    {
+     "example_id": "demoA-v3-T013",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 67.2
+    },
+    {
+     "example_id": "demoA-v3-T014",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 66.5
+    },
+    {
+     "example_id": "demoA-v3-T015",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 65.7
+    },
+    {
+     "example_id": "demoA-v3-T016",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 77.5
+    },
+    {
+     "example_id": "demoA-v3-T017",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 79.5
+    },
+    {
+     "example_id": "demoA-v3-T018",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 77.1
+    },
+    {
+     "example_id": "demoA-v3-T019",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 80.3
+    },
+    {
+     "example_id": "demoA-v3-T020",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 82.4
+    },
+    {
+     "example_id": "demoA-v3-T021",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 94.0
+    },
+    {
+     "example_id": "demoA-v3-T022",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 82.5
+    },
+    {
+     "example_id": "demoA-v3-T023",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 88.1
+    },
+    {
+     "example_id": "demoA-v3-T024",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 77.0
+    },
+    {
+     "example_id": "demoA-v3-T025",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 97.5
+    },
+    {
+     "example_id": "demoA-v3-T026",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 87.1
+    },
+    {
+     "example_id": "demoA-v3-T027",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 79.7
+    },
+    {
+     "example_id": "demoA-v3-T028",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 77.8
+    },
+    {
+     "example_id": "demoA-v3-T029",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 97.6
+    },
+    {
+     "example_id": "demoA-v3-T030",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 83.9
+    },
+    {
+     "example_id": "demoA-v3-T031",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 88.3
+    },
+    {
+     "example_id": "demoA-v3-T032",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 93.8
+    },
+    {
+     "example_id": "demoA-v3-T033",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 93.9
+    },
+    {
+     "example_id": "demoA-v3-T034",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 80.6
+    },
+    {
+     "example_id": "demoA-v3-T035",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 82.8
+    },
+    {
+     "example_id": "demoA-v3-T036",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 97.9
+    },
+    {
+     "example_id": "demoA-v3-T037",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 88.0
+    },
+    {
+     "example_id": "demoA-v3-T038",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 80.2
+    },
+    {
+     "example_id": "demoA-v3-T039",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 87.9
+    },
+    {
+     "example_id": "demoA-v3-T040",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 80.5
+    },
+    {
+     "example_id": "demoA-v3-T041",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 83.9
+    },
+    {
+     "example_id": "demoA-v3-T042",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 87.4
+    },
+    {
+     "example_id": "demoA-v3-T043",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 79.5
+    },
+    {
+     "example_id": "demoA-v3-T044",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 86.9
+    },
+    {
+     "example_id": "demoA-v3-T045",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 79.4
+    },
+    {
+     "example_id": "demoA-v3-T046",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 67.1
+    },
+    {
+     "example_id": "demoA-v3-T047",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 68.1
+    },
+    {
+     "example_id": "demoA-v3-T048",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 66.7
+    },
+    {
+     "example_id": "demoA-v3-T049",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 67.0
+    },
+    {
+     "example_id": "demoA-v3-T050",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 67.6
+    },
+    {
+     "example_id": "demoA-v3-T051",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 86.5
+    },
+    {
+     "example_id": "demoA-v3-T052",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 92.2
+    },
+    {
+     "example_id": "demoA-v3-T053",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 80.1
+    },
+    {
+     "example_id": "demoA-v3-T054",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 86.5
+    },
+    {
+     "example_id": "demoA-v3-T055",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "sft:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 79.3
+    }
+   ]
+  },
+  "ditto:v4_score-s0": {
+   "n": 55,
+   "valid_output": 55,
+   "constraint_violations": 0,
+   "unparseable": 0,
+   "fallbacks": 0,
+   "agree_on_valid": 30,
+   "agree_end_to_end": 30,
+   "agree_end_to_end_ci95": [
+    0.41818181818181815,
+    0.6727272727272727
+   ],
+   "agree_on_valid_ci95": [
+    0.41818181818181815,
+    0.6727272727272727
+   ],
+   "model_detail": {},
+   "latency_ms_median": 81.8,
+   "latency_ms_max": 99.5,
+   "per_example": [
+    {
+     "example_id": "demoA-v3-T001",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 69.8
+    },
+    {
+     "example_id": "demoA-v3-T002",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.3
+    },
+    {
+     "example_id": "demoA-v3-T003",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.5
+    },
+    {
+     "example_id": "demoA-v3-T004",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 70.5
+    },
+    {
+     "example_id": "demoA-v3-T005",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 70.1
+    },
+    {
+     "example_id": "demoA-v3-T006",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 74.6
+    },
+    {
+     "example_id": "demoA-v3-T007",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 69.4
+    },
+    {
+     "example_id": "demoA-v3-T008",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 69.6
+    },
+    {
+     "example_id": "demoA-v3-T009",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 69.2
+    },
+    {
+     "example_id": "demoA-v3-T010",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 70.2
+    },
+    {
+     "example_id": "demoA-v3-T011",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.6
+    },
+    {
+     "example_id": "demoA-v3-T012",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.6
+    },
+    {
+     "example_id": "demoA-v3-T013",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.5
+    },
+    {
+     "example_id": "demoA-v3-T014",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.3
+    },
+    {
+     "example_id": "demoA-v3-T015",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 68.8
+    },
+    {
+     "example_id": "demoA-v3-T016",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 79.1
+    },
+    {
+     "example_id": "demoA-v3-T017",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 81.1
+    },
+    {
+     "example_id": "demoA-v3-T018",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 79.7
+    },
+    {
+     "example_id": "demoA-v3-T019",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 82.1
+    },
+    {
+     "example_id": "demoA-v3-T020",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 84.4
+    },
+    {
+     "example_id": "demoA-v3-T021",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 96.1
+    },
+    {
+     "example_id": "demoA-v3-T022",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 83.9
+    },
+    {
+     "example_id": "demoA-v3-T023",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 89.7
+    },
+    {
+     "example_id": "demoA-v3-T024",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 79.1
+    },
+    {
+     "example_id": "demoA-v3-T025",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 99.0
+    },
+    {
+     "example_id": "demoA-v3-T026",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 88.5
+    },
+    {
+     "example_id": "demoA-v3-T027",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 82.2
+    },
+    {
+     "example_id": "demoA-v3-T028",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 79.3
+    },
+    {
+     "example_id": "demoA-v3-T029",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 99.2
+    },
+    {
+     "example_id": "demoA-v3-T030",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 85.4
+    },
+    {
+     "example_id": "demoA-v3-T031",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 89.6
+    },
+    {
+     "example_id": "demoA-v3-T032",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 95.4
+    },
+    {
+     "example_id": "demoA-v3-T033",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 95.8
+    },
+    {
+     "example_id": "demoA-v3-T034",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 82.0
+    },
+    {
+     "example_id": "demoA-v3-T035",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 84.5
+    },
+    {
+     "example_id": "demoA-v3-T036",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 99.5
+    },
+    {
+     "example_id": "demoA-v3-T037",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 89.2
+    },
+    {
+     "example_id": "demoA-v3-T038",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 81.8
+    },
+    {
+     "example_id": "demoA-v3-T039",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 89.5
+    },
+    {
+     "example_id": "demoA-v3-T040",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 81.2
+    },
+    {
+     "example_id": "demoA-v3-T041",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 85.4
+    },
+    {
+     "example_id": "demoA-v3-T042",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 89.2
+    },
+    {
+     "example_id": "demoA-v3-T043",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 81.2
+    },
+    {
+     "example_id": "demoA-v3-T044",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 88.2
+    },
+    {
+     "example_id": "demoA-v3-T045",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 82.6
+    },
+    {
+     "example_id": "demoA-v3-T046",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 71.4
+    },
+    {
+     "example_id": "demoA-v3-T047",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":2}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 70.3
+    },
+    {
+     "example_id": "demoA-v3-T048",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 68.9
+    },
+    {
+     "example_id": "demoA-v3-T049",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 68.3
+    },
+    {
+     "example_id": "demoA-v3-T050",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":3}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 69.5
+    },
+    {
+     "example_id": "demoA-v3-T051",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"next\",\"tier\":1}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": true,
+     "agree_end_to_end": true,
+     "latency_ms": 88.4
+    },
+    {
+     "example_id": "demoA-v3-T052",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 93.6
+    },
+    {
+     "example_id": "demoA-v3-T053",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 82.1
+    },
+    {
+     "example_id": "demoA-v3-T054",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 88.2
+    },
+    {
+     "example_id": "demoA-v3-T055",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "parsed": true,
+     "valid": true,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "ditto:v4_score-s0",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 82.4
+    }
+   ]
+  },
+  "bandit": {
+   "n": 55,
+   "valid_output": null,
+   "constraint_violations": null,
+   "unparseable": null,
+   "fallbacks": 0,
+   "agree_on_valid": null,
+   "agree_end_to_end": 14,
+   "agree_end_to_end_ci95": [
+    0.14545454545454545,
+    0.38181818181818183
+   ],
+   "agree_on_valid_ci95": null,
+   "model_detail": {},
+   "latency_ms_median": 0.2,
+   "latency_ms_max": 0.3,
+   "per_example": [
+    {
+     "example_id": "demoA-v3-T001",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T002",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T003",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.1
+    },
+    {
+     "example_id": "demoA-v3-T004",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T005",
+     "rule": "A",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T006",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.1
+    },
+    {
+     "example_id": "demoA-v3-T007",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.1
+    },
+    {
+     "example_id": "demoA-v3-T008",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T009",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T010",
+     "rule": "B",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.1
+    },
+    {
+     "example_id": "demoA-v3-T011",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.3
+    },
+    {
+     "example_id": "demoA-v3-T012",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.1
+    },
+    {
+     "example_id": "demoA-v3-T013",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T014",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T015",
+     "rule": "C",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":3}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.1
+    },
+    {
+     "example_id": "demoA-v3-T016",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"semantic\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T017",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T018",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T019",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T020",
+     "rule": "D-sound",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.3
+    },
+    {
+     "example_id": "demoA-v3-T021",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T022",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"semantic\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T023",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T024",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.1
+    },
+    {
+     "example_id": "demoA-v3-T025",
+     "rule": "D-meaning",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T026",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.3
+    },
+    {
+     "example_id": "demoA-v3-T027",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T028",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T029",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T030",
+     "rule": "D-no_response",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T031",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T032",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"semantic\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T033",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T034",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T035",
+     "rule": "D-unclassified",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T036",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T037",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T038",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T039",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T040",
+     "rule": "E",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"first_sound\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T041",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T042",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T043",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T044",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T045",
+     "rule": "E-alt",
+     "accepted": [
+      "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+      "{\"op\":\"retry\",\"hint\":\"semantic\"}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T046",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T047",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T048",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T049",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":2}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T050",
+     "rule": "F",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":3}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.1
+    },
+    {
+     "example_id": "demoA-v3-T051",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T052",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"sentence_frame\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T053",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"semantic\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T054",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":1}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"next\",\"tier\":1}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": true,
+     "latency_ms": 0.2
+    },
+    {
+     "example_id": "demoA-v3-T055",
+     "rule": "G",
+     "accepted": [
+      "{\"op\":\"next\",\"tier\":2}"
+     ],
+     "raw_output": null,
+     "parsed": null,
+     "valid": null,
+     "final_action": "{\"op\":\"retry\",\"hint\":\"first_letter\"}",
+     "source": "bandit",
+     "fallback_reason": null,
+     "agree_valid": false,
+     "agree_end_to_end": false,
+     "latency_ms": 0.2
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,13 @@
+{
+ "sessions": [
+  {
+   "commit": "2d162a12ac4e10e46f90a63d40e328988db66f3c",
+   "gpu": "NVIDIA A100-SXM4-40GB",
+   "dtype": "bfloat16",
+   "started": "2026-11-08 05:09:26",
+   "torch": "2.14.1+cu130",
+   "transformers": "5.22.2",
+   "peft": "0.21.2"
+  }
+ ]
+}

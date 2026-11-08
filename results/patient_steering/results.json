@@ -1,0 +1,119 @@
+{
+ "target": "{\"op\":\"retry\",\"hint\":\"first_sound\"}",
+ "shared_adapter": "models/ditto_llm/20261107-214025",
+ "results": [
+  {
+   "run": "patient-steer-n3-s0",
+   "examples": 3,
+   "seed": 0,
+   "train_seconds": 53.7,
+   "sft_steps": 3,
+   "a_train_new": 3,
+   "a_train_shared": 0,
+   "b_new_new": 20,
+   "b_new_shared": 0,
+   "c_same": 11,
+   "c_total": 55,
+   "invalid": 0,
+   "b_choices": {
+    "{\"op\":\"retry\",\"hint\":\"first_sound\"}": 20
+   }
+  },
+  {
+   "run": "patient-steer-n3-s1",
+   "examples": 3,
+   "seed": 1,
+   "train_seconds": 77.5,
+   "sft_steps": 3,
+   "a_train_new": 1,
+   "a_train_shared": 0,
+   "b_new_new": 0,
+   "b_new_shared": 0,
+   "c_same": 12,
+   "c_total": 55,
+   "invalid": 37,
+   "b_choices": {
+    "INVALID:{\"op\":\"retry\",\"hint\":\" first_sound \"}": 13,
+    "INVALID:{\"op\":\"retry\",\"hint\":\" first_sound\"}": 7
+   }
+  },
+  {
+   "run": "patient-steer-n5-s0",
+   "examples": 5,
+   "seed": 0,
+   "train_seconds": 161.0,
+   "sft_steps": 3,
+   "a_train_new": 0,
+   "a_train_shared": 0,
+   "b_new_new": 0,
+   "b_new_shared": 0,
+   "c_same": 10,
+   "c_total": 55,
+   "invalid": 48,
+   "b_choices": {
+    "INVALID:{\"op\":\"retry\",\"hint\":\" first_sound\"}": 20
+   }
+  },
+  {
+   "run": "patient-steer-n5-s1",
+   "examples": 5,
+   "seed": 1,
+   "train_seconds": 175.0,
+   "sft_steps": 3,
+   "a_train_new": 0,
+   "a_train_shared": 0,
+   "b_new_new": 0,
+   "b_new_shared": 0,
+   "c_same": 12,
+   "c_total": 55,
+   "invalid": 39,
+   "b_choices": {
+    "INVALID:{\"op\":\"retry\",\"hint\":\" first_sound \"}": 7,
+    "INVALID:{\"op\":\"retry\",\"hint\":\" first_sound\"}": 13
+   }
+  },
+  {
+   "run": "patient-steer-n8-s0",
+   "examples": 8,
+   "seed": 0,
+   "train_seconds": 202.3,
+   "sft_steps": 3,
+   "a_train_new": 0,
+   "a_train_shared": 0,
+   "b_new_new": 0,
+   "b_new_shared": 0,
+   "c_same": 9,
+   "c_total": 55,
+   "invalid": 63,
+   "b_choices": {
+    "INVALID:{\"op\":\"retry\",\"hint\":\" first_sound \"}": 14,
+    "INVALID:{\"op\":\"retry\",\"hint\":\" first_sound\"}": 6
+   }
+  },
+  {
+   "run": "patient-steer-n8-s1",
+   "examples": 8,
+   "seed": 1,
+   "train_seconds": 191.3,
+   "sft_steps": 3,
+   "a_train_new": 0,
+   "a_train_shared": 0,
+   "b_new_new": 0,
+   "b_new_shared": 0,
+   "c_same": 12,
+   "c_total": 55,
+   "invalid": 48,
+   "b_choices": {
+    "INVALID:{\"op\":\"retry\",\"hint\":\" first_sound \"}": 4,
+    "INVALID:{\"op\":\"retry\",\"hint\":\" first_sound\"}": 15,
+    "INVALID:{\"op\":\"retry\"}": 1
+   }
+  }
+ ],
+ "shared_choices_on_new": {
+  "{\"op\":\"next\",\"tier\":1}": 11,
+  "{\"op\":\"next\",\"tier\":2}": 5,
+  "{\"op\":\"next\",\"tier\":3}": 4
+ },
+ "shared_invalid": 0
+}
