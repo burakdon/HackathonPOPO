@@ -6,9 +6,9 @@ to the stress-stripped ARPAbet transcript against the target's CMUdict pronuncia
 
   correct            PSST says correct
   correct_variant    transcript is the target plus a plural/-ing/possessive suffix (PSST scores strict)
-  semantic           a single dictionary word related in meaning: WordNet Wu-Palmer >= .6 between the
-                     two most common senses of each (same part of speech as the test), or a shared
-                     direct hypernym, or sentence-embedding cosine >= .5 (associative relations WordNet
+  semantic           a single dictionary word related in meaning: a shared direct hypernym or WordNet
+                     Wu-Palmer >= .7 between the target's concrete (picture) senses and any sense of
+                     the response, or sentence-embedding cosine >= .5 (associative relations WordNet
                      lacks: hammock -> swing, volcano -> fire); not formally related
   formal             a single dictionary word meeting the PNT formal criterion, not semantic
   mixed              both of the above
@@ -43,7 +43,7 @@ import glob
 import re
 from pathlib import Path
 
-from patientmodel.lexicon import formally_related, phoneme_edit_distance, wordnet
+from patientmodel.lexicon import formally_related, phoneme_edit_distance, semantic_similarity, wordnet
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "derived" / "psst_coded.csv"
@@ -128,21 +128,17 @@ class Coder:
         return float(self._emb[a] @ self._emb[b])
 
     def related(self, a: str, b: str, pos) -> tuple[bool, str]:
-        """Semantic relatedness with the evidence used: WordNet on the two most common senses of the
-        test's part of speech, else embedding cosine as an associative backstop."""
-        wn = self.wn
-        sa, sb = wn.synsets(a, pos=pos)[:2], wn.synsets(b, pos=pos)[:2]
-        for x in sa:
-            for y in sb:
-                if x == y or set(x.hypernyms()) & set(y.hypernyms()):
-                    return True, "WordNet shared hypernym"
-                v = x.wup_similarity(y)
-                if v is not None and v >= 0.6:
-                    return True, f"WordNet wup {v:.2f}"
+        """Semantic relatedness with the evidence used: WordNet between the target's picture senses
+        and all of the response's senses, else embedding cosine as an associative backstop."""
+        wup, shared = semantic_similarity(a, b, self.wn, pos)
+        if shared:
+            return True, "WordNet shared hypernym"
+        if wup >= 0.7:
+            return True, f"WordNet wup {wup:.2f}"
         c = self.cosine(a, b)
         if c >= 0.5:
             return True, f"embedding cosine {c:.2f}"
-        return False, f"no WordNet relation, cosine {c:.2f}"
+        return False, f"no WordNet relation (wup {wup:.2f}), cosine {c:.2f}"
 
     def segment(self, t: tuple, min_len: int = 2) -> list[tuple] | None:
         n = len(t)
@@ -233,13 +229,24 @@ def main() -> None:
     with open(OUT, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=FIELDS)
         w.writeheader(); w.writerows(coded)
-    adj = [c for c in coded if c["confidence"] != "high"]
+    # Preserve any adjudication already entered: the clinician's final_category and notes are kept
+    # by utterance_id, and a row they judged stays on the sheet even if it is now high confidence.
+    previous: dict[str, dict] = {}
+    if ADJ.exists():
+        with open(ADJ) as f:
+            for r in csv.DictReader(f):
+                if r.get("final_category") or r.get("notes"):
+                    previous[r["utterance_id"]] = {"final_category": r["final_category"], "notes": r["notes"]}
+    adj = [c for c in coded if c["confidence"] != "high" or c["utterance_id"] in previous]
     adj.sort(key=lambda c: (c["test"] != "BNT", c["confidence"] != "medium", c["prompt"]))
     with open(ADJ, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=FIELDS + ["final_category", "notes"])
         w.writeheader()
         for c in adj:
-            w.writerow({**c, "final_category": "", "notes": ""})
+            w.writerow({**c, **previous.get(c["utterance_id"], {"final_category": "", "notes": ""})})
+    if previous:
+        agree = sum(1 for c in adj if c["utterance_id"] in previous and previous[c["utterance_id"]]["final_category"] in ("", c["category"]))
+        print(f"kept {len(previous)} adjudicated rows; the machine now agrees with the clinician on {agree} of them")
     cnt = collections.Counter((c["test"], c["category"]) for c in coded if c["correctness"] != "True")
     conf = collections.Counter((c["test"], c["confidence"]) for c in coded if c["correctness"] != "True")
     print(f"coded {len(coded)} utterances -> {OUT}")

@@ -147,6 +147,37 @@ def wordnet():
     return wn
 
 
+CONCRETE_LEXNAMES = frozenset({"noun.animal", "noun.artifact", "noun.plant", "noun.food", "noun.object", "noun.body",
+                               "noun.substance", "noun.location", "noun.shape", "noun.person"})
+
+
+def picture_senses(word: str, wn, pos=None):
+    """Noun senses of a picture-naming target that could be what the picture shows: concrete
+    categories first (WordNet lists 'beaver' the animal seventh, after the fur, an Oregonian, a beard
+    and two hats, so sense order is useless here). Falls back to all senses of the part of speech."""
+    pos = pos or wn.NOUN
+    senses = wn.synsets(word, pos=pos)
+    if pos != wn.NOUN:
+        return senses[:3]
+    concrete = [s for s in senses if s.lexname() in CONCRETE_LEXNAMES and s.lexname() != "noun.person"]
+    return concrete or senses[:3]
+
+
+def semantic_similarity(a: str, b: str, wn, pos=None) -> tuple[float, bool]:
+    """(best Wu-Palmer similarity, shares a direct hypernym) between a's picture senses and all of
+    b's senses of the same part of speech."""
+    pos = pos or wn.NOUN
+    best, shared = 0.0, False
+    for x in picture_senses(a, wn, pos):
+        for y in wn.synsets(b, pos=pos):
+            if set(x.hypernyms()) & set(y.hypernyms()):
+                shared = True
+            v = x.wup_similarity(y)
+            if v and v > best:
+                best = v
+    return best, shared
+
+
 def is_noun(word: str, wn) -> bool:
     n = len(wn.synsets(word, pos=wn.NOUN))
     return n > 0 and n >= len(wn.synsets(word, pos=wn.VERB)) + len(wn.synsets(word, pos=wn.ADJ))

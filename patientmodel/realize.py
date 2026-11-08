@@ -4,7 +4,8 @@ The SP model says *what kind* of error happens. This module says *which word* (o
 out. Candidates are drawn from a curated noun lexicon and weighted by relatedness and frequency.
 
   semantic   a noun related in meaning: embedding cosine >= `semantic_min_similarity` AND a WordNet
-             taxonomic relation (Wu-Palmer >= `wordnet_min_wup`), or a very high cosine; not formally
+             taxonomic relation (shared direct hypernym, or Wu-Palmer >= `wordnet_min_wup` between the
+             target's picture senses and any candidate sense), or a very high cosine; not formally
              related to the target
   formal     a noun meeting the PNT formal-relatedness criterion, weighted by phoneme edit distance;
              not semantically related
@@ -24,7 +25,7 @@ from functools import lru_cache
 import numpy as np
 
 from patientmodel.lexicon import (CONSONANTS, VOWELS, Lexicon, formally_related, is_phonotactically_legal,
-                                  phoneme_edit_distance, wordnet)
+                                  phoneme_edit_distance, semantic_similarity, wordnet)
 
 
 @dataclass(frozen=True)
@@ -32,7 +33,7 @@ class RealizerConfig:
     semantic_top_k: int = 15
     semantic_min_similarity: float = 0.40
     semantic_high_similarity: float = 0.60   # above this, accept without a WordNet relation
-    wordnet_min_wup: float = 0.50
+    wordnet_min_wup: float = 0.70       # on the target's picture senses vs all candidate senses
     formal_top_k: int = 15
     unrelated_pool: int = 1500
     frequency_weight: float = 0.5
@@ -72,20 +73,13 @@ class Realizer:
         shorter, longer = sorted((a, b), key=len)
         return longer.startswith(shorter) and len(longer) - len(shorter) <= 3
 
-    def _wup(self, a: str, b: str) -> float:
-        wn = self._wn
-        best = 0.0
-        for sa in wn.synsets(a, pos=wn.NOUN)[:3]:
-            for sb in wn.synsets(b, pos=wn.NOUN)[:3]:
-                v = sa.wup_similarity(sb)
-                if v and v > best:
-                    best = v
-        return best
-
     def _semantically_related(self, target: str, cand: str, cosine: float) -> bool:
         if cosine >= self.cfg.semantic_high_similarity:
             return True
-        return cosine >= self.cfg.semantic_min_similarity and self._wup(target, cand) >= self.cfg.wordnet_min_wup
+        if cosine < self.cfg.semantic_min_similarity:
+            return False
+        wup, shared = semantic_similarity(target, cand, self._wn)
+        return shared or wup >= self.cfg.wordnet_min_wup
 
     # ---------------------------------------------------------------- candidate sets
     def semantic_candidates(self, target: str) -> tuple[list[int], np.ndarray]:
