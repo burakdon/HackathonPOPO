@@ -1,6 +1,6 @@
 """Re-download the public data behind the patient model into data/raw/ (see data/README.md).
 
-Gated sources (PSST, MAPPD) are not fetched here. Run:  uv run python -m scripts.fetch_data
+MAPPD is not fetched (offline, access by request). Run:  uv run python -m scripts.fetch_data
 """
 from __future__ import annotations
 
@@ -25,6 +25,7 @@ FILES = {
     "refs/castro2025_aphasia_databases.pdf": "https://talkbank.org/aphasia/publications/2025/Castro25.pdf",
 }
 OSF_NODE = "cwq75"  # Middleton, Rawson & Verkuilen 2019
+PSST = {name: f"https://media.talkbank.org/open/RaPID/{name}.tar.gz" for name in ("train", "valid", "full_test")}
 
 
 def get(url: str, dest: Path) -> None:
@@ -56,6 +57,18 @@ def main() -> int:
     for f in listing:
         name = f["attributes"]["name"].replace(" ", "_")
         get(f["links"]["download"], ROOT / "middleton2019_osf" / name)
+
+    print("PSST aphasic naming speech (open archives on TalkBank)")
+    import tarfile
+    for name, url in PSST.items():
+        dest = ROOT / "psst" / f"{name}.tar.gz"
+        get(url, dest)
+        out = ROOT / "psst" / name
+        if not out.exists():
+            out.mkdir(parents=True)
+            with tarfile.open(dest) as tf:
+                tf.extractall(out, filter="data")
+            print(f"  extracted {name}/")
     return 0
 
 

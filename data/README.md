@@ -13,7 +13,7 @@ reachable; the two gated sources need the credentials described below.
 | Learning model (how practice changes retrieval over days) | Middleton, Rawson & Verkuilen 2019, *Cortex*: item-level retention and follow-up accuracy for 4 PWA, retrieval practice vs repetition, spaced (lag 24) vs massed, 192 items each | **Downloaded** from OSF `cwq75` (no license stated on OSF; cite the paper, do not redistribute). | `data/raw/middleton2019_osf/` |
 | Learning model, second anchor | Middleton et al. 2016, *JSLHR*: retrieval practice and spacing (lags 1/5/15/30), retention at 1 day and 1 week | Paper text read; per-condition accuracies are in supplements S5/S6 on the publisher site. No open data. | — |
 | Item bank and difficulty norms | International Picture Naming Project (Bates et al. 2003, Szekely et al. 2004): 520 object drawings, US English norms (name agreement, RT, no-response rate, frequency, syllables, visual complexity) | **Downloaded.** `USpno.xls` (520 x 27), `7lgpno.xls` (7 languages), variable docs, 244 original PNG drawings. Pictures are described as freeware; cite the papers. | `data/raw/ipnp/` |
-| Speech scorer training and evaluation; realism of simulated attempts; demo clips | PSST challenge data (Gale et al. 2022): 3,291 utterances of BNT/VNT naming from AphasiaBank with ARPAbet transcripts, correctness, WAB-R AQ | **Gated.** Needs AphasiaBank membership, then `uv run python -m psstdata` prompts for the PSST username/password and downloads ~437 MB to `~/psst-data`. | `~/psst-data` |
+| Speech scorer training and evaluation; realism of simulated attempts; demo clips | PSST challenge data (Gale et al. 2022): 3,291 utterances of BNT/VNT naming from AphasiaBank with ARPAbet transcripts, correctness, WAB-R AQ | **Downloaded** (the archives at media.talkbank.org/open/RaPID/ are open; `scripts/fetch_data.py` pulls and extracts them). Use under the AphasiaBank / PSST terms; cite Gale et al. 2022. | `data/raw/psst/` |
 
 ## Middleton 2019 files (OSF cwq75)
 
@@ -33,12 +33,17 @@ Key columns: `picnum`, `ename` (dominant name), `elex1` (% producing the target 
 `estatu` (H statistic, name agreement), `lnefreq` (log frequency), `esyll`, `echar`, `ecomplx`
 (visual complexity), `ecdi` (age of acquisition proxy). Full descriptions in `7lgpnovariables.html`.
 
-## Credentials to obtain
+## PSST files (`data/raw/psst/{train,valid,full_test}/`)
 
-1. **AphasiaBank membership** (https://aphasia.talkbank.org/). Unlocks PSST and the wider naming
-   data. One person applies; credentials go in `~/.config/psstdata/settings.json`, never in the repo.
-2. **MAPPD access**: email Dan Mirman. Item-level PNT responses are what the per-patient Dell fits
-   need; without them we sample patients from published parameter distributions.
+`utterances.tsv` per split: `utterance_id, session, test (BNT|VNT), prompt, transcript (ARPAbet),
+correctness, aq_index (WAB-R AQ), duration_frames (16 kHz), filename`. 3,291 WAV files, mono 16 kHz.
+107 sessions from about 75 participants, 15 BNT items and 22 VNT items per session at most.
+
+## Not obtained
+
+- **MAPPD** (per-patient item-level PNT responses) is offline; access would require emailing Dan
+  Mirman. We instead sample simulated patients from the published fits in `data/calibration/` and the
+  parameter distributions reported in the papers.
 
 ## Calibration
 
