@@ -8,12 +8,18 @@ from pydantic import BaseModel
 TranscriptStatus = Literal["ok", "empty", "failed", "timeout", "unavailable"]
 
 
+class WordProb(BaseModel):
+    word: str
+    probability: float                    # the recognizer's confidence in this word, 0..1
+
+
 class Transcription(BaseModel):
     status: TranscriptStatus
     text: str = ""
     provider: str
     audio_seconds: float | None = None
-    no_speech_prob: float | None = None   # provider's own estimate, informational only
+    no_speech_prob: float | None = None   # provider's own estimate (used by the scorer's unclear check)
+    words: list[WordProb] = []            # per-word confidences, when the provider gives them
     error: str | None = None              # why it failed, shown to the helper
     latency_ms: float | None = None
 

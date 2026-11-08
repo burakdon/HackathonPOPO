@@ -1,0 +1,10 @@
+{
+  "level": 1,
+  "pictures_per_session": 6,
+  "max_attempts": 4,
+  "break_after_misses": 3,
+  "hint_order": "match_error",
+  "session_minutes": 10,
+  "days_per_week": 5,
+  "personal_words": []
+}

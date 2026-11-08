@@ -1,0 +1,32 @@
+{
+  "attempt_id": "s-demo-01-a04",
+  "presentation_id": "p-03",
+  "counted": false,
+  "transcript": "it's an apple",
+  "score": {
+    "outcome": "unclear",
+    "error_type": null,
+    "heard_word": null,
+    "matched_name": null,
+    "reason": "More than one word (“it's an apple”); only single-word answers are scored.",
+    "signals": {
+      "audio_seconds": 1.4,
+      "no_speech_prob": 0.03,
+      "word_confidence": 0.84
+    }
+  },
+  "next": {
+    "kind": "try_again",
+    "message": "I didn't catch that. Please try again.",
+    "hint": null,
+    "attempt_number": null,
+    "max_attempts": null,
+    "decision_id": null,
+    "word": null,
+    "whole_word_audio_url": null,
+    "picture": null,
+    "session_complete": false,
+    "summary": null,
+    "break_suggested": false
+  }
+}

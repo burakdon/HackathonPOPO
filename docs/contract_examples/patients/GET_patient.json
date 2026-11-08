@@ -1,0 +1,22 @@
+{
+  "id": "demo-ana",
+  "name": "Ana (demo)",
+  "first": "Ana",
+  "simulated": true,
+  "about": "Simulated demo patient. Answers are scripted Mac-voice clips played through the real pipeline.",
+  "plan": {
+    "level": 1,
+    "pictures_per_session": 6,
+    "max_attempts": 3,
+    "break_after_misses": 3,
+    "hint_order": "match_error",
+    "session_minutes": 10,
+    "days_per_week": 5,
+    "personal_words": []
+  },
+  "active_model": {
+    "version": "ditto:demoA-qwen3-1.7b-r1",
+    "patient_adapter": null
+  },
+  "pending_examples": 0
+}

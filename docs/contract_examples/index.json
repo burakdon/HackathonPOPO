@@ -1,0 +1,353 @@
+{
+  "generated_by": "scripts/build_contract_examples.py",
+  "contract": "docs/API_CONTRACT.md",
+  "scripted": true,
+  "note": "Scripted demo data: scores and model choices are scripted; preview numbers are illustrative placeholders.",
+  "practice_script": [
+    "practice/script/01_recordings_correct.json",
+    "practice/script/02_recordings_hint.json",
+    "practice/script/03_recordings_correct.json",
+    "practice/script/04_recordings_try_again.json",
+    "practice/script/05_no-answer_hint.json",
+    "practice/script/06_recordings_correct.json",
+    "practice/script/07_recordings_try_again.json",
+    "practice/script/08_recordings_not_assessed.json",
+    "practice/script/09_recordings_hint.json",
+    "practice/script/10_recordings_hint.json",
+    "practice/script/11_recordings_show_word.json",
+    "practice/script/12_recordings_hint.json",
+    "practice/script/13_recordings_correct.json"
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/pictures",
+      "status": 200,
+      "file": "pictures/GET_pictures.json",
+      "model": "list[Picture]",
+      "note": "audio_url values are where the clips will be; until they are generated the real server returns null and the mock server a placeholder tone"
+    },
+    {
+      "method": "GET",
+      "path": "/patients",
+      "status": 200,
+      "file": "patients/GET_patients.json",
+      "model": "list[PatientRow]"
+    },
+    {
+      "method": "GET",
+      "path": "/patients/{patient_id}",
+      "status": 200,
+      "file": "patients/GET_patient.json",
+      "model": "Patient"
+    },
+    {
+      "method": "POST",
+      "path": "/patients",
+      "status": 201,
+      "file": "patients/POST_patients.json",
+      "model": "Patient",
+      "request_file": "patients/POST_patients.request.json",
+      "request_model": "NewPatient"
+    },
+    {
+      "method": "PUT",
+      "path": "/patients/{patient_id}/plan",
+      "status": 200,
+      "file": "patients/PUT_plan.json",
+      "model": "Plan",
+      "request_file": "patients/PUT_plan.request.json",
+      "request_model": "Plan"
+    },
+    {
+      "method": "POST",
+      "path": "/patients/{patient_id}/sessions",
+      "status": 201,
+      "file": "practice/POST_session.json",
+      "model": "SessionStarted"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/01_recordings_correct.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/02_recordings_hint.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/03_recordings_correct.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/04_recordings_try_again.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/no-answer",
+      "status": 200,
+      "file": "practice/script/05_no-answer_hint.json",
+      "model": "AttemptResult",
+      "request_file": "practice/script/05_no-answer_hint.request.json",
+      "request_model": "NoAnswerIn",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/06_recordings_correct.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/07_recordings_try_again.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/08_recordings_not_assessed.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/09_recordings_hint.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/10_recordings_hint.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/11_recordings_show_word.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/12_recordings_hint.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 200,
+      "file": "practice/script/13_recordings_correct.json",
+      "model": "AttemptResult",
+      "note": "one step of the scripted session; the mock server returns these in order"
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}",
+      "status": 200,
+      "file": "practice/GET_session_state.json",
+      "model": "SessionState",
+      "note": "mid-session: picture 2 with the meaning hint on screen"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/end",
+      "status": 200,
+      "file": "practice/POST_end.json",
+      "model": "SessionRow"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 409,
+      "file": "practice/error_409_stale.json",
+      "model": "ErrorBody",
+      "note": "error example"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/recordings",
+      "status": 503,
+      "file": "practice/error_503_speech.json",
+      "model": "ErrorBody",
+      "note": "error example"
+    },
+    {
+      "method": "GET",
+      "path": "/patients/{patient_id}/sessions",
+      "status": 200,
+      "file": "review/GET_patient_sessions.json",
+      "model": "list[SessionRow]"
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}/review",
+      "status": 200,
+      "file": "review/GET_session_review.json",
+      "model": "SessionReview",
+      "note": "decision s-demo-01-d02 already carries the clinician's correction"
+    },
+    {
+      "method": "POST",
+      "path": "/decisions/{decision_id}/correction",
+      "status": 201,
+      "file": "steering/POST_correction.json",
+      "model": "Example",
+      "request_file": "steering/POST_correction.request.json",
+      "request_model": "CorrectionIn"
+    },
+    {
+      "method": "POST",
+      "path": "/decisions/{decision_id}/correction",
+      "status": 422,
+      "file": "steering/error_422_correction.json",
+      "model": "ErrorBody",
+      "note": "error example"
+    },
+    {
+      "method": "POST",
+      "path": "/patients/{patient_id}/notes",
+      "status": 201,
+      "file": "steering/POST_note.json",
+      "model": "Note",
+      "request_file": "steering/POST_note.request.json",
+      "request_model": "NoteIn"
+    },
+    {
+      "method": "POST",
+      "path": "/patients/{patient_id}/notes",
+      "status": 201,
+      "file": "steering/POST_note_no_rule.json",
+      "model": "Note",
+      "request_file": "steering/POST_note_no_rule.request.json",
+      "request_model": "NoteIn",
+      "note": "drafting failed or nothing to steer: the UI shows the 'when ___ → do ___' form"
+    },
+    {
+      "method": "PUT",
+      "path": "/notes/{note_id}/rule",
+      "status": 200,
+      "file": "steering/PUT_rule.json",
+      "model": "Note",
+      "request_file": "steering/PUT_rule.request.json",
+      "request_model": "RuleIn"
+    },
+    {
+      "method": "GET",
+      "path": "/notes/{note_id}/matches",
+      "status": 200,
+      "file": "steering/GET_matches.json",
+      "model": "list[RuleMatch]"
+    },
+    {
+      "method": "POST",
+      "path": "/notes/{note_id}/examples",
+      "status": 201,
+      "file": "steering/POST_note_examples.json",
+      "model": "list[Example]",
+      "request_file": "steering/POST_note_examples.request.json",
+      "request_model": "ExamplesIn"
+    },
+    {
+      "method": "GET",
+      "path": "/patients/{patient_id}/examples",
+      "status": 200,
+      "file": "steering/GET_examples.json",
+      "model": "list[Example]"
+    },
+    {
+      "method": "POST",
+      "path": "/patients/{patient_id}/training-runs",
+      "status": 202,
+      "file": "training/POST_training_run.json",
+      "model": "TrainingRun"
+    },
+    {
+      "method": "GET",
+      "path": "/training-runs/{run_id}",
+      "status": 200,
+      "file": "training/GET_training_run_running.json",
+      "model": "TrainingRun"
+    },
+    {
+      "method": "POST",
+      "path": "/training-runs/{run_id}/use-prepared",
+      "status": 200,
+      "file": "training/POST_use_prepared.json",
+      "model": "TrainingRun",
+      "request_file": "training/POST_use_prepared.request.json",
+      "request_model": "UsePreparedIn",
+      "note": "ILLUSTRATIVE preview numbers (placeholders, not measured)"
+    },
+    {
+      "method": "GET",
+      "path": "/training-runs/{run_id}",
+      "status": 200,
+      "file": "training/GET_training_run_completed.json",
+      "model": "TrainingRun",
+      "note": "ILLUSTRATIVE preview numbers (placeholders, not measured)"
+    },
+    {
+      "method": "POST",
+      "path": "/patients/{patient_id}/training-runs",
+      "status": 409,
+      "file": "training/error_409_running.json",
+      "model": "ErrorBody",
+      "note": "error example"
+    },
+    {
+      "method": "GET",
+      "path": "/patients/{patient_id}/models",
+      "status": 200,
+      "file": "training/GET_models.json",
+      "model": "list[ModelVersion]"
+    },
+    {
+      "method": "POST",
+      "path": "/patients/{patient_id}/active-model",
+      "status": 200,
+      "file": "training/POST_active_model.json",
+      "model": "Patient",
+      "request_file": "training/POST_active_model.request.json",
+      "request_model": "ActivateIn"
+    },
+    {
+      "method": "GET",
+      "path": "/patients/{patient_id}/log",
+      "status": 200,
+      "file": "patients/GET_log.json",
+      "model": "list[LogEntry]"
+    }
+  ]
+}

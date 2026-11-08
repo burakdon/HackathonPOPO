@@ -1,0 +1,38 @@
+{
+  "run_id": "demo-ana-r1",
+  "patient_id": "demo-ana",
+  "status": "completed",
+  "progress": {
+    "stage": "done",
+    "round": null,
+    "of": null
+  },
+  "started": "2026-11-05T15:01:59Z",
+  "finished": "2026-11-05T15:06:59Z",
+  "base": "ditto:demoA-qwen3-1.7b-r1",
+  "example_ids": [
+    "x-0001",
+    "x-0002"
+  ],
+  "preview": {
+    "follows_your_examples": {
+      "new": 2,
+      "current": 0,
+      "total": 2,
+      "label": "trained on these: shows the update took, not evidence"
+    },
+    "follows_your_rules_new_situations": {
+      "new": 7,
+      "current": 1,
+      "total": 10,
+      "label": null
+    },
+    "unchanged_elsewhere": {
+      "same": 9,
+      "total": 10
+    }
+  },
+  "prepared": true,
+  "prepared_run_id": "demo-ana-r1-prepared",
+  "error": null
+}

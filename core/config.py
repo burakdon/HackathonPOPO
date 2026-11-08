@@ -141,3 +141,15 @@ def load_logistic_bandit(path: str | Path = "configs/logistic_bandit.yaml") -> L
 
 def load_service(path: str | Path = "configs/service.yaml") -> ServiceConfig:
     return ServiceConfig(**load_yaml(path))
+
+
+def load_dotenv(path: str = ".env") -> None:
+    """Load KEY=value lines of the (gitignored) .env into the environment, without overriding real variables."""
+    import os
+    p = resolve(path)
+    if p.exists():
+        for line in p.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))

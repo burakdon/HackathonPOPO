@@ -14,7 +14,7 @@ import time
 
 import numpy as np
 
-from speech.base import Transcription
+from speech.base import Transcription, WordProb
 
 MIN_SECONDS = 0.3
 SILENCE_RMS = 0.003          # below this the recording is treated as silent
@@ -41,13 +41,16 @@ class WhisperLocalProvider:
                 self._model = WhisperModel(self.model_name, device="cpu", compute_type="int8")
             return self._model
 
-    def _run(self, wav: np.ndarray) -> tuple[str, float | None]:
+    def _run(self, wav: np.ndarray) -> tuple[str, float | None, list[WordProb]]:
+        # No initial prompt or hotwords: the recognizer must never be told the expected word.
         segs, _ = self._get().transcribe(wav, language=self.language, beam_size=5, vad_filter=True,
-                                         condition_on_previous_text=False)
+                                         condition_on_previous_text=False, word_timestamps=True)
         segs = list(segs)
         text = " ".join(s.text.strip() for s in segs).strip()
         nsp = max((s.no_speech_prob for s in segs), default=None)
-        return text, nsp
+        words = [WordProb(word=w.word.strip(), probability=round(float(w.probability), 3))
+                 for s in segs for w in (s.words or []) if w.word.strip()]
+        return text, nsp, words
 
     def transcribe(self, audio: bytes, content_type: str | None) -> Transcription:
         t0 = time.perf_counter()
@@ -66,7 +69,7 @@ class WhisperLocalProvider:
                                  error="the recording was silent or too short")
         fut = self._pool.submit(self._run, wav)
         try:
-            text, nsp = fut.result(timeout=self.timeout_s)
+            text, nsp, words = fut.result(timeout=self.timeout_s)
         except concurrent.futures.TimeoutError:
             return Transcription(status="timeout", provider=self.name, audio_seconds=round(secs, 2), latency_ms=ms(),
                                  error=f"transcription took longer than {self.timeout_s:.0f} s")
@@ -77,4 +80,4 @@ class WhisperLocalProvider:
             return Transcription(status="empty", provider=self.name, audio_seconds=round(secs, 2), no_speech_prob=nsp,
                                  latency_ms=ms(), error="no speech recognised")
         return Transcription(status="ok", text=text, provider=self.name, audio_seconds=round(secs, 2),
-                             no_speech_prob=None if nsp is None else round(nsp, 3), latency_ms=ms())
+                             no_speech_prob=None if nsp is None else round(nsp, 3), words=words, latency_ms=ms())
