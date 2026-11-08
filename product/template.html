@@ -1,0 +1,598 @@
+<title>CueAgain</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: top bar switches two views. Patient = one tablet card, one action at a time, large type.
+   Clinician = caseload list + one patient page read top to bottom: how they are doing, what we see,
+   session review, notes, exercise plan. Minimum text size ~15px everywhere. */
+:root {
+  --bg: #eef2f5; --surface: #ffffff; --surface-2: #f6f8fa; --head: #f1f4f7; --ink: #17242f; --muted: #5d6b78; --line: #d5dde4; --nav: #ffffff; --nav-ink: #17242f; --nav-muted: #5d6b78;
+  --accent: #00668a; --accent-ink: #ffffff; --accent-soft: #e6f2f6;
+  --hint: #17242f; --hint-bg: #e6f2f6; --good: #2e7d4f; --good-bg: #e9f4ee; --bad: #b42318; --bad-bg: #fbeceb;
+  --c-sound: #00668a; --c-word: #7a8b99; --c-none: #b8c3cc; --c-hint: #8fc1d3;
+  --shadow: none; color-scheme: light;
+  --f-body: "Source Sans 3", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 16px/1.55 var(--f-body); margin: 0; -webkit-font-smoothing: antialiased }
+b, strong { font-weight: 600 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--accent) }
+h1, h2, h3 { line-height: 1.2; text-wrap: balance; margin: 0 }
+h2 { font-size: .85rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted) }
+.card > h2:first-child { margin: -16px -20px 0; padding: 10px 20px; background: var(--head); border-bottom: 1px solid var(--line) }
+h1 { font-weight: 600; letter-spacing: -.01em }
+button, input, select, textarea { font: inherit; color: inherit }
+button { cursor: pointer }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
+.num { font-variant-numeric: tabular-nums }
+.muted { color: var(--muted) }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--nav); color: var(--nav-ink); border-top: 4px solid var(--accent); border-bottom: 1px solid var(--line) }
+.top .wrap { display: flex; align-items: center; gap: 14px; padding-block: 10px; flex-wrap: wrap }
+.brand { font-weight: 600; font-size: 1.2rem; color: var(--accent); display: flex; align-items: center; gap: 10px } .brand svg { flex: none }
+.demo-tag { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--nav-muted); border: 1px solid var(--nav-muted); border-radius: 4px; padding: 1px 6px }
+.seg { display: inline-flex; gap: 2px; margin-left: auto }
+.seg button { border: 0; background: transparent; padding: 8px 14px; border-radius: 4px; font-weight: 600; color: var(--nav-muted) }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent) }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 9px 16px; font-weight: 600 }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) }
+.btn:disabled { opacity: .45; cursor: not-allowed }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 4px; font-weight: 600; z-index: 20; max-width: calc(100% - 32px) }
+
+/* ---------- PATIENT TABLET ---------- */
+.stage { display: grid; gap: 14px; justify-items: center; padding-block: 22px 40px }
+.stage-meta { width: min(780px, 100%); display: flex; gap: 10px; align-items: center; font-weight: 600 }
+.stage-meta select { border: 1px solid var(--line); border-radius: 4px; background: var(--surface); padding: 5px 8px }
+.tablet { width: min(780px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; box-shadow: var(--shadow); min-height: 600px; display: flex; flex-direction: column; overflow: hidden }
+.t-bar { color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--surface-2); font-weight: 600 }
+.t-inner { padding: clamp(20px, 4vw, 36px); display: flex; flex-direction: column; gap: 20px; flex: 1 }
+.t-top { display: flex; justify-content: space-between; align-items: center; gap: 12px }
+.dots { display: flex; gap: 6px; flex-wrap: wrap }
+.dots i { width: 22px; height: 6px; border-radius: 2px; background: var(--line); display: block }
+.dots i.ok { background: var(--good) } .dots i.help { background: var(--c-hint) } .dots i.miss { background: var(--c-none) } .dots i.now { background: var(--accent) }
+.quiet { border: 0; background: none; color: var(--muted); font-weight: 600; padding: 6px 4px }
+.t-body { display: grid; justify-items: center; text-align: center; gap: 20px; margin-block: auto }
+.t-title { font-size: clamp(1.6rem, 4.2vw, 2.1rem); letter-spacing: -.01em; font-weight: 600 }
+.t-say { font-size: clamp(1.25rem, 3.4vw, 1.55rem) }
+.pic { width: min(300px, 68vw); aspect-ratio: 1; max-width: 100%; display: grid; place-items: center; background: var(--surface); border-radius: 4px; border: 1px solid var(--line) }
+.pic img { width: 74%; height: 74% }
+.big { font-size: 1.3rem; font-weight: 600; border: 2px solid var(--accent); border-radius: 4px; background: var(--accent); color: var(--accent-ink); padding: 16px 32px; min-width: 210px; display: inline-flex; gap: 12px; align-items: center; justify-content: center }
+.big.soft { background: var(--surface); color: var(--accent) }
+.row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center }
+.bubble { border-radius: 4px; padding: 14px 20px; font-size: 1.4rem; font-weight: 600; max-width: 600px; display: flex; gap: 14px; align-items: center; text-align: left; border-left: 5px solid }
+.bubble.hint { background: var(--accent-soft); color: var(--ink); border-color: var(--accent) } .bubble.good { background: var(--good-bg); color: var(--good); border-color: var(--good) }
+.speak { border: 1px solid var(--accent); background: var(--surface); color: var(--accent); border-radius: 4px; width: 46px; height: 46px; flex: none; display: grid; place-items: center }
+.features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100% }
+.features div { background: var(--accent-soft); color: var(--ink); border-radius: 4px; padding: 12px; font-weight: 600; border-top: 4px solid var(--accent) }
+.listening { display: grid; justify-items: center; gap: 10px }
+.pulse { width: 84px; height: 84px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; color: var(--accent-ink); animation: pulse 1.4s ease-in-out infinite }
+@keyframes pulse { 50% { transform: scale(1.08); opacity: .85 } }
+.demo { width: min(780px, 100%); border: 1px dashed var(--muted); border-radius: 4px; padding: 10px 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--surface-2) }
+.demo .lbl { font-weight: 600; color: var(--muted) }
+.demo .row { gap: 8px }
+.demo button { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 7px 12px }
+.sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100% }
+.sum div { background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 16px; font-size: 1.05rem }
+.sum b { display: block; font-size: 2.2rem }
+.moods { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; width: 100% }
+.moods button { border: 2px solid var(--line); background: var(--surface); border-radius: 4px; padding: 16px 8px; display: grid; justify-items: center; gap: 8px; font-size: 1.15rem; font-weight: 600; color: var(--ink) }
+.moods button:hover { border-color: var(--accent) }
+.mood-row { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 12px; align-items: center }
+.overlay { position: fixed; inset: 0; background: rgba(10, 20, 24, .55); display: grid; place-items: center; z-index: 15; padding: 16px }
+
+/* ---------- CLINICIAN ---------- */
+.clin { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 20px; padding-block: 20px 44px; align-items: start }
+.rail { display: grid; gap: 10px; position: sticky; top: calc(70px + env(safe-area-inset-top, 0px)) }
+.rail h2 { padding-left: 2px }
+.prow { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 12px 14px; display: grid; gap: 6px; width: 100% }
+.prow .top2 { display: flex; justify-content: space-between; gap: 8px; align-items: baseline }
+.prow[aria-current="true"] { border-color: var(--accent); box-shadow: inset 5px 0 0 var(--accent) }
+.prow b { font-size: 1.08rem }
+.status { justify-self: start; border-radius: 4px; padding: 2px 8px; font-weight: 600; font-size: .9rem }
+.status { background: transparent; border: 1px solid currentColor } .status.attn { color: var(--bad) } .status.ok { color: var(--muted) } .status.up { color: var(--good) }
+.meter { height: 6px; background: var(--surface-2); border-radius: 2px; overflow: hidden; border: 1px solid var(--line) }
+.meter span { display: block; height: 100%; background: var(--accent) }
+.main { display: grid; gap: 18px; min-width: 0 }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 16px 20px; display: grid; gap: 14px; align-content: start; min-width: 0 }
+.phead h1 { font-size: 1.65rem } .phead p { margin: 4px 0 0 }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px }
+.stat .k { color: var(--muted); font-weight: 600; font-size: .85rem; text-transform: uppercase; letter-spacing: .06em } .stat .v { font-size: 1.9rem; font-weight: 600 } .stat .d { color: var(--muted) }
+.stat.attn .v { font-size: 1.25rem; line-height: 1.35; color: var(--bad) } .stat.attn.none .v { color: var(--good) }
+.chart svg { width: 100%; height: auto; display: block }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted) }
+.legend i { display: inline-block; width: 16px; height: 5px; border-radius: 3px; vertical-align: middle; margin-right: 6px }
+.obs { display: grid; grid-template-columns: max-content minmax(0, 1fr); margin: 0 }
+.obs dt, .obs dd { margin: 0; padding: 10px 0; border-top: 1px solid var(--line) }
+.obs dt { color: var(--muted); font-weight: 600; padding-right: 18px }
+.hintbars { display: grid; gap: 8px }
+.hb-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 60px; gap: 10px; align-items: center }
+.hb-bar { height: 10px; background: var(--surface-2); border-radius: 2px; overflow: hidden; border: 1px solid var(--line) }
+.hb-bar span { display: block; height: 100%; background: var(--accent) }
+.wordchips { display: flex; gap: 8px; flex-wrap: wrap }
+.wc { background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 3px 10px }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px }
+.sess { display: flex; gap: 8px; flex-wrap: wrap }
+.sess button { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 6px 12px }
+.sess button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.tablebox { overflow-x: auto }
+table { border-collapse: collapse; width: 100% }
+th { text-align: left; color: var(--muted); padding: 8px 10px; border-bottom: 2px solid var(--line); white-space: nowrap; font-size: .95rem }
+td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle }
+.res { font-weight: 600 } .res.good { color: var(--good) } .res.bad { color: var(--bad) } .res.help { color: var(--accent) }
+td select { border: 1px solid var(--line); border-radius: 4px; background: var(--surface); padding: 6px 8px; max-width: 100% }
+.mine { color: var(--accent); font-weight: 600 }
+.banner { border: 1px solid var(--accent); border-left: 5px solid var(--accent); background: var(--accent-soft); border-radius: 4px; padding: 16px; display: grid; gap: 10px }
+textarea { width: 100%; min-height: 96px; border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; background: var(--surface-2); resize: vertical }
+.chips { display: flex; gap: 8px; flex-wrap: wrap }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 6px 12px }
+.proposal { display: grid; gap: 10px; border: 1px solid var(--accent); border-left: 5px solid var(--accent); background: var(--accent-soft); border-radius: 4px; padding: 16px }
+.proposal label { display: flex; gap: 10px; align-items: flex-start }
+.proposal input { width: 20px; height: 20px; margin-top: 3px }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px }
+.form label { display: grid; gap: 6px; font-weight: 600 }
+.form select, .form input[type=text] { border: 1px solid var(--line); border-radius: 4px; padding: 9px 10px; background: var(--surface-2); min-width: 0; font-weight: 400 }
+.days { display: flex; gap: 6px; flex-wrap: wrap }
+.days button { width: 52px; border: 1px solid var(--line); border-radius: 4px; padding: 8px 0; background: var(--surface); font-weight: 600 }
+.days button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.pw { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
+.pw span { background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px 4px 12px; display: inline-flex; gap: 6px; align-items: center }
+.pw span button { border: 0; background: none; color: var(--muted); font-size: 1.1rem; padding: 0 6px }
+.log { display: grid; gap: 10px }
+.log div { border-left: 3px solid var(--line); padding-left: 12px }
+.foot { padding-block: 0 30px; color: var(--muted); font-size: .9rem; max-width: 90ch }
+
+@media (max-width: 1000px) { .clin { grid-template-columns: 1fr } .rail { position: static; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) } .two { grid-template-columns: 1fr } }
+@media (max-width: 640px) { .moods { grid-template-columns: repeat(2, minmax(0, 1fr)) } .stats, .sum, .features { grid-template-columns: 1fr } .form { grid-template-columns: 1fr } .seg { margin-left: 0 } .hb-row { grid-template-columns: 110px minmax(0, 1fr) 50px } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important } }
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="brand"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M7 12h10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>CueAgain</div>
+  <span class="demo-tag">Demo data</span>
+  <div class="seg" role="group" aria-label="View">
+    <button id="nav-patient" aria-pressed="false">Patient tablet</button>
+    <button id="nav-clinician" aria-pressed="true">Clinician</button>
+  </div>
+</div></header>
+<main id="app"></main>
+<div id="toast" class="toast" hidden></div>
+<div id="overlay" class="overlay" hidden></div>
+
+<script>
+const MOCK = /*__MOCK_DATA__*/null;
+const ITEMS = /*__ITEMS__*/null;
+const PICS = /*__PICTURES__*/null;
+
+/* ---------------- shared ---------------- */
+const HINT = { none: "No hint", first_sound: "First sound", first_letter: "First letter", sentence_frame: "Finish the sentence", semantic: "Meaning hint" };
+const RESULT = { sound: "Close in sound", meaning: "Different word", no_response: "No word" };
+const APPROACH = { match_error: "Matched to error", meaning_first: "Meaning first", first_sound_first: "First sound first", least_help: "Least help first" };
+// Cueing hierarchies (smallest helpful hint first). "describe" = semantic feature analysis prompts.
+const LADDERS = {
+  match_error: { sound: ["first_sound", "first_letter"], meaning: ["describe", "semantic", "first_sound"], no_response: ["sentence_frame", "semantic", "first_sound"] },
+  meaning_first: { _: ["describe", "semantic", "sentence_frame", "first_sound"] },
+  first_sound_first: { _: ["first_sound", "first_letter", "sentence_frame"] },
+  least_help: { _: ["sentence_frame", "first_letter", "first_sound"] },
+};
+const MIC = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M8.5 21h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const SPEAKER = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const MOOD = { 4: "Good", 3: "Okay", 2: "Low", 1: "Very low" };
+const MOOD_COLOR = { 4: "var(--accent)", 3: "var(--c-hint)", 2: "var(--c-word)", 1: "var(--bad)" };
+function face(level, size = 64) {   // simple line face; mouth curvature follows the mood
+  const mouth = { 4: "M20 38 Q32 50 44 38", 3: "M21 40 Q32 44 43 40", 2: "M21 43 Q32 38 43 43", 1: "M20 45 Q32 33 44 45" }[level];
+  return `<svg width="${size}" height="${size}" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="23" cy="26" r="3.2" fill="currentColor"/><circle cx="41" cy="26" r="3.2" fill="currentColor"/><path d="${mouth}" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>`;
+}
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const S = { view: "clinician", sel: "maria", tablet: "maria", patients: structuredClone(MOCK.patients),
+  log: {}, sugg: {}, standing: {}, openSession: null, proposal: null, run: null };
+for (const p of S.patients) {
+  S.log[p.id] = [{ when: "Nov 1", what: "Initial plan" }];
+  S.sugg[p.id] = [];
+  p.plan.days = p.plan.days || DAYS.slice(0, p.plan.days_per_week);
+}
+const P = (id) => S.patients.find((p) => p.id === id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pct = (x) => (x == null || isNaN(x) ? "–" : Math.round(x * 100) + "%");
+const fmtDate = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
+const $ = (id) => document.getElementById(id);
+function toast(m) { const t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
+function say(text) { try { const u = new SpeechSynthesisUtterance(text); u.rate = .85; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { toast("Audio is not available on this device."); } }
+
+function setView(v) { S.view = v; if (location.hash !== "#" + v) history.replaceState(null, "", "#" + v); render(); window.scrollTo(0, 0); }
+$("nav-patient").onclick = () => setView("patient");
+$("nav-clinician").onclick = () => setView("clinician");
+window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (v === "patient" || v === "clinician") { S.view = v; render(); } });
+function render() {
+  $("nav-patient").setAttribute("aria-pressed", S.view === "patient");
+  $("nav-clinician").setAttribute("aria-pressed", S.view === "clinician");
+  S.view === "patient" ? renderTablet() : renderClinician();
+}
+
+/* =====================================================================
+   PATIENT TABLET: modeled on a naming session with a speech therapist.
+   Picture -> the person says it (speech recognition scores it) -> if not yet, the smallest helpful
+   hint for that kind of mistake, then stronger ones -> after a hint works, say it once more ->
+   after the last try, hear it and say it together -> at the end, try the hard ones again.
+   No helper assumed: the person never judges their own answer; "Hint please" is always there.
+   ===================================================================== */
+const plan = () => P(S.tablet).plan;
+function pick(level, seen) {
+  const pool = ITEMS.filter((i) => i.tier === level), fresh = pool.filter((i) => !seen.has(i.exercise_id));
+  const from = fresh.length ? fresh : pool; return from[Math.floor(Math.random() * from.length)];
+}
+function start() {
+  const pl = plan();
+  S.run = { level: pl.level, n: pl.pictures_per_session, done: [], seen: new Set(), item: null, tries: 0, hints: [], kind: null,
+            phase: "mood", streak: 0, firstTries: [], note: "", review: [], reviewDone: [], mood: null };
+  renderTablet();
+}
+function next() {
+  const r = S.run;
+  if (r.done.length >= r.n) { r.review = r.done.filter((d) => !d.solo).slice(0, 3).map((d) => d.item); r.phase = r.review.length ? "review-intro" : "end"; if (r.phase === "end") save(); return renderTablet(); }
+  r.item = pick(r.level, r.seen); r.seen.add(r.item.exercise_id); r.tries = 0; r.hints = []; r.kind = null; r.phase = "ask"; r.note = "";
+  renderTablet();
+}
+function ladder() { const L = LADDERS[plan().hint_order] || LADDERS.match_error; return L[r_kind()] || L._ || LADDERS.match_error.no_response; }
+const r_kind = () => S.run.kind || "no_response";
+function heard(result) {              // what speech recognition decided (simulated by the demo strip)
+  const r = S.run;
+  if (r.phase === "review") return reviewHeard(result);
+  r.tries += 1;
+  if (result === "correct") { r.phase = r.hints.length ? "again" : "yes"; if (!r.hints.length) finishPicture(true); return renderTablet(); }
+  if (!r.kind) r.kind = result;
+  if (r.tries >= plan().max_attempts) { r.phase = "together"; return renderTablet(); }
+  const L = ladder(); r.hints.push(L[Math.min(r.hints.length, L.length - 1)]); r.phase = "hint"; renderTablet();
+}
+function hintPlease() { const r = S.run; if (r.phase === "review") return reviewHeard("no_response"); heard(r.kind || "no_response"); }
+function finishPicture(named) {
+  const r = S.run, solo = named && r.tries === 1;
+  r.done.push({ item: r.item, word: r.item.preferred_name, level: r.level, named, solo, hints: [...r.hints], kind: r.kind });
+  r.firstTries.push(solo); r.streak = named ? 0 : r.streak + 1; r.note = "";
+  const last = r.firstTries.slice(-4);
+  if (last.length === 4 && last.every(Boolean) && r.level < 3) { r.level++; r.firstTries = []; r.note = ""; }
+  else if (r.firstTries.slice(-3).length === 3 && !r.firstTries.slice(-3).some(Boolean) && r.level > 1) { r.level--; r.firstTries = []; r.note = ""; }
+}
+function afterPicture() {
+  const r = S.run;
+  if (r.streak >= plan().break_after_misses) { r.streak = 0; return breakOverlay(true); }
+  next();
+}
+function reviewHeard(result) {
+  const r = S.run, item = r.review[r.reviewDone.length];
+  r.reviewDone.push({ word: item.preferred_name, ok: result === "correct" });
+  r.phase = result === "correct" ? "review-yes" : "review-show"; renderTablet();
+}
+function reviewNext() { const r = S.run; if (r.reviewDone.length >= r.review.length) { r.phase = "end"; save(); } else r.phase = "review"; renderTablet(); }
+function save() {
+  const r = S.run, p = P(S.tablet), n = r.done.length;
+  const trials = r.done.map((d) => ({ word: d.word, level: d.level, hint: d.hints[0] || "none", correct: d.named, error: d.named ? "correct" : d.kind || "no_response", seconds: 4, review: false, live_hints: d.hints }));
+  p.sessions.push({ date: "2026-11-07", live: true, pictures: n, named_without_hint: r.done.filter((d) => d.solo).length / n,
+    named_with_hint: r.done.filter((d) => d.named && !d.solo).length / n,
+    errors: { sound: r.done.filter((d) => d.kind === "sound").length, wrong_word: r.done.filter((d) => d.kind === "meaning").length, no_answer: r.done.filter((d) => d.kind === "no_response").length },
+    review_recall: r.reviewDone.length ? r.reviewDone.filter((x) => x.ok).length / r.reviewDone.length : null,
+    mood: r.mood, mean_level: r.done.reduce((a, d) => a + d.level, 0) / n, ended_early: false, minutes: Math.round(n * 1.2), trials });
+}
+function hintView(h, item) {
+  if (h === "describe") return `<div class="t-say">Tell me about it.</div><div class="features"><div>Group?</div><div>Use?</div><div>Where?</div></div>`;
+  const text = item.cues[h] || HINT[h];
+  return `<div class="bubble hint"><span>${esc(text)}</span><button class="speak" data-say="${esc(text)}" aria-label="Read the hint aloud">${SPEAKER}</button></div>`;
+}
+function demoStrip() {
+  const r = S.run; if (!r || !["ask", "listening", "hint", "review"].includes(r.phase)) return "";
+  const review = r.phase === "review";
+  return `<div class="demo"><span class="lbl">Demo input</span>
+    <button data-heard="correct">Said the word</button>${review ? "" : `<button data-heard="sound">Close in sound</button><button data-heard="meaning">Different word</button>`}<button data-heard="no_response">No word</button></div>`;
+}
+function renderTablet() {
+  const p = P(S.tablet), pl = p.plan, r = S.run;
+  const nextDay = pl.days.length ? pl.days.join(", ") : "not scheduled";
+  let body;
+  if (!r) {
+    body = `<div class="t-body"><div class="t-title">Hello, ${esc(p.first)}.</div>
+      <div class="t-say muted">${pl.pictures_per_session} pictures · ${pl.session_minutes} min</div>
+      <button class="big" id="go">Start</button></div>`;
+  } else if (r.phase === "mood") {
+    body = `<div class="t-body"><div class="t-title">How are you today?</div>
+      <div class="moods">${[4, 3, 2, 1].map((m) => `<button data-mood="${m}" aria-label="${MOOD[m]}">${face(m)}<span>${MOOD[m]}</span></button>`).join("")}</div></div>`;
+  } else if (r.phase === "end") {
+    const n = r.done.length, solo = r.done.filter((d) => d.solo).length, helped = r.done.filter((d) => d.named && !d.solo).length;
+    const rv = r.reviewDone.length ? `${r.reviewDone.filter((x) => x.ok).length} of ${r.reviewDone.length}` : "–";
+    body = `<div class="t-body"><div class="t-title">Well done, ${esc(p.first)}.</div>
+      <div class="sum num"><div><b>${solo}</b>said on your own</div><div><b>${helped}</b>said with a hint</div><div><b>${rv}</b>remembered at the end</div></div>
+      
+      <button class="big soft" id="home">Finish</button></div>`;
+  } else if (r.phase === "review-intro") {
+    body = `<div class="t-body"><div class="t-title">Let's try a few again.</div><button class="big" id="rv">Okay</button></div>`;
+  } else if (r.phase.startsWith("review")) {
+    const item = r.review[r.reviewDone.length - (r.phase === "review" ? 0 : 1)];
+    let mid;
+    if (r.phase === "review") mid = `<div class="row"><button class="big" id="mic">${MIC} Say it</button><button class="big soft" id="hp">Show me</button></div>`;
+    else if (r.phase === "review-yes") mid = `<div class="bubble good">Yes, ${esc(item.preferred_name)}!</div><button class="big" id="rvn">Next</button>`;
+    else mid = `<div class="bubble hint"><span>It's ${esc(item.preferred_name)}.</span><button class="speak" data-say="${esc(item.preferred_name)}" aria-label="Hear it">${SPEAKER}</button></div><button class="big" id="rvn">I said it</button>`;
+    body = `<div class="t-top"><span class="muted">Review ${Math.min(r.reviewDone.length + (r.phase === "review" ? 1 : 0), r.review.length)} of ${r.review.length}</span><button class="quiet" id="pause">Pause</button></div>
+      <div class="t-body"><div class="pic"><img src="${PICS[item.exercise_id]}" alt="Picture to name"></div>${mid}</div>`;
+  } else {
+    const it = r.item;
+    const dots = Array.from({ length: r.n }, (_, i) => { const d = r.done[i]; return `<i class="${!d ? (i === r.done.length ? "now" : "") : d.solo ? "ok" : d.named ? "help" : "miss"}"></i>`; }).join("");
+    let mid;
+    if (r.phase === "ask") mid = `<div class="t-say">What is this?</div><div class="row"><button class="big" id="mic">${MIC} Say it</button><button class="big soft" id="hp">Hint</button></div>`;
+    else if (r.phase === "listening") mid = `<div class="listening"><div class="pulse" aria-hidden="true">${MIC}</div><div class="t-say">Listening…</div></div>`;
+    else if (r.phase === "hint") mid = `${hintView(r.hints[r.hints.length - 1], it)}<div class="row"><button class="big" id="mic">${MIC} Try again</button><button class="big soft" id="hp">Hint</button></div>`;
+    else if (r.phase === "yes") mid = `<div class="bubble good">Yes! ${esc(it.preferred_name)}.</div><button class="big" id="nx">Next picture</button>`;
+    else if (r.phase === "again") mid = `<div class="bubble good">Yes! ${esc(it.preferred_name)}.</div><div class="t-say">Say it once more.</div><button class="big" id="ag">I said it again</button>`;
+    else if (r.phase === "together") mid = `<div class="bubble hint"><span>This is a ${esc(it.preferred_name)}.</span><button class="speak" data-say="${esc(it.preferred_name)}" aria-label="Hear it">${SPEAKER}</button></div><div class="t-say">Say it with me.</div><button class="big" id="tg">I said it</button>`;
+    body = `<div class="t-top"><div class="dots" aria-label="Progress">${dots}</div><button class="quiet" id="pause">Pause</button></div>
+      <div class="t-body"><div class="pic"><img src="${PICS[it.exercise_id]}" alt="Picture to name"></div>${mid}</div>`;
+  }
+  $("app").innerHTML = `<div class="wrap stage">
+    <div class="stage-meta"><label for="who">Patient</label><select id="who">${S.patients.map((x) => `<option value="${x.id}" ${x.id === S.tablet ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
+    <section class="tablet" aria-label="${esc(p.first)}'s practice"><div class="t-bar"><span>Picture naming</span><span>${esc(p.name)}</span></div><div class="t-inner">${body}</div></section>
+    ${demoStrip()}</div>`;
+  const on = (id, f) => { const el = $(id); if (el) el.onclick = f; };
+  $("who").onchange = (e) => { S.tablet = e.target.value; S.run = null; renderTablet(); };
+  on("go", start); on("home", () => { S.run = null; renderTablet(); });
+  on("mic", () => { if (S.run.phase !== "review") { S.run.phase = "listening"; renderTablet(); } else toast("Speak now. In this demo, tap what the person said below."); });
+  on("hp", hintPlease); on("nx", afterPicture); on("rv", () => { S.run.phase = "review"; renderTablet(); }); on("rvn", reviewNext);
+  on("ag", () => { finishPicture(true); afterPicture(); });
+  on("tg", () => { finishPicture(false); afterPicture(); });
+  on("pause", () => breakOverlay(false));
+  document.querySelectorAll("[data-heard]").forEach((b) => (b.onclick = () => heard(b.dataset.heard)));
+  document.querySelectorAll("[data-mood]").forEach((b) => (b.onclick = () => { S.run.mood = +b.dataset.mood; next(); }));
+  document.querySelectorAll("[data-say]").forEach((b) => (b.onclick = () => say(b.dataset.say)));
+}
+function breakOverlay(auto) {
+  const o = $("overlay");
+  o.innerHTML = `<div class="tablet" style="min-height:0;max-width:540px"><div class="t-body"><div class="t-title">${auto ? "Let's take a short break." : "Paused"}</div>
+    <div class="t-say">${auto ? "Rest for a minute." : "Take your time."}</div>
+    <button class="big" id="cont">Continue</button></div></div>`;
+  o.hidden = false;
+  $("cont").onclick = () => { o.hidden = true; if (auto && S.run.level > 1) S.run.level--; if (auto) next(); };
+}
+
+/* =====================================================================
+   CLINICIAN: review the week, see what helps, leave notes, adjust the exercises.
+   ===================================================================== */
+const AS_OF = new Date(MOCK.as_of + "T12:00:00");
+const real = (p) => p.sessions.filter((s) => !s.after);
+const lastReal = (p) => real(p)[real(p).length - 1];
+const thisWeek = (p) => p.sessions.filter((s) => s.live || (!s.after && (AS_OF - new Date(s.date + "T12:00:00")) / 864e5 < 7));
+const label = (s) => s.live ? "Today" : s.after ? `Next ${s.after}` : fmtDate(s.date);
+const avg = (a, k) => a.reduce((x, s) => x + s[k], 0) / Math.max(1, a.length);
+function attention(p) {
+  const out = [], last = lastReal(p), gap = Math.round((AS_OF - new Date(last.date + "T12:00:00")) / 864e5);
+  if (gap >= 3 && !last.live) out.push(`No practice in ${gap} days`);
+  const early = thisWeek(p).filter((s) => s.ended_early).length;
+  if (early) out.push(`Stopped early ×${early}`);
+  const low = lowMood(p);
+  if (low) out.push(`Low mood ${low[0]}/${low[1]} sessions · consider SADQ-10`);
+  return out;
+}
+function lowMood(p) {
+  const m = real(p).filter((s) => s.mood).slice(-4), n = m.filter((s) => s.mood <= 2).length;
+  return m.length >= 3 && n >= 3 ? [n, m.length] : null;
+}
+function trend(p) { const r = real(p), k = Math.min(3, Math.floor(r.length / 2)); return avg(r.slice(-k), "named_without_hint") - avg(r.slice(0, k), "named_without_hint"); }
+function status(p) { if (attention(p).length) return ["attn", "Needs attention"]; return trend(p) >= .08 ? ["up", "Improving"] : ["ok", "On track"]; }
+function hintEffect(p) {          // after a miss, how often the next picture was named with each hint
+  const m = {};
+  for (const s of p.sessions) for (const t of s.trials) if (t.hint !== "none" && !t.review) { (m[t.hint] ||= [0, 0]); m[t.hint][1]++; if (t.correct) m[t.hint][0]++; }
+  return Object.entries(m).filter(([, v]) => v[1] >= 4).map(([h, v]) => [h, v[0] / v[1], v[1]]).sort((a, b) => b[1] - a[1]);
+}
+function wordStats(p) {
+  const w = {};
+  for (const s of real(p)) for (const t of s.trials) { (w[t.word] ||= { n: 0, solo: 0, miss: 0 }); w[t.word].n++; if (t.correct && t.hint === "none") w[t.word].solo++; if (!t.correct) w[t.word].miss++; }
+  const hard = Object.entries(w).filter(([, v]) => v.miss >= 2).sort((a, b) => b[1].miss - a[1].miss).slice(0, 6).map(([k]) => k);
+  const mastered = Object.entries(w).filter(([, v]) => v.solo >= 2 && v.miss === 0).sort((a, b) => b[1].solo - a[1].solo).slice(0, 6).map(([k]) => k);
+  return { hard, mastered };
+}
+function errorMix(p) { const t = { sound: 0, wrong_word: 0, no_answer: 0 }; for (const s of real(p).slice(-5)) for (const k in t) t[k] += s.errors[k]; return t; }
+
+function renderClinician() {
+  const p = P(S.sel);
+  $("app").innerHTML = `<div class="wrap clin">
+    <nav class="rail" aria-label="Your patients"><h2>Your patients</h2>${S.patients.map(railRow).join("")}</nav>
+    <section class="main">${page(p)}</section></div>
+`;
+  document.querySelectorAll(".prow").forEach((b) => (b.onclick = () => { S.sel = b.dataset.id; S.openSession = null; S.proposal = null; renderClinician(); window.scrollTo(0, 0); }));
+  wire(p);
+}
+function railRow(p) {
+  const mins = thisWeek(p).reduce((a, s) => a + s.minutes, 0), [c, t] = status(p), last = lastReal(p);
+  return `<button class="prow" data-id="${p.id}" aria-current="${p.id === S.sel}"><b>${esc(p.name)}</b>
+    <span class="muted">${esc(p.type)}</span>
+    <span class="meter" aria-hidden="true"><span style="width:${Math.min(100, (mins / p.goal_minutes) * 100)}%"></span></span>
+    <span class="top2"><span class="muted num">${Math.round(mins)}/${p.goal_minutes} min</span><span class="status ${c}">${t}</span></span></button>`;
+}
+function page(p) {
+  const r = real(p), last = lastReal(p), first = r[0], wk = thisWeek(p), mins = wk.reduce((a, s) => a + s.minutes, 0);
+  const att = attention(p), delta = Math.round((last.named_without_hint - first.named_without_hint) * 100);
+  return `
+  <div class="phead"><h1>${esc(p.name)}</h1>
+    <p class="muted">${p.age} y · ${esc(p.type)} · ${p.months_post} mo post-stroke · last session ${last.live ? "today" : fmtDate(last.date)}</p></div>
+  <div class="stats">
+    <div class="card stat"><div class="k">Independent naming</div><div class="v num">${pct(last.named_without_hint)}</div><div class="d num">${delta >= 0 ? "+" : "−"}${Math.abs(delta)} pts since ${fmtDate(first.date)}</div></div>
+    <div class="card stat"><div class="k">Practice this week</div><div class="v num">${Math.round(mins)} <span class="muted" style="font-size:1rem">/ ${p.goal_minutes} min</span></div><div class="d num">${wk.length} sessions</div></div>
+    <div class="card stat attn ${att.length ? "" : "none"}"><div class="k">Flags</div><div class="v">${att.length ? att.map(esc).join("<br>") : "None"}</div></div>
+  </div>
+  <div class="card chart"><h2>Naming · last 2 weeks</h2>${chart(p)}
+    <div class="legend"><span><i style="background:var(--accent)"></i>Independent</span><span><i style="background:var(--c-hint)"></i>With hint</span><span><i style="background:var(--bad);width:9px;height:9px;border-radius:50%"></i>Stopped early</span></div>${moodChart(p)}</div>
+  <div class="two">${seeing(p)}${helps(p)}</div>
+  ${review(p)}
+  ${notes(p)}
+  ${planCard(p)}
+  <div class="card"><h2>Plan history</h2><div class="log">${S.log[p.id].slice().reverse().map((l) => `<div><b>${esc(l.when)}</b><br>${esc(l.what)}</div>`).join("")}</div></div>`;
+}
+function chart(p) {
+  const ss = p.sessions, W = 680, H = 240, L = 80, R = 14, T = 14, B = 34;
+  const x = (i) => L + (ss.length === 1 ? 0 : (i * (W - L - R)) / (ss.length - 1)), y = (v) => T + (1 - v) * (H - T - B);
+  const solo = ss.map((s, i) => `${x(i)},${y(s.named_without_hint)}`).join(" ");
+  const tot = ss.map((s, i) => `${x(i)},${y(s.named_without_hint + s.named_with_hint)}`);
+  const area = `${solo} ${tot.slice().reverse().join(" ")}`;
+  const grid = [0, .5, 1].map((v) => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 8}" y="${y(v) + 5}" text-anchor="end" font-size="14" fill="var(--muted)">${v * 100}%</text>`).join("");
+  const keep = []; for (let i = ss.length - 1; i >= 0; i--) if (!keep.length || x(keep[keep.length - 1]) - x(i) >= 78) keep.push(i);
+  const ticks = keep.map((i) => `<text x="${x(i)}" y="${H - 8}" text-anchor="${i === ss.length - 1 ? "end" : "middle"}" font-size="14" fill="var(--muted)">${label(ss[i])}</text>`).join("");
+  const dots = ss.map((s, i) => `<circle cx="${x(i)}" cy="${y(s.named_without_hint)}" r="${s.ended_early ? 6 : 4}" fill="${s.ended_early ? "var(--bad)" : "var(--accent)"}"><title>${label(s)}: ${pct(s.named_without_hint)} on their own</title></circle>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of pictures named on their own, per session">${grid}
+    <polygon points="${area}" fill="var(--c-hint)" fill-opacity=".25"/><polyline points="${solo}" fill="none" stroke="var(--accent)" stroke-width="3.5"/>${dots}${ticks}</svg>`;
+}
+function seeing(p) {
+  const em = errorMix(p), tot = em.sound + em.wrong_word + em.no_answer || 1, ws = wordStats(p), last = lastReal(p);
+  const top = [["sound", em.sound, "phonological"], ["wrong_word", em.wrong_word, "semantic"], ["no_answer", em.no_answer, "no response"]].sort((a, b) => b[1] - a[1])[0];
+  const early = real(p).filter((s) => s.ended_early).length;
+  return `<div class="card"><h2>Summary</h2><dl class="obs">
+    <dt>Main error</dt><dd>${top[2][0].toUpperCase() + top[2].slice(1)} (${pct(top[1] / tot)})</dd>
+    <dt>Difficult</dt><dd>${ws.hard.length ? ws.hard.slice(0, 4).map(esc).join(", ") : "–"}</dd>
+    <dt>Mastered</dt><dd>${ws.mastered.length ? ws.mastered.slice(0, 4).map(esc).join(", ") : "–"}</dd>
+    <dt>Mood</dt><dd>${moodSummary(p)}</dd>
+    <dt>Completed</dt><dd class="num">${real(p).length - early}/${real(p).length} sessions</dd>
+    ${last.review_recall != null ? `<dt>Delayed recall</dt><dd class="num">${pct(last.review_recall)}</dd>` : ""}
+  </dl></div>`;
+}
+function moodSummary(p) {
+  const m = real(p).filter((s) => s.mood).slice(-5);
+  if (!m.length) return "Not recorded";
+  const c = { 4: 0, 3: 0, 2: 0, 1: 0 }; m.forEach((s) => c[s.mood]++);
+  const most = [4, 3, 2, 1].sort((a, b) => c[b] - c[a])[0], low = c[2] + c[1];
+  return `Mostly ${MOOD[most].toLowerCase()} · low ${low}/${m.length}`;
+}
+function moodChart(p) {
+  const ss = p.sessions, W = 680, H = 120, L = 80, R = 14, T = 12, B = 12;
+  const x = (i) => L + (ss.length === 1 ? 0 : (i * (W - L - R)) / (ss.length - 1)), y = (m) => T + ((4 - m) / 3) * (H - T - B);
+  const pts = ss.map((s, i) => [i, s.mood]).filter(([, m]) => m);
+  const line = pts.map(([i, m]) => `${x(i)},${y(m)}`).join(" ");
+  const grid = [4, 3, 2, 1].map((m) => `<line x1="${L}" x2="${W - R}" y1="${y(m)}" y2="${y(m)}" stroke="var(--line)"/><text x="${L - 10}" y="${y(m) + 5}" text-anchor="end" font-size="14" fill="var(--muted)">${MOOD[m]}</text>`).join("");
+  const dots = pts.map(([i, m]) => `<circle cx="${x(i)}" cy="${y(m)}" r="5.5" fill="${MOOD_COLOR[m]}"><title>${label(ss[i])}: ${MOOD[m]}</title></circle>`).join("");
+  return `<h2 style="margin-top:8px">Mood before session</h2>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mood reported before each session">${grid}<polyline points="${line}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 4"/>${dots}</svg>`;
+}
+function helps(p) {
+  const he = hintEffect(p), st = S.standing[p.id];
+  return `<div class="card"><h2>Hint effectiveness</h2><div class="hintbars">${he.map(([h, v, n]) => `<div class="hb-row"><span>${HINT[h]}</span><span class="hb-bar"><span style="width:${v * 100}%"></span></span><span class="num">${pct(v)}</span></div>`).join("") || "<div class='muted'>Not enough data</div>"}</div>
+    <div style="border-top:1px solid var(--line);padding-top:10px"><span class="muted">Approach</span> ${esc(APPROACH[p.plan.hint_order])}${st ? `<br><span class="mine">${esc(st)}</span>` : ""}</div></div>`;
+}
+function review(p) {
+  const ss = p.sessions, i = S.openSession ?? ss.length - 1, s = ss[i], sg = S.sugg[p.id];
+  const all = s.trials.filter((t) => !t.review), shown = S.showAll ? all : all.filter((t) => !(t.correct && t.hint === "none"));
+  const rows = shown.map((t) => {
+    const k = s.trials.indexOf(t), prev = s.trials[k - 1], mine = sg.find((x) => x.s === i && x.k === k);
+    const res = t.correct ? (t.hint === "none" ? ["good", "Independent"] : ["help", "With hint"]) : ["bad", RESULT[t.error] || "Missed"];
+    const after = prev && !prev.correct && !s.live && !s.after ? prev.error : null;
+    const ctl = mine ? `<span class="mine">${HINT[mine.to]}</span>` : after ? `<select data-k="${k}" data-after="${after}" aria-label="Hint for next time"><option value="">Change…</option>${Object.keys(HINT).filter((h) => h !== "none" && h !== t.hint).map((h) => `<option value="${h}">${HINT[h]}</option>`).join("")}</select>` : "";
+    return `<tr><td>${esc(t.word)}</td><td>${t.hint === "none" ? "–" : HINT[t.hint]}</td><td class="res ${res[0]}">${res[1]}</td><td>${ctl}</td></tr>`;
+  }).join("");
+  const counts = {}; for (const x of sg) { const key = x.after + "|" + x.to; counts[key] = (counts[key] || 0) + 1; }
+  const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  let banner = "";
+  if (best && best[1] >= 2 && !S.standing[p.id]) {
+    const [after, to] = best[0].split("|");
+    banner = `<div class="banner"><div><b>${HINT[to]} after “${RESULT[after].toLowerCase()}”</b> · suggested ${best[1]}×</div>
+      <div class="row" style="justify-content:flex-start"><button class="btn primary" id="standing" data-after="${after}" data-to="${to}">Apply to future sessions</button></div></div>`;
+  }
+  return `<div class="card"><h2>Session review</h2>
+    <div class="sess">${ss.map((x, j) => `<button data-s="${j}" aria-pressed="${j === i}">${label(x)}</button>`).join("")}</div>
+    <div class="muted num">${s.after ? "After update · " : ""}${all.length} items · ${pct(s.named_without_hint)} independent · ${pct(s.named_with_hint)} with hint · ${Math.round(s.minutes)} min${s.ended_early ? " · stopped early" : ""}</div>
+    ${banner}
+    <div class="row" style="justify-content:space-between;align-items:center"><b>${S.showAll ? `All items (${all.length})` : `Needed help (${shown.length})`}</b>
+      <button class="btn" id="showall">${S.showAll ? "Needed help only" : "Show all"}</button></div>
+    ${shown.length ? `<div class="tablebox"><table><thead><tr><th>Item</th><th>Hint</th><th>Result</th><th>Next time</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="muted">All items named independently.</div>`}</div>`;
+}
+function notes(p) {
+  const pr = S.proposal && S.proposal.id === p.id ? S.proposal : null;
+  const ex = p.id === "maria" ? "Getting frustrated on long words. Start with the first sound. Add her grandkids' names, Sofia and Mateo." : "Ready for harder words. Start with meaning hints. A few more pictures per session.";
+  return `<div class="card"><h2>Clinician notes</h2>
+    <textarea id="fb" aria-label="Notes" placeholder="${esc(ex)}">${pr ? esc(pr.text) : ""}</textarea>
+    <div class="chips">${["Easier", "Harder", "First sound first", "Meaning first", "Shorter sessions", "More pictures"].map((c) => `<button class="chip" data-chip="${esc(c)}">${esc(c)}</button>`).join("")}</div>
+    <div><button class="btn primary" id="fb-go">Review changes</button></div>${pr ? proposal(p, pr) : ""}</div>`;
+}
+function parse(p, text) {
+  const t = text.toLowerCase(), pl = p.plan, out = [];
+  const add = (key, to, why) => { if (JSON.stringify(pl[key]) !== JSON.stringify(to) && !out.some((o) => o.key === key)) out.push({ key, from: pl[key], to, why }); };
+  if (/(easier|too hard|frustrat|struggl|long words|overwhelm)/.test(t)) add("level", Math.max(1, pl.level - 1), "Start at an easier level");
+  if (/(harder|too easy|bored|ready for)/.test(t)) add("level", Math.min(3, pl.level + 1), "Start at a harder level");
+  if (/(first sound|sound first|phonemic)/.test(t)) add("hint_order", "first_sound_first", "Start with the first sound");
+  else if (/(meaning|semantic|describe)/.test(t)) add("hint_order", "meaning_first", "Start with meaning hints");
+  if (/(shorter|tired|fatigue)/.test(t)) { add("pictures_per_session", Math.max(6, pl.pictures_per_session - 4), "Fewer pictures per session"); add("break_after_misses", 2, "Offer a break after 2 misses in a row"); }
+  if (/(more pictures|longer|more practice)/.test(t)) add("pictures_per_session", pl.pictures_per_session + 4, "More pictures per session");
+  if (/(more tries|more time)/.test(t)) add("max_attempts", Math.min(4, pl.max_attempts + 1), "One more try before showing the word");
+  const days = (t.match(/(\d)\s*(days|x)/) || [])[1];
+  if (days) add("days", DAYS.slice(0, +days), `Practice ${days} days a week`);
+  const stop = ["Getting", "Start", "Add", "Ready", "She", "He", "Her", "His", "The", "Make", "More", "Shorter", "First", "Meaning", "A", "Use"];
+  const names = (text.match(/\b[A-Z][a-z]{2,}\b/g) || []).filter((w) => !stop.includes(w) && w !== p.first && !pl.personal_words.includes(w));
+  if (names.length) out.push({ key: "personal_words", from: pl.personal_words, to: [...pl.personal_words, ...new Set(names)], why: `Add personal words: ${[...new Set(names)].join(", ")}` });
+  return out;
+}
+const show = (k, v) => k === "hint_order" ? APPROACH[v] : k === "days" ? v.join(", ") : Array.isArray(v) ? v.join(", ") : v;
+function proposal(p, pr) {
+  if (!pr.items.length) return `<div class="proposal"><b>No plan changes in this note.</b><div><button class="btn" id="fb-save">Save note</button></div></div>`;
+  return `<div class="proposal"><b>Proposed changes</b>
+    ${pr.items.map((o, i) => `<label><input type="checkbox" data-pi="${i}" checked><span><b>${esc(o.why)}</b><br><span class="muted">${esc(String(show(o.key, o.from)))} → ${esc(String(show(o.key, o.to)))}</span></span></label>`).join("")}
+    <div class="row" style="justify-content:flex-start"><button class="btn primary" id="fb-apply">Update the plan</button><button class="btn" id="fb-x">Discard</button></div></div>`;
+}
+function planCard(p) {
+  const pl = p.plan;
+  const sel = (id, opts, cur) => `<select id="${id}">${opts.map(([v, l]) => `<option value="${v}" ${String(v) === String(cur) ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
+  return `<div class="card"><h2>Exercise plan</h2>
+    <div class="form">
+      <label>Days<div class="days">${DAYS.map((d) => `<button type="button" data-day="${d}" aria-pressed="${pl.days.includes(d)}">${d}</button>`).join("")}</div></label>
+      <label>Minutes ${sel("pl-min", [10, 15, 20, 25, 30].map((v) => [v, v + " min"]), pl.session_minutes)}</label>
+      <label>Items per session ${sel("pl-n", [6, 8, 10, 12, 16, 20].map((v) => [v, v]), pl.pictures_per_session)}</label>
+      <label>Level ${sel("pl-level", [[1, "1 · high frequency"], [2, "2 · mid frequency"], [3, "3 · low frequency"]], pl.level)}</label>
+      <label>Hint order ${sel("pl-order", Object.entries(APPROACH), pl.hint_order)}</label>
+      <label>Max tries ${sel("pl-att", [[2, 2], [3, 3], [4, 4]], pl.max_attempts)}</label>
+      <label>Break after ${sel("pl-brk", [[2, "2 misses"], [3, "3 misses"], [4, "4 misses"]], pl.break_after_misses)}</label>
+      <label>Level up at ${sel("pl-adv", [["80% named on their own over 2 sessions", "80% × 2 sessions"], ["90% named on their own over 2 sessions", "90% × 2 sessions"], ["80% named on their own over 3 sessions", "80% × 3 sessions"]], pl.advance_rule)}</label>
+    </div>
+    <label style="font-weight:700">Personal words<div class="pw" style="margin-top:6px">${pl.personal_words.map((w) => `<span>${esc(w)}<button data-rm="${esc(w)}" aria-label="Remove ${esc(w)}">×</button></span>`).join("")}
+      <input type="text" id="pw-add" placeholder="Add a word" style="border:1px solid var(--line);border-radius:4px;padding:6px 10px;background:var(--surface-2);min-width:0;width:150px"></div></label></div>`;
+}
+function apply(p, items, what) {
+  for (const o of items) p.plan[o.key] = o.to;
+  if (items.length) S.log[p.id].push({ when: "Nov 7", what: (what ? what + " " : "") + items.map((o) => `${o.why} (${show(o.key, o.from)} → ${show(o.key, o.to)}).`).join(" ") });
+  if (S.run && S.tablet === p.id) S.run = null;
+}
+function wire(p) {
+  const fb = $("fb");
+  document.querySelectorAll("[data-chip]").forEach((c) => (c.onclick = () => { fb.value = (fb.value ? fb.value.trim() + " " : "") + c.dataset.chip + "."; }));
+  $("fb-go").onclick = () => { const text = fb.value.trim() || fb.placeholder; S.proposal = { id: p.id, text, items: parse(p, text) }; renderClinician(); };
+  const ap = $("fb-apply");
+  if (ap) ap.onclick = () => { const items = S.proposal.items.filter((o, i) => document.querySelector(`[data-pi="${i}"]`).checked);
+    apply(p, items, `Note: “${S.proposal.text}”.`); S.proposal = null; renderClinician(); toast(items.length ? `Plan updated.` : "Nothing selected."); };
+  const dx = $("fb-x"); if (dx) dx.onclick = () => { S.proposal = null; renderClinician(); };
+  const sv = $("fb-save"); if (sv) sv.onclick = () => { S.log[p.id].push({ when: "Nov 7", what: `Note: “${S.proposal.text}”.` }); S.proposal = null; renderClinician(); toast("Note saved."); };
+  $("showall").onclick = () => { S.showAll = !S.showAll; renderClinician(); };
+  document.querySelectorAll(".sess button").forEach((b) => (b.onclick = () => { S.openSession = +b.dataset.s; renderClinician(); }));
+  document.querySelectorAll("td select").forEach((s) => (s.onchange = () => {
+    if (!s.value) return; const i = S.openSession ?? p.sessions.length - 1, k = +s.dataset.k;
+    S.sugg[p.id].push({ s: i, k, to: s.value, after: p.sessions[i].trials[k - 1].error }); renderClinician(); toast("Saved for next session.");
+  }));
+  const st = $("standing"); if (st) st.onclick = () => {
+    const after = st.dataset.after, to = st.dataset.to, text = `After “${RESULT[after].toLowerCase()}”, start with a ${HINT[to].toLowerCase()}`;
+    S.standing[p.id] = text;
+    // The suggestions shape future hint choices for this patient (learned behind the scenes). The tablet's
+    // hint approach follows the instruction too.
+    const order = to === "semantic" || to === "sentence_frame" ? "meaning_first" : to === "first_sound" || to === "first_letter" ? "first_sound_first" : p.plan.hint_order;
+    const items = order !== p.plan.hint_order ? [{ key: "hint_order", from: p.plan.hint_order, to: order, why: "Hint approach" }] : [];
+    apply(p, items, `Standing instruction: ${text}.`);
+    if (!items.length) S.log[p.id].push({ when: "Nov 7", what: `Standing instruction: ${text}.` });
+    if (p.teaching && after === "meaning") { p.teaching.sessions_after.forEach((s, i) => p.sessions.push({ ...s, after: i + 1 })); S.openSession = p.sessions.length - 1; }
+    renderClinician(); toast(`Applied to future sessions.`);
+  };
+  const map = { "pl-min": "session_minutes", "pl-n": "pictures_per_session", "pl-level": "level", "pl-order": "hint_order", "pl-att": "max_attempts", "pl-brk": "break_after_misses", "pl-adv": "advance_rule" };
+  const why = { session_minutes: "Minutes per session", pictures_per_session: "Pictures per session", level: "Starting level", hint_order: "Hint approach", max_attempts: "Tries before showing the word", break_after_misses: "Break after misses", advance_rule: "When to move up" };
+  for (const [id, key] of Object.entries(map)) $(id).onchange = (e) => { const v = ["hint_order", "advance_rule"].includes(key) ? e.target.value : +e.target.value;
+    apply(p, [{ key, from: p.plan[key], to: v, why: why[key] }]); renderClinician(); toast("Plan updated."); };
+  document.querySelectorAll("[data-day]").forEach((b) => (b.onclick = () => { const d = b.dataset.day, cur = p.plan.days;
+    const to = cur.includes(d) ? cur.filter((x) => x !== d) : DAYS.filter((x) => cur.includes(x) || x === d);
+    apply(p, [{ key: "days", from: cur, to, why: "Practice days" }]); renderClinician(); }));
+  document.querySelectorAll("[data-rm]").forEach((b) => (b.onclick = () => { const w = b.dataset.rm;
+    apply(p, [{ key: "personal_words", from: p.plan.personal_words, to: p.plan.personal_words.filter((x) => x !== w), why: `Remove personal word: ${w}` }]); renderClinician(); }));
+  const pw = $("pw-add"); pw.onkeydown = (e) => { if (e.key === "Enter" && pw.value.trim()) { const w = pw.value.trim();
+    apply(p, [{ key: "personal_words", from: p.plan.personal_words, to: [...p.plan.personal_words, w], why: `Add personal word: ${w}` }]); renderClinician(); toast(`Added “${w}”.`); } };
+}
+
+const h0 = location.hash.slice(1); if (h0 === "patient" || h0 === "clinician") S.view = h0;
+render();
+</script>

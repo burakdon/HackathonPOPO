@@ -277,6 +277,13 @@ uv run python -m train.train_ppo --reward privileged    # simulator-only objecti
 uv run python -m eval.plots                     # learning curves -> results/learning_curves.png
 uv run python -m train.ditto_ppo                # DITTO-style tuning from overrides -> results/ditto_report.md
 uv run python -m scripts.validate_live_ditto     # live override learning on fresh states
+uv run python -m train.ditto_sweep              # SFT vs DITTO variants, 1-10 overrides (~6 min) -> results/ditto_sweep.md
+SIM_CONFIG=configs/sim_two_step.yaml uv run python -m train.train_ppo --timesteps 500000   # PPO on two-step patients
+SIM_CONFIG=configs/sim_two_step.yaml uv run python -m eval.compare --config configs/eval_two_step.yaml
+uv run python -m scripts.error_cue_table        # which cue each agent gives after each error type
+uv run python -m scripts.calibrate_pnt          # simulated vs 335 real patients (PNT) -> results/pnt_calibration.*
+SIM_CONFIG=configs/sim_pnt.yaml uv run python -m train.train_ppo --timesteps 500000       # PPO on data-grounded patients
+SIM_CONFIG=configs/sim_pnt.yaml uv run python -m eval.compare --config configs/eval_pnt.yaml
 uv run python -m scripts.judge_demo --url http://localhost:8000 --name live   # healthy-judge check
 uv run python -m eval.compare --config configs/eval.yaml   # full evaluation -> results/
 uv run python -m scripts.sanity_table --dropout on --out results/sanity_dropout_on.md
@@ -772,6 +779,128 @@ models and two cohorts ([`results/live_ditto_validation.md`](results/live_ditto_
 The effect holds on fresh states (top action switches in 89-98% of matching states, ± over the 5
 override sets). For the live agent 2-3% of other state types change their top action, slightly more
 than the 0% seen on the states used for tuning. Each update takes about 0.33 s on CPU.
+
+### How many overrides, and does DITTO beat plain fine-tuning? (`train/ditto_sweep.py`)
+
+Two questions a judge will ask: *why not just fine-tune on the overrides?* and *how many overrides
+does the clinician need to give?* The sweep compares three ways of learning from the same n
+overrides, with the same accepted-choice anchors and the same gradient budget (the offline settings
+in `configs/ditto.yaml`; the live endpoint uses its own settings in `configs/service.yaml`):
+
+- **SFT**: behaviour cloning on the demonstrations, the DITTO paper's main baseline.
+- **DITTO-style (legacy)**: the variant above.
+- **DITTO (paper)**: closer to Algorithm 1 of Shaikh et al.: a few SFT steps first, the frozen DPO
+  reference is that SFT policy, and each batch mixes online (demonstration > current samples), replay
+  (demonstration > earlier samples) and intermodel (later samples > earlier samples) comparisons
+  70/20/10. Intermodel pairs never use the demonstrated action as the loser. Enabled by passing
+  `mixture=` to `agents.ditto.ditto`; the default call is unchanged.
+
+Three simulated clinician rules (after a sound error give first sound; after a meaning error give a
+semantic cue; after no response give a sentence frame), n = 1, 2, 3, 5, 10 overrides, 3 seeds,
+held-out states from disjoint validation patients ([full table](results/ditto_sweep.md)):
+
+![DITTO sweep](results/ditto_sweep.png)
+
+| overrides | adoption: SFT | DITTO-style (legacy) | DITTO (paper) | leakage: SFT | legacy | paper |
+|---|---|---|---|---|---|---|
+| 3 | 0.59 | 0.69 | **0.71** | 0.07 | **0.06** | 0.09 |
+| 5 | 0.65 | 0.73 | **0.79** | 0.07 | **0.06** | 0.09 |
+| 10 | 0.83 | 0.93 | **0.95** | 0.08 | **0.08** | 0.10 |
+
+Adoption = top action uses the clinician's cue where her rule applies; leakage = top action changed
+after *other* errors. All methods keep 99% of unrelated decisions unchanged.
+- Both DITTO variants beat behaviour cloning at every n from 2 up, as in the paper.
+- The paper variant adopts slightly more from 2 overrides on, but leaks a little more (0.09 to 0.13
+  vs 0.04 to 0.08); with a single override its SFT step overshoots. The two DITTO variants are within
+  about one standard deviation of each other at n = 3, so we do not claim one is better there.
+- With 3 overrides the preference is adopted in about 70% of matching states; 10 gets above 90%.
+  Plan the live demo for 5 or more overrides.
+
+Also fixed in `train/ditto_ppo.py`: offline overrides are now masked with the same
+cue-only-after-error gate the policy acts under (as the live endpoint already does), and overrides
+the policy cannot produce are skipped and reported instead of being trained on as impossible targets.
+
+## Two-step patient model: aphasia as weak links between meaning, words and sounds (`sim/two_step.py`)
+
+The original simulator gives each trial one log-odds score; error types are drawn from fixed
+per-patient proportions and do not change which cue helps. So no agent could learn to read the
+error, and the trained PPO did not: it gave nearly the same mix of cues after sound and meaning
+errors. The two-step model is an optional, switchable patient model (`SIM_CONFIG=configs/sim_two_step.yaml`;
+the default is unchanged) that follows the two-step model of word retrieval (Dell et al. 1997;
+Foygel & Dell 2000; Schwartz et al. 2006): a patient is two link strengths, meaning -> word (s) and
+word -> sounds (p).
+
+- p(correct) = P(select the right word) x P(encode its sounds); frequency acts on step 1, length on step 2.
+- A step-1 failure gives a meaning error (or no response); a step-2 failure gives a sound error (or
+  no response, tip of the tongue). Error types come from where retrieval failed.
+- Semantic cues and sentence frames feed step 1; first sound and first letter feed step 2. Because
+  p is a product, a cue helps most when it targets the failing step, so **the error predicts the cue
+  that helps**.
+- It is a closed-form approximation of the spreading-activation model (exact probabilities for the
+  oracle, metrics and privileged reward; fast enough for RL). The structure is from the literature;
+  every magnitude is an ASSUMPTION in [`configs/sim_two_step.yaml`](configs/sim_two_step.yaml).
+- A fourth evaluation cohort, **moderate semantic** (step 1 weak), joins mild anomic, moderate
+  Broca's (step 2 weak) and severe.
+
+Cohort check (100 test patients, tier-2 items, no cue): moderate Broca's patients fail mostly with
+sound errors (62%) and gain most from a first-sound cue (+0.19 vs +0.03 for a semantic cue);
+moderate semantic patients fail mostly with meaning errors (60%) and gain most from a semantic cue
+(+0.14 vs +0.08 for first sound).
+
+**Does the agent read the error?** Share of cue choices that are phonological (first sound or
+first letter), 100 held-out validation patients ([`results/error_cue_table.md`](results/error_cue_table.md)):
+
+| policy | after a sound error | after a meaning error | difference |
+|---|---|---|---|
+| PPO trained on the original model, original patients | 65% | 54% | 11 pts |
+| PPO trained on the original model, two-step patients | 69% | 55% | 14 pts |
+| **PPO trained on the two-step model, two-step patients** | **83%** | **25%** | **58 pts** |
+
+Trained on the two-step model, PPO gives a sound cue after sound errors and largely stops doing so
+after meaning errors. After meaning errors it often gives **no** cue (41%) rather than a semantic one.
+
+**Does reading the error improve outcomes? Not yet.** On 100 held-out test patients per cohort
+([`results/two_step/comparison.md`](results/two_step/comparison.md)), the two-step-trained PPO and
+the original PPO evaluated zero-shot are within each other's confidence intervals on time in band,
+control error, learning gain, probe lift and quit rate in all four cohorts (learning gain differs by
+at most 0.08 x100). The likely reason is the interface: a cue is applied to the *next* item, not to
+the item the patient just failed, so matching the cue to the error helps only through the patient's
+general profile. Within-item cue escalation (a second attempt with a stronger, matched cue) is the
+change that should let error reading pay off; it is the next step. Training: 3 seeds x 500k steps
+(the original PPO converged within about 100k).
+
+## Grounded in real patient data: the Philadelphia Naming Test (`configs/sim_pnt.yaml`)
+
+The data-grounded simulator is the two-step model above with two parts replaced by **real data**
+(sources, extraction and licence notes: [`data/PNT_SOURCE.md`](data/PNT_SOURCE.md)):
+
+- **Items:** the 175 words of the Philadelphia Naming Test, the standard picture-naming test for
+  aphasia, with their **difficulty measured on real patients** (published 1PL item-response model,
+  Fergadiotis, Kellough & Hula 2015). Tiers are difficulty terciles. The real data also confirms a
+  simulator assumption: common words are easier (frequency vs measured difficulty, r = -0.54).
+- **Patients:** each training patient's overall naming ability is drawn from the PNT ability
+  scores of **335 real people with aphasia** (MAPPD and an R03 sample). Only how that difficulty
+  splits between word selection and sound encoding is sampled (an ASSUMPTION; MAPPD error-type
+  data could fit it).
+
+**Calibration check** ([`results/pnt_calibration.md`](results/pnt_calibration.md)): converted to
+the same ability scale, the simulated training population matches the real distribution
+(Kolmogorov-Smirnov distance 0.07; medians 52.6 vs 51.9), and per-item accuracy of the simulated
+population tracks the published model's prediction for the real patients (r = 0.93 over 175 items).
+The named cohorts sit at the 76th (mild anomic), 41st (moderate Broca's), 44th (moderate semantic)
+and 19th (severe) percentile of real patients.
+
+![Simulated vs real patients](results/pnt_calibration.png)
+
+**Agents on data-grounded patients** (100 held-out test patients per cohort,
+[`results/pnt/comparison.md`](results/pnt/comparison.md)). PPO retrained on this simulator reads
+the error (phonological cue after a sound error 82% vs 49% after a meaning error; semantic-family
+cue 49% after a meaning error vs 17% after a sound error). The original PPO, trained on the
+original simulator and never on these patients, transfers well: it is as good as or slightly better
+than the retrained PPO on learning gain (by 0.04 to 0.35 x100 on the moderate and severe cohorts)
+and both far outperform fixed difficulty (severe: quit 30-35% vs 89%). Reading the error does not
+yet pay off in outcomes for the same reason as above (cues apply to the next item); the retrained
+PPO also trained for a third as many steps.
 
 ## Known limitations
 - With an 8-trial window, rolling accuracy only takes values k/8, so the [0.75, 0.90] band means

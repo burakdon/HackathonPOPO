@@ -26,3 +26,18 @@ clinician_rule: {after_error: sound, cue: first_sound}
 n_overrides: 10
 override_patients: [0, 60]     # validation patients used to collect override states
 eval_patients: [100, 220]      # disjoint validation patients for the before/after evaluation
+
+# Paper variant (agents/ditto.py, mixture != None): Algorithm 1 of Shaikh et al. more closely.
+# A few SFT steps on the demonstrations first; the frozen DPO reference is that SFT policy; each
+# gradient step mixes online (demo > current samples), replay (demo > earlier samples) and
+# intermodel (later samples > earlier samples) comparisons. 70/20/10 is the paper's mix.
+paper:
+  sft_steps: 20
+  mixture: {online: 0.7, replay: 0.2, intermodel: 0.1}
+  batch_size: 64
+
+# train/ditto_sweep.py: overrides needed vs method, over three simulated clinician rules.
+sweep:
+  n_overrides: [1, 2, 3, 5, 10]
+  seeds: [0, 1, 2]
+
