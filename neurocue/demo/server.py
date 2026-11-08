@@ -270,8 +270,9 @@ def run_course(policy, tp: TreatablePatient, item_seed: int, record_obs: bool = 
 
 
 class CourseReq(BaseModel):
-    policies: list[str] = ["spaced_hierarchy", "ppo"]
-    model: str = "retention"      # which trained policy "ppo" means: retention | observable
+    policies: list[str] = ["spaced_hierarchy", "ppo_retention", "ppo_observable"]
+    model: str = "retention"      # legacy: which trained policy the bare name "ppo" means
+    teach: str = "observable"     # which trained policy step 5 teaches (its course is recorded with observations)
 
 
 @app.post("/api/patient/{pid}/course")
@@ -280,21 +281,23 @@ def course(pid: str, req: CourseReq) -> dict:
     out = {}
     for name in req.policies:
         tp = make_patient(d.aq, d.lesion, d.seed)        # a fresh copy: same parameters, same random stream
-        if name == "ppo":
-            model = Shared.models.get(req.model)
+        if name in ("ppo", "ppo_retention", "ppo_observable"):
+            which = req.model if name == "ppo" else name.split("_", 1)[1]
+            model = Shared.models.get(which)
             if model is None:
                 out[name] = {"unavailable": True}; continue
-            res = run_course(model, tp, d.seed, record_obs=True)
-            d.ppo_run = res; d.ppo_model = req.model; d.tuned = None; d.demos = []
-            res["model"] = req.model
-            res = {k: v for k, v in res.items() if not k.startswith("_")}
+            record = which == req.teach
+            res = run_course(model, tp, d.seed, record_obs=record)
+            if record:
+                d.ppo_run = res; d.ppo_model = which; d.tuned = None; d.demos = []
+            res["model"] = which; res["taught"] = record
         elif name == "tuned":
             if d.tuned is None:
                 out[name] = {"unavailable": True}; continue
             res = run_course(d.tuned, tp, d.seed)
         else:
             res = run_course(BASELINES[name](), tp, d.seed)
-        out[name] = res
+        out[name] = {k: v for k, v in res.items() if not k.startswith("_")}
     return out
 
 

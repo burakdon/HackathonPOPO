@@ -260,12 +260,14 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
     <span class="k">course design</span><span>4 sessions on days 0, 3, 7, 10 · 40 trials each · 20 words she personally struggles with</span>
     <span class="k">scored on</span><span>predicted unaided retention of those words at day 17 and day 38 (Middleton et al. 2019's design)</span>
     <span class="k">cueing hierarchy</span><span>what clinics do: round-robin through the words; after an error, repeat with the first sound, then the whole word</span>
-    <span class="k">trained policy</span><span><select id="pmodel" style="padding:4px 6px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--fg); font-size:13px"><option value="observable">trained on in-session correct answers, what a clinic can measure</option><option value="retention">trained on predicted retention, the engine's own objective</option></select> <span id="runnote" class="counter">MaskablePPO; picks the word (due / repeat / weakest / strongest) and the cue each trial</span></span>
+    <span class="k">retention-trained policy</span><span>MaskablePPO trained on the engine's <b>hidden</b> objective, predicted retention a week later. It knows what a clinic cannot measure, so it is the ceiling here.</span>
+    <span class="k">clinic-trained policy</span><span>the same network trained only on what a session can observe, <b>correct answers in session</b>. This is what a deployed app could actually train on. It learns to drill the words she already knows: high accuracy in the room, little retained.</span>
+    <span class="k">in step 5 you teach</span><span><select id="pmodel" style="padding:4px 6px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--fg); font-size:13px"><option value="observable">the clinic-trained policy (where a clinician's rule can help)</option><option value="retention">the retention-trained policy (already optimal; nothing to gain)</option></select> <span id="runnote" class="counter"></span></span>
   </div>
   <div class="row" style="margin-top:12px"><button id="run" disabled>Run a four-session course</button><span class="counter" id="runstate">Create a patient first.</span></div>
-  <div class="ll"><span><i style="background:#8a948f"></i>cueing hierarchy</span><span><i style="background:var(--accent)"></i><span id="leg2">trained policy</span></span><span><i style="background:var(--accent-2)"></i>after clinician override</span><span class="counter">· vertical dashed lines = session days · y = predicted retention at day 17</span></div>
+  <div class="ll"><span><i style="background:#8a948f"></i>cueing hierarchy</span><span><i style="background:var(--accent)"></i><span id="leg2">retention-trained policy</span></span><span><i style="background:#9b7bdc"></i>clinic-trained policy</span><span><i style="background:var(--accent-2)"></i>clinic-trained policy after the clinician taught it (step 5)</span><span class="counter">· dashed lines = session days · y = predicted retention at day 17</span></div>
   <svg id="chart" class="chart" viewBox="0 0 640 260" width="100%" height="260" role="img" aria-label="Predicted retention during the course"></svg>
-  <div class="lbl" style="margin-top:8px">Trained policy's 160 trials · one row per session</div>
+  <div class="lbl" style="margin-top:8px"><span id="stripTitle">Clinic-trained policy's</span> 160 trials · one row per session · this is the policy you teach in step 5</div>
   <div class="counter">Green = named correctly, red = error. Letter = cue given: <b>p</b> first sound, <b>s</b> meaning cue, <b>w</b> whole word, blank = no cue. Hover for the word. Click an error to take it to step 5.</div>
   <div class="strip" id="strip"></div>
   <p id="summary"></p>
@@ -413,7 +415,7 @@ $("#newp").onclick = async () => {
     ["#name1","#name10","#namen","#reveal","#run"].forEach(s => $(s).disabled = false);
     const ma = P.models_available || {}; [...$("#pmodel").options].forEach(o => { o.disabled = !ma[o.value]; o.textContent = o.textContent.replace(/ · not loaded$/, "") + (ma[o.value] ? "" : " · not loaded"); });
     if (!ma[$("#pmodel").value]) $("#pmodel").value = ma.observable ? "observable" : "retention";
-    $("#runnote").textContent = P.ppo_available ? "MaskablePPO; picks the word (due / repeat / weakest / strongest) and the cue each trial" : "no trained policy loaded on this server; the comparison runs spaced retrieval (no cues) instead";
+    $("#runnote").textContent = (ma.retention || ma.observable) ? "" : "no trained policy loaded on this server; the comparison runs spaced retrieval (no cues) instead";
     $("#leg2").textContent = P.ppo_available ? "trained policy" : "spaced retrieval";
   } finally { $("#newp").disabled = false; }
 };
@@ -472,6 +474,7 @@ function drawHeat(q) {
 }
 $("#reveal").onclick = async () => { truth = await (await fetch(`/api/patient/${P.id}/truth`)).json(); truthShown = true; $("#truth").textContent = `s ${truth.s.toFixed(3)} · p ${truth.p.toFixed(3)}`; drawHeat(lastQ); };
 
+function taughtRun() { const t = $("#pmodel").value; return courses[`ppo_${t}`] || courses.ppo || null; }
 function drawChart() {
   const svg = $("#chart"); svg.innerHTML = "";
   const W = 640, H = 260, L = 44, R = 70, T = 14, B = 34; const names = Object.keys(courses).filter(k => courses[k] && courses[k].trials);
@@ -481,8 +484,8 @@ function drawChart() {
   [0,.25,.5,.75,1].forEach(v => { ns("line", {x1:L, x2:W-R, y1:y(v), y2:y(v), stroke:"var(--line)"}); ns("text", {x:L-6, y:y(v)+4, "text-anchor":"end"}).textContent = Math.round(v*100)+"%"; });
   const per = n / 4; ["day 0","day 3","day 7","day 10"].forEach((d,k) => { ns("line", {x1:x(k*per), x2:x(k*per), y1:T, y2:H-B, stroke:"var(--line)", "stroke-dasharray":"3 3"}); ns("text", {x:x(k*per)+3, y:H-B+14}).textContent = d; });
   ns("text", {x:L, y:H-4, fill:"var(--muted)"}).textContent = "predicted unaided retention of the practised words, one week after the course";
-  const col = {spaced_hierarchy:"#8a948f", spaced_plain:"var(--accent)", ppo:"var(--accent)", tuned:"var(--accent-2)"};
-  const lab = {spaced_hierarchy:"hierarchy", spaced_plain:"spaced retrieval", ppo:"trained", tuned:"override"};
+  const col = {spaced_hierarchy:"#8a948f", spaced_plain:"var(--accent)", ppo:"var(--accent)", ppo_retention:"var(--accent)", ppo_observable:"#9b7bdc", tuned:"var(--accent-2)"};
+  const lab = {spaced_hierarchy:"hierarchy", spaced_plain:"spaced retrieval", ppo:"trained", ppo_retention:"retention-trained", ppo_observable:"clinic-trained", tuned:"after teaching"};
   names.forEach(k => {
     const tr = courses[k].trials; const d = tr.map((t,i) => `${i?"L":"M"}${x(i).toFixed(1)},${y(t.retention).toFixed(1)}`).join(" ");
     ns("path", {d, fill:"none", stroke:col[k]||"#999", "stroke-width":2.2});
@@ -557,12 +560,13 @@ function drawOpportunity(run) {
 }
 function prefill(ctx, rule, cue) { $("#tctx").value = ctx; $("#trule").value = rule; $("#tcue").value = cue === "none" ? "" : cue; updatePrediction(); $("#teach").scrollIntoView({behavior: "smooth", block: "start"}); }
 function updatePrediction() {
-  if (!courses.ppo || !courses.ppo.cf_table) { $("#tpred").textContent = ""; return; }
+  const run = taughtRun();
+  if (!run || !run.cf_table) { $("#tpred").textContent = ""; return; }
   const ctx = $("#tctx").value, key = `${$("#trule").value}|${$("#tcue").value || "none"}`;
-  const row = courses.ppo.cf_table.find(r => r.context === ctx && r.action === key);
+  const row = run.cf_table.find(r => r.context === ctx && r.action === key);
   if (!row) { $("#tpred").textContent = "No recorded moment of that kind in this course."; return; }
   const v = row.mean_pp, tot = v * row.n;
-  $("#tpred").innerHTML = `<b>Predicted effect before teaching it:</b> over the ${row.n} moments where she had just ${CTX_LABEL(ctx)}, this choice changes predicted retention by <b style="color:${Math.abs(v) < 0.02 ? "var(--muted)" : v > 0 ? "var(--correct)" : "var(--nonword)"}">${v >= 0 ? "+" : ""}${v.toFixed(2)} pp per moment</b>, about ${tot >= 0 ? "+" : ""}${tot.toFixed(1)} pp if the policy adopted it everywhere it applies. Teaching it shows whether the policy adopts it (block C) and what actually happens to the course (the orange line in step 4).`;
+  $("#tpred").innerHTML = `<b>Predicted effect before teaching it:</b> over the ${row.n} moments where she had just ${CTX_LABEL(ctx)}, this choice changes predicted retention by <b style="color:${Math.abs(v) < 0.02 ? "var(--muted)" : v > 0 ? "var(--correct)" : "var(--nonword)"}">${v >= 0 ? "+" : ""}${v.toFixed(2)} pp per moment</b>, about ${tot >= 0 ? "+" : ""}${tot.toFixed(1)} pp if the policy adopted it everywhere it applies. Teaching it shows whether the policy adopts it (block C) and what happens to the course (the orange line in step 4).`;
 }
 ["#tctx", "#trule", "#tcue"].forEach(sel => $(sel).onchange = updatePrediction);
 $("#tapply").onclick = async () => {
@@ -571,19 +575,24 @@ $("#tapply").onclick = async () => {
     const r = await post(`/api/patient/${P.id}/override`, {trial: -1, context: $("#tctx").value, cue: $("#tcue").value || null, rule: $("#trule").value, n_demos: 6});
     courses.tuned = r.course; drawChart(); drawDitto(r);
     const pct = v => v == null ? "–" : Math.round(v * 100) + "%"; const cueName = ($("#tcue").value || "no cue").replace("_", " ");
-    $("#osummary").innerHTML = `<b>Taught</b> with ${r.n_demos} demonstrations (${r.n_demos_total} in total): "whenever she has just ${CTX_LABEL($("#tctx").value)}, ${$("#trule").value === "repeat" ? "retry the word" : "move on"} with ${cueName}". The retrained policy now takes that action in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching moments it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} moments after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} moments after a success; its choice changed in ${r.changed_states.length} of ${r.n_states} states. <b>Retention at one week:</b> trained policy ${Math.round(courses.ppo.final["17"]*100)}%, after teaching ${Math.round(r.course.final["17"]*100)}% (${(100*(r.course.final["17"] - courses.ppo.final["17"])).toFixed(1)} pp). The engine priced the clinician's rule; block A predicted its sign.`;
+    $("#osummary").innerHTML = `<b>Taught</b> with ${r.n_demos} demonstrations (${r.n_demos_total} in total): "whenever she has just ${CTX_LABEL($("#tctx").value)}, ${$("#trule").value === "repeat" ? "retry the word" : "move on"} with ${cueName}". The retrained policy now takes that action in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching moments it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} moments after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} moments after a success; its choice changed in ${r.changed_states.length} of ${r.n_states} states. <b>Retention at one week:</b> ${$("#pmodel").value === "retention" ? "retention-trained" : "clinic-trained"} policy ${Math.round(taughtRun().final["17"]*100)}%, after teaching ${Math.round(r.course.final["17"]*100)}% (${(100*(r.course.final["17"] - taughtRun().final["17"])).toFixed(1)} pp)${courses.ppo_retention && $("#pmodel").value !== "retention" ? `; the retention-trained policy, which knows the hidden objective, reaches ${Math.round(courses.ppo_retention.final["17"]*100)}%` : ""}. The engine priced the clinician's rule; block A predicted its sign.`;
     $("#tstat").textContent = "done";
   } catch (e) { $("#tstat").textContent = e.message.slice(0, 200); } finally { $("#tapply").disabled = false; }
 };
 $("#run").onclick = async () => {
   $("#run").disabled = true; $("#summary").textContent = ""; $("#runstate").textContent = "Running two 160-trial courses on identical copies of her…";
   try {
-    const pols = P.ppo_available ? ["spaced_hierarchy", "ppo"] : ["spaced_hierarchy", "spaced_plain"];
-    courses = await post(`/api/patient/${P.id}/course`, {policies: pols, model: $("#pmodel").value});
-    drawChart(); drawStrip(courses.ppo || courses.spaced_plain); if (courses.ppo) drawOpportunity(courses.ppo);
-    const h = courses.spaced_hierarchy, m = courses.ppo || courses.spaced_plain;
+    const ma = P.models_available || {}; const teach = $("#pmodel").value;
+    const pols = ["spaced_hierarchy"].concat(ma.retention ? ["ppo_retention"] : [], ma.observable ? ["ppo_observable"] : [], (!ma.retention && !ma.observable) ? ["spaced_plain"] : []);
+    courses = await post(`/api/patient/${P.id}/course`, {policies: pols, teach});
+    for (const k of Object.keys(courses)) if (courses[k] && courses[k].unavailable) delete courses[k];
+    const taught = taughtRun();
+    drawChart(); drawStrip(taught || courses.spaced_plain); if (taught) drawOpportunity(taught);
+    $("#stripTitle").textContent = teach === "retention" ? "Retention-trained policy's" : "Clinic-trained policy's";
+    const h = courses.spaced_hierarchy, rt = courses.ppo_retention, ob = courses.ppo_observable;
+    const f = c => c ? `${Math.round(c.final["17"]*100)}% at one week, ${Math.round(c.final["38"]*100)}% at one month` : "–";
     $("#runstate").textContent = "Done.";
-    $("#summary").innerHTML = `<b>Result.</b> Her 20 words started at ${Math.round(h.start["17"]*100)}% predicted retention. After the course: <b>cueing hierarchy</b> ${Math.round(h.final["17"]*100)}% at one week, ${Math.round(h.final["38"]*100)}% at one month · <b>${courses.ppo?"trained policy":"spaced retrieval"}</b> ${Math.round(m.final["17"]*100)}% and ${Math.round(m.final["38"]*100)}%. Both lines are the engine's learning layer predicting unaided naming; the gap between them is the therapy.`;
+    $("#summary").innerHTML = `<b>Result.</b> Her 20 words started at ${Math.round(h.start["17"]*100)}% predicted retention. <b>Cueing hierarchy</b>: ${f(h)}. ` + (rt ? `<b>Retention-trained policy</b> (knows the hidden objective): ${f(rt)}. ` : "") + (ob ? `<b>Clinic-trained policy</b> (sees only in-session answers): ${f(ob)}. ` : "") + `All lines are the engine's learning layer predicting unaided naming. The clinic-trained policy is the one a real app could train; step 5 shows what a clinician's corrections do to it.`;
   } catch (e) { $("#runstate").textContent = "Failed."; $("#summary").innerHTML = `<b>The course did not run.</b> ${e.message.slice(0, 300)}`; } finally { $("#run").disabled = false; }
 };
 </script>
