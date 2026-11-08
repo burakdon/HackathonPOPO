@@ -12,6 +12,9 @@ clinician-facing view captures preferred decisions and shows how a model adapted
 Repository: https://github.com/burakdon/neurocue (default branch `main`; the earlier scaffold is kept
 as `legacy-main`). Hosted demo: **https://burakdonbekci--neurocue-web.modal.run** (Modal; the first
 request after an idle period waits about a minute while the engine loads). See "Deploy" below.
+Captioned video walkthrough (2.5 min): [results/demo/neurocue_demo.mp4](results/demo/neurocue_demo.mp4).
+Presentation notes, every number with its source file:
+[docs/presentation_talking_points.md](docs/presentation_talking_points.md).
 
 Everything the demo needs is in `main`: code, trained policies, picture norms and pictures, and the
 caches (fitted model grid, lexicon, WordNet). To run it on your machine, one command:

@@ -67,8 +67,9 @@ def latest_response(page) -> dict:
 
 def name_n(rec: Recorder, page, n: int, pause: float = 2.4) -> None:
     for _ in range(n):
+        before = rows(page)
         page.get_by_role("button", name="Name it").click()
-        page.wait_for_function("() => document.querySelector('#said').textContent !== '…'", timeout=20000)
+        page.wait_for_function("b => document.querySelectorAll('#feed .r').length > b", arg=before, timeout=30000)
         rec.wait(0.2)
         r = latest_response(page)
         if r:
@@ -76,6 +77,17 @@ def name_n(rec: Recorder, page, n: int, pause: float = 2.4) -> None:
                      "unrelated": "unrelated word", "nonword": "phonological nonword", "omission": "no response"}.get(r["cat"], r["cat"])
             rec.cap(f"{r['target']} → “{r['said']}”  ({label})")
         rec.wait(pause)
+
+
+def rows(page) -> int:
+    return page.evaluate("() => document.querySelectorAll('#feed .r').length")
+
+
+def name_batch(page, n: int) -> None:
+    """Name n pictures at once through the page's batch control and wait for the rows to land."""
+    before = rows(page)
+    page.fill("#nbatch", str(n)); page.get_by_role("button", name="Go", exact=True).click()
+    page.wait_for_function("b => document.querySelectorAll('#feed .r').length >= b", arg=before + n, timeout=90000)
 
 
 def main() -> None:
@@ -106,18 +118,22 @@ def main() -> None:
         rec.wait(1.5)
         page.get_by_role("button", name="New patient").click(); rec.wait(2)
         page.locator("#speak").uncheck()
-        rec.cap("The patient is the Dell model of word retrieval with two lesion weights drawn from a prior fitted to real patients.")
+        rec.cap("Marisol, 23, is the Dell model of word retrieval: two lesion weights drawn from a prior fitted to real PSST patients.")
         rec.wait(3.5)
-        rec.cap("Now the patient names pictures. The avatar pauses for as long as the response took, then mouths the phonemes it actually produced.")
-        rec.wait(3)
-        name_n(rec, page, 8)
+        page.locator("#naming").scroll_into_view_if_needed(); rec.wait(0.5)
+        rec.cap("She names pictures. The avatar mouths the phonemes she actually produced, with the false starts and carrier phrases real speakers use.")
+        rec.wait(3.5)
+        name_n(rec, page, 6)
+        rec.cap("Or skip the listening: fourteen more answers at once, from the same patient.")
+        name_batch(page, 14)
+        rec.wait(2.5)
 
         # 2. diagnose
         page.locator("#diagnose").scroll_into_view_if_needed(); rec.wait(0.5)
-        rec.cap("Diagnosis: the fitter's posterior over the two lesion weights, from those eight answers alone. Bright = likely.")
+        rec.cap("Diagnosis from those 20 answers alone: the fitter's posterior over the two lesion weights. Bright = likely.")
         rec.wait(4)
         page.get_by_role("button", name="Reveal true lesion").click(); rec.wait(0.8)
-        rec.cap("Revealed: the true lesion (orange) sits inside the bright region. This is the fitter that reproduced Dell's published patients.")
+        rec.cap("Revealed: the true lesion sits inside the bright region. The same fitter reproduced Dell's published patients.")
         rec.wait(5)
 
         # 3. contrast patient
@@ -127,30 +143,54 @@ def main() -> None:
         rec.wait(1.5)
         page.get_by_role("button", name="New patient").click(); rec.wait(2)
         page.locator("#speak").uncheck()
-        name_n(rec, page, 6, pause=2.2)
+        page.locator("#naming").scroll_into_view_if_needed(); rec.wait(0.3)
+        name_n(rec, page, 5, pause=2.2)
+        name_batch(page, 15)
+        page.locator("#diagnose").scroll_into_view_if_needed(); rec.wait(0.5)
+        rec.cap("Her errors are whole-word substitutions rather than nonwords, and the posterior moves to the semantic side.")
+        rec.wait(4.5)
 
-        # 4. trainer
-        page.evaluate("() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"); rec.wait(1.2)
-        ppo = page.evaluate("() => (document.querySelector('#runnote').textContent || '').includes('trained policy, same')")
-        rec.cap("A trainer treats the patient: four sessions over ten days on 20 hard words, judged on what is still named a month later.")
-        rec.wait(3)
+        # 4. two therapists
+        page.locator("#trainer").scroll_into_view_if_needed(); rec.wait(0.8)
+        rec.cap("Two therapists treat identical copies of her: the clinic's cueing hierarchy, and a policy trained on this engine. Four sessions over ten days, 20 hard words.")
+        rec.wait(4.5)
         page.get_by_role("button", name="Run a four-session course").click()
-        page.wait_for_function("() => (document.querySelector('#summary').textContent || '').startsWith('Words')", timeout=120000)
-        page.evaluate("() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"); rec.wait(1.0)
-        rec.cap(page.locator("#summary").inner_text())
-        rec.wait(6)
-        if ppo:
-            idx = page.evaluate("() => { const cells = [...document.querySelectorAll('#strip div')]; return cells.findIndex((d, i) => i > 2 && d.style.background.includes('nonword')); }")
-            if idx is not None and idx >= 0:
-                rec.cap("The clinician disagrees with one choice: after this error she would have given the first sound.")
-                page.locator("#strip div").nth(idx).click(); rec.wait(1.5)
-                page.select_option("#ocue", "phonemic_initial"); rec.wait(1)
-                rec.cap("Apply override: DITTO retrains the policy on this single demonstration, anchored to the original.")
-                page.get_by_role("button", name="Apply override (DITTO)").click()
-                page.wait_for_function("() => (document.querySelector('#ostat').textContent || '') === 'done'", timeout=180000)
-                page.evaluate("() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"); rec.wait(1.0)
-                rec.cap(page.locator("#summary").inner_text())
-                rec.wait(7)
+        page.wait_for_function("() => ['Done.', 'Failed.'].includes((document.querySelector('#runstate').textContent || '').trim())", timeout=240000)
+        rec.wait(1.0)
+        summary = page.locator("#summary").inner_text()
+        rec.cap(summary.split("Both lines")[0].strip()[:260])
+        rec.wait(7)
+        rec.cap("The strip is the trained policy's course, trial by trial: which word, which cue. Nobody told it to space retrieval; it learned that from the engine.")
+        rec.wait(5.5)
+
+        # 5. where the physician comes in
+        page.locator("#teach").scroll_into_view_if_needed(); rec.wait(0.8)
+        rec.cap("Where the physician comes in. One correction is one demonstration; DITTO folds it into the policy, anchored to what the policy already knew.")
+        rec.wait(4)
+        page.get_by_role("button", name="Play one correction").click()
+        rec.wait(5.5)
+        rec.cap("Over months the corrections compound: more of them, applied consistently, move the policy toward the clinician's own practice. An illustration, not data.")
+        set_range(page, "#slCorr", 8); rec.wait(1.6); set_range(page, "#slCons", 70); rec.wait(1.6); set_range(page, "#slCons", 97); rec.wait(2.8)
+        teachable = page.evaluate("() => !document.querySelector('#tapply').disabled")
+        if teachable:
+            # teach the rule for the error kind this course produced most, so the held-out check has moments to judge
+            counts = page.evaluate("() => { const r = taughtRun(); const c = {}; r.trials.forEach(t => { c[t.prev] = (c[t.prev] || 0) + 1; }); return c; }")
+            opts = page.evaluate("() => [...document.querySelector('#tctx').options].map(o => o.value)")
+            cands = [c for c in ("nonword", "semantic", "formal", "mixed", "unrelated") if c in opts]
+            teach_ctx = max(cands, key=lambda c: counts.get(c, 0)) if cands else "any_error"
+            label = {"nonword": "a nonword", "semantic": "a meaning error", "formal": "a sound-related word", "mixed": "a mixed error",
+                     "unrelated": "an unrelated word"}.get(teach_ctx, "any error")
+            page.select_option("#tctx", teach_ctx); page.select_option("#trule", "repeat"); page.select_option("#tcue", "phonemic_initial")
+            rec.cap(f"Live, on her recorded course: the clinician teaches one rule. After {label}, retry the word with its first sound.")
+            rec.wait(3.5)
+            page.locator("#tapply").click()
+            page.wait_for_function("() => (document.querySelector('#tstat').textContent || '') === 'done'", timeout=300000)
+            page.locator("#ditto").scroll_into_view_if_needed(); rec.wait(1.0)
+            chips = page.evaluate("() => [...document.querySelectorAll('#osummary .chip')].map(e => e.textContent.trim()).join('  ·  ')")
+            rec.cap(chips[:240] or "Taught.")
+            rec.wait(7)
+            rec.cap("Judged on two things only: adoption where the rule applies, containment everywhere else. The policy took the clinician's rule, and nothing more.")
+            rec.wait(5.5)
         rec.cap("Validated layer by layer: published model fits, 1,074 real responses (328 clinician-coded), a real therapy study, cued-naming data.")
         rec.wait(5)
         rec.cap("")
