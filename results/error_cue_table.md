@@ -25,3 +25,19 @@ Cue chosen by the deterministic policy after each error type, on 100 held-out va
 | meaning error | 239 | 17% | 8% | 23% | 11% | 41% |
 | no_response error | 336 | 49% | 17% | 16% | 10% | 7% |
 
+**PPO trained on the original model, data-grounded patients** (matched 57%)
+
+| after a... | n | first_sound | first_letter | semantic | sentence_frame | none |
+|---|---|---|---|---|---|---|
+| sound error | 259 | 35% | 19% | 36% | 10% | 0% |
+| meaning error | 224 | 32% | 4% | 45% | 17% | 2% |
+| no_response error | 302 | 29% | 17% | 43% | 11% | 0% |
+
+**PPO trained on the data-grounded model, data-grounded patients** (matched 65%)
+
+| after a... | n | first_sound | first_letter | semantic | sentence_frame | none |
+|---|---|---|---|---|---|---|
+| sound error | 261 | 59% | 23% | 14% | 3% | 2% |
+| meaning error | 265 | 35% | 14% | 20% | 29% | 2% |
+| no_response error | 337 | 26% | 17% | 25% | 29% | 4% |
+

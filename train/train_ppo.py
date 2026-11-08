@@ -124,8 +124,13 @@ def main() -> None:
     tag = "" if args.reward == load_reward().variant else f"{args.reward}_"
     if args.learning_peak is not None:
         tag += f"peak{args.learning_peak:g}_"
-    if load_sim().model != "logistic":     # never overwrite the default models when the patient model changes
-        tag = f"{load_sim().model}_" + tag
+    # Never overwrite the default models when the simulator changes: prefix the config's name,
+    # e.g. SIM_CONFIG=configs/sim_two_step.yaml -> models/ppo_two_step_seed0.zip.
+    import os
+    from pathlib import Path
+    sim_name = Path(os.environ.get("SIM_CONFIG", "configs/sim.yaml")).stem
+    if sim_name != "sim":
+        tag = f"{sim_name.removeprefix('sim_')}_" + tag
     for s in args.seeds:
         train_one(s, cfg, args.timesteps, args.reward, tag, args.learning_peak)
 

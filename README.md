@@ -281,6 +281,9 @@ uv run python -m train.ditto_sweep              # SFT vs DITTO variants, 1-10 ov
 SIM_CONFIG=configs/sim_two_step.yaml uv run python -m train.train_ppo --timesteps 500000   # PPO on two-step patients
 SIM_CONFIG=configs/sim_two_step.yaml uv run python -m eval.compare --config configs/eval_two_step.yaml
 uv run python -m scripts.error_cue_table        # which cue each agent gives after each error type
+uv run python -m scripts.calibrate_pnt          # simulated vs 335 real patients (PNT) -> results/pnt_calibration.*
+SIM_CONFIG=configs/sim_pnt.yaml uv run python -m train.train_ppo --timesteps 500000       # PPO on data-grounded patients
+SIM_CONFIG=configs/sim_pnt.yaml uv run python -m eval.compare --config configs/eval_pnt.yaml
 uv run python -m scripts.judge_demo --url http://localhost:8000 --name live   # healthy-judge check
 uv run python -m eval.compare --config configs/eval.yaml   # full evaluation -> results/
 uv run python -m scripts.sanity_table --dropout on --out results/sanity_dropout_on.md
@@ -865,6 +868,39 @@ the item the patient just failed, so matching the cue to the error helps only th
 general profile. Within-item cue escalation (a second attempt with a stronger, matched cue) is the
 change that should let error reading pay off; it is the next step. Training: 3 seeds x 500k steps
 (the original PPO converged within about 100k).
+
+## Grounded in real patient data: the Philadelphia Naming Test (`configs/sim_pnt.yaml`)
+
+The data-grounded simulator is the two-step model above with two parts replaced by **real data**
+(sources, extraction and licence notes: [`data/PNT_SOURCE.md`](data/PNT_SOURCE.md)):
+
+- **Items:** the 175 words of the Philadelphia Naming Test, the standard picture-naming test for
+  aphasia, with their **difficulty measured on real patients** (published 1PL item-response model,
+  Fergadiotis, Kellough & Hula 2015). Tiers are difficulty terciles. The real data also confirms a
+  simulator assumption: common words are easier (frequency vs measured difficulty, r = -0.54).
+- **Patients:** each training patient's overall naming ability is drawn from the PNT ability
+  scores of **335 real people with aphasia** (MAPPD and an R03 sample). Only how that difficulty
+  splits between word selection and sound encoding is sampled (an ASSUMPTION; MAPPD error-type
+  data could fit it).
+
+**Calibration check** ([`results/pnt_calibration.md`](results/pnt_calibration.md)): converted to
+the same ability scale, the simulated training population matches the real distribution
+(Kolmogorov-Smirnov distance 0.07; medians 52.6 vs 51.9), and per-item accuracy of the simulated
+population tracks the published model's prediction for the real patients (r = 0.93 over 175 items).
+The named cohorts sit at the 76th (mild anomic), 41st (moderate Broca's), 44th (moderate semantic)
+and 19th (severe) percentile of real patients.
+
+![Simulated vs real patients](results/pnt_calibration.png)
+
+**Agents on data-grounded patients** (100 held-out test patients per cohort,
+[`results/pnt/comparison.md`](results/pnt/comparison.md)). PPO retrained on this simulator reads
+the error (phonological cue after a sound error 82% vs 49% after a meaning error; semantic-family
+cue 49% after a meaning error vs 17% after a sound error). The original PPO, trained on the
+original simulator and never on these patients, transfers well: it is as good as or slightly better
+than the retrained PPO on learning gain (by 0.04 to 0.35 x100 on the moderate and severe cohorts)
+and both far outperform fixed difficulty (severe: quit 30-35% vs 89%). Reading the error does not
+yet pay off in outcomes for the same reason as above (cues apply to the next item); the retrained
+PPO also trained for a third as many steps.
 
 ## Known limitations
 - With an 8-trial window, rolling accuracy only takes values k/8, so the [0.75, 0.90] band means

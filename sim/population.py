@@ -65,6 +65,49 @@ class PatientSpec:
         return patient, selector
 
 
+_THETAS: dict[str, np.ndarray] = {}
+
+
+def _pnt_thetas(path: str) -> np.ndarray:
+    if path not in _THETAS:
+        import csv
+        from core.config import resolve
+        with open(resolve(path), newline="") as f:
+            _THETAS[path] = np.array([float(r["theta_t"]) for r in csv.DictReader(f)])
+    return _THETAS[path]
+
+
+def ground_in_pnt(params, cfg: SimConfig, rng: np.random.Generator):
+    """Replace s and p with values implied by a real patient's naming ability (two-step model).
+
+    theta: a real Philadelphia Naming Test ability score (T-scale) plus small jitter. q: that
+    patient's probability of naming an item of average difficulty under the published 1PL model,
+    logit q = slope * (theta - mean item difficulty). The two steps share the failure:
+    P1 = q^r, P2 = q^(1-r) with r ~ Beta(profile_beta), so P1 * P2 = q for an average item, and r
+    decides whether the patient's errors are mostly meaning (r high) or sound (r low) errors."""
+    from dataclasses import replace
+    ts, it = cfg.two_step, cfg.items
+    theta = rng.choice(_pnt_thetas(ts.thetas_path)) + rng.normal(0.0, ts.theta_jitter)
+    b_mean = _bank_mean_t(it.path)
+    q = 1.0 / (1.0 + np.exp(-it.irt_slope * (theta - b_mean)))
+    q = float(np.clip(q, 1e-3, 1 - 1e-3))
+    r = float(rng.beta(*ts.profile_beta))
+    logit = lambda x: float(np.log(x / (1 - x)))
+    return replace(params, sem_strength=logit(q ** r), phon_strength=logit(q ** (1 - r)))
+
+
+_BMEAN: dict[str, float] = {}
+
+
+def _bank_mean_t(path: str) -> float:
+    if path not in _BMEAN:
+        import csv
+        from core.config import resolve
+        with open(resolve(path), newline="") as f:
+            _BMEAN[path] = float(np.mean([float(r["irt_difficulty_t"]) for r in csv.DictReader(f)]))
+    return _BMEAN[path]
+
+
 def make_patients(cfg: SimConfig, cohort: str, split: str, n: int, root_seed: int,
                   start: int = 0) -> list[PatientSpec]:
     """`cohort` is "population" (training distribution) or a preset name."""
@@ -77,6 +120,9 @@ def make_patients(cfg: SimConfig, cohort: str, split: str, n: int, root_seed: in
     for k in range(start, start + n):
         ss = np.random.SeedSequence([root_seed, cfg.splits[split], cohort_id, k])
         param_ss, outcome_ss, selection_ss = ss.spawn(3)
-        params = sample_params(dists, cfg.parameters, np.random.default_rng(param_ss), _model_classes(cfg)[0])
+        prng = np.random.default_rng(param_ss)
+        params = sample_params(dists, cfg.parameters, prng, _model_classes(cfg)[0])
+        if (cohort == "population" and cfg.model == "two_step" and cfg.two_step.population_source == "pnt"):
+            params = ground_in_pnt(params, cfg, prng)
         specs.append(PatientSpec(cohort, split, k, params, outcome_ss, selection_ss))
     return specs

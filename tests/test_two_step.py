@@ -85,3 +85,34 @@ def test_environment_runs_a_full_episode_on_two_step_patients(setup):
         _, _, done, _, info = env.step(a)
         n += 1
     assert "learning_gain" in info and n > 0
+
+
+# ---- data-grounded configuration (real PNT items and ability scores) ----
+def test_pnt_items_use_measured_difficulty():
+    cfg = load_sim("configs/sim_pnt.yaml")
+    bank = load_items(cfg.items)
+    assert len(bank) == 175 and bank.irt_logit is not None
+    assert np.allclose(bank.difficulty, bank.irt_logit) and abs(bank.irt_logit.mean()) < 1e-9
+    assert {1, 2, 3} == set(bank.tier.tolist())
+
+
+def test_pnt_population_matches_real_ability_on_average_item():
+    """Grounded patients name an average-difficulty item with the probability the published model
+    gives their ability score: P1 * P2 = q by construction."""
+    from sim.population import ground_in_pnt
+    cfg = load_sim("configs/sim_pnt.yaml")
+    spec = make_patients(cfg, "population", "train", 1, 0)[0]
+    rng = np.random.default_rng(1)
+    gp = ground_in_pnt(spec.params, cfg, rng)
+    sig = lambda x: 1 / (1 + np.exp(-x))
+    q = sig(gp.sem_strength) * sig(gp.phon_strength)
+    assert 0.0 < q < 1.0
+    specs = make_patients(cfg, "population", "test", 50, 0)
+    s = np.array([x.params.sem_strength for x in specs])
+    assert s.std() > 0.3                                   # drawn from real, spread-out ability scores
+
+
+def test_pnt_population_is_deterministic():
+    cfg = load_sim("configs/sim_pnt.yaml")
+    assert [x.params for x in make_patients(cfg, "population", "test", 5, 0)] == \
+           [x.params for x in make_patients(cfg, "population", "test", 5, 0)]

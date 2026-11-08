@@ -32,6 +32,8 @@ RUNS = [  # (label, model, simulator the patients come from)
     ("PPO trained on the original model, original patients", "models/ppo_seed0.zip", "configs/sim.yaml"),
     ("PPO trained on the original model, two-step patients", "models/ppo_seed0.zip", "configs/sim_two_step.yaml"),
     ("PPO trained on the two-step model, two-step patients", "models/ppo_two_step_seed0.zip", "configs/sim_two_step.yaml"),
+    ("PPO trained on the original model, data-grounded patients", "models/ppo_seed0.zip", "configs/sim_pnt.yaml"),
+    ("PPO trained on the data-grounded model, data-grounded patients", "models/ppo_pnt_seed0.zip", "configs/sim_pnt.yaml"),
 ]
 CUES = ("first_sound", "first_letter", "semantic", "sentence_frame", "none")
 

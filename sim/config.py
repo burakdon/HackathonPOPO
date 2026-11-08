@@ -18,6 +18,10 @@ class ItemsConfig(BaseModel):
     path: str
     beta_frequency: float = Field(ge=0.0)
     beta_length: float = Field(ge=0.0)
+    # If set and the CSV has an `irt_difficulty_t` column (T-score scale, as published for the
+    # Philadelphia Naming Test), item difficulty is the MEASURED one: irt_slope * (b - mean b),
+    # in log-odds, instead of the frequency/length formula.
+    irt_slope: float | None = Field(default=None, gt=0.0)
 
 
 class CuesConfig(BaseModel):
@@ -112,9 +116,19 @@ class TwoStepConfig(BaseModel):
     beta_length: float = Field(ge=0.0)
     stage1_cue: dict[Cue, float]
     stage2_cue: dict[Cue, float]
+    # Training population: `parametric` (the `population` distributions) or `pnt`: each patient's
+    # overall naming ability is drawn from real patients' Philadelphia Naming Test ability scores
+    # (`thetas_path`, T-scale), and only the split of that difficulty between the two steps is
+    # sampled (profile_beta: Beta(a, b) share of the failure on step 1).
+    population_source: Literal["parametric", "pnt"] = "parametric"
+    thetas_path: str | None = None
+    theta_jitter: float = Field(default=2.0, ge=0.0)    # T-points of noise around each real score
+    profile_beta: tuple[float, float] = (2.0, 2.0)
 
     @model_validator(mode="after")
     def _all_cues(self) -> "TwoStepConfig":
+        if self.population_source == "pnt" and not self.thetas_path:
+            raise ValueError("population_source: pnt needs thetas_path")
         for name, w in (("stage1_cue", self.stage1_cue), ("stage2_cue", self.stage2_cue)):
             if set(w) != set(CUES) or w["none"] != 0:
                 raise ValueError(f"{name} must define every cue {CUES}, with 'none' = 0")

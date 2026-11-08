@@ -35,6 +35,7 @@ class ItemBank:
     length: np.ndarray
     tier: np.ndarray
     difficulty: np.ndarray  # log-odds units, higher = harder
+    irt_logit: np.ndarray | None = None   # measured difficulty (log-odds, centred), if the bank has it
 
     def __len__(self) -> int:
         return len(self.words)
@@ -64,7 +65,14 @@ def load_items(cfg: ItemsConfig) -> ItemBank:
     frequency = np.array([float(r["frequency"]) for r in rows])
     length = np.array([float(r["length"]) for r in rows])
     difficulty = cfg.beta_frequency * -_z(frequency) + cfg.beta_length * _z(length)
-    return ItemBank(words, tuple(r["image_file"] for r in rows), frequency, length, tier, difficulty)
+    irt = None
+    if cfg.irt_slope is not None:
+        if "irt_difficulty_t" not in (reader.fieldnames or []):
+            raise ValueError(f"items.irt_slope is set but {cfg.path} has no irt_difficulty_t column")
+        b = np.array([float(r["irt_difficulty_t"]) for r in rows])
+        irt = cfg.irt_slope * (b - b.mean())
+        difficulty = irt
+    return ItemBank(words, tuple(r["image_file"] for r in rows), frequency, length, tier, difficulty, irt)
 
 
 class ItemSelector:

@@ -75,7 +75,10 @@ class TwoStepPatient(SimPatient):
         self.learn2 = np.zeros(len(bank))           # item-specific gain on step 2
         self.fatigue = 0.0
         self.fail_streak = 0
-        self.base1 = params.sem_strength + ts.beta_frequency * _z(bank.frequency)
+        # Step 1 item effect: the MEASURED naming difficulty if the bank has it (it is dominated by
+        # lexical factors such as frequency), else the frequency formula.
+        item1 = -bank.irt_logit if bank.irt_logit is not None else ts.beta_frequency * _z(bank.frequency)
+        self.base1 = params.sem_strength + item1
         self.base2 = params.phon_strength - ts.beta_length * _z(bank.length)
         self.cue1 = {c: params.sem_resp * ts.stage1_cue[c] for c in CUES}
         self.cue2 = {c: params.phon_resp * ts.stage2_cue[c] for c in CUES}

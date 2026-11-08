@@ -27,3 +27,15 @@ additive and does not touch the service:
   `/update` would fix it (the first commit on this branch had one).
 - The paper variant could be offered on `/learn_from_overrides` (pass `mixture=` and `sft_steps=`).
   It was not validated with the live endpoint's settings, so it is not switched on.
+
+## Added: a computational definition of aphasia, grounded in real data
+| addition | files |
+|---|---|
+| Two-step patient model (meaning -> word -> sounds): error types and cue effects follow from which step fails; switchable with `SIM_CONFIG`, default unchanged | `sim/two_step.py`, `configs/sim_two_step.yaml`, `sim/config.py`, `sim/population.py` |
+| Real data: 175 PNT items with measured difficulty, ability scores of 335 people with aphasia | `data/pnt_items.csv`, `data/pnt_thetas.csv`, `data/PNT_SOURCE.md` |
+| Data-grounded simulator + calibration check (KS 0.07, per-item r = 0.93) | `configs/sim_pnt.yaml`, `scripts/calibrate_pnt.py`, `results/pnt_calibration.*` |
+| PPO retrained on both new simulators; "does it read the error?" table; full comparisons | `models/ppo_two_step_*`, `models/ppo_pnt_*`, `scripts/error_cue_table.py`, `results/two_step/`, `results/pnt/` |
+
+Honest result: the retrained agents read the error (sound cue after sound errors, not after meaning
+errors), but outcomes match the original agent's, because a cue applies to the next item. The
+within-item retry flow on dev (`service/practice.py`) is where error-matched cues should pay off.
