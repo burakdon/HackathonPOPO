@@ -49,23 +49,26 @@ All data access is in `template.html`: `MOCK.patients` (caseload, sessions, plan
 `mock/data.json`. Feedback-to-plan suggestions use simple rules here (`parseFeedback`); the product
 would have a language model draft them, with the clinician approving each change.
 
-## Server mode (patient tablet, real API)
-Open the page with `?api` to run the tablet against the server API (`docs/API_CONTRACT.md` §4):
+## Server mode (real API)
+Served by the app (`uv run --extra llm --extra speech uvicorn service.app:app --port 8000`), the page uses the
+live API automatically: **http://localhost:8000/product/**. `?api=http://host:port` points it at another server;
+`?mock` forces the mock data (also used when the file is opened directly, without a server).
 
-```bash
-uv run uvicorn service.contract_mock:app --port 8001
-```
-then `http://localhost:8001/product/index.html?api#patient`. Until the backend exists, the mock server
-plays a scripted session for the demo patient Ana (`docs/contract_examples/`). Pointing `?api=http://host:port`
-at the real backend later needs no page changes.
+In server mode only the server's patients are shown (simulated ones are labelled), and no mock data is used:
+- **Patient tablet**: picture, scoring and every next step come from the server; "Say it" records the microphone;
+  "Hint" sends "I'm not sure". "Microphone not working? Type the answer" is the fallback: the typed word is scored
+  like a transcript (`POST /sessions/{sid}/typed`) and marked as typed in the review. `?api&fakemic` sends a
+  silent clip instead of using the microphone. Not in the API yet: the end-of-session "try a few again" review;
+  the mood check is shown but not sent.
+- **Clinician**: session review with recordings, transcripts, scores and the model's decision after each attempt;
+  "Prefer…" on a decision saves a correction as an example; a note becomes a rule (drafted by the server when it
+  has an `ANTHROPIC_API_KEY`, otherwise filled in from the note's wording for the clinician to check) which, once
+  confirmed, lists the matching moments to tick as examples; "Update <name>'s model" starts training with
+  progress; "Show the result prepared earlier" takes a run trained before the demo on the same examples and says
+  so on screen; the preview's three counts; activating the model; the patient's models and change log.
 
-- Server patients appear first in the tablet's patient list (marked "server"). For them the picture,
-  scoring and every next step come from the server, "Say it" records the microphone, and "Hint"
-  sends "I'm not sure". The demo-input strip is hidden.
-- Simulated patients and the clinician view are unchanged; without `?api` the page makes no requests.
-- Not in the API yet, so skipped in server mode: the end-of-session "try a few again" review. The
-  mood check is shown but not sent.
-- `?api&fakemic` sends a short silent clip instead of using the microphone (for browsers that block it).
+The demo-input strip (buttons standing in for speech recognition) was removed (docs/OPEN_DECISIONS.md, decision 2);
+without a server the tablet asks for a typed answer instead.
 
 After editing `template.html`, `uv run python -m scripts.render_product` rebuilds `index.html` and
 `page.html` from the existing mock data without rerunning the simulator.

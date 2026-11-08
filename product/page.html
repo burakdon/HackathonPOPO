@@ -72,6 +72,11 @@ button { cursor: pointer }
 @keyframes pulse { 50% { transform: scale(1.08); opacity: .85 } }
 .demo { width: min(780px, 100%); border: 1px dashed var(--muted); border-radius: 4px; padding: 10px 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--surface-2) }
 .demo .lbl { font-weight: 600; color: var(--muted) }
+.typed-open { margin-top: 6px; font-size: .95rem }
+.typed { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 10px }
+.typed input { font: inherit; font-size: 1.1rem; padding: 8px 12px; border: 1px solid var(--line); border-radius: 4px; min-width: 0; width: 220px }
+.typed .muted { flex-basis: 100%; text-align: center; font-size: .9rem }
+.banner.prepared { border-left: 5px solid var(--c-hint) }
 .demo .row { gap: 8px }
 .demo button { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 7px 12px }
 .sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100% }
@@ -280,13 +285,19 @@ function hintView(h, item) {
   const text = item.cues[h] || HINT[h];
   return `<div class="bubble hint"><span>${esc(text)}</span><button class="speak" data-say="${esc(text)}" aria-label="Read the hint aloud">${SPEAKER}</button></div>`;
 }
-function demoStrip() {
-  const r = S.run; if (!r || r.server || !["ask", "listening", "hint", "review"].includes(r.phase)) return "";
-  const review = r.phase === "review";
-  return `<div class="demo"><span class="lbl">Demo input</span>
-    <button data-heard="correct">Said the word</button>${review ? "" : `<button data-heard="sound">Close in sound</button><button data-heard="meaning">Different word</button>`}<button data-heard="no_response">No word</button></div>`;
+function typedArea() {        // fallback when the microphone fails: clearly secondary, and marked as typed in the review
+  const r = S.run;
+  if (!r.typing) return `<button class="quiet typed-open" id="type-open">Microphone not working? Type the answer</button>`;
+  return `<div class="typed"><input id="typed-in" type="text" autocomplete="off" placeholder="Type the word" aria-label="Typed answer">
+    <button class="btn primary" id="typed-go">Check</button><button class="btn" id="typed-x">Cancel</button>
+    <div class="muted">Typed answers are marked as typed in the clinician's review.</div></div>`;
 }
+function loadingCard() {
+  $("app").innerHTML = `<div class="wrap"><div class="card">${S.srvError ? `Server not reachable: ${esc(S.srvError)}` : "Loading patients from the server…"}</div></div>`;
+}
+const listed = () => (API !== null ? S.srvPatients : [...S.srvPatients, ...S.patients]);
 function renderTablet() {
+  if (API !== null && !S.srvPatients.length) return loadingCard();
   const p = P(S.tablet), pl = p.plan, r = S.run;
   const nextDay = pl.days.length ? pl.days.join(", ") : "not scheduled";
   let body;
@@ -309,7 +320,7 @@ function renderTablet() {
   } else if (r.phase.startsWith("review")) {
     const item = r.review[r.reviewDone.length - (r.phase === "review" ? 0 : 1)];
     let mid;
-    if (r.phase === "review") mid = `<div class="row"><button class="big" id="mic">${MIC} Say it</button><button class="big soft" id="hp">Show me</button></div>`;
+    if (r.phase === "review") mid = `<div class="row"><button class="big" id="mic">${MIC} Say it</button><button class="big soft" id="hp">Show me</button></div>${typedArea()}`;
     else if (r.phase === "review-yes") mid = `<div class="bubble good">Yes, ${esc(item.preferred_name)}!</div><button class="big" id="rvn">Next</button>`;
     else mid = `<div class="bubble hint"><span>It's ${esc(item.preferred_name)}.</span><button class="speak" data-say="${esc(item.preferred_name)}" aria-label="Hear it">${SPEAKER}</button></div><button class="big" id="rvn">I said it</button>`;
     body = `<div class="t-top"><span class="muted">Review ${Math.min(r.reviewDone.length + (r.phase === "review" ? 1 : 0), r.review.length)} of ${r.review.length}</span><button class="quiet" id="pause">Pause</button></div>
@@ -318,9 +329,9 @@ function renderTablet() {
     const it = r.item;
     const dots = Array.from({ length: r.n }, (_, i) => { const d = r.done[i]; return `<i class="${!d ? (i === r.done.length ? "now" : "") : d.solo ? "ok" : d.named ? "help" : "miss"}"></i>`; }).join("");
     let mid;
-    if (r.phase === "ask") mid = `<div class="t-say">What is this?</div><div class="row"><button class="big" id="mic">${MIC} Say it</button><button class="big soft" id="hp">Hint</button></div>`;
+    if (r.phase === "ask") mid = `<div class="t-say">What is this?</div><div class="row"><button class="big" id="mic">${MIC} Say it</button><button class="big soft" id="hp">Hint</button></div>${typedArea()}`;
     else if (r.phase === "listening") mid = `<div class="listening"><div class="pulse" aria-hidden="true">${MIC}</div><div class="t-say">Listening…</div><button class="big" id="stop">Done</button></div>`;
-    else if (r.phase === "hint") mid = `${hintView(r.hints[r.hints.length - 1], it)}<div class="row"><button class="big" id="mic">${MIC} Try again</button><button class="big soft" id="hp">Hint</button></div>`;
+    else if (r.phase === "hint") mid = `${hintView(r.hints[r.hints.length - 1], it)}<div class="row"><button class="big" id="mic">${MIC} Try again</button><button class="big soft" id="hp">Hint</button></div>${typedArea()}`;
     else if (r.phase === "yes") mid = `<div class="bubble good">Yes! ${esc(it.preferred_name)}.</div><button class="big" id="nx">Next picture</button>`;
     else if (r.phase === "again") mid = `<div class="bubble good">Yes! ${esc(it.preferred_name)}.</div><div class="t-say">Say it once more.</div><button class="big" id="ag">I said it again</button>`;
     else if (r.phase === "together") mid = `<div class="bubble hint"><span>This is a ${esc(it.preferred_name)}.</span><button class="speak" data-say="${esc(it.preferred_name)}" aria-label="Hear it">${SPEAKER}</button></div><div class="t-say">Say it with me.</div><button class="big" id="tg">I said it</button>`;
@@ -328,24 +339,36 @@ function renderTablet() {
       <div class="t-body"><div class="pic"><img src="${it.image_url || PICS[it.exercise_id]}" alt="Picture to name"></div>${mid}</div>`;
   }
   $("app").innerHTML = `<div class="wrap stage">
-    <div class="stage-meta"><label for="who">Patient</label><select id="who">${[...S.srvPatients, ...S.patients].map((x) => `<option value="${x.id}" ${x.id === S.tablet ? "selected" : ""}>${esc(x.name)}${x.server ? " · server" : ""}</option>`).join("")}</select></div>
+    <div class="stage-meta"><label for="who">Patient</label><select id="who">${listed().map((x) => `<option value="${x.id}" ${x.id === S.tablet ? "selected" : ""}>${esc(x.name)}${x.server ? " · server" : ""}</option>`).join("")}</select></div>
     <section class="tablet" aria-label="${esc(p.first)}'s practice"><div class="t-bar"><span>Picture naming</span><span>${esc(p.name)}</span></div><div class="t-inner">${body}</div></section>
-    ${demoStrip()}${debugPanel()}</div>`;
+    ${debugPanel()}</div>`;
   const on = (id, f) => { const el = $(id); if (el) el.onclick = f; };
   $("who").onchange = (e) => { S.tablet = e.target.value; S.run = null; renderTablet(); };
   const srv = !!(r && r.server);
   on("go", isSrv() ? srvStart : start); on("home", () => { S.run = null; renderTablet(); });
-  on("mic", () => { if (srv) return srvMic(); if (S.run.phase !== "review") { S.run.phase = "listening"; renderTablet(); } else toast("Speak now. In this demo, tap what the person said below."); });
+  on("mic", () => { if (srv) return srvMic(); S.run.typing = true; renderTablet(); toast("No speech recognition without the server: type the answer."); });
   on("hp", srv ? srvNoAnswer : hintPlease); on("nx", srv ? srvAfter : afterPicture); on("rv", () => { S.run.phase = "review"; renderTablet(); }); on("rvn", reviewNext);
   on("ag", () => { if (srv) return srvAfter(); finishPicture(true); afterPicture(); });
   on("tg", () => { if (srv) return srvAfter(); finishPicture(false); afterPicture(); });
   on("pause", () => breakOverlay(false));
-  // Done while listening: server mode stops the recording and sends it; the simulated flow goes back
-  // to the question (its answer comes from the demo-input strip below the tablet)
-  on("stop", () => { if (srv) return srvStop(); S.run.phase = S.run.hints.length ? "hint" : "ask"; renderTablet(); toast("Tap what was said in the demo input below."); });
-  document.querySelectorAll("[data-heard]").forEach((b) => (b.onclick = () => heard(b.dataset.heard)));
+  // Done while listening: server mode stops the recording and sends it; without the server there is no
+  // recognizer, so the simulated flow asks for a typed answer
+  on("stop", () => { if (srv) return srvStop(); S.run.phase = S.run.hints.length ? "hint" : "ask"; S.run.typing = true; renderTablet(); });
+  on("type-open", () => { S.run.typing = true; renderTablet(); const i = $("typed-in"); if (i) i.focus(); });
+  on("typed-x", () => { S.run.typing = false; renderTablet(); });
+  on("typed-go", () => submitTyped(srv));
+  const ti = $("typed-in"); if (ti) { ti.focus(); ti.onkeydown = (e) => { if (e.key === "Enter") submitTyped(srv); }; }
   document.querySelectorAll("[data-mood]").forEach((b) => (b.onclick = () => { S.run.mood = +b.dataset.mood; srv ? srvShow() : next(); }));
   document.querySelectorAll("[data-say]").forEach((b) => (b.onclick = () => (srv ? playOrSay(b.dataset.say) : say(b.dataset.say))));
+}
+function submitTyped(srv) {
+  const text = ($("typed-in") || {}).value?.trim();
+  if (!text) return toast("Type the word first.");
+  S.run.typing = false;
+  if (srv) return srvTyped(text);
+  const r = S.run, item = r.phase === "review" ? r.review[r.reviewDone.length] : r.item;
+  const names = [item.preferred_name, ...(item.accepted_alternatives || [])].map((n) => n.toLowerCase());
+  heard(names.includes(text.toLowerCase()) ? "correct" : "meaning");
 }
 function breakOverlay(auto) {
   const o = $("overlay");
@@ -364,7 +387,8 @@ function breakOverlay(auto) {
    instead of using the microphone (for testing in browsers that block it).
    ===================================================================== */
 const QS = new URLSearchParams(location.search);
-const API = QS.has("api") ? (QS.get("api") || "").replace(/\/$/, "") : null;
+const API = QS.has("api") ? (QS.get("api") || "").replace(/\/$/, "")
+  : (location.protocol.startsWith("http") && location.pathname.startsWith("/product") && !QS.has("mock")) ? "" : null;
 S.srvPatients = []; S.audio = {};
 const isSrv = () => API !== null && !!(P(S.tablet) || {}).server;
 async function api(path, opts = {}) {
@@ -382,7 +406,7 @@ async function srvLoadPatients() {
     }));
     if (S.srvPatients.length) { S.tablet = S.srvPatients[0].id; S.sel = S.srvPatients[0].id; }
     render();
-  } catch (e) { toast(`Server not reachable: ${e.message}`); }
+  } catch (e) { S.srvError = e.message; toast(`Server not reachable: ${e.message}`); render(); }
 }
 function playOrSay(text) {
   const url = S.audio[text];
@@ -494,6 +518,13 @@ async function srvMic() {
   setTimeout(stopRec, 6000);      // answers are single words; stop on its own after 6 s
 }
 function srvStop() { if (S.srvStop) S.srvStop(); }
+async function srvTyped(text) {    // microphone fallback: POST /sessions/{sid}/typed, scored like a transcript
+  const r = S.run, back = r.hints.length ? "hint" : "ask";
+  try {
+    srvApply(await api(`/sessions/${r.sid}/typed`, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ presentation_id: r.pic.presentation_id, client_attempt_id: crypto.randomUUID(), text }) }));
+  } catch (e) { srvDebug({ error: e.message }); toast(e.message); r.phase = back; renderTablet(); }
+}
 async function srvNoAnswer() {  // "Hint" = "I'm not sure" (§4 no-answer): counts as a try, no audio
   const r = S.run, back = r.hints.length ? "hint" : "ask";
   try {
@@ -502,40 +533,157 @@ async function srvNoAnswer() {  // "Hint" = "I'm not sure" (§4 no-answer): coun
   } catch (e) { srvDebug({ error: e.message }); toast(e.message); r.phase = back; renderTablet(); }
 }
 
-/* ---- server mode: clinician view of a server patient (read-only, real data from the API) ---- */
+/* ---- server mode: clinician view of a server patient (real data from the API, docs/API_CONTRACT.md §6-8) ----
+   Session review with the model's decisions and corrections, note -> rule -> matching moments -> examples,
+   training with progress, "use the result prepared earlier", the preview counts, and activating the model. */
 S.clin = {};
 const ACTION = (a) => a.op === "retry" ? HINT[a.hint] : `Next picture, level ${a.tier}`;
+const akey = (a) => JSON.stringify(a);
 const PIC_RESULT = { independent: ["good", "Named on own"], assisted: ["help", "Named with hint"], unsuccessful: ["bad", "Not named"], not_assessed: ["", "Not assessed"] };
+const STAGE = { queued: "Waiting to start", sft: "Learning from the examples", ditto: "Refining (DITTO)", preview: "Checking the new model", done: "Done" };
 function attemptResult(a) {
   if (a.outcome === "correct") return ["good", "Correct"];
   if (a.outcome === "unclear") return ["", "Unclear (not counted)"];
   return ["bad", a.error_type === "unclassified" ? "Incorrect" : RESULT[a.error_type] || "Incorrect"];
 }
+const postJSON = (path, body, method = "POST") => api(path, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
 async function srvClinLoad(pid, sid) {
   const c = (S.clin[pid] = S.clin[pid] || {});
   c.error = null;
   try {
-    c.sessions = await api(`/patients/${encodeURIComponent(pid)}/sessions`);
+    const q = encodeURIComponent(pid);
+    [c.sessions, c.examples, c.models, c.log] = await Promise.all([api(`/patients/${q}/sessions`), api(`/patients/${q}/examples`),
+      api(`/patients/${q}/models`), api(`/patients/${q}/log`).catch(() => [])]);
     const ids = c.sessions.filter((s) => s.pictures > 0).map((s) => s.session_id);
     c.sid = sid && ids.includes(sid) ? sid : ids.includes(c.sid) ? c.sid : ids[ids.length - 1] || null;
     c.review = c.sid ? await api(`/sessions/${c.sid}/review`) : null;
+    const fresh = await api(`/patients/${q}`);
+    Object.assign(P(pid), { active_model: fresh.active_model, pending_examples: fresh.pending_examples });
   } catch (e) { c.error = e.message; }
   if (S.view === "clinician" && S.sel === pid) renderClinician();
 }
 function srvRailRow(p) {
-  return `<button class="prow" data-id="${p.id}" aria-current="${p.id === S.sel}"><b>${esc(p.first)} (real)</b>
-    <span class="muted">Live data from the app</span><span class="top2"><span class="status up">Real</span></span></button>`;
+  return `<button class="prow" data-id="${p.id}" aria-current="${p.id === S.sel}"><b>${esc(p.name)}</b>
+    <span class="muted">${p.simulated ? "Simulated patient" : "Practice data from the app"}</span><span class="top2"><span class="muted">${p.pending_examples ? `${p.pending_examples} new example${p.pending_examples === 1 ? "" : "s"}` : ""}</span><span class="status ${p.simulated ? "ok" : "up"}">${p.simulated ? "Simulated" : "Live"}</span></span></button>`;
+}
+function decisionCell(d) {
+  const fb = d.fallback_reason ? ` <span class="muted">(fallback: ${esc(d.fallback_reason)})</span>` : "";
+  const chosen = `${esc(ACTION(d.action))}${fb}`;
+  if (d.correction) return `${chosen}<br><span class="mine">You prefer: ${esc(ACTION(d.correction.preferred))}</span> <span class="muted">${esc(d.correction.status)}</span>`;
+  const alts = d.options.filter((o) => akey(o) !== akey(d.action));
+  if (!alts.length) return chosen;
+  return `${chosen}<br><select data-correct="${d.decision_id}" aria-label="Prefer a different choice"><option value="">Prefer…</option>${alts.map((o) => `<option value='${esc(akey(o))}'>${esc(ACTION(o))}</option>`).join("")}</select>`;
+}
+// The rule form, filled from the note's wording where it can be (the clinician checks it before confirming)
+function ruleGuess(text) {
+  const t = (text || "").toLowerCase(), find = (re) => re.test(t);
+  const hint = (s) => /first.?letter/.test(s) ? "first_letter" : /first.?sound/.test(s) ? "first_sound" : /sentence/.test(s) ? "sentence_frame" : /meaning|semantic|descri/.test(s) ? "semantic" : null;
+  const [before, after] = t.split(/\btry\b|\bgive\b|\buse\b|→|->/, 2);
+  return { tried: hint(before || "") || "semantic", failed: find(/once|one failed/) ? 1 : find(/three|3/) ? 3 : 2,
+           then: find(/easier/) ? "next:easier" : find(/harder/) ? "next:harder" : hint(after || t) || "first_sound" };
+}
+function ruleFrom(form) {
+  const then = form.then.startsWith("next:") ? { op: "next", level: form.then.slice(5) } : { op: "retry", hint: form.then };
+  const thenText = then.op === "retry" ? `give the ${HINT[then.hint].toLowerCase()} hint` : `move to a${then.level === "easier" ? "n easier" : then.level === "same" ? " same-level" : " harder"} picture`;
+  return { when: { hints_tried_include: [form.tried], failed_attempts_on_picture: { min: form.failed } }, then,
+           summary: `After ${form.failed} or more failed ${form.failed === 1 ? "try" : "tries"} on a picture where the ${HINT[form.tried].toLowerCase()} hint was already given → ${thenText}.` };
+}
+function teachCard(p, c) {
+  const n = c.note, opt = (v, l, cur) => `<option value="${v}" ${v === cur ? "selected" : ""}>${esc(l)}</option>`;
+  const hints = ["semantic", "first_sound", "first_letter", "sentence_frame"];
+  let body = `<textarea id="note-text" aria-label="Note" placeholder="When meaning hints have repeatedly failed, try a first-letter hint before moving to another picture.">${esc(c.noteDraft || "")}</textarea>
+    <div><button class="btn primary" id="note-go">Turn the note into a rule</button></div>`;
+  if (n) {
+    const f = c.ruleForm;
+    body = `<div class="muted">Note: “${esc(n.text)}”</div>`;
+    if (n.rule_status !== "confirmed") {
+      body += `<div class="proposal"><b>${n.rule ? "Drafted rule: check it before confirming" : "Write the rule"}</b>
+        ${n.problem ? `<div class="muted">${esc(n.problem)}</div>` : ""}
+        <div class="form">
+          <label>When this hint was already given ${`<select id="rf-tried">${hints.map((h) => opt(h, HINT[h], f.tried)).join("")}</select>`}</label>
+          <label>and failed tries on the picture are at least <select id="rf-failed">${[1, 2, 3].map((k) => opt(String(k), String(k), String(f.failed))).join("")}</select></label>
+          <label>then <select id="rf-then">${hints.map((h) => opt(h, `give the ${HINT[h].toLowerCase()} hint`, f.then)).join("")}${["easier", "same", "harder"].map((l) => opt(`next:${l}`, `move to a ${l} picture`, f.then)).join("")}</select></label>
+        </div><div class="muted">${esc(ruleFrom(f).summary)}</div>
+        <div class="row" style="justify-content:flex-start"><button class="btn primary" id="rule-ok">Confirm the rule</button><button class="btn" id="note-x">Start over</button></div></div>`;
+    } else {
+      const ms = c.matches || [], ok = ms.filter((m) => m.allowed);
+      const rows = ms.map((m) => `<tr><td><input type="checkbox" data-pick="${m.decision_id}" ${!m.allowed ? "disabled" : ""} ${c.picks.has(m.decision_id) ? "checked" : ""} aria-label="Use as an example"></td>
+        <td>${fmtDate(m.date)}</td><td>${esc(m.word)}</td><td class="muted">${esc(m.situation)}</td><td>${esc(ACTION(m.model_chose))}</td>
+        <td>${m.rule_says ? `<span class="mine">${esc(ACTION(m.rule_says))}</span>` : `<span class="muted">not possible here</span>`}</td></tr>`).join("");
+      body += `<div class="banner"><div><b>Rule confirmed</b> · ${esc(n.rule.summary)}</div></div>
+        <div class="row" style="justify-content:space-between;align-items:center"><b>Moments in ${esc(p.first)}'s sessions that match (${ok.length} can be used)</b>
+          <button class="btn" id="pick-all">Tick all</button></div>
+        ${ms.length ? `<div class="tablebox"><table><thead><tr><th></th><th>Date</th><th>Picture</th><th>Situation</th><th>The model chose</th><th>Your rule says</th></tr></thead><tbody>${rows}</tbody></table></div>`
+                    : `<div class="muted">No matching moments yet.</div>`}
+        <div class="row" style="justify-content:flex-start"><button class="btn primary" id="pick-go" ${c.picks.size ? "" : "disabled"}>Use ${c.picks.size} ticked moment${c.picks.size === 1 ? "" : "s"} as examples</button><button class="btn" id="note-x">New note</button></div>`;
+    }
+  }
+  return `<div class="card"><h2>Teach the model</h2>${body}</div>`;
+}
+function examplesCard(c) {
+  const ex = c.examples || [];
+  if (!ex.length) return "";
+  const rows = ex.map((e) => `<tr><td>${esc(e.example_id)}</td><td>${e.source === "note" ? "From your rule" : "Your correction"}</td>
+    <td>${esc(ACTION(e.model_chose))}</td><td><span class="mine">${esc(ACTION(e.preferred))}</span></td>
+    <td><span class="status ${e.status === "pending" ? "attn" : "ok"}">${e.status === "pending" ? "Not trained yet" : esc(e.status[0].toUpperCase() + e.status.slice(1))}</span></td></tr>`).join("");
+  return `<div class="card"><h2>Examples for ${esc(c.first || "the model")}</h2><div class="tablebox"><table><thead><tr><th></th><th>From</th><th>The model chose</th><th>You prefer</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function preparedCandidate(c) {   // a completed run of this patient trained earlier on its own (contract §10.5)
+  const live = c.run ? `ditto:${c.run.run_id}` : null;
+  const own = (c.models || []).filter((m) => m.kind === "patient" && m.id !== live && !/prepared earlier/.test(m.label));
+  return own.length ? own[own.length - 1].id.slice("ditto:".length) : null;
+}
+function previewBlock(pv) {
+  const a = pv.follows_your_examples, r = pv.follows_your_rules_new_situations, u = pv.unchanged_elsewhere;
+  return `<div class="stats">
+    <div class="card stat"><div class="k">Follows your examples</div><div class="v num">${a.new} of ${a.total}</div><div class="d">current model: ${a.current} of ${a.total}<br><span class="muted">${esc(a.label || "")}</span></div></div>
+    <div class="card stat"><div class="k">Follows your rule in new situations</div><div class="v num">${r.new} of ${r.total}</div><div class="d">current model: ${r.current} of ${r.total}<br><span class="muted">${esc(r.label || "")}</span></div></div>
+    <div class="card stat"><div class="k">Unchanged elsewhere</div><div class="v num">${u.same} of ${u.total}</div><div class="d"><span class="muted">held-out situations where the new model chooses what the current one does</span></div></div></div>`;
+}
+function trainCard(p, c) {
+  const pending = (c.examples || []).filter((e) => e.status === "pending").length, run = c.run;
+  let body;
+  if (!run) {
+    body = `<div class="muted">${pending ? `${pending} example${pending === 1 ? "" : "s"} not trained yet. Training makes ${esc(p.first)}'s own model from the shared one, using only ${esc(p.first)}'s examples.` : "Add examples first: correct a decision above, or tick matching moments of a rule."}</div>
+      <div><button class="btn primary" id="train-go" ${pending ? "" : "disabled"}>Update ${esc(p.first)}'s model</button></div>`;
+  } else if (run.status === "queued" || run.status === "running") {
+    const pr = run.progress, frac = pr.stage === "queued" ? .03 : pr.stage === "sft" ? .15 : pr.stage === "ditto" ? .2 + .6 * ((pr.round || 1) - 1) / (pr.of || 3) : .9;
+    const prep = preparedCandidate(c);
+    body = `<div><b>Training ${esc(run.run_id)}</b> · ${esc(STAGE[pr.stage] || pr.stage)}${pr.stage === "ditto" && pr.round ? ` · round ${pr.round} of ${pr.of}` : ""}</div>
+      <span class="meter" aria-label="Training progress"><span style="width:${Math.round(frac * 100)}%"></span></span>
+      <div class="muted">On this laptop training takes about 7 minutes, on ${run.example_ids.length} examples.</div>
+      ${prep ? `<div class="row" style="justify-content:flex-start"><button class="btn primary" id="use-prepared" data-run="${esc(prep)}">Show the result prepared earlier</button></div>
+        <div class="muted">Uses run ${esc(prep)}, trained before the demo on the same examples. The screen will say so.</div>` : ""}`;
+  } else if (run.status === "failed") {
+    body = `<div class="res bad">Training failed: ${esc(run.error || "")}</div><div><button class="btn" id="train-reset">Close</button></div>`;
+  } else {
+    const active = p.active_model.version === `ditto:${run.run_id}`;
+    body = `${run.prepared ? `<div class="banner prepared"><div><b>Prepared earlier.</b> This result comes from run ${esc(run.prepared_run_id)}, trained before the demo on the same ${run.example_ids.length} examples. The training started now was stopped.</div></div>` : `<div><b>Run ${esc(run.run_id)} finished.</b></div>`}
+      ${run.preview ? previewBlock(run.preview) : ""}
+      <div class="row" style="justify-content:flex-start">${active ? `<span class="status ok">In use for ${esc(p.first)}'s next sessions</span>` : `<button class="btn primary" id="activate" data-version="ditto:${esc(run.run_id)}">Use this model for ${esc(p.first)}'s next sessions</button>`}
+        <button class="btn" id="train-reset">Close</button></div>`;
+  }
+  return `<div class="card"><h2>Update ${esc(p.first)}'s model</h2>${body}</div>`;
+}
+function modelsCard(p, c) {
+  const ms = (c.models || []).filter((m) => m.kind === "patient" || m.active || (m.kind === "baseline"));
+  const rows = ms.map((m) => `<tr><td>${esc(m.label)}</td><td>${m.active ? `<span class="status ok">In use</span>` : m.available ? `<button class="btn" data-activate="${esc(m.id)}">Use</button>` : `<span class="muted">not available</span>`}</td></tr>`).join("");
+  return `<div class="card"><h2>${esc(p.first)}'s models</h2><div class="muted">In use: ${esc(p.active_model.version)}</div>
+    ${rows ? `<div class="tablebox"><table><tbody>${rows}</tbody></table></div>` : ""}</div>`;
 }
 function srvClinPage(p) {
   const c = S.clin[p.id];
   if (!c) { srvClinLoad(p.id); return `<div class="card">Loading ${esc(p.first)}'s sessions…</div>`; }
   if (c.error) return `<div class="card">Could not load data: ${esc(c.error)} <button class="btn" id="clin-refresh">Retry</button></div>`;
+  c.first = p.first; c.picks = c.picks || new Set();
   const ss = c.sessions.filter((s) => s.pictures > 0), s = ss.find((x) => x.session_id === c.sid);
   const err = { sound: 0, wrong_word: 0, no_answer: 0, unclassified: 0 };
   for (const x of ss) for (const k in err) err[k] += x.errors[k];
-  const head = `<div class="phead"><h1>${esc(p.first)} (real)</h1>
-    <p class="muted">Real practice data from the app · model: ${esc(p.active_model.version)} · ${ss.length} session${ss.length === 1 ? "" : "s"}</p></div>`;
-  if (!s) return `${head}<div class="card">No sessions yet. Practise on the patient tablet, then press Refresh. <button class="btn" id="clin-refresh">Refresh</button></div>`;
+  const head = `<div class="phead"><h1>${esc(p.name)}</h1>
+    <p class="muted">${p.simulated ? "Simulated patient (scripted sessions through the real app) · " : ""}${ss.length} session${ss.length === 1 ? "" : "s"} · model in use: ${esc(p.active_model.version)}</p></div>`;
+  const tail = `${teachCard(p, c)}${examplesCard(c)}${trainCard(p, c)}${modelsCard(p, c)}
+    ${(c.log || []).length ? `<div class="card"><h2>Change log</h2><div class="log">${c.log.slice().reverse().slice(0, 12).map((l) => `<div><b>${esc(new Date(l.when).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }))}</b><br>${esc(l.what)}</div>`).join("")}</div></div>` : ""}`;
+  if (!s) return `${head}<div class="card">No sessions yet. Practise on the patient tablet, then press Refresh. <button class="btn" id="clin-refresh">Refresh</button></div>${tail}`;
   const n = s.counts;
   const stats = `<div class="stats">
     <div class="card stat"><div class="k">Named on own (this session)</div><div class="v num">${pct(s.named_without_hint)}</div><div class="d num">${n.independent} of ${n.assessed} pictures</div></div>
@@ -547,24 +695,74 @@ function srvClinPage(p) {
     const rows = pic.attempts.map((a) => {
       const [ac, at] = attemptResult(a), d = byAttempt[a.attempt_id];
       const play = a.audio_url ? `<button class="btn" data-play="${esc(a.audio_url)}" aria-label="Play recording">▶</button>` : "";
-      const model = d ? `${esc(ACTION(d.action))}${d.fallback_reason ? ` <span class="muted">(fallback: ${esc(d.fallback_reason)})</span>` : ""}` : "<span class=\"muted\">–</span>";
       return `<tr><td>${a.hint_shown ? esc(HINT[a.hint_shown]) : "–"}</td><td>“${esc(a.transcript ?? "I'm not sure")}”</td>
-        <td class="res ${ac}">${at}</td><td class="muted">${esc(a.reason)}</td><td>${play}</td><td>${model}</td></tr>`;
+        <td class="res ${ac}">${at}</td><td class="muted">${esc(a.reason)}</td><td>${play}</td><td>${d ? decisionCell(d) : "<span class=\"muted\">–</span>"}</td></tr>`;
     }).join("");
     return `<div class="card"><h2>${esc(pic.word)} · level ${pic.level} · <span class="res ${rc}">${rt}</span></h2>
-      <div class="tablebox"><table><thead><tr><th>Hint shown</th><th>Heard</th><th>Result</th><th>Why</th><th></th><th>Model chose next</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+      <div class="tablebox"><table><thead><tr><th>Hint shown</th><th>Heard</th><th>Result</th><th>Why</th><th></th><th>The model chose next</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
   }).join("");
   return `${head}${stats}
-    <div class="card"><h2>Sessions</h2>
+    <div class="card"><h2>Session review</h2>
       <div class="sess">${ss.map((x, j) => `<button data-sid="${x.session_id}" aria-pressed="${x.session_id === c.sid}">#${j + 1} ${fmtDate(x.date)}${x.simulated ? " (scripted)" : ""}</button>`).join("")}</div>
-      <div class="row" style="justify-content:space-between;align-items:center"><span class="muted num">${s.pictures} pictures · ${Math.round(s.minutes)} min${s.ended_early ? " · ended early" : ""}</span>
+      <div class="row" style="justify-content:space-between;align-items:center"><span class="muted num">${s.pictures} pictures · ${Math.round(s.minutes)} min${s.ended_early ? " · ended early" : ""} · model: ${esc(s.model_version)}</span>
         <button class="btn" id="clin-refresh">Refresh</button></div></div>
-    ${pics}`;
+    ${pics}${tail}`;
+}
+async function srvRunPoll(pid) {
+  const c = S.clin[pid];
+  clearTimeout(c.poll);
+  if (!c.run || ["completed", "failed"].includes(c.run.status)) return;
+  try { c.run = await api(`/training-runs/${c.run.run_id}`); } catch (e) { toast(e.message); }
+  if (["completed", "failed"].includes(c.run.status)) return srvClinLoad(pid);
+  if (S.view === "clinician" && S.sel === pid) renderClinician();
+  c.poll = setTimeout(() => srvRunPoll(pid), 2000);
 }
 function srvClinWire(p) {
-  const rf = $("clin-refresh"); if (rf) rf.onclick = () => srvClinLoad(p.id);
+  const c = S.clin[p.id] || {}, pid = encodeURIComponent(p.id);
+  const on = (id, f) => { const el = $(id); if (el) el.onclick = f; };
+  const act = (f) => async (...args) => { try { await f(...args); } catch (e) { toast(e.message); } };
+  on("clin-refresh", () => srvClinLoad(p.id));
   document.querySelectorAll("[data-sid]").forEach((b) => (b.onclick = () => srvClinLoad(p.id, b.dataset.sid)));
   document.querySelectorAll("[data-play]").forEach((b) => (b.onclick = () => new Audio(API + b.dataset.play).play().catch(() => toast("Could not play the recording."))));
+  document.querySelectorAll("[data-correct]").forEach((s) => (s.onchange = act(async () => {
+    if (!s.value) return;
+    await postJSON(`/decisions/${s.dataset.correct}/correction`, { preferred: JSON.parse(s.value) });
+    toast("Saved as an example."); await srvClinLoad(p.id);
+  })));
+  const nt = $("note-text"); if (nt) nt.oninput = () => (c.noteDraft = nt.value);
+  on("note-go", act(async () => {
+    const text = (nt.value.trim() || nt.placeholder);
+    c.note = await postJSON(`/patients/${pid}/notes`, { text });
+    const g = ruleGuess(text), r = c.note.rule;
+    c.ruleForm = r && r.when.hints_tried_include && r.when.failed_attempts_on_picture
+      ? { tried: r.when.hints_tried_include[0], failed: r.when.failed_attempts_on_picture.min || 2, then: r.then.op === "retry" ? r.then.hint : `next:${r.then.level}` } : g;
+    renderClinician();
+  }));
+  const syncForm = () => { c.ruleForm = { tried: $("rf-tried").value, failed: +$("rf-failed").value, then: $("rf-then").value }; renderClinician(); };
+  ["rf-tried", "rf-failed", "rf-then"].forEach((id) => { const el = $(id); if (el) el.onchange = syncForm; });
+  on("rule-ok", act(async () => {
+    c.note = await postJSON(`/notes/${c.note.note_id}/rule`, { rule: ruleFrom(c.ruleForm) }, "PUT");
+    c.matches = await api(`/notes/${c.note.note_id}/matches`); c.picks = new Set(); renderClinician();
+  }));
+  on("note-x", () => { c.note = null; c.matches = null; c.picks = new Set(); renderClinician(); });
+  document.querySelectorAll("[data-pick]").forEach((b) => (b.onchange = () => { b.checked ? c.picks.add(b.dataset.pick) : c.picks.delete(b.dataset.pick); renderClinician(); }));
+  on("pick-all", () => { (c.matches || []).filter((m) => m.allowed).forEach((m) => c.picks.add(m.decision_id)); renderClinician(); });
+  on("pick-go", act(async () => {
+    const ex = await postJSON(`/notes/${c.note.note_id}/examples`, { decision_ids: [...c.picks] });
+    toast(`${ex.length} example${ex.length === 1 ? "" : "s"} added.`); c.note = null; c.matches = null; c.picks = new Set(); await srvClinLoad(p.id);
+  }));
+  on("train-go", act(async () => { c.run = await postJSON(`/patients/${pid}/training-runs`); renderClinician(); srvRunPoll(p.id); }));
+  on("use-prepared", act(async () => {
+    c.run = await postJSON(`/training-runs/${c.run.run_id}/use-prepared`, { prepared_run_id: $("use-prepared").dataset.run });
+    clearTimeout(c.poll); await srvClinLoad(p.id);
+  }));
+  on("train-reset", () => { c.run = null; renderClinician(); });
+  const activate = act(async (version) => {
+    await postJSON(`/patients/${pid}/active-model`, { version });
+    toast(`${p.first}'s next sessions will use ${version}.`); await srvClinLoad(p.id);
+  });
+  on("activate", () => activate($("activate").dataset.version));
+  document.querySelectorAll("[data-activate]").forEach((b) => (b.onclick = () => activate(b.dataset.activate)));
 }
 
 /* =====================================================================
@@ -606,9 +804,10 @@ function wordStats(p) {
 function errorMix(p) { const t = { sound: 0, wrong_word: 0, no_answer: 0 }; for (const s of real(p).slice(-5)) for (const k in t) t[k] += s.errors[k]; return t; }
 
 function renderClinician() {
+  if (API !== null && !S.srvPatients.length) return loadingCard();
   const p = P(S.sel);
   $("app").innerHTML = `<div class="wrap clin">
-    <nav class="rail" aria-label="Your patients"><h2>Your patients</h2>${[...S.srvPatients, ...S.patients].map((x) => (x.server ? srvRailRow(x) : railRow(x))).join("")}</nav>
+    <nav class="rail" aria-label="Your patients"><h2>Your patients</h2>${listed().map((x) => (x.server ? srvRailRow(x) : railRow(x))).join("")}</nav>
     <section class="main">${p.server ? srvClinPage(p) : page(p)}</section></div>
 `;
   document.querySelectorAll(".prow").forEach((b) => (b.onclick = () => { S.sel = b.dataset.id; S.openSession = null; S.proposal = null; if ((P(S.sel) || {}).server) delete S.clin[S.sel]; renderClinician(); window.scrollTo(0, 0); }));
