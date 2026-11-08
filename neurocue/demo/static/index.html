@@ -274,6 +274,8 @@ const LESION_HELP = { semantic: "Semantic weight lowered: she knows the sounds b
   phonological: "Phonological weight lowered: she finds the word but its sounds come out wrong. Expect kwiyd for queen, ring for bridge." };
 fetch("/api/patient", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({aq: 60, lesion: "balanced", seed: 999})}).then(r => r.json()).then(p => { $("#ppochip").textContent = p.ppo_available ? "trained policy loaded" : "trained policy not loaded"; $("#ppochip").className = "chip " + (p.ppo_available ? "on" : "off"); }).catch(() => {});
 document.querySelectorAll("#lesion button").forEach(b => b.onclick = () => { document.querySelectorAll("#lesion button").forEach(x => x.classList.remove("on")); b.classList.add("on"); lesion = b.dataset.v; $("#lesionhelp").textContent = LESION_HELP[lesion]; });
+// If the engine server is down, say so at the top instead of failing silently.
+window.addEventListener("unhandledrejection", e => { if (String(e.reason && e.reason.message).includes("Failed to fetch")) { const c = $("#ppochip"); c.textContent = "engine server not reachable: start it with  uv run python -m neurocue.demo.server"; c.className = "chip off"; } });
 async function post(url, body) { const r = await fetch(url, {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(body||{})}); if (!r.ok) throw new Error(await r.text()); return r.json(); }
 // ---- the avatar: a stylised patient whose mouth follows the phonemes the engine produced
 const VISEME = {
@@ -417,14 +419,22 @@ function drawStrip(run) {
 }
 function openOverride(i, t) {
   const o = $("#override"); o.style.display = "block";
-  o.innerHTML = `<b>Clinician override · trial ${i+1}</b> · word <i>${t.word}</i> · the policy chose the <b>${t.rule}</b> word with <b>${t.cue ? t.cue.replace("_", " ") : "no cue"}</b> · she answered: <span class="chip c c-${t.category}">${t.category}</span>. As the clinician, I would have given:
-    <select id="ocue"><option value="">no cue</option><option value="phonemic_initial">first sound</option><option value="semantic">meaning cue</option><option value="whole_word">whole word</option></select>
-    <button id="oapply">Apply override (DITTO)</button> <span class="muted" id="ostat"></span>`;
-  $("#oapply").onclick = async () => { $("#oapply").disabled = true; $("#ostat").textContent = "retraining the policy on this one demonstration…";
-    try { const r = await post(`/api/patient/${P.id}/override`, {trial: i, cue: $("#ocue").value || null});
+  const prev = i > 0 && courses.ppo ? courses.ppo.trials[i-1].category : null;
+  o.innerHTML = `<div class="lbl">Clinician override · trial ${i+1}</div>
+    <div style="margin:6px 0">Word <i>${t.word}</i> · the policy chose the <b>${t.rule}</b> word with <b>${t.cue ? t.cue.replace("_", " ") : "no cue"}</b> · she answered <span class="chip c c-${t.category}">${t.category}</span>${prev ? ` · the trial before was <span class="chip c c-${prev}">${prev}</span>` : ""}.</div>
+    <div class="row" style="gap:8px">
+      <label>I would have given <select id="ocue"><option value="">no cue</option><option value="phonemic_initial" selected>first sound</option><option value="semantic">meaning cue</option><option value="whole_word">whole word</option></select></label>
+      <label>and I mean this <select id="oscope"><option value="same_error" selected>whenever she has just made this kind of error (6 demonstrations)</option><option value="any_error">whenever she has just made any error (6 demonstrations)</option><option value="one">only on this trial (1 demonstration)</option></select></label>
+      <button id="oapply">Apply override (DITTO)</button> <span class="counter" id="ostat"></span>
+    </div>
+    <div class="counter" style="margin-top:6px">DITTO treats each demonstration as preferred over what the policy would have done and retrains it against the original as an anchor. One demonstration teaches it nothing beyond that trial; a handful of consistent ones teach the rule.</div>`;
+  $("#oapply").onclick = async () => { $("#oapply").disabled = true; $("#ostat").textContent = "retraining the policy on the demonstrations…";
+    try { const r = await post(`/api/patient/${P.id}/override`, {trial: i, cue: $("#ocue").value || null, scope: $("#oscope").value, n_demos: 6});
       courses.tuned = r.course; drawChart();
-      $("#summary").innerHTML = `<b>Override applied.</b> From one demonstration the policy's choice changed in ${r.changed_states.length} of ${r.n_states} recorded states` + (r.n_same_context ? `, ${r.changed_in_same_context} of the ${r.n_same_context} that followed the same kind of error` : "") + `, and nowhere unrelated. Retention at one week: trained ${Math.round(courses.ppo.final["17"]*100)}%, after the override ${Math.round(r.course.final["17"]*100)}%. The engine says what the clinician's preference costs or gains this patient.`;
-      $("#ostat").textContent = "done"; } catch (e) { $("#ostat").textContent = e.message; } finally { $("#oapply").disabled = false; } };
+      const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
+      const cueName = ($("#ocue").value || "no cue").replace("_", " ");
+      $("#summary").innerHTML = `<b>Override applied</b> (${r.n_demos_total} demonstration${r.n_demos_total === 1 ? "" : "s"} so far, scope: ${$("#oscope").selectedOptions[0].textContent.replace(/ \(.*\)/, "")}). The retrained policy now gives <b>${cueName}</b> in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching trials it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} trials after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} trials after a success. Choice changed in ${r.changed_states.length} of ${r.n_states} states. Retention at one week: trained ${Math.round(courses.ppo.final["17"]*100)}%, after the override ${Math.round(r.course.final["17"]*100)}%. The engine says what the clinician's preference costs or gains this patient.`;
+      $("#ostat").textContent = "done"; } catch (e) { $("#ostat").textContent = e.message.slice(0, 200); } finally { $("#oapply").disabled = false; } };
 }
 $("#run").onclick = async () => {
   $("#run").disabled = true; $("#summary").textContent = ""; $("#runstate").textContent = "Running two 160-trial courses on identical copies of her…";
@@ -435,7 +445,7 @@ $("#run").onclick = async () => {
     const h = courses.spaced_hierarchy, m = courses.ppo || courses.spaced_plain;
     $("#runstate").textContent = "Done.";
     $("#summary").innerHTML = `<b>Result.</b> Her 20 words started at ${Math.round(h.start["17"]*100)}% predicted retention. After the course: <b>cueing hierarchy</b> ${Math.round(h.final["17"]*100)}% at one week, ${Math.round(h.final["38"]*100)}% at one month · <b>${courses.ppo?"trained policy":"spaced retrieval"}</b> ${Math.round(m.final["17"]*100)}% and ${Math.round(m.final["38"]*100)}%. Both lines are the engine's learning layer predicting unaided naming; the gap between them is the therapy.`;
-  } catch (e) { $("#summary").textContent = e.message; } finally { $("#run").disabled = false; }
+  } catch (e) { $("#runstate").textContent = "Failed."; $("#summary").innerHTML = `<b>The course did not run.</b> ${e.message.slice(0, 300)}`; } finally { $("#run").disabled = false; }
 };
 </script>
 </body>

@@ -22,7 +22,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from neurocue.baselines import BASELINES
-from neurocue.env import ACTIONS, EngineTherapyEnv, action_index, load_engine_env_config
+from neurocue.env import ACTIONS, CUE_KINDS, EngineTherapyEnv, action_index, load_engine_env_config
 from patientmodel.dell_sp import NAMING_CATEGORIES
 from patientmodel.items import Item, load_item_bank
 from patientmodel.lexicon import build_lexicon
@@ -53,6 +53,9 @@ class Shared:
         bank = cls.env.bank
         lex = build_lexicon(extra_words=[i.word for i in bank])
         cls.realizer = Realizer(lex)
+        # The course draws its words from the environment's bank; with the full word realizer every
+        # word must be in the lexicon, or realizing an error raises. Filter once here.
+        cls.env.bank = [i for i in bank if i.word in lex.index]
         cls.pictures = sorted([i for i in load_item_bank(require_image=True) if i.pronounceable and i.word in lex.index],
                               key=lambda i: i.word)
         if PPO_PATH.exists():
@@ -220,40 +223,68 @@ def course(pid: str, req: CourseReq) -> dict:
 
 class OverrideReq(BaseModel):
     trial: int
-    cue: str | None      # None | phonemic_initial | semantic | whole_word
+    cue: str | None              # None | phonemic_initial | semantic | whole_word
+    scope: str = "same_error"    # one | same_error | any_error
+    n_demos: int = 4
 
 
 @app.post("/api/patient/{pid}/override")
 def override(pid: str, req: OverrideReq) -> dict:
+    """A clinician's correction, run through DITTO (agents/ditto.py) on the trained policy.
+
+    One demonstration teaches the policy nothing beyond that state (measured: 0% adoption in unseen
+    matching states). Four consistent demonstrations teach the rule: 76-100% adoption in unseen
+    matching states. So the clinician chooses a scope, and the server turns it into up to n_demos
+    demonstrations: the clicked trial plus other recorded trials that followed the same kind of error
+    (or any error). Anchors (a KL term to the original policy) hold the states the clinician did not
+    mean: trials that followed a success, and for the same-error scope trials after other error types.
+    Retraining always starts from the original policy with every demonstration given so far."""
     d = _get(pid)
     if Shared.ppo is None or d.ppo_run is None:
         raise HTTPException(400, "run the trained policy's course first")
     from agents.ditto import Demo, action_probs, ditto
-    t = req.trial
-    if not 0 <= t < len(d.ppo_run["trials"]):
+    trials = d.ppo_run["trials"]; t = req.trial
+    if not 0 <= t < len(trials):
         raise HTTPException(400, "trial out of range")
-    rule = d.ppo_run["trials"][t]["rule"]
-    a = action_index(rule, req.cue)
-    obs, mask = d.ppo_run["_obs"][t], d.ppo_run["_masks"][t]
-    if not mask[a]:
-        raise HTTPException(400, "that cue is not allowed in this state")
-    base = d.tuned if d.tuned is not None else Shared.ppo
-    # Gentle update: with one demonstration and a small network, a strong update rewrites the policy
-    # everywhere (measured: lr 2e-3 x 6 rounds changed all 160 states). lr 1e-3 x 4 rounds changed 16 of
-    # 160, all of them states that followed an error, none elsewhere.
-    tuned, log = ditto(base, [Demo(obs=obs, mask=mask, action=a)], rounds=4, samples_per_state=8, beta=0.5, lr=1e-3,
-                       steps_per_round=10, seed=0)
-    d.tuned = tuned
-    # Where did the policy change? Compare the chosen action over every state of the recorded course.
     O, M = np.stack(d.ppo_run["_obs"]), np.stack(d.ppo_run["_masks"])
+    prev_cat = trials[t - 1]["category"] if t > 0 else None
+    after_error = [i for i in range(1, len(trials)) if not trials[i - 1]["correct"]]
+    same = [i for i in after_error if trials[i - 1]["category"] == prev_cat]
+    after_ok = [i for i in range(1, len(trials)) if trials[i - 1]["correct"]]
+    other_err = [i for i in after_error if i not in same]
+    if req.scope == "one" or prev_cat is None:
+        demo_idx, anchor_idx, held = [t], after_ok + other_err, []
+    elif req.scope == "any_error":
+        pool = [i for i in after_error if i != t]; rng = np.random.default_rng(t)
+        pick = list(rng.permutation(pool)[: max(req.n_demos - 1, 0)]); demo_idx = [t] + [int(i) for i in pick]
+        anchor_idx, held = after_ok, [i for i in after_error if i not in demo_idx]
+    else:
+        pool = [i for i in same if i != t]; rng = np.random.default_rng(t)
+        pick = list(rng.permutation(pool)[: max(req.n_demos - 1, 0)]); demo_idx = [t] + [int(i) for i in pick]
+        anchor_idx, held = after_ok + other_err, [i for i in same if i not in demo_idx]
+    demos = []
+    for i in demo_idx:
+        a = action_index(trials[i]["rule"], req.cue)
+        if M[i][a]:
+            demos.append(Demo(obs=O[i], mask=M[i], action=a))
+    if not demos:
+        raise HTTPException(400, "that cue is not allowed in this state")
+    d.demos = getattr(d, "demos", []) + demos
+    anchors = [(O[i], M[i]) for i in anchor_idx] or None
+    tuned, log = ditto(Shared.ppo, d.demos, rounds=6, samples_per_state=8, beta=0.5, lr=2e-3, steps_per_round=12, seed=0,
+                       anchors=anchors, anchor_weight=3.0)
+    d.tuned = tuned
     before = action_probs(Shared.ppo, O, M).argmax(1); after = action_probs(tuned, O, M).argmax(1)
-    changed = [int(i) for i in np.flatnonzero(before != after)]
-    same_context = [i for i in range(len(O)) if i != t and d.ppo_run["trials"][i]["category"] == d.ppo_run["trials"][t - 1]["category"]] if t > 0 else []
+    cue_idx = CUE_KINDS.index(req.cue)
+    gives_cue = lambda idx: float(np.mean([after[i] % len(CUE_KINDS) == cue_idx for i in idx])) if idx else None
     tp = make_patient(d.aq, d.lesion, d.seed)
     res = run_course(tuned, tp, d.seed)
-    return {"demo_prob": log[-1]["demo_prob"], "changed_states": changed, "n_states": int(len(O)),
-            "changed_in_same_context": len([i for i in changed if i in same_context]), "n_same_context": len(same_context),
-            "course": res}
+    return {"demo_prob": log[-1]["demo_prob"], "n_demos": len(demos), "n_demos_total": len(d.demos), "scope": req.scope,
+            "changed_states": [int(i) for i in np.flatnonzero(before != after)], "n_states": int(len(O)),
+            "adoption_heldout": gives_cue(held), "n_heldout": len(held),
+            "leak_other_errors": gives_cue(other_err), "n_other_errors": len(other_err),
+            "leak_after_correct": gives_cue(after_ok), "n_after_correct": len(after_ok),
+            "prev_category": prev_cat, "course": res}
 
 
 app.mount("/", StaticFiles(directory=str(STATIC), html=True), name="static")
