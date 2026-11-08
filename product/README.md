@@ -1,24 +1,41 @@
 # CueAgain product prototype: patient tablet + clinician view
 
-Open `product/index.html` in a browser (no server needed). Two views, switched in the top bar:
+Open `product/index.html` in a browser (no server needed). Two views, switched in the top bar.
 
-- **Patient tablet:** start screen with today's plan, one picture at a time, the helper taps what
-  happened (speech recognition runs in the CueAgain app), the smallest helpful hint first and
-  stronger ones on retry (clinical cueing hierarchy), show-and-repeat after the last try, difficulty
-  that follows first-try success, a break after repeated misses, and an encouraging end summary.
-  A finished session appears in the clinician view as "Today (live)".
-- **Clinician:** caseload with weekly practice minutes and flags, patient page (naming trend, error
-  profile, what the AI does after each error type), every session's decisions with the AI's reason
-  and an "I'd do this differently" control, typed feedback that becomes proposed plan changes she
-  approves, plan settings, a change log, and **Teach the AI**.
+**Patient tablet**, modelled on a naming session with a speech therapist, with no helper assumed:
+- Start screen with today's plan (pictures, minutes, practice days).
+- One picture at a time. The person presses **Say it**; speech recognition scores the answer (in
+  the CueAgain app; here a labelled demo strip stands in for it). **Hint please** is always there.
+- After a miss, the smallest helpful hint for that kind of mistake, then stronger ones (cueing
+  hierarchy). With "meaning first", a wrong word starts with describing the object: group, use,
+  where you find it (semantic feature analysis). Hints can be read aloud.
+- After a hint works: say it once more. After the last try: hear it and say it together.
+- Difficulty follows first-try success; a break is offered after repeated misses.
+- The session ends by trying the pictures that needed help again, without hints, then a short,
+  encouraging summary. The session appears in the clinician view as "Today".
+
+**Clinician**, in plain clinical language, larger text, no mention of models:
+- Your patients: last practice, minutes against the weekly goal, one status (needs attention,
+  improving, on track).
+- Patient page: three numbers (named on their own, practice this week, what needs attention), the
+  naming chart, "What we're seeing" (main type of miss, hardest words, words now reliable,
+  stopping early, review recall) and "Which hints help" (success after each hint type).
+- Session review: the pictures that needed help, with "Suggest a different hint" for next time.
+  Repeated suggestions of the same kind offer to become the patient's standing approach.
+- Notes and suggestions: a typed note becomes proposed updates she approves.
+- Exercise plan: practice days, minutes, pictures, level, hint approach, tries, breaks, when to
+  move up, personal words. Plan history records every change.
+
+Behind the scenes, a clinician's suggestions are the demonstrations the decision model learns from
+(DITTO). The clinician never sees that; she sees her patient's next sessions follow her approach.
 
 ## Where the data comes from
 `product/mock/data.json` is generated, not typed: `uv run python -m scripts.build_product_mock`
 runs four patients for two weeks in the data-grounded simulator (`configs/sim_pnt.yaml`) with the
 trained agent (`models/ppo_pnt_seed0.zip`). Maria and James are the personas in `docs/PERSONAS.md`.
-James's **Teach the AI** result is computed by the script for real (DITTO-style tuning of the trained
+James's standing-approach result (the sessions after the clinician's instruction) is computed by the script for real (DITTO-style tuning of the trained
 agent on 8 simulated corrections of the same kind; adoption measured on 160 held-out decisions) and
-shown when the clinician presses the button. Other patients' corrections are saved, not trained live.
+those sessions appear when she applies the instruction. For other patients the instruction updates the hint approach in the plan.
 
 The script then builds `index.html` (and `page.html`, the same page without the document wrapper)
 from `template.html` with the data and the 24 pictures of `data/items.json` inlined. **Edit

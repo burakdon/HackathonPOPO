@@ -9,162 +9,165 @@
 <title>CueAgain</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
-/* Layout: a top bar switches between two products in one page. Patient = one big tablet card, one
-   action at a time. Clinician = caseload rail + patient page (summary first, then detail). */
+/* Layout: top bar switches two views. Patient = one tablet card, one action at a time, large type.
+   Clinician = caseload list + one patient page read top to bottom: how they are doing, what we see,
+   session review, notes, exercise plan. Minimum text size ~15px everywhere. */
 :root {
-  --bg: #eef3f4; --surface: #ffffff; --surface-2: #f6f9fa; --ink: #13222a; --muted: #57686f; --line: #d5e0e3;
-  --accent: #0b6b67; --accent-ink: #ffffff; --accent-soft: #d9eeec;
-  --hint: #8a5300; --hint-bg: #fff1d6; --good: #17703f; --good-bg: #e1f3e7; --bad: #a93434; --bad-bg: #fbe6e5;
-  --warn: #8a5300; --warn-bg: #fff1d6;
-  --c-sound: #3567b0; --c-word: #c4571b; --c-none: #8b949b; --c-hint: #d39b2a;
-  --shadow: 0 1px 2px rgba(19, 34, 42, .06), 0 6px 18px rgba(19, 34, 42, .06);
+  --bg: #eef3f4; --surface: #ffffff; --surface-2: #f5f8f9; --ink: #13222a; --muted: #4f6168; --line: #d3dee2;
+  --accent: #0b6b67; --accent-ink: #ffffff; --accent-soft: #dcefed;
+  --hint: #7a4a00; --hint-bg: #fff0d2; --good: #17703f; --good-bg: #e1f3e7; --bad: #a93434; --bad-bg: #fbe6e5;
+  --c-sound: #3567b0; --c-word: #c4571b; --c-none: #87939a; --c-hint: #d39b2a;
+  --shadow: 0 1px 2px rgba(19, 34, 42, .06), 0 8px 24px rgba(19, 34, 42, .07);
   --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
-  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0f181c; --surface: #16232a; --surface-2: #1b2b33; --ink: #e5eef0; --muted: #9db0b6; --line: #2a3d45;
-  --accent: #4fc3b9; --accent-ink: #062523; --accent-soft: #173f3c;
-  --hint: #f5c46b; --hint-bg: #3a2d12; --good: #6fd39a; --good-bg: #14361f; --bad: #f19590; --bad-bg: #3d1c1c;
-  --warn: #f5c46b; --warn-bg: #3a2d12; --c-sound: #79a6ec; --c-word: #f0915a; --c-none: #8d9aa1; --c-hint: #e3b459;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.3); color-scheme: dark } }
+  --bg: #0f181c; --surface: #16232a; --surface-2: #1c2c34; --ink: #e7eff1; --muted: #a4b5bb; --line: #2c3f47;
+  --accent: #52c4ba; --accent-ink: #062523; --accent-soft: #173f3c;
+  --hint: #f6c977; --hint-bg: #3a2d12; --good: #72d59d; --good-bg: #14361f; --bad: #f29a95; --bad-bg: #3d1c1c;
+  --c-sound: #7ca8ee; --c-word: #f0925c; --c-none: #8f9ca3; --c-hint: #e3b459;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3); color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #0f181c; --surface: #16232a; --surface-2: #1b2b33; --ink: #e5eef0; --muted: #9db0b6; --line: #2a3d45;
-  --accent: #4fc3b9; --accent-ink: #062523; --accent-soft: #173f3c;
-  --hint: #f5c46b; --hint-bg: #3a2d12; --good: #6fd39a; --good-bg: #14361f; --bad: #f19590; --bad-bg: #3d1c1c;
-  --warn: #f5c46b; --warn-bg: #3a2d12; --c-sound: #79a6ec; --c-word: #f0915a; --c-none: #8d9aa1; --c-hint: #e3b459;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.3); color-scheme: dark }
+  --bg: #0f181c; --surface: #16232a; --surface-2: #1c2c34; --ink: #e7eff1; --muted: #a4b5bb; --line: #2c3f47;
+  --accent: #52c4ba; --accent-ink: #062523; --accent-soft: #173f3c;
+  --hint: #f6c977; --hint-bg: #3a2d12; --good: #72d59d; --good-bg: #14361f; --bad: #f29a95; --bad-bg: #3d1c1c;
+  --c-sound: #7ca8ee; --c-word: #f0925c; --c-none: #8f9ca3; --c-hint: #e3b459;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3); color-scheme: dark }
 
 * { box-sizing: border-box }
-body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--f-body); margin: 0 }
+body { background: var(--bg); color: var(--ink); font: 17px/1.5 var(--f-body); margin: 0 }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface) }
 h1, h2, h3 { line-height: 1.2; text-wrap: balance; margin: 0 }
-h2 { font-size: 1.1rem } h3 { font-size: .95rem }
+h2 { font-size: 1.25rem }
 button, input, select, textarea { font: inherit; color: inherit }
 button { cursor: pointer }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
 .num { font-variant-numeric: tabular-nums }
-.mono { font-family: var(--f-mono); font-size: .8rem }
-.muted { color: var(--muted) } .small { font-size: .85rem }
+.muted { color: var(--muted) }
 .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
 
-/* top bar */
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line) }
-.top .wrap { display: flex; align-items: center; gap: 16px; padding-block: 10px; flex-wrap: wrap }
-.brand { font-weight: 700; font-size: 1.15rem; letter-spacing: .01em; display: flex; align-items: baseline; gap: 8px }
-.brand b { color: var(--accent) }
-.sim-badge { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px }
-.seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; margin-left: auto }
-.seg button { border: 0; background: transparent; padding: 6px 14px; border-radius: 8px; font-weight: 700; color: var(--muted) }
+.top .wrap { display: flex; align-items: center; gap: 14px; padding-block: 10px; flex-wrap: wrap }
+.brand { font-weight: 700; font-size: 1.25rem } .brand b { color: var(--accent) }
+.demo-tag { font-size: .85rem; color: var(--muted) }
+.seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 3px; margin-left: auto }
+.seg button { border: 0; background: transparent; padding: 8px 16px; border-radius: 9px; font-weight: 700; color: var(--muted) }
 .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow) }
-.linkbtn { border: 0; background: none; color: var(--accent); padding: 4px; font-size: .85rem; text-decoration: underline }
-
-/* shared pieces */
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px }
-.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 10px; font-size: .78rem; font-weight: 700; white-space: nowrap }
-.pill.good { background: var(--good-bg); color: var(--good) } .pill.bad { background: var(--bad-bg); color: var(--bad) }
-.pill.warn { background: var(--warn-bg); color: var(--warn) } .pill.info { background: var(--accent-soft); color: var(--accent) }
-.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 14px; font-weight: 700 }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 9px 16px; font-weight: 700 }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) }
 .btn:disabled { opacity: .45; cursor: not-allowed }
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-weight: 700; z-index: 20; max-width: calc(100% - 32px) }
-.label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700 }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 12px; font-weight: 700; z-index: 20; max-width: calc(100% - 32px) }
 
 /* ---------- PATIENT TABLET ---------- */
-.tablet-stage { display: grid; gap: 14px; justify-items: center; padding-block: 22px 40px }
-.tablet-meta { width: min(760px, 100%); display: flex; gap: 10px; align-items: center; flex-wrap: wrap }
-.tablet-meta select { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 4px 8px }
-.tablet { width: min(760px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--shadow); padding: clamp(18px, 4vw, 36px); min-height: 540px; display: flex; flex-direction: column; gap: 18px }
-.t-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap }
-.t-greet { font-size: clamp(1.5rem, 4vw, 2.1rem); font-weight: 700 }
-.t-big { font-size: clamp(1.15rem, 3vw, 1.4rem) }
-.t-center { display: grid; justify-items: center; text-align: center; gap: 18px; margin-block: auto }
-.go { font-size: 1.5rem; font-weight: 700; border: 0; border-radius: 18px; background: var(--accent); color: var(--accent-ink); padding: 18px 40px; min-width: 240px }
-.go.secondary { background: var(--surface-2); color: var(--ink); border: 2px solid var(--line) }
-.pic { width: min(300px, 70vw); aspect-ratio: 1; max-width: 100%; display: grid; place-items: center; background: var(--surface-2); border-radius: 22px; border: 1px solid var(--line) }
+.stage { display: grid; gap: 12px; justify-items: center; padding-block: 20px 40px }
+.stage-meta { width: min(780px, 100%); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: var(--muted) }
+.stage-meta select { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 5px 8px }
+.tablet { width: min(780px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 30px; box-shadow: var(--shadow); padding: clamp(20px, 4vw, 40px); min-height: 600px; display: flex; flex-direction: column; gap: 20px }
+.t-top { display: flex; justify-content: space-between; align-items: center; gap: 12px }
+.dots { display: flex; gap: 6px; flex-wrap: wrap }
+.dots i { width: 13px; height: 13px; border-radius: 50%; background: var(--line); display: block }
+.dots i.ok { background: var(--good) } .dots i.help { background: var(--c-hint) } .dots i.miss { background: var(--c-none) } .dots i.now { outline: 3px solid var(--accent); outline-offset: 2px }
+.quiet { border: 0; background: none; color: var(--muted); font-weight: 700; padding: 6px 4px }
+.t-body { display: grid; justify-items: center; text-align: center; gap: 20px; margin-block: auto }
+.t-title { font-size: clamp(1.7rem, 4.5vw, 2.3rem); font-weight: 700 }
+.t-say { font-size: clamp(1.25rem, 3.4vw, 1.55rem) }
+.pic { width: min(300px, 68vw); aspect-ratio: 1; max-width: 100%; display: grid; place-items: center; background: var(--surface-2); border-radius: 26px; border: 1px solid var(--line) }
 .pic img { width: 74%; height: 74% }
-.progress { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center }
-.progress i { width: 12px; height: 12px; border-radius: 50%; background: var(--line); display: block }
-.progress i.ok { background: var(--good) } .progress i.help { background: var(--c-hint) } .progress i.miss { background: var(--c-none) } .progress i.now { outline: 3px solid var(--accent); outline-offset: 2px }
-.hintbox { background: var(--hint-bg); color: var(--hint); border-radius: 14px; padding: 12px 18px; font-size: 1.3rem; font-weight: 700; max-width: 560px }
-.okbox { background: var(--good-bg); color: var(--good); border-radius: 14px; padding: 12px 18px; font-size: 1.35rem; font-weight: 700 }
-.answer-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center }
-.mic { font-size: 1.35rem; font-weight: 700; border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-ink); padding: 16px 30px }
-.helper { width: 100%; border-top: 2px dashed var(--line); padding-top: 14px; display: grid; gap: 10px }
-.helper .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center }
-.helper input { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface-2); min-width: 0; width: min(320px, 100%) }
-.hb { border: 2px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 14px; font-weight: 700; line-height: 1.2 }
-.hb small { display: block; font-weight: 400; color: var(--muted) }
-.hb.ok { border-color: var(--good); color: var(--good) }
-.t-foot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap }
-.levelchip { font-weight: 700; color: var(--accent) }
+.big { font-size: 1.45rem; font-weight: 700; border: 0; border-radius: 20px; background: var(--accent); color: var(--accent-ink); padding: 18px 34px; min-width: 220px }
+.big.soft { background: var(--surface-2); color: var(--ink); border: 2px solid var(--line) }
+.big.listen { background: var(--bad) }
+.row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center }
+.bubble { border-radius: 18px; padding: 14px 22px; font-size: 1.4rem; font-weight: 700; max-width: 580px; display: flex; gap: 12px; align-items: center }
+.bubble.hint { background: var(--hint-bg); color: var(--hint) } .bubble.good { background: var(--good-bg); color: var(--good) }
+.speak { border: 0; background: rgba(0,0,0,.06); border-radius: 50%; width: 46px; height: 46px; font-size: 1.3rem; flex: none }
+.features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100% }
+.features div { background: var(--hint-bg); color: var(--hint); border-radius: 14px; padding: 12px; font-weight: 700 }
+.listening { display: grid; justify-items: center; gap: 10px }
+.pulse { width: 86px; height: 86px; border-radius: 50%; background: var(--bad); display: grid; place-items: center; color: #fff; font-size: 2rem; animation: pulse 1.2s ease-in-out infinite }
+@keyframes pulse { 50% { transform: scale(1.08); opacity: .85 } }
+.demo { width: 100%; border: 2px dashed var(--line); border-radius: 16px; padding: 10px 12px; display: grid; gap: 8px }
+.demo .lbl { font-size: .9rem; color: var(--muted) }
+.demo .row { gap: 8px }
+.demo button { border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 8px 12px; font-size: .95rem }
+.sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100% }
+.sum div { background: var(--surface-2); border-radius: 16px; padding: 16px; font-size: 1.05rem }
+.sum b { display: block; font-size: 2.2rem }
 .overlay { position: fixed; inset: 0; background: rgba(10, 20, 24, .55); display: grid; place-items: center; z-index: 15; padding: 16px }
-.sumgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100% }
-.sumgrid div { background: var(--surface-2); border-radius: 14px; padding: 14px; text-align: center }
-.sumgrid b { display: block; font-size: 2rem }
 
 /* ---------- CLINICIAN ---------- */
-.clin { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 18px; padding-block: 18px 40px; align-items: start }
-.rail { display: grid; gap: 10px; position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)) }
-.prow { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 12px; display: grid; gap: 6px; width: 100% }
-.prow[aria-current="true"] { border-color: var(--accent); box-shadow: inset 4px 0 0 var(--accent) }
-.prow .nm { display: flex; justify-content: space-between; gap: 8px; font-weight: 700 }
-.meter { height: 7px; background: var(--surface-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line) }
-.meter span { display: block; height: 100% ; background: var(--accent) }
-.flags { display: flex; gap: 6px; flex-wrap: wrap }
-.main { display: grid; gap: 16px; min-width: 0 }
-.phead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap }
-.phead h1 { font-size: 1.6rem }
-.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px }
-.kpi .v { font-size: 1.7rem; font-weight: 700 }
-.two { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px }
+.clin { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 20px; padding-block: 20px 44px; align-items: start }
+.rail { display: grid; gap: 10px; position: sticky; top: calc(70px + env(safe-area-inset-top, 0px)) }
+.rail h2 { font-size: 1.05rem; color: var(--muted) }
+.prow { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 14px; display: grid; gap: 6px; width: 100% }
+.prow[aria-current="true"] { border-color: var(--accent); box-shadow: inset 5px 0 0 var(--accent) }
+.prow b { font-size: 1.08rem }
+.status { justify-self: start; border-radius: 999px; padding: 3px 12px; font-weight: 700; font-size: .92rem }
+.status.attn { background: var(--bad-bg); color: var(--bad) } .status.ok { background: var(--accent-soft); color: var(--accent) } .status.up { background: var(--good-bg); color: var(--good) }
+.meter { height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line) }
+.meter span { display: block; height: 100%; background: var(--accent) }
+.main { display: grid; gap: 18px; min-width: 0 }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 14px; align-content: start; min-width: 0 }
+.phead h1 { font-size: 1.85rem } .phead p { margin: 4px 0 0 }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px }
+.stat .k { color: var(--muted); font-weight: 700 } .stat .v { font-size: 2.1rem; font-weight: 700 } .stat .d { color: var(--muted) }
+.stat.attn .v { font-size: 1.25rem; line-height: 1.35; color: var(--bad) } .stat.attn.none .v { color: var(--good) }
 .chart svg { width: 100%; height: auto; display: block }
-.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .82rem; color: var(--muted) }
-.legend i { display: inline-block; width: 14px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 6px }
-.stack { display: flex; height: 16px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line) }
-.stack span { display: block; height: 100% }
-.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: .9rem }
-.tablebox { overflow-x: auto }
-table { border-collapse: collapse; width: 100%; font-size: .88rem }
-th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap }
-td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top }
-tr.sel td { background: var(--accent-soft) }
-.sess { display: flex; gap: 6px; flex-wrap: wrap }
-.sess button { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 9px; font-size: .82rem }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted) }
+.legend i { display: inline-block; width: 16px; height: 5px; border-radius: 3px; vertical-align: middle; margin-right: 6px }
+.obs { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none }
+.obs li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; align-items: start }
+.obs .ic { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-weight: 700 }
+.hintbars { display: grid; gap: 8px }
+.hb-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 60px; gap: 10px; align-items: center }
+.hb-bar { height: 12px; background: var(--surface-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line) }
+.hb-bar span { display: block; height: 100%; background: var(--accent) }
+.wordchips { display: flex; gap: 8px; flex-wrap: wrap }
+.wc { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 3px 10px }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px }
+.sess { display: flex; gap: 8px; flex-wrap: wrap }
+.sess button { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 6px 12px }
 .sess button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
-.sess button.early { border-color: var(--bad) }
-.over select { border: 1px solid var(--line); border-radius: 6px; background: var(--surface); padding: 2px 4px; font-size: .82rem }
-.over .done { color: var(--accent); font-weight: 700; font-size: .82rem }
-textarea { width: 100%; min-height: 86px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface-2); resize: vertical }
-.chips { display: flex; gap: 6px; flex-wrap: wrap }
-.chip { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 4px 12px; font-size: .85rem }
-.proposal { display: grid; gap: 8px; border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 12px; padding: 12px }
+.tablebox { overflow-x: auto }
+table { border-collapse: collapse; width: 100% }
+th { text-align: left; color: var(--muted); padding: 8px 10px; border-bottom: 2px solid var(--line); white-space: nowrap; font-size: .95rem }
+td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle }
+.res { font-weight: 700 } .res.good { color: var(--good) } .res.bad { color: var(--bad) } .res.help { color: var(--hint) }
+td select { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 6px 8px; max-width: 100% }
+.mine { color: var(--accent); font-weight: 700 }
+.banner { border: 2px solid var(--accent); background: var(--accent-soft); border-radius: 14px; padding: 16px; display: grid; gap: 10px }
+textarea { width: 100%; min-height: 96px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--surface-2); resize: vertical }
+.chips { display: flex; gap: 8px; flex-wrap: wrap }
+.chip { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 6px 14px }
+.proposal { display: grid; gap: 10px; border: 2px solid var(--accent); background: var(--accent-soft); border-radius: 14px; padding: 16px }
 .proposal label { display: flex; gap: 10px; align-items: flex-start }
-.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px }
-.form label { display: grid; gap: 4px; font-size: .85rem; color: var(--muted) }
-.form select, .form input { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; background: var(--surface-2); color: var(--ink); min-width: 0 }
-.words { display: flex; gap: 6px; flex-wrap: wrap; align-items: center }
-.word { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 2px 8px; font-size: .85rem }
-.log { display: grid; gap: 8px; font-size: .88rem }
-.log div { border-left: 3px solid var(--line); padding-left: 10px }
-.teach-result { border-radius: 12px; background: var(--good-bg); color: var(--ink); padding: 14px; display: grid; gap: 8px }
-.big-delta { font-size: 1.6rem; font-weight: 700; color: var(--good) }
-.foot { padding-block: 10px 30px; font-size: .8rem; color: var(--muted) }
+.proposal input { width: 20px; height: 20px; margin-top: 3px }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px }
+.form label { display: grid; gap: 6px; font-weight: 700 }
+.form select, .form input[type=text] { border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; background: var(--surface-2); min-width: 0; font-weight: 400 }
+.days { display: flex; gap: 6px; flex-wrap: wrap }
+.days button { width: 52px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 0; background: var(--surface); font-weight: 700 }
+.days button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.pw { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
+.pw span { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 4px 6px 4px 12px; display: inline-flex; gap: 6px; align-items: center }
+.pw span button { border: 0; background: none; color: var(--muted); font-size: 1.1rem; padding: 0 6px }
+.log { display: grid; gap: 10px }
+.log div { border-left: 3px solid var(--line); padding-left: 12px }
+.foot { padding-block: 0 30px; color: var(--muted); font-size: .9rem; max-width: 90ch }
 
-@media (max-width: 980px) { .clin { grid-template-columns: 1fr } .rail { position: static; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) } .two { grid-template-columns: 1fr } }
-@media (max-width: 620px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) } .form { grid-template-columns: 1fr } .sumgrid { grid-template-columns: 1fr } .seg { margin-left: 0 } }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
+@media (max-width: 1000px) { .clin { grid-template-columns: 1fr } .rail { position: static; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) } .two { grid-template-columns: 1fr } }
+@media (max-width: 640px) { .stats, .sum, .features { grid-template-columns: 1fr } .form { grid-template-columns: 1fr } .seg { margin-left: 0 } .hb-row { grid-template-columns: 110px minmax(0, 1fr) 50px } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important } }
 </style>
 
 <header class="top"><div class="wrap">
-  <div class="brand"><span>Cue<b>Again</b></span><span class="sim-badge">Prototype · simulated patients</span></div>
+  <div class="brand">Cue<b>Again</b></div>
+  <span class="demo-tag">Demo with simulated patients</span>
   <div class="seg" role="group" aria-label="View">
     <button id="nav-patient" aria-pressed="false">Patient tablet</button>
     <button id="nav-clinician" aria-pressed="true">Clinician</button>
   </div>
 </div></header>
-
 <main id="app"></main>
 <div id="toast" class="toast" hidden></div>
 <div id="overlay" class="overlay" hidden></div>
@@ -174,32 +177,34 @@ const MOCK = {"generated_by":"scripts/build_product_mock.py","simulated":true,"a
 const ITEMS = [{"exercise_id":"ex-cat","image_path":"images/cat.svg","preferred_name":"cat","accepted_alternatives":["kitty","kitten"],"tier":1,"cues":{"first_sound":"It starts with the sound \u201ck\u2026\u201d","first_letter":"It starts with the letter C.","sentence_frame":"A pet that says meow is a ___.","semantic":"A small furry pet that purrs."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f408","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f408.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-dog","image_path":"images/dog.svg","preferred_name":"dog","accepted_alternatives":["puppy","doggy"],"tier":1,"cues":{"first_sound":"It starts with the sound \u201cd\u2026\u201d","first_letter":"It starts with the letter D.","sentence_frame":"A pet that barks is a ___.","semantic":"A pet that wags its tail and fetches sticks."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f415","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f415.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-apple","image_path":"images/apple.svg","preferred_name":"apple","accepted_alternatives":[],"tier":1,"cues":{"first_sound":"It starts with the sound \u201ca\u2026\u201d","first_letter":"It starts with the letter A.","sentence_frame":"An ___ a day keeps the doctor away.","semantic":"A round red or green fruit that grows on trees."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f34e","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f34e.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-house","image_path":"images/house.svg","preferred_name":"house","accepted_alternatives":["home"],"tier":1,"cues":{"first_sound":"It starts with the sound \u201ch\u2026\u201d","first_letter":"It starts with the letter H.","sentence_frame":"A family lives in a ___.","semantic":"A building where people live."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f3e0","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f3e0.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-car","image_path":"images/car.svg","preferred_name":"car","accepted_alternatives":["automobile"],"tier":1,"cues":{"first_sound":"It starts with the sound \u201ck\u2026\u201d","first_letter":"It starts with the letter C.","sentence_frame":"You drive a ___ on the road.","semantic":"It has four wheels and you drive it."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f697","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f697.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-tree","image_path":"images/tree.svg","preferred_name":"tree","accepted_alternatives":[],"tier":1,"cues":{"first_sound":"It starts with the sound \u201ctr\u2026\u201d","first_letter":"It starts with the letter T.","sentence_frame":"Birds build nests in a ___.","semantic":"It is tall, has leaves and a trunk."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f333","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f333.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-fish","image_path":"images/fish.svg","preferred_name":"fish","accepted_alternatives":[],"tier":1,"cues":{"first_sound":"It starts with the sound \u201cf\u2026\u201d","first_letter":"It starts with the letter F.","sentence_frame":"It swims in the sea; it's a ___.","semantic":"An animal with fins that lives in water."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f41f","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f41f.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-key","image_path":"images/key.svg","preferred_name":"key","accepted_alternatives":[],"tier":1,"cues":{"first_sound":"It starts with the sound \u201ck\u2026\u201d","first_letter":"It starts with the letter K.","sentence_frame":"You unlock the door with a ___.","semantic":"A small metal thing that opens a lock."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f511","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f511.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-banana","image_path":"images/banana.svg","preferred_name":"banana","accepted_alternatives":[],"tier":2,"cues":{"first_sound":"It starts with the sound \u201cb\u2026\u201d","first_letter":"It starts with the letter B.","sentence_frame":"Monkeys love to eat a ___.","semantic":"A long yellow fruit you peel."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f34c","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f34c.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-chair","image_path":"images/chair.svg","preferred_name":"chair","accepted_alternatives":[],"tier":2,"cues":{"first_sound":"It starts with the sound \u201cch\u2026\u201d","first_letter":"It starts with the letter C.","sentence_frame":"You sit down on a ___.","semantic":"Furniture with four legs and a back, for sitting."},"source":{"name":"Twemoji 15.1.0","codepoint":"1fa91","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1fa91.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-bicycle","image_path":"images/bicycle.svg","preferred_name":"bicycle","accepted_alternatives":["bike"],"tier":2,"cues":{"first_sound":"It starts with the sound \u201cb\u2026\u201d","first_letter":"It starts with the letter B.","sentence_frame":"You pedal a ___.","semantic":"It has two wheels and pedals."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f6b2","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f6b2.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-umbrella","image_path":"images/umbrella.svg","preferred_name":"umbrella","accepted_alternatives":["brolly"],"tier":2,"cues":{"first_sound":"It starts with the sound \u201cu\u2026\u201d","first_letter":"It starts with the letter U.","sentence_frame":"When it rains you open an ___.","semantic":"It keeps you dry in the rain."},"source":{"name":"Twemoji 15.1.0","codepoint":"2602","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/2602.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-rabbit","image_path":"images/rabbit.svg","preferred_name":"rabbit","accepted_alternatives":["bunny"],"tier":2,"cues":{"first_sound":"It starts with the sound \u201cr\u2026\u201d","first_letter":"It starts with the letter R.","sentence_frame":"A ___ has long ears and hops.","semantic":"A small animal with long ears that eats carrots."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f407","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f407.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-glasses","image_path":"images/glasses.svg","preferred_name":"glasses","accepted_alternatives":["spectacles","eyeglasses"],"tier":2,"cues":{"first_sound":"It starts with the sound \u201cgl\u2026\u201d","first_letter":"It starts with the letter G.","sentence_frame":"You wear ___ to see better.","semantic":"You wear them on your nose to help you see."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f453","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f453.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-carrot","image_path":"images/carrot.svg","preferred_name":"carrot","accepted_alternatives":[],"tier":2,"cues":{"first_sound":"It starts with the sound \u201ck\u2026\u201d","first_letter":"It starts with the letter C.","sentence_frame":"Rabbits like to eat a ___.","semantic":"An orange vegetable that grows in the ground."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f955","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f955.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-hammer","image_path":"images/hammer.svg","preferred_name":"hammer","accepted_alternatives":[],"tier":2,"cues":{"first_sound":"It starts with the sound \u201ch\u2026\u201d","first_letter":"It starts with the letter H.","sentence_frame":"You hit a nail with a ___.","semantic":"A tool for hitting nails."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f528","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f528.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-kangaroo","image_path":"images/kangaroo.svg","preferred_name":"kangaroo","accepted_alternatives":[],"tier":3,"cues":{"first_sound":"It starts with the sound \u201ck\u2026\u201d","first_letter":"It starts with the letter K.","sentence_frame":"An Australian animal that hops is a ___.","semantic":"An animal from Australia that carries its baby in a pouch."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f998","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f998.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-octopus","image_path":"images/octopus.svg","preferred_name":"octopus","accepted_alternatives":[],"tier":3,"cues":{"first_sound":"It starts with the sound \u201co\u2026\u201d","first_letter":"It starts with the letter O.","sentence_frame":"A sea animal with eight arms is an ___.","semantic":"A sea creature with eight arms."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f419","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f419.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-anchor","image_path":"images/anchor.svg","preferred_name":"anchor","accepted_alternatives":[],"tier":3,"cues":{"first_sound":"It starts with the sound \u201ca\u2026\u201d","first_letter":"It starts with the letter A.","sentence_frame":"Sailors drop the ___ to stop the ship.","semantic":"A heavy metal object that keeps a ship in place."},"source":{"name":"Twemoji 15.1.0","codepoint":"2693","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/2693.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-helicopter","image_path":"images/helicopter.svg","preferred_name":"helicopter","accepted_alternatives":["chopper"],"tier":3,"cues":{"first_sound":"It starts with the sound \u201ch\u2026\u201d","first_letter":"It starts with the letter H.","sentence_frame":"It flies with spinning blades; it's a ___.","semantic":"An aircraft with a big spinning rotor on top."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f681","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f681.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-microscope","image_path":"images/microscope.svg","preferred_name":"microscope","accepted_alternatives":[],"tier":3,"cues":{"first_sound":"It starts with the sound \u201cm\u2026\u201d","first_letter":"It starts with the letter M.","sentence_frame":"Scientists see tiny things with a ___.","semantic":"A lab instrument that makes tiny things look big."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f52c","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f52c.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-giraffe","image_path":"images/giraffe.svg","preferred_name":"giraffe","accepted_alternatives":[],"tier":3,"cues":{"first_sound":"It starts with the sound \u201cj\u2026\u201d","first_letter":"It starts with the letter G.","sentence_frame":"The animal with the longest neck is a ___.","semantic":"A tall animal with a very long neck and spots."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f992","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f992.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-pretzel","image_path":"images/pretzel.svg","preferred_name":"pretzel","accepted_alternatives":[],"tier":3,"cues":{"first_sound":"It starts with the sound \u201cpr\u2026\u201d","first_letter":"It starts with the letter P.","sentence_frame":"A twisted salty snack is a ___.","semantic":"A twisted baked snack, often salty."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f968","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f968.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}},{"exercise_id":"ex-cactus","image_path":"images/cactus.svg","preferred_name":"cactus","accepted_alternatives":[],"tier":3,"cues":{"first_sound":"It starts with the sound \u201ck\u2026\u201d","first_letter":"It starts with the letter C.","sentence_frame":"A spiky desert plant is a ___.","semantic":"A spiky plant that grows in the desert."},"source":{"name":"Twemoji 15.1.0","codepoint":"1f335","url":"https://github.com/jdecked/twemoji/blob/15.1.0/assets/svg/1f335.svg","license":"CC BY 4.0","attribution":"Copyright Twitter Inc. and other contributors"}}];
 const PICS = {"ex-cat":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0YxOEYyNiIgZD0iTTEwLjQ3OCAyMi40MzlzLjcwMiAyLjI4MS0uMzM3IDcuOTkzYy0uMTg2IDEuMDI1LS40NiAyLjA3Mi0uNTk5IDIuOTMtMS43NTcgMC0xLjg1MSAyLjAwMi0xLjQ3OCAyLjAwMmgyLjA5NGMxLjMzNyAwIDIuOTcxLTMuMzM0IDMuODU0LTcuOTYxcy0zLjUzNC00Ljk2NC0zLjUzNC00Ljk2NHptMTMuMDQyIDMuNzAyczIuMjcyIDEuMjIgMi4xODggNC4wODFjLS4wMzMgMS4xMzEtLjI0OSAyLjA5MS0uMzU1IDMuMDI0LTEuODMyIDAtMS44MzkgMS45ODUtMS4zMDUgMS45ODVoMS44NTZjLjkyMyAwIDMuMDAxLTMuMTU4IDMuMzc5LTcuMjgxLjM3OS00LjEyMi01Ljc2My0xLjgwOS01Ljc2My0xLjgwOXoiLz48cGF0aCBmaWxsPSIjRkZDQzRFIiBkPSJNMzYgOC40NDdDMzYgMy41MjUgMzEuODU5IDEgMjcgMWMtLjU1MyAwLTEgLjQ0OC0xIDFzLjQ0NyAxIDEgMWMxLjgwNCAwIDYuNzE3LjkzNCA2LjcxNyA1LjQ0NyAwIDIuODgxLTEuNTY3IDUuNDYyLTMuNzcgNS45ODItLjE2NC0uMDczLS4zNDUtLjEwNC0uNTA5LS4xOTItNy4yMzktMy45MTctMTMuNDU3LjkwMi0xNS4yMjYtLjI5LTEuNzUyLTEuMTgyLS41MzktMy4yNTUtMi44MjQtNS4yNDMtLjMzLTEuODQxLTEuMDczLTQuNDc3LTEuNzk0LTQuNDc3LS41NDkgMC0xLjI2NSAxLjgyNS0xLjc0IDMuNjU2LS41OTEtMS4zODEtMS4zNjMtMi43NTYtMS44Ni0yLjc1Ni0uNjQgMC0xLjI3OCAyLjI3My0xLjU5NCA0LjIzNS0xLjY4IDEuMTQ3LTIuOTA2IDIuODA5LTIuOTA2IDQuNzY1IDAgMi43IDQuMDUgMy4zNTcgNS40IDMuNDExIDEuMzUuMDU0IDMuMDIzIDMuNTYyIDMuNTg1IDUuMDcyIDEuMjQyIDQuMzY3IDIuMDUxIDguNjk5IDIuNjk4IDExLjE4My0xLjY0OSAwLTEuODA0IDIuMTExLTEuMzQ4IDIuMTExLjcxMyAwIDEuOTUzLS4wMDMgMi4yMjUgMCAxLjM4MS4wMTQgMi4wMjYtNC43MDYgMi4wMjYtOC44NDkgMC0uMjEyLS4wMTEtLjYyNy0uMDExLS42MjdzMS45My41MDUgNi4wMzgtLjIwOGMyLjQ0NC0uNDI0IDUuMDMuODQ5IDUuNzQ2IDMuMTYzLjUyNyAxLjcwNCAxLjM5OSAzLjMwNSAxLjg2OCA0LjQ4NC0xLjU4OSAwLTEuNTQ1IDIuMDM3LTEuMDg0IDIuMDM3Ljc4NyAwIDEuODAxLjAxNCAyLjE4MyAwIDEuNDY4LS4wNTUuNjQzLTcuNTc0IDEuMDMtMTAuMDk3czEuMjY3LTUuNTc4LS4yMjktOC43OTdDMzQuODU3IDE1LjIzNiAzNiAxMS41MDUgMzYgOC40NDd6Ii8+PGNpcmNsZSBmaWxsPSIjMjkyRjMzIiBjeD0iNS45OTQiIGN5PSIxMS43NjgiIHI9Ii45Ii8+PHBhdGggZmlsbD0iI0U3NUE3MCIgZD0iTTIuOTg0IDEyLjg2Yy0uNjc3LjQyMy0uNjc3IDEuNzc3LTEuMDE1IDEuNzc3Uy45NTQgMTMuODQxLjk1NCAxMi44NmMtLjAwMS0uOTgxIDIuODYyLS41MiAyLjAzIDB6Ii8+PHBhdGggZmlsbD0iI0ZFRTdCOCIgZD0iTTYuNTc4IDE0LjM0M2MtLjA0MS4wMjYtLjA5LjAzNi0uMTQyLjAyNi0uMDE4LS4wMDQtMS41NDgtLjI0MS0yLjU0NS4xNDYtLjEyOS4wNS0uMzQxLS4wMjMtLjQxMy0uMTkxcy4wMjMtLjM2NS4xNTItLjQxNWMxLjQ0LS41NjkgMi44NTctLjIzNCAyLjkzNC0uMjE4LjEzOS4wMjkuMTk1LjE5LjE4OC4zNzItLjAwNC4xMTQtLjEwNC4yMzUtLjE3NC4yOHptLS40NzIgMi4zMzljLS4wNDguMDA5LS4wOTctLjAwMS0uMTQxLS4wMzEtLjAxNS0uMDEtMS4zMzEtLjgzLTIuNDAyLS44NTMtLjEzOC0uMDAzLS4zMDUtLjE1NC0uMzA1LS4zNDEgMC0uMTg2LjE2NS0uMzM1LjMwNC0uMzMzIDEuNTUyLjAyNCAyLjcyNC44OTEgMi43ODkuOTM3LjExNy4wODIuMTA0LjI1NS4wMjcuNDI0LS4wNDkuMTA3LS4xODkuMTgyLS4yNzIuMTk3eiIvPjxwYXRoIGZpbGw9IiNGMThGMjYiIGQ9Ik03Ljg1NCA3Ljg4MXMuMzcyLS4wMzkuODU5LjAzM2MuMjE3LS40Ni41ODUtLjg4Ny41ODUtLjg4N3MuMjgxLjY2OC4zODYgMS4xNzljLjAyNS4xMi4yMTguMTE3LjMyMi4xODkgMCAwIC4wMzgtMy40NjMtLjg2My0zLjgzNi4wMDEtLjAwMi0uNzU1IDEuMTI0LTEuMjg5IDMuMzIyek00LjM5OSA5LjM2cy4zODQtLjI2Ny44ODMtLjU3NGMuMjE3LS42MjQuNTY4LTEuMzMzLjU2OC0xLjMzM3MuMzA3LjYwMi4zNDUuODFjLjIxLS4xMTQuMjEtLjEwNi40MDMtLjE5IDAgMC0uMTE0LTIuMjg2LTEuMDk5LTIuNTI3IDAgMC0uNzMyIDEuMzcyLTEuMSAzLjgxNHoiLz48cGF0aCBmaWxsPSIjRkQ5IiBkPSJNMTguNDUgMjMuNjQ0Yy0yLjY0OS41Ny0yLjM4IDIuNzgyLTIuMzggMi43ODJzMS45My41MDUgNi4wMzgtLjIwOGMxLjA2Ny0uMTg1IDIuMTUzLS4wMyAzLjEwNy4zNzctMS42MDctMy4wNDctNC4zMTUtMy40NzktNi43NjUtMi45NTF6Ii8+PHBhdGggZmlsbD0iI0YxOEYyNiIgZD0iTTE0LjY4NiAxNC4xMDljLjQ3Ni42NzYgMi4zOTcgMi4zNjggMi43NDUgMi4xNTkuMzM4LS4yMDMuNTktMi4wNTUuMzQyLTIuNzA2LTEuMzI5LjM1OS0yLjM4NS42NTgtMy4wODcuNTQ3em03LjAyNCAyLjY4OWMuNjIzLjEzOCAxLjUwNy0yLjk3OSAxLjQxLTQuMTIzLTEuNDQ5LjAxNy0yLjc4LjI1Ni0zLjk2NS41MzcuMzM1IDEuMDggMS45NTMgMy40NTIgMi41NTUgMy41ODZ6bTIuNjI3LTQuMDgyYy4wNDIuNzIzLjk4MiAyLjYwMyAxLjI4NSAyLjczNy4zMDcuMTM3IDEuNjg1LTEuMzE5IDEuODY2LTIuMDYxLTEuMDg2LS4zNzgtMi4xNDItLjU5Ny0zLjE1MS0uNjc2eiIvPjwvc3ZnPg==","ex-dog":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0Q5OUU4MiIgZD0iTTMxLjAzNCAxNC4zNzRjMy41MDgtLjY1IDMuNTg3LTYuMjk3LS4wNTEtNi4yNTQtMi44NDcuMDM0LTIuNTYgMi43OTUtMi45NDUgMi4yNTItLjc0OC0xLjA1NS0uOTg5LTMuNzY5IDEuODYyLTQuODk0IDIuNDYxLS45NzEgNS44NDYuOTk2IDYuMDYzIDQuNTkxLjEzOSAyLjMwMi0xLjI5NyA2LjU1NC02LjQ1MyA1Ljg0Ni03LjIyMi0uOTkxLTEuOTgzLS44OTIgMS41MjQtMS41NDF6Ii8+PHBhdGggZmlsbD0iI0MxNjk0RiIgZD0iTTEwLjMyMSAyMS45MzVzMS4wMTYgMi4zNTIuNjc2IDguMjQyYy0uMDYxIDEuMDU3LS4yMDkgMi4xMzYtLjI0MiAzLjAyMi0xLjgxMiAwLTEuNjUyIDIuMDY0LTEuMjY4IDIuMDY0aDIuOTAyYy42ODMgMCAxLjg5My0zLjQzOCAyLjIxMi04LjIwOS4zMTktNC43NzItNC4yOC01LjExOS00LjI4LTUuMTE5em0xMS44OS0uMzMxcy41NzUgMy41MjggMy42NTEgNi40MTNjLjI1NyAxLjE2My43NjkgNC4yMzIuOTQ5IDUuMTk1LTEuODg5IDAtMS4yODIgMi4wNDctLjczMSAyLjA0N2gyLjY0NmMuOTUxIDAgMS4wOTItMy40NDIuMjA2LTcuNjk0LS44ODUtNC4yNTEtNi43MjEtNS45NjEtNi43MjEtNS45NjF6Ii8+PHBhdGggZmlsbD0iI0Q5OUU4MiIgZD0iTTMyLjIwMiAxNS42NTRjLTEuMjUzLTMuNzUyLTcuMjE0LTMuNjI4LTEzLjk5Ny0yLjc2NS0zLjA1NS4zODktMy42NC00LjQ1My0zLjY0LTUuMjg2IDAtMy42MjYtMy4yNDQtNS40NTUtNi40OTYtNC4yMjktLjc3OS4yOTMtMS40MDIgMS4zMy0xLjc1NCAxLjg3Mi0xLjk3NyAzLjAzNy00LjY1OC4wMTUtNC45MTcgMi44MjItLjMxMyAzLjM5NSAxLjcyMSA0LjUzNCA1LjA1MSA0LjgyMSAxLjg5Mi4xNjMgMy40NTkgMS4wOTUgMy44NzEgNS4wNDQuMTU0IDEuNDcyLS4yOTUgNS42NDQgMi4zODggNy4wNzYuNzggMi45NTkgMS44MzYgNi42MTUgMi4yNSA4LjQ3NS0yLjI1Mi40NzYtMS4zNDEgMi4xNzktMS4zNDEgMi4xNzlzMy4xNTEtLjA0MyAzLjgzNi0uMDQzYy44MTQgMCAuMTkxLTUuOTc2LS45MzUtOS43ODcgNC43NjQuMDQzIDcuODI4LTEuMzM3IDguNzk5LTEuNzYyIDEuMDI4IDIuOTYgNC4xNTIgMy42MzMgNC44NTEgNC44OTIuNDMzLjc4IDEuODc4IDMuMzgzIDIuMDAxIDQuNDk2LTEuNjAyLjUyLTEuMDkxIDEuNzMyLS45MDkgMi4xMjIgMS4wODMtLjA0MyAzLjIyLS4wNDMgMy40OTgtLjA0MyAxLjExIDAtMS4xMzctNi45MDQtMi4wODMtOC43MTMtMS4wODItMi4wNzEuNzgxLTcuNDE5LS40NzMtMTEuMTcxeiIvPjxwYXRoIGZpbGw9IiNGNEM3QjUiIGQ9Ik0xNi4yNjYgMjQuNDY0Yy4wNDQuMzcxLjE0MS44OTEuMjUzIDEuMzY5IDQuNzY0LjA0MyA3LjgyOC0xLjMzNyA4Ljc5OS0xLjc2Mi0uMjE1LS43OC0uMjMtMS4yNy0uMTcxLTEuNTM4LTMuMzk0LjU1Ny00LjU0OCAyLjIwNS04Ljg4MSAxLjkzMXpNNi40NDkgMTIuODg5YzEuODkyLjE2MyAyLjQyNSAxLjA2OSAyLjgzOCA1LjAxOC4xNTQgMS40NzIuNzM5IDUuNjcgMy40MjEgNy4xMDItLjcyLTIuNzg4LTEuOTU5LTEyLjM4OC02LjI1OS0xMi4xMnoiLz48cGF0aCBmaWxsPSIjRjRDN0I1IiBkPSJNMy4xNTMgNi42NjVjLTIuNzkzIDAtMS45MDkuNTI2LTIuMDAyIDEuNjkyLS4wOTMgMS4xNjYtLjA3NCAyLjk3Ni43NzYgMy45MjkgMS4xMjcgMS4yNjIgMy44NTggMS4yNjYgNS4yMTUuMjc3cy0uNDI0LTUuODk4LTMuOTg5LTUuODk4eiIvPjxwYXRoIGZpbGw9IiMyNzJCMkIiIGQ9Ik0yLjUwMyA4LjMyNmMtLjEwOS43NjItLjQ5NCAxLjE5Mi0uODc5IDEuMTMzQy44NjQgOS4zNDIuMjMyIDguMzcyLjIzMiA3LjYwM3MuNjI0LS45NjMgMS4zOTItLjkyOGMxLjA0My4wNDggMS4wMDIuNzg4Ljg3OSAxLjY1MXoiLz48cGF0aCBmaWxsPSIjNjYyMTEzIiBkPSJNMTUuMTY3IDkuMDI2Yy4zNDggMi41MTUtMS4xNTcgMi44OTgtMi4zODMgMi44OThzLTMuMDU0LTEuMjUtMi43NDgtMy43N2MuMTM0LTEuMTA3LjU1NS0yLjE5My44MDktMy4xNzUuMzM2LTEuMzAzIDEuMTk5LTEuNzMyIDEuODk0LTEuMzY3IDEuNjY1Ljg3NCAyLjIwMyAzLjc5NyAyLjQyOCA1LjQxNHoiLz48Y2lyY2xlIGZpbGw9IiMyOTJGMzMiIGN4PSI4LjA2OSIgY3k9IjYuNjc1IiByPSIuOTI4Ii8+PHBhdGggZmlsbD0iI0MxNjk0RiIgZD0iTTE5LjAzNSAxMi43ODljLjA3MyAxLjUzMi45MDYgMy4xNzggMi43MzMgMy42NjMgMS45MDEuNTA1IDQuMTIuMTI3IDQuNjctMi40NzUuMDkxLS40My4xMy0xLjIyNC4wNzMtMS41MTQtMi4xNTEtLjE3OS00LjczIDAtNy40NzYuMzI2eiIvPjxjaXJjbGUgZmlsbD0iI0Q5OUU4MiIgY3g9IjMuMDUzIiBjeT0iMTAuNTAzIiByPSIuNDg4Ii8+PGNpcmNsZSBmaWxsPSIjRDk5RTgyIiBjeD0iMy42OTUiIGN5PSI5LjgwNCIgcj0iLjI2OSIvPjxjaXJjbGUgZmlsbD0iI0Q5OUU4MiIgY3g9IjQuMSIgY3k9IjEwLjUwMyIgcj0iLjI2OSIvPjwvc3ZnPg==","ex-apple":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0REMkU0NCIgZD0iTTI0IDdjLTMgMC0zIDEtNiAxcy0zLTEtNi0xYy00IDAtOSAyLTkgOSAwIDExIDYgMjAgMTAgMjAgMyAwIDMtMSA1LTFzMiAxIDUgMWM0IDAgMTAtOSAxMC0yMCAwLTcuMDAxLTUtOS05LTl6Ii8+PHBhdGggZmlsbD0iIzc3QjI1NSIgZD0iTTE5IDdzMy00IDgtNGM0IDAgNiAyIDYgMnMtNCAzLTcgMy03LTEtNy0xeiIvPjxwYXRoIGZpbGw9IiM2NjIxMTMiIGQ9Ik0xOCAxMGMtLjU1MiAwLTEtLjQ0OC0xLTEgMC0zLjQ0MSAxLjItNi42MTUgMy4yOTMtOC43MDcuMzkxLS4zOTEgMS4wMjMtLjM5MSAxLjQxNCAwcy4zOTEgMS4wMjQgMCAxLjQxNEMxOS45ODYgMy40MjcgMTkgNi4wODUgMTkgOWMwIC41NTItLjQ0OCAxLTEgMXoiLz48L3N2Zz4=","ex-house":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0EwMDQxRSIgZD0iTTkuMzQ0IDE0LjcwMmgtMmMtLjI3NiAwLS41LS4yMjQtLjUtLjV2LTdjMC0uMjc2LjIyNC0uNS41LS41aDJjLjI3NiAwIC41LjIyNC41LjV2N2MwIC4yNzYtLjIyNC41LS41LjV6Ii8+PHBhdGggZmlsbD0iI0ZGRThCNiIgZD0iTTUgMTZMMTggM2wxMyAxM3YxN0g1eiIvPjxwYXRoIGZpbGw9IiNGRkNDNEQiIGQ9Ik0xOCAxNmgxdjE2aC0xeiIvPjxwYXRoIGZpbGw9IiM2Njc1N0YiIGQ9Ik0zMSAxN2MtLjI1NiAwLS41MTItLjA5OC0uNzA3LS4yOTNMMTggNC40MTQgNS43MDcgMTYuNzA3Yy0uMzkxLjM5MS0xLjAyMy4zOTEtMS40MTQgMHMtLjM5MS0xLjAyMyAwLTEuNDE0bDEzLTEzYy4zOTEtLjM5MSAxLjAyMy0uMzkxIDEuNDE0IDBsMTMgMTNjLjM5MS4zOTEuMzkxIDEuMDIzIDAgMS40MTQtLjE5NS4xOTUtLjQ1MS4yOTMtLjcwNy4yOTN6Ii8+PHBhdGggZmlsbD0iIzY2NzU3RiIgZD0iTTE4IDE3Yy0uMjU2IDAtLjUxMi0uMDk4LS43MDctLjI5My0uMzkxLS4zOTEtLjM5MS0xLjAyMyAwLTEuNDE0bDYuNS02LjVjLjM5MS0uMzkxIDEuMDIzLS4zOTEgMS40MTQgMHMuMzkxIDEuMDIzIDAgMS40MTRsLTYuNSA2LjVjLS4xOTUuMTk1LS40NTEuMjkzLS43MDcuMjkzeiIvPjxwYXRoIGZpbGw9IiNDMTY5NEYiIGQ9Ik0xMCAyNmg0djZoLTR6Ii8+PHBhdGggZmlsbD0iIzU1QUNFRSIgZD0iTTEwIDE3aDR2NGgtNHptMTIuNSAwaDR2NGgtNHptMCA5aDR2NGgtNHoiLz48cGF0aCBmaWxsPSIjNUM5MTNCIiBkPSJNMzMuNSAzMy41YzAgLjgyOC0uNjcyIDEuNS0xLjUgMS41SDRjLS44MjggMC0xLjUtLjY3Mi0xLjUtMS41UzMuMTcyIDMyIDQgMzJoMjhjLjgyOCAwIDEuNS42NzIgMS41IDEuNXoiLz48L3N2Zz4=","ex-car":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0REMkU0NCIgZD0iTTEzIDMyaDIwczMgMCAzLTRjMC0yIDAtNi0xLTdzLTgtNy0xMS03aC02Yy0zIDAtMTAgNy0xMCA3bC00IDFzLTMgMS0zIDN2M3MtMSAuMzM4LTEgMS45NTdDMCAzMiAyIDMyIDIgMzJoMTF6Ii8+PHBhdGggZmlsbD0iI0JCRERGNSIgZD0iTTIwIDE2aC0yYy0yIDAtOCA2LTggNnM0Ljk5Ny0uMjYzIDEwLS41MTlWMTZ6bTEwIDNjLTEtMS01LTMtNy0zaC0xdjUuMzc5YzQuMDExLS4yMDQgNy41ODItLjM3OSA4LS4zNzkgMSAwIDEtMSAwLTJ6Ii8+PGNpcmNsZSBmaWxsPSIjMjkyRjMzIiBjeD0iMTAiIGN5PSIzMSIgcj0iNCIvPjxjaXJjbGUgZmlsbD0iI0NDRDZERCIgY3g9IjEwIiBjeT0iMzEiIHI9IjIiLz48Y2lyY2xlIGZpbGw9IiMyOTJGMzMiIGN4PSIyNyIgY3k9IjMxIiByPSI0Ii8+PGNpcmNsZSBmaWxsPSIjQ0NENkREIiBjeD0iMjciIGN5PSIzMSIgcj0iMiIvPjwvc3ZnPg==","ex-tree":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iIzY2MjExMyIgZD0iTTIyIDMzYzAgMi4yMDktMS43OTEgMy00IDNzLTQtLjc5MS00LTNsMS05YzAtMi4yMDkuNzkxLTIgMy0yczMtLjIwOSAzIDJsMSA5eiIvPjxwYXRoIGZpbGw9IiM1QzkxM0IiIGQ9Ik0zNCAxN2MwIDguODM3LTcuMTYzIDEyLTE2IDEyLTguODM2IDAtMTYtMy4xNjMtMTYtMTJDMiA4LjE2NCAxMSAwIDE4IDBzMTYgOC4xNjQgMTYgMTd6Ii8+PGcgZmlsbD0iIzNFNzIxRCI+PGVsbGlwc2UgY3g9IjYiIGN5PSIyMSIgcng9IjIiIHJ5PSIxIi8+PGVsbGlwc2UgY3g9IjMwIiBjeT0iMjEiIHJ4PSIyIiByeT0iMSIvPjxlbGxpcHNlIGN4PSIxMCIgY3k9IjI1IiByeD0iMiIgcnk9IjEiLz48ZWxsaXBzZSBjeD0iMTQiIGN5PSIyMiIgcng9IjIiIHJ5PSIxIi8+PGVsbGlwc2UgY3g9IjEwIiBjeT0iMTYiIHJ4PSIyIiByeT0iMSIvPjxlbGxpcHNlIGN4PSI3IiBjeT0iMTIiIHJ4PSIyIiByeT0iMSIvPjxlbGxpcHNlIGN4PSIyOSIgY3k9IjEyIiByeD0iMiIgcnk9IjEiLz48ZWxsaXBzZSBjeD0iMTQiIGN5PSIxMCIgcng9IjIiIHJ5PSIxIi8+PGVsbGlwc2UgY3g9IjIyIiBjeT0iMTAiIHJ4PSIyIiByeT0iMSIvPjxlbGxpcHNlIGN4PSIyNiIgY3k9IjE2IiByeD0iMiIgcnk9IjEiLz48ZWxsaXBzZSBjeD0iMTgiIGN5PSIxNyIgcng9IjIiIHJ5PSIxIi8+PGVsbGlwc2UgY3g9IjIyIiBjeT0iMjIiIHJ4PSIyIiByeT0iMSIvPjxlbGxpcHNlIGN4PSIxOCIgY3k9IjI2IiByeD0iMiIgcnk9IjEiLz48ZWxsaXBzZSBjeD0iMjYiIGN5PSIyNSIgcng9IjIiIHJ5PSIxIi8+PC9nPjwvc3ZnPg==","ex-fish":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iIzNCODhDMyIgZD0iTTMyLjE1MyAyNGMwLTEgMS41MjMtNi4yMTIgMy4wNDctNy43MzUgMS41MjItMS41MjMgMC0zLjE2Ni0xLjUyMy0zLjE2Ni0zLjQwNSAwLTkuMTM5IDYuOTAxLTkuMTM5IDEwLjkwMSAwIDUgNS43MzMgMTAuNDI0IDkuMTM5IDEwLjQyNCAxLjUyMyAwIDMuMDQ2LTEuNDA0IDEuNTIzLTIuOTI4QzMzLjY3NyAyOS45NzQgMzIuMTUzIDI2IDMyLjE1MyAyNHoiLz48cGF0aCBmaWxsPSIjM0I4OEMzIiBkPSJNOS4wMjEgMTQuMzg0YzAtMy4wNDYgMS40OTctNi4wOTMgMy4wMi02LjA5MyA0LjU2OSAwIDEzLjMyMiA0LjgyMyAxNC44NDUgMTIuNDM5IDEuNTI0IDcuNjE2LTE3Ljg2NS02LjM0Ni0xNy44NjUtNi4zNDZ6bTQuODU0IDE4LjI3OGMxLjUyMyAxLjUyMyA0LjU3IDMuMDQ3IDcuNjE3IDMuMDQ3IDMuMDQ2IDAtMy4xMTEtNC4xODktMS41MjMtNi4wOTIgMi4xOC0yLjYxNy02LjA5NCAzLjA0NS02LjA5NCAzLjA0NXoiLz48cGF0aCBkPSJNMi4wNzEgMjguNzI3Yy43NjEtMi4yODUuMTktMy45MzUtMS4xNDMtNS41ODQtMS4zMzMtMS42NTEgMy44NzItMS45MDQgNS41ODUuMzgxczUuNzEzIDYuMjgxIDIuMTU4IDYuMjJjLTMuNTUzLS4wNjUtNi42LTEuMDE3LTYuNi0xLjAxN3oiLz48cGF0aCBmaWxsPSIjNTVBQ0VFIiBkPSJNLjE2OCAyMy40ODhjLjk1OS44NzQgNy4yMjMgNC4zMDkgNy4xNjUgNS4xMzctLjA1OC44MjgtMi4yNzktLjA4OC0zLjEwNS0uMjc5LTEuNDg1LS4zNDItMS45MDUtLjU5OC0yLjMxNy0uNTI2LS44NC4zMjEtLjU1NCAxLjIwMS0uMjQyIDEuNzA0IDEuNDk4IDIuNjEgNy4yODYgNC42NjIgMTIuMTYgNC42NjIgOC40MTIgMCAxNi44MDItNy42MTUgMTYuODAyLTEwLjY2MiAwLTMuMDQ2LTkuMzQ1LTEwLjY2My0xNy43NTctMTAuNjYzQzQuNDgzIDEyLjg2LjE4IDE4LjkyMi4xNjggMjMuNDg4eiIvPjxwYXRoIGQ9Ik03IDE3YzEuMTA0IDAgMiAuODk0IDIgMiAwIDEuMTA1LS44OTYgMi0yIDItMS4xMDUgMC0yLS44OTYtMi0yIDAtMS4xMDYuODk1LTIgMi0yeiIvPjxwYXRoIGZpbGw9IiMyNjkiIGQ9Ik0xNS4wOCAyOS45OGMtLjE1NiAwLS4zMTQtLjAzNi0uNDYyLS4xMTMtLjQ5LS4yNTYtLjY3OS0uODYtLjQyMy0xLjM1IDEuNTg1LTMuMDM0IDIuMjE4LTUuNzY4LjE1NC05LjI0My0uMjgyLS40NzUtLjEyNi0xLjA4OC4zNDktMS4zNzEuNDc1LS4yODMgMS4wODgtLjEyNCAxLjM3MS4zNDkgMi42OTMgNC41MzUgMS40NiA4LjIwMi0uMTAyIDExLjE5MS0uMTc4LjM0Mi0uNTI3LjUzNy0uODg3LjUzN3oiLz48L3N2Zz4=","ex-key":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0MxNjk0RiIgZD0iTTMyLjYxNCAzLjQxNEMyOC4zMS0uODkgMjEuMzMyLS44OSAxNy4wMjcgMy40MTRjLTMuMzkxIDMuMzkyLTQuMDk4IDguNDM5LTIuMTQ0IDEyLjUzNWwtMy45MTYgMy45MTVjLS42NC42NDEtLjg0MSAxLjU0My0uNjI1IDIuMzU5bC0xLjk3MyAxLjk3MmMtLjQ3OS0uNDgtMS4yNTItLjQ4LTEuNzMxIDBsLTEuNzMxIDEuNzMyYy0uNDc5LjQ3OS0uNDc5IDEuMjUzIDAgMS43MzJsLS44NjcuODY0Yy0uNDc5LS40NzgtMS4yNTMtLjQ3OC0xLjczMSAwbC0uODY2Ljg2N2MtLjQ3OS40NzktLjQ3OSAxLjI1MyAwIDEuNzMyLjAxNS4wMTYuMDM2LjAyLjA1MS4wMzMtLjc5NCAxLjE4OS0uNjY4IDIuODEyLjM4MiAzLjg2MyAxLjE5NSAxLjE5NSAzLjEzNCAxLjE5NSA0LjMyOSAwTDIwLjA4IDIxLjE0NGM0LjA5NyAxLjk1NSA5LjE0NCAxLjI0NyAxMi41MzUtMi4xNDYgNC4zMDItNC4zMDIgNC4zMDItMTEuMjgtLjAwMS0xNS41ODR6bS0xLjczMSA1LjE5NWMtLjk1Ny45NTYtMi41MDkuOTU2LTMuNDY0IDAtLjk1Ni0uOTU2LS45NTYtMi41MDcgMC0zLjQ2NC45NTUtLjk1NiAyLjUwNy0uOTU2IDMuNDY0IDAgLjk1Ni45NTcuOTU2IDIuNTA4IDAgMy40NjR6Ii8+PC9zdmc+","ex-banana":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0ZGRThCNiIgZD0iTTI4IDJjMi42ODQtMS4zNDIgNSA0IDMgMTMtMS4xMDYgNC45NzctNSA5LTkgMTJzLTExLTEtNy01IDgtNyAxMC0xM2MxLjMwNC0zLjkxMiAxLTYgMy03eiIvPjxwYXRoIGZpbGw9IiNGRkQ5ODMiIGQ9Ik0zMSA4YzAgMy0xIDktNCAxM3MtNyA1LTQgMSA1LTcgNi0xMSAyLTcgMi0zeiIvPjxwYXRoIGZpbGw9IiNGRkNDNEQiIGQ9Ik0yMiAyMGMtLjI5Ni41OTIgMS4xNjctMy44MzMtMy02LTEuOTg0LTEuMDMyLTEwIDEtNCAxIDMgMCA0IDIgMiA0LS4yOTEuMjkyLS40ODkuNjAzLS42MjIuOTEyLS40MTcuMzQ2LS44NzMuNzA5LTEuMzc4IDEuMDg4LTIuMjYzIDEuNjk3LTUuODQgNC4yMjctMTAgNy0zIDItNCAzLTQgNCAwIDMgOSAzIDE0IDFzMTAtNyAxMC03bDQtNGMtMy00LTctMi03LTJ6Ii8+PHBhdGggZmlsbD0iI0ZGRThCNiIgZD0iTTIyIDIwczEuNzkyLTQuNzI5LTMtN2MtNC4wNDItMS45MTYtOC0xLTExIDFzLTIgNC0zIDUgMSAyIDMgMCA4LjMxNi00Ljg5NSAxMS00YzMgMSAyIDIuOTk5IDMgNXoiLz48cGF0aCBmaWxsPSIjQTZEMzg4IiBkPSJNMjYgMzVoLTRjLTIgMC0zIDEtNCAxcy0yLTIgMC0yIDQgMCA1LTEgNSAyIDMgMnoiLz48Y2lyY2xlIGZpbGw9IiMzRTcyMUQiIGN4PSIxOCIgY3k9IjM1IiByPSIxIi8+PHBhdGggZmlsbD0iI0ZGQ0M0RCIgZD0iTTMyLjIwOCAyOFMyOCAzNSAyNiAzNWgtNGMtMiAwIDAtMSAxLTJzNSAwIDUtNmMwLTMgNC4yMDggMSA0LjIwOCAxeiIvPjxwYXRoIGZpbGw9IiNGRkU4QjYiIGQ9Ik0yNiAxOWMzIDAgOCAzIDcgOXMtNSA3LTcgN2gtMmMtMiAwLTEtMSAwLTJzNCAwIDQtNmMwLTMtNC03LTYtNyAwIDAgMi0xIDQtMXoiLz48cGF0aCBmaWxsPSIjRkZEOTgzIiBkPSJNMTcgMjFjMyAwIDUgMSAzIDMtMS41ODEgMS41ODEtNiA1LTEwIDZzLTggMS01LTEgOS43NjQtOCAxMi04eiIvPjxwYXRoIGZpbGw9IiNDMTY5NEYiIGQ9Ik0yIDMxYzEgMCAxIDAgMSAuNjY3QzMgMzIuMzMzIDMgMzMgMiAzM3MtMS0xLjMzMy0xLTEuMzMzUzEgMzEgMiAzMXoiLz48L3N2Zz4=","ex-chair":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0E0NTIzQSIgZD0iTTEyIDIwYy0xLjEgMC0yIC45LTIgMnYxMGMwIDEuMS45IDIgMiAyczItLjkgMi0yVjIyYzAtMS4xLS45LTItMi0yem0xOCAwYy0xLjEgMC0yIC45LTIgMnYxMGMwIDEuMS45IDIgMiAyczItLjkgMi0yVjIyYzAtMS4xLS45LTItMi0yeiIvPjxwYXRoIGZpbGw9IiNDMTY5NEYiIGQ9Ik0xMyAyaDE2djhIMTN6Ii8+PHBhdGggZmlsbD0iI0MxNjk0RiIgZD0iTTE2IDloMnYxM2gtMnptNCAwaDJ2MTNoLTJ6bTQgMGgydjEzaC0yek03IDIzYy0xLjEgMC0yIC45LTIgMnY5YzAgMS4xLjkgMiAyIDJzMi0uOSAyLTJ2LTljMC0xLjEtLjktMi0yLTJ6Ii8+PHBhdGggZmlsbD0iI0MxNjk0RiIgZD0iTTI1IDIxYy0xLjEgMC0yIC45LTIgMnYxMWMwIDEuMS45IDIgMiAyczItLjkgMi0yVjIzYzAtMS4xLS45LTItMi0yek0xMiAwYy0xLjEgMC0yIC45LTIgMnYyMGg0VjJjMC0xLjEtLjktMi0yLTJ6bTE4IDBjLTEuMSAwLTIgLjktMiAydjIwaDRWMmMwLTEuMS0uOS0yLTItMnoiLz48cGF0aCBmaWxsPSIjQTQ1MjNBIiBkPSJNMTQgMmgxdjhoLTF6bTE0IDhoLTFWMmgxeiIvPjxwYXRoIGZpbGw9IiNEOTlFODIiIGQ9Ik0zMC43NjkgMjBIMTAuMzQxYy0uMjIzIDAtLjQ0Mi4wNjEtLjYzMy4xNzVsLTUuOTU0IDMuMDQxczIyLjcyNiAyLjQxOCAyNC43MjYgMi40MThsMy4wMjktMi4yNjVjLjMwOS0uMjMyLjQ5MS0uNTk3LjQ5MS0uOTg1di0xLjE1M2MwLS42OC0uNTUxLTEuMjMxLTEuMjMxLTEuMjMxeiIvPjxwYXRoIGZpbGw9IiNBNDUyM0EiIGQ9Ik0xNiAxMGgydjFoLTJ6TTUgMjZoNHYxSDV6bTE4IDBoNHYxaC00em0tMy0xNmgydjFoLTJ6bTQgMGgydjFoLTJ6Ii8+PHBhdGggZmlsbD0iI0MxNjk0RiIgZD0iTTI3LjQ0IDI2SDQuNTZDMy42OTggMjYgMyAyNS4zMjggMyAyNC41UzMuNjk4IDIzIDQuNTYgMjNoMjIuODhjLjg2MiAwIDEuNTYuNjcyIDEuNTYgMS41cy0uNjk4IDEuNS0xLjU2IDEuNXoiLz48L3N2Zz4=","ex-bicycle":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0VBNTk2RSIgZD0iTTcgMjRjMS45NTcgMCAzLjYzMyAxLjEzNSA0LjQ1NSAyLjc3MmwzLjQ3Ny0xLjczOUMxMy40ODggMjIuMDU4IDEwLjQ0NiAyMCA2LjkxNiAyMGMtMS4zMDEgMC0yLjUzNC4yODUtMy42NDkuNzg3bDEuNjY4IDMuNjdDNS41NjYgMjQuMTcgNi4yNjIgMjQgNyAyNHptMjIgMGMxLjQ2NyAwIDIuNzcyLjY0MyAzLjY4OCAxLjY0OGwyLjg5Ny0yLjYzNUMzMy45NTIgMjEuMTY5IDMxLjU3MyAyMCAyOC45MTYgMjBjLTMuNTc2IDAtNi42NTIgMi4xMTEtOC4wNzMgNS4xNWwzLjY0OCAxLjcyMkMyNS4yOTMgMjUuMTggMjcuMDAzIDI0IDI5IDI0eiIvPjxwYXRoIGZpbGw9IiMyOTJGMzMiIGQ9Ik03IDIyYy0zLjg2NiAwLTcgMy4xMzQtNyA3czMuMTM0IDcgNyA3IDctMy4xMzQgNy03LTMuMTMzLTctNy03em0wIDEyYy0yLjc2MSAwLTUtMi4yMzgtNS01czIuMjM5LTUgNS01IDUgMi4yMzggNSA1LTIuMjM4IDUtNSA1em0yMi0xMmMtMy44NjUgMC03IDMuMTM0LTcgN3MzLjEzNSA3IDcgN2MzLjg2NyAwIDctMy4xMzQgNy03cy0zLjEzMy03LTctN3ptMCAxMmMtMi43NjEgMC01LTIuMjM4LTUtNXMyLjIzOS01IDUtNWMyLjc2MiAwIDUgMi4yMzggNSA1cy0yLjIzOCA1LTUgNXoiLz48cGF0aCBmaWxsPSIjREQyRTQ0IiBkPSJNMjkuOTg0IDI4LjkyMmMtLjAwNS0uMDY3LS4wMjEtLjEzMi0uMDQtLjE5OC0uMDE5LS4wNjUtLjA0LS4xMjYtLjA3MS0uMTg2LS4wMTMtLjAyNC0uMDE1LS4wNTItLjAyOS0uMDc1bC03LTExYy0uMjk3LS40NjYtLjkxNC0uNjA0LTEuMzgxLS4zMDctLjI5OS4xOS0uNDQ0LjUxMy0uNDQ1Ljg0M0gxMmMtLjU1MiAwLTEgLjQ0Ny0xIDEgMCAuNTUzLjQ0OCAxIDEgMWgxMGMuMDI3IDAgLjA1LS4wMTQuMDc3LS4wMTZMMjcuMTc4IDI4SDE4Yy0uNTUyIDAtMSAuNDQ3LTEgMXMuNDQ4IDEgMSAxaDExLjAwMWMuMTE2IDAgLjIzLS4wMjguMzQzLS4wNjkuMDM0LS4wMTMuMDY0LS4wMjcuMDk3LS4wNDMuMDMxLS4wMTcuMDY2LS4wMjQuMDk3LS4wNDQuMDMtLjAyLjA0OC0uMDUxLjA3NS0uMDcyLjA1NS0uMDQ0LjEwMy0uMDg5LjE0Ny0uMTQzLjA0MS0uMDQ5LjA3NC0uMDk5LjEwNC0uMTU0LjAzLS4wNTYuMDU1LS4xMS4wNzUtLjE3Mi4wMjEtLjA2Ni4wMzMtLjEzMi4wNC0uMjAxLjAwNC0uMDM2LjAyMS0uMDY2LjAyMS0uMTAyIDAtLjAyNy0uMDE0LS4wNTEtLjAxNi0uMDc4eiIvPjxwYXRoIGZpbGw9IiNERDJFNDQiIGQ9Ik0yMS41ODEgMTZsLTIuODk5IDguMTE3LTUuOTI5LTYuNzc1Yy0uMzY0LS40MTUtLjk5Ni0uNDU5LTEuNDExLS4wOTQtLjQxNS4zNjQtLjQ1Ny45OTUtLjA5NCAxLjQxMWw2LjY2NCA3LjYxNS0uODU0IDIuMzljLS4xODUuNTE5LjA4NiAxLjA5Mi42MDYgMS4yNzcuMTExLjA0LjIyNC4wNTkuMzM2LjA1OS40MTEgMCAuNzk2LS4yNTUuOTQyLS42NjRMMjMuNzA1IDE2aC0yLjEyNHoiLz48cGF0aCBmaWxsPSIjREQyRTQ0IiBkPSJNNyAzMGMtLjE1IDAtLjMwMy0uMDM0LS40NDYtLjEwNS0uNDk0LS4yNDctLjY5NC0uODQ4LS40NDctMS4zNDJsMy4wNjItNi4xMDZDOS4xODYgMjIuNDE5IDExIDE5LjY1MSAxMSAxN2MwLTMuMjQyLTIuMjkzLTQuMDQzLTIuMzE2LTQuMDUxLS41MjQtLjE3NS0uODA3LS43NDEtLjYzMi0xLjI2NS4xNzQtLjUyNC43MzktLjgxIDEuMjY1LS42MzJDOS40NjcgMTEuMTAyIDEzIDEyLjMzMyAxMyAxN2MwIDMuMDY4LTEuODM2IDYuMDQyLTIuMTMxIDYuNDk3bC0yLjk3NCA1Ljk0OUM3LjcyIDI5Ljc5OCA3LjM2NyAzMCA3IDMweiIvPjxwYXRoIGZpbGw9IiMyOTJGMzMiIGQ9Ik0xNC42MTIgMTMuNjYzYy0uMDU0IDAtLjExLS4wMDQtLjE2NS0uMDE0bC02LTFjLS41NDQtLjA5MS0uOTEzLS42MDYtLjgyMi0xLjE1MS4wOTEtLjU0NC42MDEtLjkxMyAxLjE1MS0uODIybDYgMWMuNTQ0LjA5MS45MTMuNjA2LjgyMiAxLjE1MS0uMDgyLjQ4OS0uNTA2LjgzNi0uOTg2LjgzNnpNMjYuMzgzIDE3Yy0uMDMgMC0uMDU5LS4wMDItLjA4OS0uMDA2bC01LjY3Mi0uNzA4Yy0uMzcyLS4wNDYtLjY0NC0uMzc0LS42Mi0uNzQ4LjAyMy0uMzc0LjMzMy0uNjY1LjcwNy0uNjY1LjA0MSAwIDQuMDY3LS4wMTggNS45ODktMS4yOTkuMjUtLjE2Ny41ODItLjE1Ny44MjQuMDI2LjIzOS4xODUuMzM3LjUwMS4yNDEuNzg4bC0uNzA5IDIuMTI3Yy0uMDk2LjI5My0uMzY5LjQ4NS0uNjcxLjQ4NXoiLz48cGF0aCBmaWxsPSIjNjY3NTdGIiBkPSJNMjAgMjljMCAxLjEwNC0uODk1IDItMiAyLTEuMTA0IDAtMi0uODk2LTItMnMuODk2LTIgMi0yYzEuMTA1IDAgMiAuODk2IDIgMnoiLz48L3N2Zz4=","ex-umbrella":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iIzY2NzU3RiIgZD0iTTkgMjguNWMwLS44MjguNjcyLTEuNSAxLjUtMS41czEuNS42NzIgMS41IDEuNXYuNXMwIDMgMyAzIDMtMyAzLTNWMy41YzAtLjgyOS42NzEtMS41IDEuNS0xLjVzMS41LjY3MSAxLjUgMS41VjI5czAgNi02IDYtNi02LTYtNnYtLjV6Ii8+PHBhdGggZmlsbD0iIzc0NEVBQSIgZD0iTTE5LjUgNEMyOC42MTIgNCAzNiA5LjgyIDM2IDE3YzAgMCAwIDItMSAycy0zLTItMy0ySDdzLTIgMi0zIDItMS0yLTEtMkMzIDkuODIgMTAuMzg3IDQgMTkuNSA0eiIvPjxwYXRoIGZpbGw9IiM5MjY2Q0MiIGQ9Ik0xOS41IDRDMjYuNDAzIDQgMzIgOS44MiAzMiAxN2MwIDAgMCAyLTIgMnMtNS0yLTUtMkgxNHMtMyAyLTUgMi0yLTItMi0yQzcgOS44MiAxMi41OTYgNCAxOS41IDR6Ii8+PHBhdGggZmlsbD0iIzc0NEVBQSIgZD0iTTE5LjUgNEMyMy4wOSA0IDI1IDkuODIgMjUgMTdjMCAwLTMgMi01IDJoLTFjLTIgMC01LTItNS0yIDAtNy4xOCAxLjkxLTEzIDUuNS0xM3oiLz48L3N2Zz4=","ex-rabbit":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iIzk5QUFCNSIgZD0iTTkgMTFDOSA2Ljg1OCA3IDAgOCAwczcgNCA1IDExYy0xLjEzOCAzLjk4My0uODk2IDQtMiA0cy0yIC4xNDItMi00eiIvPjxwYXRoIGZpbGw9IiNGNEFCQkEiIGQ9Ik05LjU1IDExLjcwNGMwLTMuNDE0LTEuMjk3LTkuMDY1LS42NDgtOS4wNjUuNjQ4IDAgNC41MzggMy4yOTYgMy4yNDEgOS4wNjUtLjczOCAzLjI4Mi0uNTgxIDMuMjk2LTEuMjk3IDMuMjk2cy0xLjI5Ni4xMTctMS4yOTYtMy4yOTZ6Ii8+PHBhdGggZmlsbD0iIzk5QUFCNSIgZD0iTTQuNzg5IDEyLjM3NUMzLjcyNiA4LjM3Mi4wMzMgMi4yNTYgMSAyYy45NjYtLjI1NyA3Ljc5MiAyLjA3IDcuNjU1IDkuMzQ5LS4wNzggNC4xNDIuMTYxIDQuMDk2LS45MDcgNC4zNzktMS4wNjguMjgzLTEuODk3LjY1LTIuOTU5LTMuMzUzeiIvPjxwYXRoIGZpbGw9IiNGNEFCQkEiIGQ9Ik01LjUgMTIuOTE0Yy0uODc1LTMuMjk5LTMuNTc5LTguNDI5LTIuOTUyLTguNTk1LjYyNy0uMTY3IDUuMjMyIDIuMDIyIDUuNDU4IDcuOTMuMTI5IDMuMzYxLjI4NSAzLjMzNS0uNDA3IDMuNTE5LS42OTIuMTgzLTEuMjIzLjQ0NS0yLjA5OS0yLjg1NHoiLz48Y2lyY2xlIGZpbGw9IiNDQ0Q2REQiIGN4PSIzMi41IiBjeT0iMjguNSIgcj0iMy41Ii8+PHBhdGggZmlsbD0iIzk5QUFCNSIgZD0iTTMwLjczMyAzMS43MzZDMzIuMjI3IDMwLjM1NCAzMyAyOC4yMTggMzMgMjVjMC03LjE4LTYuODItMTEtMTQtMTEtMi4wNTcgMC0zLjgyOS4xNTctNS4zMjMuNTRDMTIuNTkyIDEzLjQxIDEwLjgxNyAxMyA4LjQgMTMgNC4xMzYgMTMgMCAxNy4wNjkgMCAyMS4zMzNjMCA0LjEzIDMuODggNC42MzcgNy45OTkgNC42NjRMOCAyNmMzIDUgMSAxMCAzIDEwIDEuNTg4IDAgMS45MTQtMi4yMTcgMS45ODEtNC4zNzUgMS4wNjguNjYzIDIuMjU4IDEuMTkxIDMuNTMxIDEuNTc3QzE1LjYzNSAzMy43MjYgMTUgMzQuMjcxIDE1IDM0LjVjMCAxLjM4MSAyIDEuNSA1IDEuNSA1LjUyMiAwIDEzIDAgMTEtNC0uMDU0LS4xMDctLjE1MS0uMTktLjI2Ny0uMjY0eiIvPjxjaXJjbGUgZmlsbD0iIzI5MkYzMyIgY3g9IjYiIGN5PSIxOCIgcj0iMSIvPjxwYXRoIGZpbGw9IiNGNEFCQkEiIGQ9Ik0yIDIxYzAgMS4xMDQtLjUgMi0xIDJzLTEtLjg5Ni0xLTIgLjQ0OC0xIDEtMSAxLS4xMDQgMSAxeiIvPjwvc3ZnPg==","ex-glasses":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iIzMxMzczRCIgZD0iTTM1LjY4NiAxMS45MzFjLS41MDctLjUyMi02LjgzLTEuMDk0LTEzLjI2My0uMzY5LTEuMjgzLjE0NC0xLjM2My41MS00LjQyNS42My0zLjA2MS0uMTE5LTMuMTQxLS40ODUtNC40MjUtLjYzQzcuMTQgMTAuODM3LjgxNyAxMS40MS4zMSAxMS45MzFjLS4yNTIuMjYxLS4yNTIgMi4wNzcgMCAyLjMzOC4yNTQuMjYxIDEuMDM1LjYwNiAxLjQwMyAxLjgyNy4yMzcuNzg3LjQ5NSA1Ljg2NCAyLjI4MSA3LjM3NyAxLjc2OCAxLjQ5OCA3LjQ2MiAxLjIxNyA5LjMyNi4yNjIgMi41MzYtMS4yOTggMi44OTItNS43ODUgMy4yOTItNy42MzkuMjAzLS45MzkgMS4xNjItMS4wMTYgMS4zODUtMS4wMTZzMS4xODIuMDc3IDEuMzg1IDEuMDE2Yy40MDEgMS44NTMuNzU3IDYuMzQgMy4yOTIgNy42MzkgMS44NjUuOTU1IDcuNTU4IDEuMjM2IDkuMzI2LS4yNjIgMS43ODYtMS41MTMgMi4wNDQtNi41OSAyLjI4MS03LjM3Ny4zNjgtMS4yMiAxLjE0OS0xLjU2NiAxLjQwMy0xLjgyNy4yNTQtLjI2LjI1NC0yLjA3Ny4wMDItMi4zMzh6Ii8+PHBhdGggZmlsbD0iIzU1QUNFRSIgZD0iTTE0LjY0NCAxNS42OTljLS4wOTggMS4yNTUtLjUyMSA0Ljk2Ni0xLjc1NyA2LjA4My0xLjM3NiAxLjI0My02LjI1IDEuNTY4LTcuNzkuMDQ0LS44MDgtLjc5OS0xLjU2Ny00LjAxOC0xLjUwMy02LjgxNi4wMzgtMS42NzkgMi4yNzQtMi4wMiA1LjQ2Mi0yLjAyIDMuMTQ4IDAgNS43NjMuNDY4IDUuNTg4IDIuNzA5em02LjcwNyAwYy4wOTggMS4yNTUuNTIxIDQuOTY2IDEuNzU3IDYuMDgzIDEuMzc2IDEuMjQzIDYuMjUgMS41NjggNy43OS4wNDQuODA4LS43OTkgMS41NjctNC4wMTggMS41MDMtNi44MTYtLjAzOC0xLjY3OS0yLjI3NC0yLjAyLTUuNDYyLTIuMDItMy4xNDcgMC01Ljc2My40NjgtNS41ODggMi43MDl6Ii8+PC9zdmc+","ex-carrot":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iIzc3QjI1NSIgZD0iTTMxLjA5NiA4LjkzM2MzLjUzNS0yLjEyMiA0LjQwOC04LjMyIDMuNzAxLTcuNjEzLjcwNy0uNzA3LTUuNjU3IDAtNy43NzggMy41MzYgMC0xLjQxNC0xLjQxNC03LjA3MS0zLjUzNS0yLjEyMS0yLjEyMiA0Ljk1LTEuNDE1IDUuNjU3LTEuNDE1IDcuMDcxIDAgMS40MTQgMi44MjkgMS40MTQgMi44MjkgMS40MTRzLS4xMjUgMi43MDQgMS4yOSAyLjcwNGMxLjQxNCAwIDEuOTk3LjU4MyA2Ljk0Ni0xLjUzOCA0Ljk1LTIuMTIyLS42MjQtMy40NTMtMi4wMzgtMy40NTN6Ii8+PHBhdGggZmlsbD0iI0Y0OTAwQyIgZD0iTTIyLjQyMiAyMy41OTRDMTQuODA3IDMxLjIwOSAyLjI3IDM2LjY3NS41MDIgMzQuOTA3Yy0xLjc2OC0xLjc2OCAzLjY5OS0xNC4zMDUgMTEuMzEzLTIxLjkyIDcuNjE1LTcuNjE1IDExLjUzLTcuNTYyIDE0Ljg1LTQuMjQzIDMuMzE5IDMuMzIgMy4zNzIgNy4yMzUtNC4yNDMgMTQuODV6Ii8+PHBhdGggZD0iTTIxLjg3NSAxNC41NmMtLjk3Mi0uOTcyLTIuNzctMi43ODUtNC42OTItNi4xMDYtLjc1My40OTItMS41NTQgMS4wOTEtMi40MDkgMS44MDggMi44MDMgMy42MTMgOC4xMjEgNS4zMTcgNy4xMDEgNC4yOTh6bS03LjQ4NSA4LjA3MmMtMS4wNDEtMS4wNDEtMy4wMy0zLjA1LTUuMTA1LTYuODQ2LS42ODcuODMyLTEuMzQ5IDEuNjkzLTEuOTggMi41NyAyLjgwNyAzLjU5NyA4LjEwMSA1LjI5MiA3LjA4NSA0LjI3NnptOS4zMDEtLjM1MWMtMy41ODEtMi4wMDgtNS40OS0zLjkxLTYuNTAyLTQuOTIxLTEuMDItMS4wMjIuNjkyIDQuMzE1IDQuMzE3IDcuMTE0LjMxMS0uMjkgMS43ODYtMS43NjcgMi4xODUtMi4xOTN6bS0xMi4xODMgOS4zMjRjLjg5NS0uNDkyIDEuODA0LTEuMDI1IDIuNzE1LTEuNTk3LTMuMjczLTEuOTA1LTUuMDY5LTMuNjgzLTYuMDM0LTQuNjQ4LS45MjItLjkyMy4zODYgMy4zNDcgMy4zMTkgNi4yNDV6IiBmaWxsPSIjRDY3NTAzIi8+PC9zdmc+","ex-hammer":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0Y0OTAwQyIgZD0iTTI5Ljg3OSAzMy44NzlDMzEuMDQ1IDM1LjA0NSAzMi45IDM1LjEgMzQgMzRzMS4wNDUtMi45NTUtLjEyMS00LjEyMUwxMi4xMjEgOC4xMjFDMTAuOTU1IDYuOTU1IDkuMSA2LjkgOCA4cy0xLjA0NSAyLjk1NS4xMjEgNC4xMjFsMjEuNzU4IDIxLjc1OHoiLz48cGF0aCBmaWxsPSIjNjY3NTdGIiBkPSJNMjIgM3MtNi0zLTExIDJsLTcgN3MtMS0xLTIgMGwtMSAxcy0xIDEgMCAybDQgNHMxIDEgMiAwbDEtMXMxLTEgMC0ybC0uMDc4LS4wNzhjLjc3LS43NDMgMS45MjMtMS41IDMuMDc4LS45MjJsNC00cy0xLTMgMS01IDMtMiA1LTIgMS0xIDEtMXoiLz48L3N2Zz4=","ex-kangaroo":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0JGNjk1MiIgZD0iTTYuNTEzLjg4NmMwIC45ODQuNjQ5IDMuOTI2IDEuMTUzIDUuMDQ3cy0uNTA1LjM1LTEuNDQyLS43NzEtMS42NTctMi4yNDQtMS4yMjUtMy40MzVTNi41MTMtLjQ0NiA2LjUxMy44ODZ6Ii8+PHBhdGggZmlsbD0iI0Q5OUU4MiIgZD0iTS4zMTQgMTAuNjk5Yy0uMDA0Ljk2MSAxLjIyIDIuMDk3IDIuODgzIDEuNjgyIDEuMzMzLS4zMzIgMy4yMzQtMS4zNTkgMy4zMTYtLjU2MS4wODIuNzk4LTEuMTc5IDMuNDcxLS42MjkgNi4yNzYuOTMgNC43NCAyLjM3OSA4Ljg3MyA3LjIwMSAxMC4wOTUgMCAwIC43MjMgMi43NzUgMS40NzkgMy45ODYuNjk0IDEuMTExIDEuMDI5IDIuMDIyLjQ1IDIuMjE1LS41NzkuMTkzLTMuNDcyLjM4Ni00LjY5NC41NzlDOS4wOTkgMzUuMTY0IDguOTA2IDM2IDEwLjI1NiAzNkgxNy4yYy43MDcgMCAuNjQzLS42NDMuMTkzLTEuNjA3cy44MDUtMi42NDMuNTk4LTUuMzMyYy40MTQuMTQgMS4zOTUuMDY3IDEuOTc0LjgzOC41NzkuNzcyIDMuNzI5IDUuOTc2IDguODA5IDUuOTc2czYuNDMtMy44MjYgNi44MTUtNC44NTVjLjM4Ni0xLjAyOS0uNDUtMS4wMjktMS4wOTMtLjE5M3MtMi43NjEgMS45MzEtNS43MjIgMS41MDhjLTMuMTUxLS40NS0zLjgyMi00LjQ2NS00LjY1OC02LjkwOS0uODM2LTIuNDQzLTIuNzQtNi45NjgtNy4wNDQtOS40ODctMy4xNzctMS44NTktNS40ODMtMS4zMS01LjM2My0zLjM1Ni4xNzgtMy4wMzMuMzI1LTUuMjEtMS4wOTktNi44OTItMS4xNS0xLjM1Ny0zLjg1MS0xLjI2NC01LjQxOC0uMzE5LS42OTcuNDItMS4xMTcgMS41OTUtMS43NzggMi4xMDNDMS40MjggOC45OTguMzE3IDkuODQ4LjMxNCAxMC42OTl6Ii8+PHBhdGggZmlsbD0iI0Q3OUU4NCIgZD0iTTYuMDQyIDIyLjYyNWMtLjI1OS41MzEtLjAwNiAxLjAxOS0uMTU4IDEuMzU1LS4yMjUuNDk3LTEuMjU0LjgwNC0xLjM1LS4wMzItLjA5Ny0uODM2LS4wMjEtMS45NDguNDUtMi41NzIuMzIyLS40MjcgMy4yNzktMi43OTcgMy40MDgtMi44OTMuMTI5LS4wOTYtLjM1NC0yLjg5My0uMzU0LTIuODkzcy4wOTYtMS4xMjUgMS40NDctLjg2OGMxLjM1LjI1NyAxLjMxOCAxLjQxNSAxLjMxOCAyLjYzNnMuMjI1IDIuNDQzLS4zODYgMi43MzMtNC4xMTcgMi4wMDMtNC4zNzUgMi41MzR6Ii8+PHBhdGggZmlsbD0iIzI5MkYzMyIgZD0iTTYuNjU3IDcuNDA1YzAgLjQ2NS0uMzg3Ljg0MS0uODY1Ljg0MXMtLjg2NS0uMzc3LS44NjUtLjg0MS4zODctLjU2MS44NjUtLjU2MS44NjUuMDk2Ljg2NS41NjF6Ii8+PHBhdGggZmlsbD0iI0Q5OUU4MiIgZD0iTTkuOTczLjI1NWMuOTEyLS42NjUgMS4wMDkgMS45NjMuNzkzIDIuODA0UzguODkxIDYuMDczIDguODkxIDYuMDczcy0xLjI5Ny42MzEtMS4yOTctLjkxMVM5LjEwOC44ODYgOS45NzMuMjU1eiIvPjxwYXRoIGZpbGw9IiNCRjY5NTIiIGQ9Ik0xMC4wNjIgMi4wOWMuNTguMzQ2LTEuMzA3IDMuMzAzLTEuNzY2IDMuMDU1LS40NTktLjI0Ny45ODgtMy41MTkgMS43NjYtMy4wNTV6Ii8+PHBhdGggZmlsbD0iIzI5MkYzMyIgZD0iTS4zMTQgMTAuMTM5Yy44NjktLjUyOCAxLjA4MS45MTEuNzkzIDEuNDAyLS4yODkuNDktMS4zNy0xLjA1Mi0uNzkzLTEuNDAyeiIvPjxwYXRoIGZpbGw9IiNCRjY5NTIiIGQ9Ik03LjI3NCAyMi4zNGMtLjEyNSAwLS4yNDQtLjA3My0uMjk3LS4xOTUtLjA3MS0uMTY0LjAwNC0uMzU0LjE2OC0uNDI2IDEuMDY2LS40NjQgMS45OS0xLjE4MiAyLjM2Ny0xLjUzMy4xNS0uMTgyLjUyMy0xLjQ0Ny43NzctMi41MTEuMDQyLS4xNzQuMjE5LS4yNzguMzktLjI0LjE3NC4wNDIuMjgxLjIxNi4yNC4zOS0uMjIzLjkzMS0uNjQ1IDIuNTM2LS45NjYgMi44MzUtLjU0Ni41MDgtMS41NDYgMS4yMTYtMi41NSAxLjY1Mi0uMDQyLjAxOS0uMDg2LjAyOC0uMTI5LjAyOHoiLz48L3N2Zz4=","ex-octopus":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iIzU1Mzc4OCIgZD0iTTEwIDEyYzMgNSAwIDEwLjY5Mi0zIDkuNjkycy00IDItMSAzIDkuNDY1LS40NjUgMTMtNGMxLTEgMi0xIDItMUwxMCAxMnoiLz48cGF0aCBmaWxsPSIjNTUzNzg4IiBkPSJNMjYgMTJjLTMgNSAwIDEwLjY5MiAzIDkuNjkyczQgMiAxIDMtOS40NjUtLjQ2NS0xMy00Yy0xLTEtMi0xLTItMUwyNiAxMnoiLz48cGF0aCBmaWxsPSIjNzQ0RUFBIiBkPSJNMzAuMTg4IDE2Yy0zIDUgMCAxMC42OTIgMyA5LjY5MnM0IDIgMSAzLTkuNDY1LS40NjUtMTMtNGMtMS0xLTItMS0yLTFsMTEtNy42OTJ6TTUuODEyIDE2YzMgNSAwIDEwLjY5Mi0zIDkuNjkycy00IDItMSAzIDkuNDY1LS40NjUgMTMtNGMxLTEgMi0xIDItMUw1LjgxMiAxNnoiLz48cGF0aCBmaWxsPSIjOTI2NkNDIiBkPSJNMzMuMTg4IDMxLjM3NWMtMi43MjkuOTEtNi40MjUtNS42MjYtNC44MTItMTAuNTc4QzMwLjAyMiAxNy41NTQgMzEgMTMuOTQgMzEgMTFjMC03LjE4LTUuODItMTEtMTMtMTFTNSAzLjgyIDUgMTFjMCAyLjk0Ljk3OCA2LjU1NCAyLjYyNCA5Ljc5NyAxLjYxMyA0Ljk1Mi0yLjA4MyAxMS40ODgtNC44MTIgMTAuNTc4LTMtMS00IDMtMSA0czguMzEtLjYyNyAxMi00YzIuMTg5LTIgNC4xODktMiA0LjE4OS0yczIgMCA0LjE4OCAyYzMuNjkgMy4zNzMgOSA1IDEyIDRzMS45OTktNS0xLjAwMS00eiIvPjxjaXJjbGUgZmlsbD0iIzI5MkYzMyIgY3g9IjE0IiBjeT0iMjEiIHI9IjIiLz48Y2lyY2xlIGZpbGw9IiMyOTJGMzMiIGN4PSIyMiIgY3k9IjIxIiByPSIyIi8+PC9zdmc+","ex-anchor":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iIzI2OSIgZD0iTTMwLjUgMTguNTcyTDI2IDI1aDIuNTc1Yy0xLjEzIDMuOTg4LTQuNDQ1IDcuMDUtOC41NzUgNy44MVYxN2gzYzEuMTA0IDAgMi0uODk2IDItMnMtLjg5Ni0yLTItMmgtM3YtMS4zNDloLTRWMTNoLTNjLTEuMTA0IDAtMiAuODk2LTIgMnMuODk2IDIgMiAyaDN2MTUuODFjLTQuMTMtLjc2LTcuNDQ1LTMuODIxLTguNTc1LTcuODFIMTBsLTQuNS02LjQyOEwxIDI1aDMuMzNDNS43MDUgMzEuMjg5IDExLjI5OSAzNiAxOCAzNnMxMi4yOTUtNC43MTEgMTMuNjctMTFIMzVsLTQuNS02LjQyOHoiLz48cGF0aCBmaWxsPSIjMjY5IiBkPSJNMTggMGMtMy4zMTQgMC02IDIuNjg2LTYgNnMyLjY4NiA2IDYgNiA2LTIuNjg2IDYtNi0yLjY4Ni02LTYtNnptMCA5Yy0xLjY1NyAwLTMtMS4zNDMtMy0zczEuMzQzLTMgMy0zIDMgMS4zNDMgMyAzLTEuMzQzIDMtMyAzeiIvPjwvc3ZnPg==","ex-helicopter":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iIzY2NzU3RiIgZD0iTTE2LjI2IDI2aDJ2NWgtMnptLTggMGgydjVoLTJ6Ii8+PGVsbGlwc2UgZmlsbD0iIzk5QUFCNSIgY3g9IjYuMjU5IiBjeT0iMyIgcng9IjYiIHJ5PSIxIi8+PGVsbGlwc2UgZmlsbD0iIzk5QUFCNSIgY3g9IjIwLjI1OSIgY3k9IjMiIHJ4PSI2IiByeT0iMSIvPjxwYXRoIGZpbGw9IiM5OUFBQjUiIGQ9Ik0xMi4yNiAzaDJ2NmgtMnoiLz48ZWxsaXBzZSBmaWxsPSIjNjY3NTdGIiBjeD0iMTMuMjU5IiBjeT0iMyIgcng9IjIiIHJ5PSIxIi8+PHBhdGggZmlsbD0iI0ZGQ0M0RCIgZD0iTTM0LjI1OSAxMGMwLTMgMC03LTEtN3MtMyA0LTQgNiA1IDEgNSAxeiIvPjxwYXRoIGZpbGw9IiNGRkNDNEQiIGQ9Ik0zNC4yNTkgMTBjMC0yLjIwOS04LTMtMTktM2gtMkM2LjYzMiA3IC41MDkgMTIuNDUxLjUwOSAxOC4yNVM0LjI1OSAyOCAxMy4yNTkgMjhzMTItNC43MDEgMTItMTAuNWMwLS44ODEtLjEzOC0xLjczMS0uMzcxLTIuNTQ5QzI5LjI1OSAxNCAzNC4yNTkgMTIuMDA2IDM0LjI1OSAxMHoiLz48cGF0aCBmaWxsPSIjM0I4OEMzIiBkPSJNNC4yNTkgMTNjLTIuMDkxIDIuOTE4LTMuMDY4IDcuNTg5IDEuMjEzIDcuNzg0IDQuNzg3LjIxNiA2Ljc4Ny4yMTYgNy44NS0yLjM3MiAxLjM2NC0zLjMyLjkzNy03LjQxMy0uMjc2LTguMTk1LTIuMzItMS40OTctNi42OTUtLjEzNS04Ljc4NyAyLjc4M3ptMTYuODQxLS40NjVDMjMuMjU5IDE2IDIzLjE3IDE4LjY5NiAxOS4yNTkgMjBjLTMgMS00LTItMy44NDEtNS41MzUuMTEyLTIuNDgzLjIwNi00LjE5NSAxLjg0MS00LjQ2NSAxLjQ0Ny0uMjQgMi41MjYuNDI2IDMuODQxIDIuNTM1eiIvPjxwYXRoIGZpbGw9IiM5OUFBQjUiIGQ9Ik0zMS40NDEgNy4xMTRjLjkwMyAxLjI3MyAxLjI3MSAyLjU2NC44MiAyLjg4NC0uNDUuMzItMS41NDgtLjQ1NC0yLjQ1MS0xLjcyNi0uOTAzLTEuMjczLTEuMjcxLTIuNTY0LS44Mi0yLjg4NC40NS0uMzIxIDEuNTQ3LjQ1MyAyLjQ1MSAxLjcyNnoiLz48cGF0aCBmaWxsPSIjOTlBQUI1IiBkPSJNMzQuNzIgMTEuNzM1Yy45MDkgMS4yNzkgMS4yOCAyLjU3NS44MyAyLjg5NC0uNDUuMzItMS41NTMtLjQ1OC0yLjQ2LTEuNzM3LS45MDktMS4yNzktMS4yNzktMi41NzYtLjgyOS0yLjg5Ni40NS0uMzE4IDEuNTUxLjQ2IDIuNDU5IDEuNzM5eiIvPjxwYXRoIGZpbGw9IiM2Njc1N0YiIGQ9Ik0zMy4wNzYgOS40MTljLjMxOS40NS4yMTQgMS4wNzQtLjIzNiAxLjM5NC0uNDUuMzItMS4wNzQuMjE0LTEuMzk1LS4yMzYtLjMxOS0uNDUtLjIxNC0xLjA3NC4yMzctMS4zOTQuNDUxLS4zMjEgMS4wNzUtLjIxNCAxLjM5NC4yMzZ6Ii8+PHBhdGggZmlsbD0iIzk5QUFCNSIgZD0iTTI1LjI2IDMyYzAgMS4xMDQtLjg5NiAyLTIgMmgtMjBjLTEuMTA0IDAtMi0uODk2LTItMnMuODk2LTIgMi0yaDIwYzEuMTA0IDAgMiAuODk2IDIgMnoiLz48L3N2Zz4=","ex-microscope":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PGcgZmlsbD0iIzY2NzU3RiI+PHBhdGggZD0iTTE5Ljc4IDIxLjM0NWwtNi4zNDEtNi4zNDItLjM4OSA0LjM4IDIuMzUgMi4zNTF6Ii8+PHBhdGggZD0iTTE1LjQgMjIuMjMzYy0uMTMyIDAtLjI1OS0uMDUzLS4zNTQtLjE0NmwtMi4zNTEtMi4zNTFjLS4xMDQtLjEwNC0uMTU4LS4yNS0uMTQ1LS4zOTdsLjM4OS00LjM4Yy4wMTctLjE5My4xNDUtLjM1OS4zMjctLjQyNS4xODItLjA2Ny4zODgtLjAyMS41MjQuMTE2bDYuMzQxIDYuMzQyYy4xMzguMTM4LjE4My4zNDIuMTE2LjUyNHMtLjIzMi4zMS0uNDI2LjMyN2wtNC4zNzkuMzg5LS4wNDIuMDAxem0tMS44MzItMy4wMzlsMi4wMjEgMi4wMjEgMy4wODEtLjI3My00LjgyOC00LjgyOC0uMjc0IDMuMDh6Ii8+PC9nPjxwYXRoIGZpbGw9IiM4ODk5QTYiIGQ9Ik0zMSAzMmgtM2MwLTMuMzE0LTIuNjMtNi01Ljg3NS02LTMuMjQ0IDAtNS44NzUgMi42ODYtNS44NzUgNkg4LjczYzAtMS4xMDQtLjg5NS0yLTItMi0xLjEwNCAwLTIgLjg5Ni0yIDItMS4xMDQgMC0yIC44OTYtMiAycy44OTYgMiAyIDJIMzFjMS4xMDQgMCAyLS44OTYgMi0ycy0uODk2LTItMi0yeiIvPjxwYXRoIGZpbGw9IiM4ODk5QTYiIGQ9Ik0yMCAxMHY0YzMuODY2IDAgNyAzLjEzNCA3IDdzLTMuMTM0IDctNyA3aC04LjQ4NWMyLjAxOCAyLjQ0MyA1LjA2OSA0IDguNDg1IDQgNi4wNzUgMCAxMS00LjkyNSAxMS0xMXMtNC45MjUtMTEtMTEtMTF6Ii8+PHBhdGggZmlsbD0iIzY3NzU3RiIgZD0iTTE2LjQxNCAzMC40MTRjLS43ODEuNzgxLTIuMDQ3Ljc4MS0yLjgyOCAwbC05Ljg5OS05LjljLS43ODEtLjc4MS0uNzgxLTIuMDQ3IDAtMi44MjguNzgxLS43ODEgMi4wNDctLjc4MSAyLjgyOSAwbDkuODk5IDkuOWMuNzguNzgxLjc4IDIuMDQ3LS4wMDEgMi44Mjh6bS03LjIyNS0xLjc4NmMuNTQ3LS4wNzcgMS4wNTIuMzA0IDEuMTI5Ljg1MS4wNzcuNTQ3LS4zMDUgMS4wNTMtLjg1MSAxLjEyOWwtNS45NDIuODM0Yy0uNTQ3LjA3Ny0xLjA1Mi0uMzA1LTEuMTI5LS44NTEtLjA3Ny0uNTQ3LjMwNS0xLjA1My44NTItMS4xM2w1Ljk0MS0uODMzeiIvPjxwYXRoIGZpbGw9IiM2Njc1N0YiIGQ9Ik0yNy4zNDEgMi45OGw0LjQ2MSA0LjQ2MS0zLjgwNiAzLjgwNy00LjQ2MS00LjQ2MXoiLz48cGF0aCBmaWxsPSIjQUFCOEMyIiBkPSJNMzQuMDM3IDcuMDgzYy0uODI3LjgyNy0yLjE3LjgyNy0yLjk5NyAwbC0zLjMzOS0zLjM0Yy0uODI3LS44MjYtLjgyNy0yLjE2OSAwLTIuOTk2LjgyNy0uODI2IDIuMTctLjgyNiAyLjk5NSAwbDMuMzQyIDMuMzRjLjgyNi44MjcuODI2IDIuMTY4LS4wMDEgMi45OTZ6bS0xNC41NiAxNS4wMjZsLTYuODAyLTYuODAzYy0uMzg5LS4zODktLjM4OS0xLjAyNSAwLTEuNDE0bDkuODU4LTkuODU4Yy4zODktLjM4OSAxLjAyNS0uMzg5IDEuNDE0IDBsNi44MDEgNi44MDNjLjM4OS4zODkuMzg5IDEuMDI1IDAgMS40MTRsLTkuODU4IDkuODU4Yy0uMzg4LjM4OS0xLjAyNC4zODktMS40MTMgMHoiLz48cGF0aCBmaWxsPSIjRTFFOEVEIiBkPSJNMTMuNzY2IDEyLjhsMS42MzgtMS42MzcgOC4yMTYgOC4yMTYtMS42MzggMS42Mzd6Ii8+PC9zdmc+","ex-giraffe":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZD0iTTIyLjIxNyAzNS42MTVoLS4wMDJjLS44MDQtLjE0Mi0xLjM0LS45MDgtMS4xOTgtMS43MTJsLjU5LTMuMzQ0cy42OC0zLjE2NS0xLjA3Ni01LjQ0OWMxLjI1OS0xLjE3MSA1LjAyNC4wODUgNS4wMjQuMDg1bC0xLjYyNiA5LjIyMWMtLjE0Mi44MDQtLjkwOCAxLjM0LTEuNzEyIDEuMTk5em0tMTIuNjkyLS4wMjFoLS4wMDJjLS44MDQtLjE0Mi0xLjM0LS45MDgtMS4xOTgtMS43MTJsMS4zMTItNy4wMjVzLjUwMy0yLjQxOS41MDMtNC40MzljMS4xNDItLjQzOSAyLjcyMyAyLjc1NyAyLjcyMyAyLjc1N2wtMS42MjYgOS4yMjFjLS4xNDMuODAzLS45MDkgMS4zMzktMS43MTIgMS4xOTh6bTIxLjI3Ny05LjgyM2MtLjUzNyAwLS45NzctLjQzMS0uOTg1LS45NjktLjAxMi0uNzIzLS4zMDQtNC4zMjYtNC45MjUtNC4zMjYtLjU0NSAwLS45ODUtLjQ0MS0uOTg1LS45ODVzLjQ0MS0uOTg1Ljk4NS0uOTg1YzUuMzYzIDAgNi44NTggMy45MzggNi44OTYgNi4yNjQuMDA5LjU0NS0uNDI1Ljk5My0uOTY5IDEuMDAybC0uMDE3LS4wMDF6IiBmaWxsPSIjRjQ5MDBDIi8+PGcgZmlsbD0iIzc1NEMyOSI+PHBhdGggZD0iTTE1LjIyNiAxNy4yNTJsLTMuNDYtMTEuOTggMS42ODctMS4wMmMuMzY5LjYxLjYyOCAxLjcyMiAxLjA1NCAzLjYzMy41NjkgMi41NTggMS4zNDkgNi4wNiAyLjY1NyA3Ljg3Ni4zMTguNDQyLjIxOCAxLjA1OC0uMjI0IDEuMzc2LS4xNzUuMTI2LTEuNzE0LjExNS0xLjcxNC4xMTV6TTcuNjE1IDIuNzFWLjczOWMwLS40MDguMzMxLS43MzkuNzM5LS43MzlzLjczOS4zMzEuNzM5LjczOVYyLjcxSDcuNjE1em0yLjMzMiAwVi43MzljMC0uNDA4LjMzMS0uNzM5LjczOS0uNzM5cy43MzkuMzMxLjczOS43MzlWMi43MUg5Ljk0N3oiLz48ZWxsaXBzZSBjeD0iMzAuODAyIiBjeT0iMjYuMjYzIiByeD0iMS45NzEiIHJ5PSIyLjQ2NCIvPjwvZz48cGF0aCBmaWxsPSIjRkZDQzREIiBkPSJNMjguOTM1IDM0LjA5NHMtLjY0Ny0yLjUxNS0uOTk4LTQuMTU0Yy0uMzMyLTEuNTQ5LTEuMDI1LTMuOTgxLTEuMTcxLTguMjI1LS4wMS0uMTQ1LS4wMzktLjUxMi0uMTM4LS43NzktLjEyMi0uMzMtLjU2Ny0uOTMzLS43NjYtMS4yMDMtLjc3Ny0xLjA1Mi0yLjAxMi0xLjY5MS0zLjUyNi0xLjg0Ny0xLjI4My0uMTMyLTIuNTczLS4xODUtMy44NTQtLjMzOS0uNTktLjA3MS0xLjEtLjE1Ni0xLjQyMi0uMjcyLTEuNjM2LS41ODktMS45NjItMi41MDItMi40MTQtMy45NjUtLjgtMi41OS0xLjUwOC01LjIyNS0xLjk2MS03LjlsLS4wMzYuMDA5LjAzNi0uMDA5LS4wMjctLjE2NVY0Ljg0YzEuNTY3LS43MTQgMi43OS0yLjg4OCAxLjk3MS0zLjcwNi0xLjQxNi0uNzA4LTIuODI3LjExLTMuNTEzLjk5Mi0uMDItLjAwMS0uMDM5LS4wMDYtLjA1OS0uMDA2SDguNDU5Yy0uNjU1IDAtMS4zMDQuMTYtMS44NzIuNTEtLjU4NC4zNTktLjk4Ni45MDctMS42MzMgMS4xOS0uNzg2LjM0NC0xLjcyMS4wOTMtMi40MTcuNjQtMS4xODkuOTMzLS42MjUgMi41MjUuODU0IDIuNTc4LjIwMS41NzcuNzQ1Ljk5MyAxLjM5Ljk5M2gyLjEwNmMuMDU1LjAxMS4xMDguMDIxLjE3My4wMjkuNjA0LjA3MSAxLjA4OC41MjUgMS40NzcgMS4yMTUgMS4wNDcgMS44NTYgMS4yNDQgNC4yNDQgMS40MTUgNi4zMjQuMTE5IDEuNDQ4LjE3NyAyLjkwNi4xNTggNC4zNi0uMjkzIDEuNTY2LS4xMiAzLjM3Ny0uMTIgMy4zNzcuMDQ0LjQxOS4xODYuNzc3LjM5NCAxLjA5NWwtLjAxLjAxMWMxLjk5IDIuODEgMi40NDkgNS45NyAyLjQ0OSA1Ljk3bC43ODQgNC4xOTNjLjE0Mi44MDQuOTA4IDEuMzQxIDEuNzEzIDEuMTk5LjgwNC0uMTQyIDEuMzQxLS45MDggMS4xOTktMS43MTJsLTEuMjYyLTcuMTU5YzEuOTc3LjUzNCA0LjYwOS45MzIgNi40NDkuODUyIDAgLjAwNi0uMDAzLjAxNC0uMDAyLjAyIDIuMzcxLS4xNDYgMy4yNiAxLjczIDMuNDU0IDIuNTc2LjE5NC44NDYuODY4IDQuMjI4Ljg2OCA0LjIyOC4xNDIuODA0LjkwOSAxLjM0MSAxLjcxMiAxLjE5OS44MDItLjE0MyAxLjMzOS0uOTEgMS4xOTctMS43MTR6Ii8+PHBhdGggZmlsbD0iI0Y0OTAwQyIgZD0iTTExLjk3NSAyMi4xYy0uOTg1Ljk4NS0xLjE2IDIuNDA4LS4zOTEgMy4xNzguNzcuNzcgMi4xOTMuNTk1IDMuMTc4LS4zOTFzMS4xNi0yLjQwOC4zOTEtMy4xNzhjLS43Ny0uNzctMi4xOTMtLjU5NS0zLjE3OC4zOTF6bTEuMDg4LTYuMTg1YzAgMS42MzMgMS4zMjQgMi45NTYgMi45NTYgMi45NTYgMS4wMjkgMCAxLjkzMy0uNTI2IDIuNDYyLTEuMzIzLS41OS0uMDcxLTEuMS0uMTU2LTEuNDIyLS4yNzItMS41NjQtLjU2My0xLjg3Mi0yLjIzNy0yLjI1My0zLjQ0MS0uMDU3LS4xNzktLjEwOC0uMzQ5LS4xNjItLjUyMy0uOTM1LjQ5Ni0xLjU4MSAxLjQ2OS0xLjU4MSAyLjYwM3ptLS45ODYtNC40MzRjMC0xLjM2MS0xLjEwMy0yLjQ2NC0yLjQ2NC0yLjQ2NC0uMzg4IDAtLjc1LjA5OC0xLjA3Ny4yNTcuNjM1IDEuMTI2IDEuMDE1IDIuODg1IDEuMjQyIDQuNjUzIDEuMjgyLS4wODYgMi4yOTktMS4xNDIgMi4yOTktMi40NDZ6bS0xLjA5My00LjA3OWMwIDEuMTE4LjkwNiAyLjAyMyAyLjAyMyAyLjAyMy4xODIgMCAuMzU1LS4wMzIuNTIzLS4wNzctLjQ0OS0xLjc4Ny0uNzA5LTMuMTIyLS44NDctMy45MzctLjk2MS4xNTYtMS42OTkuOTg1LTEuNjk5IDEuOTkxem04Ljk3NyAxMi40NTZjMCAxLjYzMyAxLjMyNCAyLjk1NiAyLjk1NiAyLjk1NiAxLjYzMyAwIDIuOTU2LTEuMzI0IDIuOTU2LTIuOTU2IDAtLjA0My0uMDExLS4wODItLjAxMy0uMTI0LS43NzctMS4wNTItMi4wMTItMS42OTEtMy41MjYtMS44NDctLjQ1Ny0uMDQ3LS45NzItLjA4OC0xLjQ5OS0uMTI4LS41MzguNTM2LS44NzQgMS4yNzctLjg3NCAyLjA5OXpNMTEuNTk4IDIuNjEzYy41MDUtLjQ4MyAxLjMxNy0xLjA4OSAxLjc3OC0uODU2LjQ2MS4yMzMuMjU4IDEuMjczLTEuMTY2IDIuMTUxLjExMy0uNDM5LjU1MS0xLjIxNS0uNjEyLTEuMjk1eiIvPjxjaXJjbGUgZmlsbD0iIzI5MkYzMyIgY3g9IjguNzcyIiBjeT0iNC4wOSIgcj0iLjk4NSIvPjxwYXRoIGQ9Ik0yMS4wNDcgMzMuNTQ1cy0xLjE0MiAxLjM1MS0uOTg1IDEuNzgxIDIuNzQxLjQ5MSAzLjI0OS4wMjItMS45NTEtMS44NDItMi4yNjQtMS44MDN6bS0xMi42MjMgMHMtMS4xNDIgMS4zNTEtLjk4NSAxLjc4MWMuMTU2LjQzIDIuNzQxLjQ5MSAzLjI0OS4wMjJzLTEuOTUxLTEuODQyLTIuMjY0LTEuODAzem00LjU0NyAyLjIyYy4xMzYuMzkxIDIuNzY2LjMyOSAzLjIwNS0uNDYxLjQzOS0uNzktMi42NzgtMS4zMTctMi42NzgtMS4zMTdzLS43MDMgMS4yNzMtLjUyNyAxLjc3OHptMTIuNDA0IDBjLjEzNi4zOTEgMi43NjYuMzI5IDMuMjA1LS40NjEuNDM5LS43OS0yLjY3OC0xLjMxNy0yLjY3OC0xLjMxN3MtLjcwMyAxLjI3My0uNTI3IDEuNzc4eiIgZmlsbD0iIzc1NEMyOSIvPjwvc3ZnPg==","ex-pretzel":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iI0Y0OTAwQyIgZD0iTTM1IDE2YzAtOC02LTExLTEyLTExLTEuNzM4IDAtMy40NzIuMzcxLTUgMS4wOTdDMTYuNDcyIDUuMzcxIDE0LjczOCA1IDEzIDUgNyA1IDEgOCAxIDE2YzAgMyAxLjMxNCA1LjY2MiAzIDggLjQzNC42MDIuOTAzIDEuMTQ2IDEuNCAxLjY0Ny0uMzU3LjYwMy0uNjE2IDEuMDkxLS43NzkgMS4zNTNDNCAyOCA1IDI5IDYgMjljLjY5IDAgMS4yMDUtLjYxNyAxLjc0NS0xLjQ4MkMxMC41NTIgMjkuMjczIDE0LjAyMyAzMCAxOCAzMHM3LjQ0OC0uNzI3IDEwLjI1NS0yLjQ4MkMyOC43OTUgMjguMzgzIDI5LjMxIDI5IDMwIDI5YzEgMCAyLTEgMS4zNzktMi0uMTYzLS4yNjItLjQyMi0uNzUtLjc3OS0xLjM1My40OTctLjUwMS45NjctMS4wNDYgMS40LTEuNjQ3IDEuNjg2LTIuMzM4IDMtNSAzLTh6bS0xNyAxLjIwN0MxNi41NzggMTUuNzM2IDE3IDE0IDE3IDE0YzAtLjcwOC4zODEtMS40MTQgMS0yLjAzNC42MTkuNjIgMSAxLjMyNiAxIDIuMDM0IDAgMCAuNDIyIDEuNzM2LTEgMy4yMDd6TTguMjE1IDE5Ljk0QzYuNTkgMTcuNjg3IDYuMjA0IDE1LjM4OCA3IDEzYzEuMDUzLTMuMTU4IDQuODUtMyA2LTMgLjI4OCAwIC41NzYuMDI0Ljg2MS4wNTlDMTMuMzE0IDExLjE4NSAxMyAxMi40OTggMTMgMTRjMCAxLjQ3Ni41NzggMy4yNzMgMS45NTEgNC43OTktLjI5OC4wNzUtLjYxLjE0NC0uOTUxLjIwMS0xLjkwNy4zMTgtMy40NzEgMS4xMjItNC43NDUgMi4xMDctLjM3NS0uMzU1LS43My0uNzM2LTEuMDQtMS4xNjd6TTE4IDI0Yy0yLjI5NiAwLTQuNDc2LS4zOTQtNi4zMjQtMS4yNjYuNjU3LS4zNzIgMS40MTUtLjY0MiAyLjMyNC0uNzM0IDEuNTY1LS4xNTcgMi44ODUtLjUyNCA0LTEuMDI0IDEuMTE1LjUgMi40MzUuODY3IDQgMS4wMjQuOTA5LjA5MiAxLjY2Ny4zNjIgMi4zMjQuNzM0QzIyLjQ3NiAyMy42MDYgMjAuMjk2IDI0IDE4IDI0em05Ljc4NS00LjA2Yy0uMzExLjQzMS0uNjY1LjgxMi0xLjA0IDEuMTY3QzI1LjQ3MSAyMC4xMjIgMjMuOTA2IDE5LjMxOCAyMiAxOWMtLjM0MS0uMDU3LS42NTMtLjEyNi0uOTUtLjIwMUMyMi40MjIgMTcuMjczIDIzIDE1LjQ3NiAyMyAxNGMwLTEuNTAyLS4zMTMtMi44MTUtLjg2MS0zLjk0MS4yODUtLjAzNS41NzMtLjA1OS44NjEtLjA1OSAxLjE1IDAgNC45NDctLjE1OCA2IDMgLjc5NiAyLjM4OC40MSA0LjY4Ny0xLjIxNSA2Ljk0eiIvPjxwYXRoIGZpbGw9IiNBRDU4MTAiIGQ9Ik0xMS43NTEgMjIuNzY0Yy0uNzk0LjQ0OC0xLjc4IDEuMTcyLTIuMzc2IDIuMjM2LS42ODggMS4yMjktMS4yMTggMi4wMzMtMS41ODQgMi41NDQuMzM1LjIwNy42NzkuNDAyIDEuMDMyLjU4MS4zNTMtLjY5Mi44NzgtMS42NTMgMS41NTItMi42ODguNzY4LTEuMTc5IDEuOTAyLTEuOTEyIDIuNDg5LTIuMjM4LS4zODEtLjEzMS0uNzU2LS4yNjktMS4xMTMtLjQzNXptMTEuNjkyLS40MzRsLS4wMDUuMDAyYy4zMTQuMTE0LjYxMS4yNDcuODg2LjQwMi0uMTkuMDktLjM5OS4xNTMtLjU5Ny4yMzMuNTY0LjQxNSAxLjM0OCAxLjA5MiAxLjk2IDIuMDMyLjc0IDEuMTM2IDEuMzc3IDIuMjE4IDEuNzk3IDIuOTUyLjI2LS4xNC41MjEtLjI3OC43NzEtLjQzNS4xODguMy4zNzIuNTY3LjU2Mi43OTIgMCAwLS41NjItLjc5Mi0yLjAwNC0zLjMxcy0zLjM3LTIuNjY4LTMuMzctMi42Njh6bS0yLjM5My0zLjUzMWMuMDUtLjA1NS4wOS0uMTEyLjEzOC0uMTY4LS41NjguNDQ0LTEuMzQgMS4wNTUtMi4wMjMgMS42MjItLjM1OC4yOTctLjc2My41MzEtMS4xNjEuNzI0LjQwMS4xOC44MzkuMzM1IDEuMjk2LjQ3Ny41MjQtLjI5MyAxLjE1Ny0uNjk4IDEuNzAxLTEuMjA0LjU2LS41MjEuODkyLS45MiAxLjA4MS0xLjIzLS4wMjktLjAwNS0uMDU0LS4wMTUtLjA4Mi0uMDItLjM0MS0uMDU3LS42NTMtLjEyNi0uOTUtLjIwMXptLTIuNDY3LTYuMDg4Yy43MzItLjYxMiAyLjEyNy0xLjUyNCAzLjk1MS0xLjY2OS0uMTA5LS4zMjQtLjIzMy0uNjM3LS4zNzYtLjkzNS0uNTgzLjA5MS0xLjM4NS4yNDktMi4xNTguNTE4LS44NzcuMzA1LTEuNTguOTE0LTEuOTk4IDEuMzQ0LjIzNS4yMzYuNDIzLjQ4Ni41ODEuNzQyeiIvPjxnIGZpbGw9IiNGRkU4QjYiPjxjaXJjbGUgY3g9IjciIGN5PSIyMiIgcj0iMSIvPjxjaXJjbGUgY3g9IjMiIGN5PSIxNCIgcj0iMSIvPjxjaXJjbGUgY3g9IjYiIGN5PSIxMSIgcj0iMSIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iMSIvPjxjaXJjbGUgY3g9IjE0IiBjeT0iMjciIHI9IjEiLz48Y2lyY2xlIGN4PSIyMSIgY3k9IjI2IiByPSIxIi8+PGNpcmNsZSBjeD0iMjUiIGN5PSIyNyIgcj0iMSIvPjxjaXJjbGUgY3g9IjMxIiBjeT0iMTciIHI9IjEiLz48Y2lyY2xlIGN4PSIzMSIgY3k9IjkiIHI9IjEiLz48Y2lyY2xlIGN4PSIyMiIgY3k9IjgiIHI9IjEiLz48Y2lyY2xlIGN4PSIxOSIgY3k9IjkiIHI9IjEiLz48L2c+PC9zdmc+","ex-cactus":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiI+PHBhdGggZmlsbD0iIzc3QjI1NSIgZD0iTTMwIDRjLTIuMjA5IDAtNCAxLjc5MS00IDR2OS4xMjVjMCAxLjA4Ni0uODg3IDEuOTYtMiAyLjQ0OFY2YzAtMy4zMTMtMi42ODctNi02LTZzLTYgMi42ODctNiA2djE3LjYyOWMtMS4xMjItLjQ3NS0yLTEuMzcxLTItMi41MDRWMTZjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDR2N2MwIDIuMjA5IDEuNzUgMy44NzUgMy4zNzUgNC44MTIgMS4yNDQuNzE4IDQuNzMxIDEuNiA2LjYyNSAxLjY1MVYzM2MwIDMuMzEzIDEyIDMuMzEzIDEyIDB2LTcuNTQ5YzEuOTgxLS4xMTkgNS4yOTEtLjk1MyA2LjQ3OS0xLjYzOUMzMi4xMDQgMjIuODc1IDM0IDIxLjIwOSAzNCAxOVY4YzAtMi4yMDktMS43OTEtNC00LTR6Ii8+PGcgZmlsbD0iIzNFNzIxRCI+PGNpcmNsZSBjeD0iMTIiIGN5PSI2IiByPSIxIi8+PGNpcmNsZSBjeD0iMjMiIGN5PSIzIiByPSIxIi8+PGNpcmNsZSBjeD0iMjEiIGN5PSI5IiByPSIxIi8+PGNpcmNsZSBjeD0iMTQiIGN5PSIxNiIgcj0iMSIvPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjEiLz48Y2lyY2xlIGN4PSIxMyIgY3k9IjI2IiByPSIxIi8+PGNpcmNsZSBjeD0iNSIgY3k9IjI3IiByPSIxIi8+PGNpcmNsZSBjeD0iOSIgY3k9IjIwIiByPSIxIi8+PGNpcmNsZSBjeD0iMiIgY3k9IjE4IiByPSIxIi8+PGNpcmNsZSBjeD0iMzQiIGN5PSI4IiByPSIxIi8+PGNpcmNsZSBjeD0iMjgiIGN5PSIxMSIgcj0iMSIvPjxjaXJjbGUgY3g9IjMyIiBjeT0iMTYiIHI9IjEiLz48Y2lyY2xlIGN4PSIyOSIgY3k9IjI0IiByPSIxIi8+PGNpcmNsZSBjeD0iMjIiIGN5PSIzMCIgcj0iMSIvPjwvZz48L3N2Zz4="};
 
-/* ---------- state ---------- */
-const HINT_LABEL = { none: "No hint", first_sound: "First sound", first_letter: "First letter", sentence_frame: "Sentence frame", semantic: "Meaning hint" };
-const ERR_LABEL = { sound: "Sound error", meaning: "Wrong word", no_response: "No answer", correct: "Correct" };
-const ORDER_LABEL = { match_error: "Match the hint to the error", first_sound_first: "First sound first", meaning_first: "Meaning hints first", least_help: "Least help first" };
+/* ---------------- shared ---------------- */
+const HINT = { none: "No hint", first_sound: "First sound", first_letter: "First letter", sentence_frame: "Finish the sentence", semantic: "Meaning hint" };
+const RESULT = { sound: "Close in sound", meaning: "Different word", no_response: "No word" };
+const APPROACH = { match_error: "Match the hint to the mistake", meaning_first: "Meaning first (describe it)", first_sound_first: "First sound first", least_help: "Least help first" };
+// Cueing hierarchies (smallest helpful hint first). "describe" = semantic feature analysis prompts.
 const LADDERS = {
-  match_error: { sound: ["first_sound", "first_letter", "sentence_frame"], meaning: ["semantic", "sentence_frame", "first_sound"], no_response: ["sentence_frame", "semantic", "first_sound"] },
-  first_sound_first: { _: ["first_sound", "first_letter", "semantic"] },
-  meaning_first: { _: ["semantic", "sentence_frame", "first_sound"] },
+  match_error: { sound: ["first_sound", "first_letter"], meaning: ["describe", "semantic", "first_sound"], no_response: ["sentence_frame", "semantic", "first_sound"] },
+  meaning_first: { _: ["describe", "semantic", "sentence_frame", "first_sound"] },
+  first_sound_first: { _: ["first_sound", "first_letter", "sentence_frame"] },
   least_help: { _: ["sentence_frame", "first_letter", "first_sound"] },
 };
-const S = {
-  view: "clinician", sel: "maria", tablet: "maria",
-  patients: structuredClone(MOCK.patients),
-  log: {}, overrides: {}, taught: {}, openSession: null, proposal: null,
-  run: null,
-};
-for (const p of S.patients) { S.log[p.id] = [{ when: "Nov 1", who: "Dr. Patel, SLP", what: "Initial plan set after evaluation." }]; S.overrides[p.id] = []; }
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const S = { view: "clinician", sel: "maria", tablet: "maria", patients: structuredClone(MOCK.patients),
+  log: {}, sugg: {}, standing: {}, openSession: null, proposal: null, run: null };
+for (const p of S.patients) {
+  S.log[p.id] = [{ when: "Nov 1", what: "Exercise plan set after the initial evaluation." }];
+  S.sugg[p.id] = [];
+  p.plan.days = p.plan.days || DAYS.slice(0, p.plan.days_per_week);
+}
 const P = (id) => S.patients.find((p) => p.id === id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const pct = (x) => (x == null ? "–" : Math.round(x * 100) + "%");
+const pct = (x) => (x == null || isNaN(x) ? "–" : Math.round(x * 100) + "%");
 const fmtDate = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
 const $ = (id) => document.getElementById(id);
-function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
+function toast(m) { const t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
+function say(text) { try { const u = new SpeechSynthesisUtterance(text); u.rate = .85; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { toast("Audio is not available on this device."); } }
 
-/* ---------- routing ---------- */
-function setView(v) { S.view = v; if (location.hash !== "#" + v) history.replaceState(null, "", "#" + v); render(); }
+function setView(v) { S.view = v; if (location.hash !== "#" + v) history.replaceState(null, "", "#" + v); render(); window.scrollTo(0, 0); }
 $("nav-patient").onclick = () => setView("patient");
 $("nav-clinician").onclick = () => setView("clinician");
 window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (v === "patient" || v === "clinician") { S.view = v; render(); } });
@@ -210,408 +215,365 @@ function render() {
 }
 
 /* =====================================================================
-   PATIENT TABLET
-   One picture at a time. Wrong or stuck -> the smallest helpful hint, stronger on each retry
-   (clinical cueing hierarchy). Last attempt -> show and say the word, repeat it, move on.
-   Difficulty adapts to first-try success; 3 missed pictures in a row -> offer a break.
+   PATIENT TABLET: modeled on a naming session with a speech therapist.
+   Picture -> the person says it (speech recognition scores it) -> if not yet, the smallest helpful
+   hint for that kind of mistake, then stronger ones -> after a hint works, say it once more ->
+   after the last try, hear it and say it together -> at the end, try the hard ones again.
+   No helper assumed: the person never judges their own answer; "Hint please" is always there.
    ===================================================================== */
-function tabletPlan() { return P(S.tablet).plan; }
-function pickItem(level, seen) {
-  const pool = ITEMS.filter((i) => i.tier === level);
-  const fresh = pool.filter((i) => !seen.has(i.exercise_id));
-  const from = fresh.length ? fresh : pool;
-  return from[Math.floor(Math.random() * from.length)];
+const plan = () => P(S.tablet).plan;
+function pick(level, seen) {
+  const pool = ITEMS.filter((i) => i.tier === level), fresh = pool.filter((i) => !seen.has(i.exercise_id));
+  const from = fresh.length ? fresh : pool; return from[Math.floor(Math.random() * from.length)];
 }
-function startRun() {
-  const plan = tabletPlan();
-  S.run = { level: plan.level, n: plan.pictures_per_session, done: [], seen: new Set(), item: null, attempt: 0,
-            hints: [], lastError: null, state: "ask", missStreak: 0, firstTry: [], levelMsg: "", typed: "" };
-  nextPicture();
+function start() {
+  const pl = plan();
+  S.run = { level: pl.level, n: pl.pictures_per_session, done: [], seen: new Set(), item: null, tries: 0, hints: [], kind: null,
+            phase: "ask", streak: 0, firstTries: [], note: "", review: [], reviewDone: [] };
+  next();
 }
-function nextPicture() {
+function next() {
   const r = S.run;
-  if (r.done.length >= r.n) { r.state = "end"; finishRun(); return renderTablet(); }
-  r.item = pickItem(r.level, r.seen); r.seen.add(r.item.exercise_id);
-  r.attempt = 0; r.hints = []; r.lastError = null; r.state = "ask"; r.typed = "";
+  if (r.done.length >= r.n) { r.review = r.done.filter((d) => !d.solo).slice(0, 3).map((d) => d.item); r.phase = r.review.length ? "review-intro" : "end"; if (r.phase === "end") save(); return renderTablet(); }
+  r.item = pick(r.level, r.seen); r.seen.add(r.item.exercise_id); r.tries = 0; r.hints = []; r.kind = null; r.phase = "ask"; r.note = "";
   renderTablet();
 }
-function ladderFor(errorType) {
-  const L = LADDERS[tabletPlan().hint_order] || LADDERS.match_error;
-  return L[errorType] || L._ || LADDERS.match_error.no_response;
-}
-function answer(result) {            // result: "correct" | "sound" | "meaning" | "no_response"
-  const r = S.run, plan = tabletPlan();
-  r.attempt += 1;
-  if (result === "correct") {
-    r.state = "correct";
-    recordPicture(true);
-  } else {
-    r.lastError = result;
-    if (r.attempt >= plan.max_attempts) { r.state = "model"; recordPicture(false); }
-    else {
-      const ladder = ladderFor(r.hints.length ? r.firstError : result);
-      if (!r.hints.length) r.firstError = result;
-      r.hints.push(ladder[Math.min(r.hints.length, ladder.length - 1)]);
-      r.state = "hint";
-    }
-  }
-  renderTablet();
-}
-function recordPicture(named) {
+function ladder() { const L = LADDERS[plan().hint_order] || LADDERS.match_error; return L[r_kind()] || L._ || LADDERS.match_error.no_response; }
+const r_kind = () => S.run.kind || "no_response";
+function heard(result) {              // what speech recognition decided (simulated by the demo strip)
   const r = S.run;
-  const firstTry = named && r.attempt === 1;
-  r.done.push({ word: r.item.preferred_name, level: r.level, named, firstTry, hints: [...r.hints], error: r.firstError || r.lastError });
-  r.firstTry.push(firstTry);
-  r.missStreak = named ? 0 : r.missStreak + 1;
-  // adapt difficulty on first-try success over the last 4 pictures
-  const last = r.firstTry.slice(-4); r.levelMsg = "";
-  if (last.length === 4 && last.every(Boolean) && r.level < 3) { r.level += 1; r.firstTry = []; r.levelMsg = "Nice work. The next pictures are a bit harder."; }
-  else if (last.length >= 3 && last.slice(-3).filter(Boolean).length === 0 && r.level > 1) { r.level -= 1; r.firstTry = []; r.levelMsg = "Let's try some easier pictures for a while."; }
+  if (r.phase === "review") return reviewHeard(result);
+  r.tries += 1;
+  if (result === "correct") { r.phase = r.hints.length ? "again" : "yes"; if (!r.hints.length) finishPicture(true); return renderTablet(); }
+  if (!r.kind) r.kind = result;
+  if (r.tries >= plan().max_attempts) { r.phase = "together"; return renderTablet(); }
+  const L = ladder(); r.hints.push(L[Math.min(r.hints.length, L.length - 1)]); r.phase = "hint"; renderTablet();
 }
-function checkTyped() {
-  const r = S.run, said = r.typed.trim().toLowerCase();
-  if (!said) return;
-  const names = [r.item.preferred_name, ...(r.item.accepted_alternatives || [])].map((s) => s.toLowerCase());
-  if (names.includes(said)) answer("correct");
-  else { r.state = "classify"; renderTablet(); }
-}
-function finishRun() {
-  const r = S.run, p = P(S.tablet);
-  const n = r.done.length, solo = r.done.filter((d) => d.firstTry).length, helped = r.done.filter((d) => d.named && !d.firstTry).length;
-  const trials = r.done.map((d) => ({ word: d.word, level: d.level, hint: d.hints[0] || "none", correct: d.named, error: d.named ? "correct" : d.error || "no_response",
-    seconds: 4, review: false, reason: d.hints.length ? `Hints given: ${d.hints.map((h) => HINT_LABEL[h].toLowerCase()).join(", ")}.` : "Named on the first try." }));
-  p.sessions.push({ date: "2026-11-07", live: true, pictures: n, named_without_hint: solo / n, named_with_hint: helped / n,
-    errors: { sound: r.done.filter((d) => !d.named && d.error === "sound").length, wrong_word: r.done.filter((d) => !d.named && d.error === "meaning").length, no_answer: r.done.filter((d) => !d.named && (d.error === "no_response" || !d.error)).length },
-    review_recall: null, mean_level: r.done.reduce((a, d) => a + d.level, 0) / n, ended_early: false, minutes: Math.round(n * 1.1), trials });
-}
-function renderTablet() {
-  const p = P(S.tablet), plan = p.plan, r = S.run;
-  const opts = S.patients.map((x) => `<option value="${x.id}" ${x.id === S.tablet ? "selected" : ""}>${esc(x.first)}'s tablet</option>`).join("");
-  let body = "";
-  if (!r) {
-    body = `<div class="t-head"><div class="t-greet">Good morning, ${esc(p.first)}.</div></div>
-      <div class="t-center">
-        <div class="t-big">Today: about ${plan.session_minutes} minutes, ${plan.pictures_per_session} pictures.</div>
-        <div class="muted">Look at each picture and say its name. Take your time.</div>
-        <button class="go" id="t-start">Start</button>
-        <div class="small muted">${esc(p.helper === "practises on his own" ? "Practising on your own today." : "Helper today: " + p.helper + ".")}</div>
-      </div>`;
-  } else if (r.state === "end") {
-    const n = r.done.length, solo = r.done.filter((d) => d.firstTry).length, helped = r.done.filter((d) => d.named && !d.firstTry).length;
-    body = `<div class="t-center">
-        <div class="t-greet">Well done, ${esc(p.first)}.</div>
-        <div class="sumgrid num"><div><b>${solo}</b>named on your own</div><div><b>${helped}</b>named with a hint</div><div><b>${n}</b>pictures practised</div></div>
-        <div class="muted">See you tomorrow. Your speech therapist will see today's practice.</div>
-        <button class="go secondary" id="t-again">Back to start</button>
-      </div>`;
-  } else {
-    const it = r.item;
-    const dots = Array.from({ length: r.n }, (_, i) => { const d = r.done[i]; const c = !d ? (i === r.done.length ? "now" : "") : d.firstTry ? "ok" : d.named ? "help" : "miss"; return `<i class="${c}"></i>`; }).join("");
-    let mid = "";
-    const hint = r.hints.length ? `<div class="hintbox">${esc(it.cues[r.hints[r.hints.length - 1]] || HINT_LABEL[r.hints[r.hints.length - 1]])}</div>` : "";
-    if (r.state === "correct") mid = `<div class="okbox">Yes! ${esc(it.preferred_name)}.</div>${r.levelMsg ? `<div class="muted">${esc(r.levelMsg)}</div>` : ""}<button class="go" id="t-next">Next picture</button>`;
-    else if (r.state === "model") mid = `<div class="hintbox">This is a <b>${esc(it.preferred_name)}</b>. Say it with me: “${esc(it.preferred_name)}.”</div>${r.levelMsg ? `<div class="muted">${esc(r.levelMsg)}</div>` : ""}<button class="go" id="t-next">I said it. Next picture</button>`;
-    else {
-      mid = `${hint}<div class="answer-row"><button class="mic" id="t-mic" title="Speech recognition runs in the installed app">🎤 Say it</button>
-             <button class="go secondary" id="t-unsure" style="font-size:1.1rem;padding:14px 22px">I'm not sure</button></div>
-        <div class="helper" aria-label="Helper">
-          <div class="label" style="text-align:center">For the helper: what happened?</div>
-          <div class="row"><input id="t-typed" placeholder="Type what was said (optional)" value="${esc(r.typed)}" aria-label="What was said"><button class="btn" id="t-check">Check</button></div>
-          ${r.state === "classify" ? `<div class="small muted" style="text-align:center">“${esc(r.typed)}” is not the name. What kind of answer was it?</div>` : ""}
-          <div class="row">
-            ${r.state === "classify" ? "" : `<button class="hb ok" data-r="correct">Correct</button>`}
-            <button class="hb" data-r="sound">Sound error<small>“tat” for cat</small></button>
-            <button class="hb" data-r="meaning">Wrong word<small>“dog” for cat</small></button>
-            <button class="hb" data-r="no_response">No answer</button>
-          </div>
-        </div>`;
-    }
-    body = `<div class="t-head"><div class="progress" aria-label="Progress">${dots}</div><div class="small muted">Try ${Math.min(r.attempt + 1, plan.max_attempts)} of ${plan.max_attempts}</div></div>
-      <div class="t-center"><div class="pic"><img src="${PICS[it.exercise_id]}" alt="Picture to name"></div>${mid}</div>
-      <div class="t-foot small muted"><span>Level <span class="levelchip">${r.level}</span> of 3</span><button class="linkbtn" id="t-pause">Pause</button></div>`;
-  }
-  $("app").innerHTML = `<div class="wrap tablet-stage">
-    <div class="tablet-meta"><select id="t-who" aria-label="Whose tablet">${opts}</select>
-      <span class="small muted">Plan from the clinician: level ${plan.level}, ${esc(ORDER_LABEL[plan.hint_order].toLowerCase())}, ${plan.pictures_per_session} pictures, up to ${plan.max_attempts} tries.</span></div>
-    <section class="tablet" aria-label="${esc(p.first)}'s practice">${body}</section>
-  </div>`;
-  const on = (id, f) => { const el = $(id); if (el) el.onclick = f; };
-  $("t-who").onchange = (e) => { S.tablet = e.target.value; S.run = null; renderTablet(); };
-  on("t-start", startRun); on("t-again", () => { S.run = null; renderTablet(); }); on("t-next", afterPicture);
-  on("t-unsure", () => answer("no_response"));
-  on("t-mic", () => toast("Speech recognition runs in the installed app. Here, the helper taps what happened."));
-  on("t-check", () => { S.run.typed = $("t-typed").value; checkTyped(); });
-  on("t-pause", () => showBreak(false));
-  const ti = $("t-typed"); if (ti) ti.onkeydown = (e) => { if (e.key === "Enter") { S.run.typed = ti.value; checkTyped(); } };
-  document.querySelectorAll(".hb[data-r]").forEach((b) => (b.onclick = () => answer(b.dataset.r)));
+function hintPlease() { const r = S.run; if (r.phase === "review") return reviewHeard("no_response"); heard(r.kind || "no_response"); }
+function finishPicture(named) {
+  const r = S.run, solo = named && r.tries === 1;
+  r.done.push({ item: r.item, word: r.item.preferred_name, level: r.level, named, solo, hints: [...r.hints], kind: r.kind });
+  r.firstTries.push(solo); r.streak = named ? 0 : r.streak + 1; r.note = "";
+  const last = r.firstTries.slice(-4);
+  if (last.length === 4 && last.every(Boolean) && r.level < 3) { r.level++; r.firstTries = []; r.note = "Great run. Next pictures are a little harder."; }
+  else if (r.firstTries.slice(-3).length === 3 && !r.firstTries.slice(-3).some(Boolean) && r.level > 1) { r.level--; r.firstTries = []; r.note = "Let's try some easier ones for a bit."; }
 }
 function afterPicture() {
   const r = S.run;
-  if (r.missStreak >= tabletPlan().break_after_misses) { r.missStreak = 0; return showBreak(true); }
-  nextPicture();
+  if (r.streak >= plan().break_after_misses) { r.streak = 0; return breakOverlay(true); }
+  next();
 }
-function showBreak(auto) {
+function reviewHeard(result) {
+  const r = S.run, item = r.review[r.reviewDone.length];
+  r.reviewDone.push({ word: item.preferred_name, ok: result === "correct" });
+  r.phase = result === "correct" ? "review-yes" : "review-show"; renderTablet();
+}
+function reviewNext() { const r = S.run; if (r.reviewDone.length >= r.review.length) { r.phase = "end"; save(); } else r.phase = "review"; renderTablet(); }
+function save() {
+  const r = S.run, p = P(S.tablet), n = r.done.length;
+  const trials = r.done.map((d) => ({ word: d.word, level: d.level, hint: d.hints[0] || "none", correct: d.named, error: d.named ? "correct" : d.kind || "no_response", seconds: 4, review: false, live_hints: d.hints }));
+  p.sessions.push({ date: "2026-11-07", live: true, pictures: n, named_without_hint: r.done.filter((d) => d.solo).length / n,
+    named_with_hint: r.done.filter((d) => d.named && !d.solo).length / n,
+    errors: { sound: r.done.filter((d) => d.kind === "sound").length, wrong_word: r.done.filter((d) => d.kind === "meaning").length, no_answer: r.done.filter((d) => d.kind === "no_response").length },
+    review_recall: r.reviewDone.length ? r.reviewDone.filter((x) => x.ok).length / r.reviewDone.length : null,
+    mean_level: r.done.reduce((a, d) => a + d.level, 0) / n, ended_early: false, minutes: Math.round(n * 1.2), trials });
+}
+function hintView(h, item) {
+  if (h === "describe") return `<div class="t-say">Tell me about it.</div><div class="features"><div>What group is it in?</div><div>What is it used for?</div><div>Where do you find it?</div></div>`;
+  const text = item.cues[h] || HINT[h];
+  return `<div class="bubble hint"><span>${esc(text)}</span><button class="speak" data-say="${esc(text)}" aria-label="Read the hint aloud">🔊</button></div>`;
+}
+function demoStrip(review) {
+  return `<div class="demo"><div class="lbl">Demo only: tap what the person said (the app's speech recognition does this)</div>
+    <div class="row"><button data-heard="correct">Said the word</button>${review ? "" : `<button data-heard="sound">Close in sound (“tat”)</button><button data-heard="meaning">Different word (“dog”)</button>`}<button data-heard="no_response">No word</button></div></div>`;
+}
+function renderTablet() {
+  const p = P(S.tablet), pl = p.plan, r = S.run;
+  const nextDay = pl.days.length ? pl.days.join(", ") : "not scheduled";
+  let body;
+  if (!r) {
+    body = `<div class="t-body"><div class="t-title">Hello, ${esc(p.first)}.</div>
+      <div class="t-say">Today's practice: ${pl.pictures_per_session} pictures, about ${pl.session_minutes} minutes.</div>
+      <div class="muted">Look at each picture and say its name. Take your time. If you get stuck, ask for a hint.</div>
+      <button class="big" id="go">Start</button>
+      <div class="muted">Practice days: ${esc(nextDay)}</div></div>`;
+  } else if (r.phase === "end") {
+    const n = r.done.length, solo = r.done.filter((d) => d.solo).length, helped = r.done.filter((d) => d.named && !d.solo).length;
+    const rv = r.reviewDone.length ? `${r.reviewDone.filter((x) => x.ok).length} of ${r.reviewDone.length}` : "–";
+    body = `<div class="t-body"><div class="t-title">Well done, ${esc(p.first)}.</div>
+      <div class="sum num"><div><b>${solo}</b>said on your own</div><div><b>${helped}</b>said with a hint</div><div><b>${rv}</b>remembered at the end</div></div>
+      <div class="t-say">That's ${n} pictures today. See you next time.</div>
+      <div class="muted">Your speech therapist will see how today went.</div>
+      <button class="big soft" id="home">Finish</button></div>`;
+  } else if (r.phase === "review-intro") {
+    body = `<div class="t-body"><div class="t-title">Let's try a few again.</div><div class="t-say">These were tricky earlier. No hints this time.</div><button class="big" id="rv">Okay</button></div>`;
+  } else if (r.phase.startsWith("review")) {
+    const item = r.review[r.reviewDone.length - (r.phase === "review" ? 0 : 1)];
+    let mid;
+    if (r.phase === "review") mid = `<div class="row"><button class="big" id="mic">🎤 Say it</button><button class="big soft" id="hp">I'm not sure</button></div>${demoStrip(true)}`;
+    else if (r.phase === "review-yes") mid = `<div class="bubble good">Yes, ${esc(item.preferred_name)}! You remembered.</div><button class="big" id="rvn">Next</button>`;
+    else mid = `<div class="bubble hint"><span>It's ${esc(item.preferred_name)}.</span><button class="speak" data-say="${esc(item.preferred_name)}" aria-label="Hear it">🔊</button></div><div class="t-say">Say it once: “${esc(item.preferred_name)}.”</div><button class="big" id="rvn">I said it</button>`;
+    body = `<div class="t-top"><span class="muted">Review ${Math.min(r.reviewDone.length + (r.phase === "review" ? 1 : 0), r.review.length)} of ${r.review.length}</span><button class="quiet" id="pause">Pause</button></div>
+      <div class="t-body"><div class="pic"><img src="${PICS[item.exercise_id]}" alt="Picture to name"></div>${mid}</div>`;
+  } else {
+    const it = r.item;
+    const dots = Array.from({ length: r.n }, (_, i) => { const d = r.done[i]; return `<i class="${!d ? (i === r.done.length ? "now" : "") : d.solo ? "ok" : d.named ? "help" : "miss"}"></i>`; }).join("");
+    let mid;
+    if (r.phase === "ask") mid = `<div class="t-say">What is this?</div><div class="row"><button class="big" id="mic">🎤 Say it</button><button class="big soft" id="hp">Hint please</button></div>${demoStrip(false)}`;
+    else if (r.phase === "listening") mid = `<div class="listening"><div class="pulse" aria-hidden="true">🎤</div><div class="t-say">Listening…</div></div>${demoStrip(false)}`;
+    else if (r.phase === "hint") mid = `${hintView(r.hints[r.hints.length - 1], it)}<div class="row"><button class="big" id="mic">🎤 Try again</button><button class="big soft" id="hp">Another hint</button></div>${demoStrip(false)}`;
+    else if (r.phase === "yes") mid = `<div class="bubble good">Yes! ${esc(it.preferred_name)}.</div>${r.note ? `<div class="muted">${esc(r.note)}</div>` : ""}<button class="big" id="nx">Next picture</button>`;
+    else if (r.phase === "again") mid = `<div class="bubble good">Yes! ${esc(it.preferred_name)}.</div><div class="t-say">Say it one more time, on your own.</div><button class="big" id="ag">I said it again</button>`;
+    else if (r.phase === "together") mid = `<div class="bubble hint"><span>This is a ${esc(it.preferred_name)}.</span><button class="speak" data-say="${esc(it.preferred_name)}" aria-label="Hear it">🔊</button></div><div class="t-say">Let's say it together: “${esc(it.preferred_name)}.”</div><button class="big" id="tg">I said it</button>`;
+    body = `<div class="t-top"><div class="dots" aria-label="Progress">${dots}</div><button class="quiet" id="pause">Pause</button></div>
+      <div class="t-body"><div class="pic"><img src="${PICS[it.exercise_id]}" alt="Picture to name"></div>${mid}</div>`;
+  }
+  $("app").innerHTML = `<div class="wrap stage">
+    <div class="stage-meta"><select id="who" aria-label="Whose tablet">${S.patients.map((x) => `<option value="${x.id}" ${x.id === S.tablet ? "selected" : ""}>${esc(x.first)}'s tablet</option>`).join("")}</select>
+      <span>Exercise plan from the clinician: level ${pl.level}, ${esc(APPROACH[pl.hint_order].toLowerCase())}, ${pl.pictures_per_session} pictures.</span></div>
+    <section class="tablet" aria-label="${esc(p.first)}'s practice">${body}</section></div>`;
+  const on = (id, f) => { const el = $(id); if (el) el.onclick = f; };
+  $("who").onchange = (e) => { S.tablet = e.target.value; S.run = null; renderTablet(); };
+  on("go", start); on("home", () => { S.run = null; renderTablet(); });
+  on("mic", () => { if (S.run.phase !== "review") { S.run.phase = "listening"; renderTablet(); } else toast("Speak now. In this demo, tap what the person said below."); });
+  on("hp", hintPlease); on("nx", afterPicture); on("rv", () => { S.run.phase = "review"; renderTablet(); }); on("rvn", reviewNext);
+  on("ag", () => { finishPicture(true); afterPicture(); });
+  on("tg", () => { finishPicture(false); afterPicture(); });
+  on("pause", () => breakOverlay(false));
+  document.querySelectorAll("[data-heard]").forEach((b) => (b.onclick = () => heard(b.dataset.heard)));
+  document.querySelectorAll("[data-say]").forEach((b) => (b.onclick = () => say(b.dataset.say)));
+}
+function breakOverlay(auto) {
   const o = $("overlay");
-  o.innerHTML = `<div class="tablet" style="min-height:0;max-width:520px"><div class="t-center"><div class="t-greet">${auto ? "Let's take a short break." : "Paused"}</div>
-    <div class="muted">${auto ? "Those were hard ones. Rest for a minute, then we'll try some easier pictures." : "Take your time. Press continue when you're ready."}</div>
-    <button class="go" id="o-go">Continue</button></div></div>`;
+  o.innerHTML = `<div class="tablet" style="min-height:0;max-width:540px"><div class="t-body"><div class="t-title">${auto ? "Let's take a short break." : "Paused"}</div>
+    <div class="t-say">${auto ? "Those were hard ones. Rest for a minute. We'll try some easier pictures next." : "Take your time. Press continue when you're ready."}</div>
+    <button class="big" id="cont">Continue</button></div></div>`;
   o.hidden = false;
-  $("o-go").onclick = () => { o.hidden = true; if (auto && S.run.level > 1) S.run.level -= 1; if (S.run.state === "correct" || S.run.state === "model") nextPicture(); };
+  $("cont").onclick = () => { o.hidden = true; if (auto && S.run.level > 1) S.run.level--; if (auto) next(); };
 }
 
 /* =====================================================================
-   CLINICIAN
+   CLINICIAN: review the week, see what helps, leave notes, adjust the exercises.
    ===================================================================== */
 const AS_OF = new Date(MOCK.as_of + "T12:00:00");
-function weekSessions(p) { return p.sessions.filter((s) => !s.after && ((AS_OF - new Date(s.date + "T12:00:00")) / 864e5 < 7 || s.live)); }
-const lastReal = (p) => [...p.sessions].reverse().find((s) => !s.after);
-const sLabel = (s) => s.live ? "Today (live)" : s.after ? `After update ${s.after}` : fmtDate(s.date);
-function flags(p) {
-  const f = [];
-  const last = lastReal(p);
-  const gap = Math.round((AS_OF - new Date(last.date + "T12:00:00")) / 864e5);
-  if (gap >= 3) f.push(["bad", `No practice for ${gap} days`]);
-  const early = weekSessions(p).filter((s) => s.ended_early).length;
-  if (early >= 1) f.push(["warn", `${early} session${early > 1 ? "s" : ""} ended early`]);
-  const k = Math.min(3, Math.floor(p.sessions.length / 2));
-  const a = avg(p.sessions.slice(0, k), "named_without_hint"), b = avg(p.sessions.slice(-k), "named_without_hint");
-  if (b - a >= 0.08) f.push(["good", `Improving +${Math.round((b - a) * 100)} pts`]);
-  if (S.log[p.id].length > 1) f.push(["info", "Plan updated"]);
-  return f;
+const real = (p) => p.sessions.filter((s) => !s.after);
+const lastReal = (p) => real(p)[real(p).length - 1];
+const thisWeek = (p) => p.sessions.filter((s) => s.live || (!s.after && (AS_OF - new Date(s.date + "T12:00:00")) / 864e5 < 7));
+const label = (s) => s.live ? "Today" : s.after ? `Next ${s.after}` : fmtDate(s.date);
+const avg = (a, k) => a.reduce((x, s) => x + s[k], 0) / Math.max(1, a.length);
+function attention(p) {
+  const out = [], last = lastReal(p), gap = Math.round((AS_OF - new Date(last.date + "T12:00:00")) / 864e5);
+  if (gap >= 3 && !last.live) out.push(`No practice for ${gap} days`);
+  const early = thisWeek(p).filter((s) => s.ended_early).length;
+  if (early) out.push(`Stopped early in ${early} session${early > 1 ? "s" : ""} after repeated misses`);
+  return out;
 }
-const avg = (arr, k) => arr.reduce((s, x) => s + x[k], 0) / Math.max(1, arr.length);
-function errorTotals(p, n = 5) {
-  const t = { sound: 0, wrong_word: 0, no_answer: 0 };
-  for (const s of p.sessions.slice(-n)) for (const k in t) t[k] += s.errors[k];
-  return t;
+function trend(p) { const r = real(p), k = Math.min(3, Math.floor(r.length / 2)); return avg(r.slice(-k), "named_without_hint") - avg(r.slice(0, k), "named_without_hint"); }
+function status(p) { if (attention(p).length) return ["attn", "Needs attention"]; return trend(p) >= .08 ? ["up", "Improving"] : ["ok", "On track"]; }
+function hintEffect(p) {          // after a miss, how often the next picture was named with each hint
+  const m = {};
+  for (const s of p.sessions) for (const t of s.trials) if (t.hint !== "none" && !t.review) { (m[t.hint] ||= [0, 0]); m[t.hint][1]++; if (t.correct) m[t.hint][0]++; }
+  return Object.entries(m).filter(([, v]) => v[1] >= 4).map(([h, v]) => [h, v[0] / v[1], v[1]]).sort((a, b) => b[1] - a[1]);
 }
+function wordStats(p) {
+  const w = {};
+  for (const s of real(p)) for (const t of s.trials) { (w[t.word] ||= { n: 0, solo: 0, miss: 0 }); w[t.word].n++; if (t.correct && t.hint === "none") w[t.word].solo++; if (!t.correct) w[t.word].miss++; }
+  const hard = Object.entries(w).filter(([, v]) => v.miss >= 2).sort((a, b) => b[1].miss - a[1].miss).slice(0, 6).map(([k]) => k);
+  const mastered = Object.entries(w).filter(([, v]) => v.solo >= 2 && v.miss === 0).sort((a, b) => b[1].solo - a[1].solo).slice(0, 6).map(([k]) => k);
+  return { hard, mastered };
+}
+function errorMix(p) { const t = { sound: 0, wrong_word: 0, no_answer: 0 }; for (const s of real(p).slice(-5)) for (const k in t) t[k] += s.errors[k]; return t; }
+
 function renderClinician() {
   const p = P(S.sel);
   $("app").innerHTML = `<div class="wrap clin">
-    <nav class="rail" aria-label="Caseload">
-      <div class="label">Caseload · ${S.patients.length} patients</div>
-      ${S.patients.map(railRow).join("")}
-      <div class="small muted">Week ending ${AS_OF.toLocaleDateString("en-US", { month: "short", day: "numeric" })}. All patients are simulated.</div>
-    </nav>
-    <section class="main" aria-label="${esc(p.name)}">${patientPage(p)}</section>
-  </div>
-  <div class="wrap foot">Patients are composite personas simulated by a patient model grounded in the Philadelphia Naming Test: word difficulty measured on real patients, naming ability of 335 real people with aphasia, and error patterns fitted to real patient groups (MAPPD). Pictures: Twemoji, CC BY 4.0. Not a medical device; a practice tool used under a speech-language pathologist.</div>`;
-  document.querySelectorAll(".prow").forEach((b) => (b.onclick = () => { S.sel = b.dataset.id; S.openSession = null; S.proposal = null; renderClinician(); }));
-  wireClinician(p);
+    <nav class="rail" aria-label="Your patients"><h2>Your patients</h2>${S.patients.map(railRow).join("")}</nav>
+    <section class="main">${page(p)}</section></div>
+    <div class="wrap foot">Demo data: patients are composites simulated by a model fitted to real naming-test results of people with aphasia. Pictures: Twemoji (CC BY 4.0).</div>`;
+  document.querySelectorAll(".prow").forEach((b) => (b.onclick = () => { S.sel = b.dataset.id; S.openSession = null; S.proposal = null; renderClinician(); window.scrollTo(0, 0); }));
+  wire(p);
 }
 function railRow(p) {
-  const w = weekSessions(p), mins = w.reduce((a, s) => a + s.minutes, 0);
-  const last = lastReal(p);
-  return `<button class="prow" data-id="${p.id}" aria-current="${p.id === S.sel}">
-    <span class="nm"><span>${esc(p.name)}</span><span class="small muted num">${pct(last.named_without_hint)}</span></span>
-    <span class="small muted">${esc(p.type)} · last practice ${fmtDate(last.date)}</span>
-    <span class="meter" title="Minutes this week"><span style="width:${Math.min(100, (mins / p.goal_minutes) * 100)}%"></span></span>
-    <span class="small muted num">${Math.round(mins)} of ${p.goal_minutes} min this week</span>
-    <span class="flags">${flags(p).map(([c, t]) => `<span class="pill ${c}">${esc(t)}</span>`).join("")}</span>
-  </button>`;
+  const mins = thisWeek(p).reduce((a, s) => a + s.minutes, 0), [c, t] = status(p), last = lastReal(p);
+  return `<button class="prow" data-id="${p.id}" aria-current="${p.id === S.sel}"><b>${esc(p.name)}</b>
+    <span class="muted">${esc(p.type)}</span>
+    <span class="muted">Last practice: ${last.live ? "today" : fmtDate(last.date)}</span>
+    <span class="meter" aria-hidden="true"><span style="width:${Math.min(100, (mins / p.goal_minutes) * 100)}%"></span></span>
+    <span class="muted num">${Math.round(mins)} of ${p.goal_minutes} minutes this week</span>
+    <span class="status ${c}">${t}</span></button>`;
 }
-function patientPage(p) {
-  const ss = p.sessions, last = ss[ss.length - 1], first = ss[0];
-  const w = weekSessions(p), mins = w.reduce((a, s) => a + s.minutes, 0);
-  const et = errorTotals(p), etot = et.sound + et.wrong_word + et.no_answer || 1;
-  const top = (o) => { const e = Object.entries(o || {}).sort((a, b) => b[1] - a[1])[0]; return e ? `${HINT_LABEL[e[0]]} (${pct(e[1])})` : "–"; };
-  const delta = Math.round((last.named_without_hint - first.named_without_hint) * 100);
+function page(p) {
+  const r = real(p), last = lastReal(p), first = r[0], wk = thisWeek(p), mins = wk.reduce((a, s) => a + s.minutes, 0);
+  const att = attention(p), delta = Math.round((last.named_without_hint - first.named_without_hint) * 100);
   return `
-  <div class="phead">
-    <div><h1>${esc(p.name)}, ${p.age}</h1>
-      <div class="muted">${esc(p.type)} · ${p.months_post} months after stroke · ${esc(p.helper)}</div>
-      <div class="small muted" style="max-width:62ch">${esc(p.about)}</div></div>
-    <div style="display:grid;gap:6px;justify-items:end">
-      <span class="pill info">Simulated patient</span>
-      <span class="small muted num">PNT ${p.pnt_score}, ${p.pnt_percentile}th percentile of 335 real people with aphasia</span>
-      <span class="small muted">${esc(p.fitted)}</span></div>
+  <div class="phead"><h1>${esc(p.name)}</h1>
+    <p class="muted">${p.age} · ${esc(p.type)} · ${p.months_post} months after stroke · ${esc(p.helper === "practises on his own" ? "Practices on his own" : "Practices with " + p.helper)}</p></div>
+  <div class="stats">
+    <div class="card stat"><div class="k">Named on their own</div><div class="v num">${pct(last.named_without_hint)}</div><div class="d num">${delta >= 0 ? "Up" : "Down"} ${Math.abs(delta)} points since ${fmtDate(first.date)}</div></div>
+    <div class="card stat"><div class="k">Practice this week</div><div class="v num">${Math.round(mins)} <span class="muted" style="font-size:1rem">of ${p.goal_minutes} min</span></div><div class="d num">${wk.length} of ${p.plan.days.length} planned days</div></div>
+    <div class="card stat attn ${att.length ? "" : "none"}"><div class="k">Needs your attention</div><div class="v">${att.length ? att.map(esc).join("<br>") : "Nothing this week"}</div></div>
   </div>
-  <div class="kpis">
-    <div class="card kpi"><div class="label">Named without a hint</div><div class="v num">${pct(last.named_without_hint)}</div><div class="small ${delta >= 0 ? "muted" : ""} num">${delta >= 0 ? "+" : ""}${delta} pts since ${fmtDate(first.date)}</div></div>
-    <div class="card kpi"><div class="label">Practice this week</div><div class="v num">${Math.round(mins)}<span class="small muted"> / ${p.goal_minutes} min</span></div><div class="small muted num">${w.length} sessions · goal ${p.plan.days_per_week} days</div></div>
-    <div class="card kpi"><div class="label">Current level</div><div class="v num">${Math.round(last.mean_level)}<span class="small muted"> of 3</span></div><div class="small muted">Plan starts at level ${p.plan.level}</div></div>
-    <div class="card kpi"><div class="label">Ended early (week)</div><div class="v num">${w.filter((s) => s.ended_early).length}</div><div class="small muted">after repeated misses</div></div>
-  </div>
-  <div class="two">
-    <div class="card chart"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><h2>Naming over the last two weeks</h2>
-      <div class="legend"><span><i style="background:var(--accent)"></i>Named without a hint</span><span><i style="background:var(--c-hint)"></i>Named with a hint</span></div></div>
-      ${trendChart(p)}</div>
-    <div class="card" style="display:grid;gap:12px;align-content:start"><h2>Error profile · last 5 sessions</h2>
-      <div class="stack" role="img" aria-label="Error mix"><span style="width:${(et.sound / etot) * 100}%;background:var(--c-sound)"></span><span style="width:${(et.wrong_word / etot) * 100}%;background:var(--c-word)"></span><span style="width:${(et.no_answer / etot) * 100}%;background:var(--c-none)"></span></div>
-      <div class="legend num"><span><i style="background:var(--c-sound)"></i>Sound errors ${pct(et.sound / etot)}</span><span><i style="background:var(--c-word)"></i>Wrong word ${pct(et.wrong_word / etot)}</span><span><i style="background:var(--c-none)"></i>No answer ${pct(et.no_answer / etot)}</span></div>
-      <div class="label">What the AI usually does next</div>
-      <div class="kv num"><span class="muted">After a sound error</span><span>${top(p.cue_after.sound)}</span><span class="muted">After a wrong word</span><span>${top(p.cue_after.wrong_word)}</span></div>
-      ${p.teaching && !S.taught[p.id] ? `<div class="small" style="color:var(--warn)">After a wrong word, a meaning hint is the usual approach for anomic aphasia. Correct a few of these choices below, then teach the AI.</div>` : ""}
-    </div>
-  </div>
-  ${feedbackCard(p)}
-  ${sessionsCard(p)}
-  <div class="two">${teachCard(p)}${planCard(p)}</div>
-  <div class="card"><h2>Change log</h2><div class="log" style="margin-top:10px">${S.log[p.id].slice().reverse().map((l) => `<div><b>${esc(l.when)}</b> · ${esc(l.who)}<br>${esc(l.what)}</div>`).join("")}</div></div>`;
+  <div class="card chart"><h2>Naming over the last two weeks</h2>${chart(p)}
+    <div class="legend"><span><i style="background:var(--accent)"></i>Named on their own</span><span><i style="background:var(--c-hint)"></i>Named with a hint</span><span><i style="background:var(--bad);width:9px;height:9px;border-radius:50%"></i>Stopped early</span></div></div>
+  <div class="two">${seeing(p)}${helps(p)}</div>
+  ${review(p)}
+  ${notes(p)}
+  ${planCard(p)}
+  <div class="card"><h2>Plan history</h2><div class="log">${S.log[p.id].slice().reverse().map((l) => `<div><b>${esc(l.when)}</b><br>${esc(l.what)}</div>`).join("")}</div></div>`;
 }
-function trendChart(p) {
-  const ss = p.sessions, W = 640, H = 220, L = 40, R = 12, T = 12, B = 30;
+function chart(p) {
+  const ss = p.sessions, W = 680, H = 240, L = 46, R = 14, T = 14, B = 34;
   const x = (i) => L + (ss.length === 1 ? 0 : (i * (W - L - R)) / (ss.length - 1)), y = (v) => T + (1 - v) * (H - T - B);
   const solo = ss.map((s, i) => `${x(i)},${y(s.named_without_hint)}`).join(" ");
-  const all = ss.map((s, i) => `${x(i)},${y(s.named_without_hint + s.named_with_hint)}`).join(" ");
-  const band = `${solo} ${ss.map((s, i) => `${x(ss.length - 1 - i)},${y(ss[ss.length - 1 - i].named_without_hint + ss[ss.length - 1 - i].named_with_hint)}`).join(" ")}`;
-  const grid = [0, .25, .5, .75, 1].map((v) => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${v * 100}%</text>`).join("");
-  const ticks = ss.map((s, i) => (i % 2 === 0 || i === ss.length - 1) ? `<text x="${x(i)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">${s.live ? "Today" : s.after ? "After " + s.after : fmtDate(s.date)}</text>` : "").join("");
-  const dots = ss.map((s, i) => `<circle cx="${x(i)}" cy="${y(s.named_without_hint)}" r="${i === ss.length - 1 ? 5 : 3.5}" fill="${s.ended_early ? "var(--bad)" : "var(--accent)"}"><title>${fmtDate(s.date)}: ${pct(s.named_without_hint)} without a hint${s.ended_early ? " (ended early)" : ""}</title></circle>`).join("");
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of pictures named without a hint per session">${grid}
-    <polygon points="${band}" fill="var(--c-hint)" fill-opacity=".22"/>
-    <polyline points="${all}" fill="none" stroke="var(--c-hint)" stroke-width="2" stroke-dasharray="4 4"/>
-    <polyline points="${solo}" fill="none" stroke="var(--accent)" stroke-width="3"/>${dots}${ticks}</svg>
-    <div class="small muted">Red dots: sessions that ended early.</div>`;
+  const tot = ss.map((s, i) => `${x(i)},${y(s.named_without_hint + s.named_with_hint)}`);
+  const area = `${solo} ${tot.slice().reverse().join(" ")}`;
+  const grid = [0, .5, 1].map((v) => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 8}" y="${y(v) + 5}" text-anchor="end" font-size="14" fill="var(--muted)">${v * 100}%</text>`).join("");
+  const keep = []; for (let i = ss.length - 1; i >= 0; i--) if (!keep.length || x(keep[keep.length - 1]) - x(i) >= 78) keep.push(i);
+  const ticks = keep.map((i) => `<text x="${x(i)}" y="${H - 8}" text-anchor="${i === ss.length - 1 ? "end" : "middle"}" font-size="14" fill="var(--muted)">${label(ss[i])}</text>`).join("");
+  const dots = ss.map((s, i) => `<circle cx="${x(i)}" cy="${y(s.named_without_hint)}" r="${s.ended_early ? 6 : 4}" fill="${s.ended_early ? "var(--bad)" : "var(--accent)"}"><title>${label(s)}: ${pct(s.named_without_hint)} on their own</title></circle>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of pictures named on their own, per session">${grid}
+    <polygon points="${area}" fill="var(--c-hint)" fill-opacity=".25"/><polyline points="${solo}" fill="none" stroke="var(--accent)" stroke-width="3.5"/>${dots}${ticks}</svg>`;
 }
-
-/* ---- feedback: typed note -> proposed plan changes -> clinician approves ---- */
-function feedbackCard(p) {
-  const pr = S.proposal && S.proposal.id === p.id ? S.proposal : null;
-  return `<div class="card" style="display:grid;gap:10px">
-    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><h2>Feedback for ${esc(p.first)}'s practice</h2><span class="small muted">Nothing changes until you approve it</span></div>
-    <textarea id="fb-text" aria-label="Feedback" placeholder="For example: ${p.id === "maria" ? "She gets frustrated on long words. Use the first sound first. Add her grandkids' names, Sofia and Mateo." : "Too easy for him now. Use meaning hints first and make sessions a bit longer."}">${pr ? esc(pr.text) : ""}</textarea>
-    <div class="chips">${["Make it easier", "Make it harder", "First sound first", "Meaning hints first", "Shorter sessions", "More tries per picture"].map((c) => `<button class="chip" data-chip="${esc(c)}">${esc(c)}</button>`).join("")}</div>
-    <div><button class="btn primary" id="fb-go">Suggest changes</button></div>
-    ${pr ? proposalBox(p, pr) : ""}
-  </div>`;
+function seeing(p) {
+  const em = errorMix(p), tot = em.sound + em.wrong_word + em.no_answer || 1, ws = wordStats(p), last = lastReal(p);
+  const top = [["sound", em.sound, "sound errors (“tat” for “cat”)"], ["wrong_word", em.wrong_word, "a different word (“dog” for “cat”)"], ["no_answer", em.no_answer, "no word"]].sort((a, b) => b[1] - a[1])[0];
+  const early = real(p).filter((s) => s.ended_early).length;
+  return `<div class="card"><h2>What we're seeing</h2><ul class="obs">
+    <li><span class="ic">1</span><span>Most misses are <b>${top[2]}</b>: ${pct(top[1] / tot)} of misses in the last 5 sessions.</span></li>
+    <li><span class="ic">2</span><span>Hardest words lately: ${ws.hard.length ? ws.hard.map((w) => `<b>${esc(w)}</b>`).join(", ") : "none stand out"}.</span></li>
+    <li><span class="ic">3</span><span>Now named reliably on their own: ${ws.mastered.length ? ws.mastered.map((w) => `<b>${esc(w)}</b>`).join(", ") : "none yet"}.</span></li>
+    <li><span class="ic">4</span><span>${early ? `Stopped early in ${early} of ${real(p).length} sessions, each time after several misses in a row.` : "Finished every session."}${last.review_recall != null ? ` Remembered ${pct(last.review_recall)} of review words without a hint last time.` : ""}</span></li>
+  </ul></div>`;
 }
-function parseFeedback(p, text) {
-  const t = text.toLowerCase(), plan = p.plan, out = [];
-  const add = (key, to, why) => { if (plan[key] !== to && !out.some((o) => o.key === key)) out.push({ key, from: plan[key], to, why, on: true }); };
-  if (/(easier|too hard|frustrat|struggl|long words|overwhelm)/.test(t)) add("level", Math.max(1, plan.level - 1), "Start at an easier level");
-  if (/(harder|too easy|bored|ready for more|more challeng)/.test(t)) add("level", Math.min(3, plan.level + 1), "Start at a harder level");
-  if (/(first sound|phonemic|sound hint|sound first)/.test(t)) add("hint_order", "first_sound_first", "Offer the first sound before other hints");
-  else if (/(meaning|semantic|describe|feature)/.test(t)) add("hint_order", "meaning_first", "Offer meaning hints before sound hints");
-  else if (/(fewer hints|less help|independen|wait longer)/.test(t)) add("hint_order", "least_help", "Start with the least helpful hint");
-  if (/(shorter|tired|fatigue|tires)/.test(t)) { add("pictures_per_session", Math.max(6, plan.pictures_per_session - 4), "Fewer pictures per session"); add("break_after_misses", 2, "Offer a break after 2 missed pictures"); }
-  if (/(longer|more practice|more pictures)/.test(t)) add("pictures_per_session", plan.pictures_per_session + 4, "More pictures per session");
-  if (/(more tries|more attempts|more time)/.test(t)) add("max_attempts", Math.min(4, plan.max_attempts + 1), "One more try before showing the word");
-  const names = (text.match(/\b[A-Z][a-z]{2,}\b/g) || []).filter((w) => !["She", "He", "Use", "Add", "Her", "His", "The", "Too", "Make", "Offer", "Please", "Start", "Shorter", "Longer", "First", "Meaning", "More"].includes(w) && w !== p.first && !plan.personal_words.includes(w));
-  if (/(name|family|grandk|personal|daughter|son|wife|husband)/.test(t) || names.length) {
-    if (names.length) out.push({ key: "personal_words", from: plan.personal_words, to: [...plan.personal_words, ...names], why: `Add personal words: ${names.join(", ")}`, on: true });
+function helps(p) {
+  const he = hintEffect(p), st = S.standing[p.id];
+  return `<div class="card"><h2>Which hints help ${esc(p.first)}</h2>
+    <div class="muted">After a miss, how often the next picture was named with each hint.</div>
+    <div class="hintbars">${he.map(([h, v, n]) => `<div class="hb-row"><span>${HINT[h]}</span><span class="hb-bar"><span style="width:${v * 100}%"></span></span><span class="num">${pct(v)}</span></div>`).join("") || "<div class='muted'>Not enough hints given yet.</div>"}</div>
+    <div><b>Current approach:</b> ${esc(APPROACH[p.plan.hint_order])}${st ? `<br><span class="mine">Your standing instruction: ${esc(st)}</span>` : ""}</div></div>`;
+}
+function review(p) {
+  const ss = p.sessions, i = S.openSession ?? ss.length - 1, s = ss[i], sg = S.sugg[p.id];
+  const all = s.trials.filter((t) => !t.review), shown = S.showAll ? all : all.filter((t) => !(t.correct && t.hint === "none"));
+  const rows = shown.map((t) => {
+    const k = s.trials.indexOf(t), prev = s.trials[k - 1], mine = sg.find((x) => x.s === i && x.k === k);
+    const res = t.correct ? (t.hint === "none" ? ["good", "On their own"] : ["help", "With a hint"]) : ["bad", RESULT[t.error] || "Missed"];
+    const after = prev && !prev.correct && !s.live && !s.after ? prev.error : null;
+    const ctl = mine ? `<span class="mine">Next time: ${HINT[mine.to]}</span>` : after ? `<select data-k="${k}" aria-label="Suggest a hint for next time"><option value="">Suggest a different hint…</option>${Object.keys(HINT).filter((h) => h !== "none" && h !== t.hint).map((h) => `<option value="${h}">${HINT[h]}</option>`).join("")}</select>` : "";
+    return `<tr><td>${esc(t.word)}</td><td>${after ? `After “${RESULT[after].toLowerCase()}”: ` : ""}${t.hint === "none" ? "No hint" : HINT[t.hint]}</td><td class="res ${res[0]}">${res[1]}</td><td>${ctl}</td></tr>`;
+  }).join("");
+  const counts = {}; for (const x of sg) { const key = x.after + "|" + x.to; counts[key] = (counts[key] || 0) + 1; }
+  const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  let banner = "";
+  if (best && best[1] >= 2 && !S.standing[p.id]) {
+    const [after, to] = best[0].split("|");
+    banner = `<div class="banner"><div><b>You've suggested a ${HINT[to].toLowerCase()} after “${RESULT[after].toLowerCase()}” ${best[1]} times.</b> Make this ${esc(p.first)}'s standing approach for future sessions?</div>
+      <div class="row" style="justify-content:flex-start"><button class="btn primary" id="standing" data-after="${after}" data-to="${to}">Apply to future sessions</button><span class="muted">You can change it any time in the exercise plan.</span></div></div>`;
   }
+  return `<div class="card"><h2>Session review</h2>
+    <div class="sess">${ss.map((x, j) => `<button data-s="${j}" aria-pressed="${j === i}">${label(x)}</button>`).join("")}</div>
+    <div class="muted num">${s.after ? "After your update · " : ""}${s.pictures} pictures · ${pct(s.named_without_hint)} on their own · ${pct(s.named_with_hint)} with a hint · about ${Math.round(s.minutes)} minutes${s.ended_early ? " · stopped early" : ""}</div>
+    ${banner}
+    <div class="row" style="justify-content:space-between;align-items:center"><b>${S.showAll ? `All ${all.length} pictures` : `${shown.length} pictures that needed help`}</b>
+      <button class="btn" id="showall">${S.showAll ? "Show only the ones that needed help" : `Show all ${all.length}`}</button></div>
+    ${shown.length ? `<div class="tablebox"><table><thead><tr><th>Picture</th><th>Hint given</th><th>Result</th><th>Your suggestion</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="muted">Every picture was named without help in this session.</div>`}</div>`;
+}
+function notes(p) {
+  const pr = S.proposal && S.proposal.id === p.id ? S.proposal : null;
+  const ex = p.id === "maria" ? "Getting frustrated on long words. Start with the first sound. Add her grandkids' names, Sofia and Mateo." : "Ready for harder words. Start with meaning hints. A few more pictures per session.";
+  return `<div class="card"><h2>Notes and suggestions</h2>
+    <div class="muted">Write what you'd change. You'll see the proposed updates before anything changes.</div>
+    <textarea id="fb" aria-label="Notes" placeholder="${esc(ex)}">${pr ? esc(pr.text) : ""}</textarea>
+    <div class="chips">${["Make it easier", "Make it harder", "Start with the first sound", "Start with meaning hints", "Shorter sessions", "More pictures"].map((c) => `<button class="chip" data-chip="${esc(c)}">${esc(c)}</button>`).join("")}</div>
+    <div><button class="btn primary" id="fb-go">Review proposed updates</button></div>${pr ? proposal(p, pr) : ""}</div>`;
+}
+function parse(p, text) {
+  const t = text.toLowerCase(), pl = p.plan, out = [];
+  const add = (key, to, why) => { if (JSON.stringify(pl[key]) !== JSON.stringify(to) && !out.some((o) => o.key === key)) out.push({ key, from: pl[key], to, why }); };
+  if (/(easier|too hard|frustrat|struggl|long words|overwhelm)/.test(t)) add("level", Math.max(1, pl.level - 1), "Start at an easier level");
+  if (/(harder|too easy|bored|ready for)/.test(t)) add("level", Math.min(3, pl.level + 1), "Start at a harder level");
+  if (/(first sound|sound first|phonemic)/.test(t)) add("hint_order", "first_sound_first", "Start with the first sound");
+  else if (/(meaning|semantic|describe)/.test(t)) add("hint_order", "meaning_first", "Start with meaning hints");
+  if (/(shorter|tired|fatigue)/.test(t)) { add("pictures_per_session", Math.max(6, pl.pictures_per_session - 4), "Fewer pictures per session"); add("break_after_misses", 2, "Offer a break after 2 misses in a row"); }
+  if (/(more pictures|longer|more practice)/.test(t)) add("pictures_per_session", pl.pictures_per_session + 4, "More pictures per session");
+  if (/(more tries|more time)/.test(t)) add("max_attempts", Math.min(4, pl.max_attempts + 1), "One more try before showing the word");
+  const days = (t.match(/(\d)\s*(days|x)/) || [])[1];
+  if (days) add("days", DAYS.slice(0, +days), `Practice ${days} days a week`);
+  const stop = ["Getting", "Start", "Add", "Ready", "She", "He", "Her", "His", "The", "Make", "More", "Shorter", "First", "Meaning", "A", "Use"];
+  const names = (text.match(/\b[A-Z][a-z]{2,}\b/g) || []).filter((w) => !stop.includes(w) && w !== p.first && !pl.personal_words.includes(w));
+  if (names.length) out.push({ key: "personal_words", from: pl.personal_words, to: [...pl.personal_words, ...new Set(names)], why: `Add personal words: ${[...new Set(names)].join(", ")}` });
   return out;
 }
-function proposalBox(p, pr) {
-  if (!pr.items.length) return `<div class="proposal"><b>No plan change recognized.</b><span class="small">The note is saved for the next review. Try naming a change, such as easier, harder, a hint type, or session length.</span><div><button class="btn" id="fb-save">Save note</button></div></div>`;
-  const show = (k, v) => k === "hint_order" ? ORDER_LABEL[v] : Array.isArray(v) ? v.join(", ") : v;
-  return `<div class="proposal"><b>Proposed changes to ${esc(p.first)}'s plan</b>
-    ${pr.items.map((o, i) => `<label><input type="checkbox" data-pi="${i}" ${o.on ? "checked" : ""}><span><b>${esc(o.why)}</b><br><span class="small muted">${esc(String(show(o.key, o.from)))} → ${esc(String(show(o.key, o.to)))}</span></span></label>`).join("")}
-    <div class="small muted">Suggested by simple rules in this prototype; in the product a language model drafts them. You approve each change.</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="fb-apply">Approve selected</button><button class="btn" id="fb-cancel">Discard</button></div></div>`;
+const show = (k, v) => k === "hint_order" ? APPROACH[v] : k === "days" ? v.join(", ") : Array.isArray(v) ? v.join(", ") : v;
+function proposal(p, pr) {
+  if (!pr.items.length) return `<div class="proposal"><b>No exercise change found in this note.</b><span>It will be saved in the plan history. To change the exercises, mention the level, the type of hint, the number of pictures or practice days.</span><div><button class="btn" id="fb-save">Save note</button></div></div>`;
+  return `<div class="proposal"><b>Proposed updates to ${esc(p.first)}'s exercises</b>
+    ${pr.items.map((o, i) => `<label><input type="checkbox" data-pi="${i}" checked><span><b>${esc(o.why)}</b><br><span class="muted">${esc(String(show(o.key, o.from)))} → ${esc(String(show(o.key, o.to)))}</span></span></label>`).join("")}
+    <div class="row" style="justify-content:flex-start"><button class="btn primary" id="fb-apply">Update the plan</button><button class="btn" id="fb-x">Discard</button></div></div>`;
 }
-
-/* ---- sessions + per-decision overrides ---- */
-function sessionsCard(p) {
-  const ss = p.sessions, i = S.openSession ?? ss.length - 1, s = ss[i];
-  const ov = S.overrides[p.id];
-  const hintOpts = (cur) => Object.keys(HINT_LABEL).filter((h) => h !== cur).map((h) => `<option value="${h}">${HINT_LABEL[h]}</option>`).join("");
-  const rows = s.trials.map((t, k) => {
-    const prev = s.trials[k - 1], o = ov.find((x) => x.s === i && x.k === k);
-    const canOverride = !t.review && prev && !prev.correct && !s.live;
-    const flag = p.teaching && prev && !prev.correct && prev.error === "meaning" && !t.review && t.hint !== "semantic";
-    return `<tr class="${flag && !o ? "sel" : ""}"><td>${esc(t.word)}${t.review ? ' <span class="pill info">review</span>' : ""}</td><td class="num">${t.level}</td>
-      <td>${esc(HINT_LABEL[t.hint])}</td><td>${t.correct ? '<span class="pill good">Correct</span>' : `<span class="pill bad">${esc(ERR_LABEL[t.error] || "Missed")}</span>`}</td>
-      <td class="small">${esc(t.reason)}</td>
-      <td class="over">${o ? `<span class="done">You: ${esc(HINT_LABEL[o.to])}</span>` : canOverride ? `<select data-k="${k}" aria-label="Choose another hint"><option value="">I'd do this differently…</option>${hintOpts(t.hint)}</select>` : ""}</td></tr>`;
-  }).join("");
-  return `<div class="card" style="display:grid;gap:10px">
-    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><h2>Sessions and the AI's decisions</h2>
-      <span class="small muted">${ov.length} correction${ov.length === 1 ? "" : "s"} saved for ${esc(p.first)}</span></div>
-    <div class="sess">${ss.map((x, j) => `<button data-s="${j}" aria-pressed="${j === i}" class="${x.ended_early ? "early" : ""}">${sLabel(x)}</button>`).join("")}</div>
-    <div class="small muted num">${s.after ? "Simulated session after the AI update" : sLabel(s)} · ${s.pictures} pictures · ${pct(s.named_without_hint)} without a hint · ${pct(s.named_with_hint)} with a hint · ${s.minutes} min${s.ended_early ? ' · <span style="color:var(--bad)">ended early after repeated misses</span>' : ""}</div>
-    ${p.teaching && !S.taught[p.id] ? `<div class="small" style="color:var(--warn)">Highlighted rows: the AI chose another hint right after a wrong word.</div>` : ""}
-    <div class="tablebox"><table><thead><tr><th>Picture</th><th>Level</th><th>Hint</th><th>Result</th><th>Why the AI chose this</th><th>Your choice</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <div class="small muted">Words are from the Philadelphia Naming Test, used by the simulator. Audio playback appears here in the installed app.</div>
-  </div>`;
-}
-
-/* ---- teach the AI (DITTO) ---- */
-function teachCard(p) {
-  const n = S.overrides[p.id].length, t = p.teaching, done = S.taught[p.id];
-  let res = "";
-  if (done && t) {
-    const after = t.sessions_after;
-    res = `<div class="teach-result">
-      <div class="big-delta num">${pct(t.before)} → ${pct(t.after)}</div>
-      <div><b>${esc(t.rule)}.</b> Share of the AI's choices that follow your approach, on ${t.held_out_states} decisions from new simulated sessions it had not seen.</div>
-      <div class="num">Everything else the AI does for ${esc(p.first)}: <b>${pct(t.other_unchanged)} unchanged</b>.</div>
-      <div class="small muted num">Prototype note: this update was computed ahead of time from ${t.n_overrides} corrections of the same kind as yours, on James\'s simulated sessions (training takes seconds). In the ${after.length} simulated sessions after the update, a wrong word was followed by a meaning hint ${pct(t.cue_after_wrong_word_after.semantic || 0)} of the time; they now appear in the chart and session list.</div></div>`;
-  } else if (done) {
-    res = `<div class="proposal"><b>${n} correction${n === 1 ? "" : "s"} saved.</b><span class="small">They are added to ${esc(p.first)}'s examples and used in the next training run. A live update in this prototype is set up for James.</span></div>`;
-  }
-  return `<div class="card" style="display:grid;gap:10px;align-content:start">
-    <h2>Teach the AI your approach</h2>
-    <div class="small muted">Each "I'd do this differently" is an example of how you would treat ${esc(p.first)}. The AI learns from a handful of examples (a method called DITTO) and changes only where your examples apply.</div>
-    <div class="num"><b>${n}</b> correction${n === 1 ? "" : "s"} saved${t && n < 3 && !done ? '<span class="small muted"> · 3 or more work best</span>' : ""}</div>
-    <div><button class="btn primary" id="teach" ${n === 0 || done ? "disabled" : ""}>Teach the AI</button></div>
-    ${res}
-  </div>`;
-}
-
-/* ---- plan settings ---- */
 function planCard(p) {
   const pl = p.plan;
   const sel = (id, opts, cur) => `<select id="${id}">${opts.map(([v, l]) => `<option value="${v}" ${String(v) === String(cur) ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
-  return `<div class="card" style="display:grid;gap:12px;align-content:start">
-    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><h2>Practice plan</h2><span class="small muted">Used by ${esc(p.first)}'s tablet from the next session</span></div>
+  return `<div class="card"><h2>Exercise plan</h2><div class="muted">${esc(p.first)}'s tablet uses this from the next session.</div>
     <div class="form">
-      <label>Starting level ${sel("pl-level", [[1, "1 · easiest"], [2, "2"], [3, "3 · hardest"]], pl.level)}</label>
-      <label>Hint order ${sel("pl-order", Object.entries(ORDER_LABEL), pl.hint_order)}</label>
+      <label>Practice days<div class="days">${DAYS.map((d) => `<button type="button" data-day="${d}" aria-pressed="${pl.days.includes(d)}">${d}</button>`).join("")}</div></label>
+      <label>Minutes per session ${sel("pl-min", [10, 15, 20, 25, 30].map((v) => [v, v + " minutes"]), pl.session_minutes)}</label>
       <label>Pictures per session ${sel("pl-n", [6, 8, 10, 12, 16, 20].map((v) => [v, v]), pl.pictures_per_session)}</label>
+      <label>Starting level ${sel("pl-level", [[1, "1 · everyday words"], [2, "2 · less common"], [3, "3 · hardest"]], pl.level)}</label>
+      <label>Hint approach ${sel("pl-order", Object.entries(APPROACH), pl.hint_order)}</label>
       <label>Tries before showing the word ${sel("pl-att", [[2, 2], [3, 3], [4, 4]], pl.max_attempts)}</label>
-      <label>Break after missed pictures ${sel("pl-brk", [[2, "2 in a row"], [3, "3 in a row"], [4, "4 in a row"]], pl.break_after_misses)}</label>
-      <label>Days per week ${sel("pl-days", [3, 4, 5, 6, 7].map((v) => [v, v]), pl.days_per_week)}</label>
+      <label>Offer a break after ${sel("pl-brk", [[2, "2 misses in a row"], [3, "3 misses in a row"], [4, "4 misses in a row"]], pl.break_after_misses)}</label>
+      <label>Move up a level when ${sel("pl-adv", [["80% named on their own over 2 sessions", "80% on their own, 2 sessions"], ["90% named on their own over 2 sessions", "90% on their own, 2 sessions"], ["80% named on their own over 3 sessions", "80% on their own, 3 sessions"]], pl.advance_rule)}</label>
     </div>
-    <div class="small muted">Move up when: ${esc(pl.advance_rule)}. Goal: ${p.goal_minutes} minutes a week.</div>
-    <div class="label">Personal words</div><div class="words">${pl.personal_words.map((w) => `<span class="word">${esc(w)}</span>`).join("")}</div>
-  </div>`;
+    <label style="font-weight:700">Personal words<div class="pw" style="margin-top:6px">${pl.personal_words.map((w) => `<span>${esc(w)}<button data-rm="${esc(w)}" aria-label="Remove ${esc(w)}">×</button></span>`).join("")}
+      <input type="text" id="pw-add" placeholder="Add a word" style="border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--surface-2);min-width:0;width:150px"></div></label></div>`;
 }
-
-function applyChanges(p, items, who) {
-  const show = (k, v) => k === "hint_order" ? ORDER_LABEL[v] : Array.isArray(v) ? v.join(", ") : v;
+function apply(p, items, what) {
   for (const o of items) p.plan[o.key] = o.to;
-  if (items.length) S.log[p.id].push({ when: "Nov 7", who, what: items.map((o) => `${o.why} (${show(o.key, o.from)} → ${show(o.key, o.to)}).`).join(" ") });
+  if (items.length) S.log[p.id].push({ when: "Nov 7", what: (what ? what + " " : "") + items.map((o) => `${o.why} (${show(o.key, o.from)} → ${show(o.key, o.to)}).`).join(" ") });
   if (S.run && S.tablet === p.id) S.run = null;
 }
-function wireClinician(p) {
-  const fb = $("fb-text");
+function wire(p) {
+  const fb = $("fb");
   document.querySelectorAll("[data-chip]").forEach((c) => (c.onclick = () => { fb.value = (fb.value ? fb.value.trim() + " " : "") + c.dataset.chip + "."; }));
-  $("fb-go").onclick = () => { const text = fb.value.trim() || fb.placeholder.replace(/^For example: /, ""); S.proposal = { id: p.id, text, items: parseFeedback(p, text) }; renderClinician(); };
+  $("fb-go").onclick = () => { const text = fb.value.trim() || fb.placeholder; S.proposal = { id: p.id, text, items: parse(p, text) }; renderClinician(); };
   const ap = $("fb-apply");
-  if (ap) ap.onclick = () => {
-    const items = S.proposal.items.filter((o, i) => document.querySelector(`[data-pi="${i}"]`).checked);
-    applyChanges(p, items, "Dr. Patel, SLP (feedback)"); S.log[p.id][S.log[p.id].length - 1].what = `Note: “${S.proposal.text}” → ` + S.log[p.id][S.log[p.id].length - 1].what;
-    S.proposal = null; renderClinician(); toast(items.length ? `Plan updated. ${p.first}'s next practice uses it.` : "Nothing selected.");
-  };
-  const cn = $("fb-cancel"); if (cn) cn.onclick = () => { S.proposal = null; renderClinician(); };
-  const sv = $("fb-save"); if (sv) sv.onclick = () => { S.log[p.id].push({ when: "Nov 7", who: "Dr. Patel, SLP", what: `Note: “${S.proposal.text}”` }); S.proposal = null; renderClinician(); toast("Note saved."); };
+  if (ap) ap.onclick = () => { const items = S.proposal.items.filter((o, i) => document.querySelector(`[data-pi="${i}"]`).checked);
+    apply(p, items, `Note: “${S.proposal.text}”.`); S.proposal = null; renderClinician(); toast(items.length ? `Plan updated. ${p.first}'s next session uses it.` : "Nothing selected."); };
+  const dx = $("fb-x"); if (dx) dx.onclick = () => { S.proposal = null; renderClinician(); };
+  const sv = $("fb-save"); if (sv) sv.onclick = () => { S.log[p.id].push({ when: "Nov 7", what: `Note: “${S.proposal.text}”.` }); S.proposal = null; renderClinician(); toast("Note saved."); };
+  $("showall").onclick = () => { S.showAll = !S.showAll; renderClinician(); };
   document.querySelectorAll(".sess button").forEach((b) => (b.onclick = () => { S.openSession = +b.dataset.s; renderClinician(); }));
-  document.querySelectorAll(".over select").forEach((s) => (s.onchange = () => {
-    if (!s.value) return;
-    const i = S.openSession ?? p.sessions.length - 1, k = +s.dataset.k, t = p.sessions[i].trials[k];
-    S.overrides[p.id].push({ s: i, k, from: t.hint, to: s.value, after: p.sessions[i].trials[k - 1].error });
-    renderClinician(); toast(`Saved: ${HINT_LABEL[s.value]} instead of ${HINT_LABEL[t.hint]}.`);
+  document.querySelectorAll("td select").forEach((s) => (s.onchange = () => {
+    if (!s.value) return; const i = S.openSession ?? p.sessions.length - 1, k = +s.dataset.k;
+    S.sugg[p.id].push({ s: i, k, to: s.value, after: p.sessions[i].trials[k - 1].error }); renderClinician(); toast("Suggestion saved for next time.");
   }));
-  const te = $("teach"); if (te) te.onclick = () => {
-    te.disabled = true; te.textContent = "Learning…";
-    setTimeout(() => { S.taught[p.id] = true;
-      if (p.teaching) { p.cue_after.wrong_word = p.teaching.cue_after_wrong_word_after; p.teaching.sessions_after.forEach((s, i) => p.sessions.push({ ...s, after: i + 1 })); S.openSession = null;
-        S.log[p.id].push({ when: "Nov 7", who: "Dr. Patel, SLP (corrections)", what: `AI updated from ${S.overrides[p.id].length} corrections: ${p.teaching.rule.toLowerCase()}.` }); }
-      renderClinician(); }, 900);
+  const st = $("standing"); if (st) st.onclick = () => {
+    const after = st.dataset.after, to = st.dataset.to, text = `After “${RESULT[after].toLowerCase()}”, start with a ${HINT[to].toLowerCase()}`;
+    S.standing[p.id] = text;
+    // The suggestions shape future hint choices for this patient (learned behind the scenes). The tablet's
+    // hint approach follows the instruction too.
+    const order = to === "semantic" || to === "sentence_frame" ? "meaning_first" : to === "first_sound" || to === "first_letter" ? "first_sound_first" : p.plan.hint_order;
+    const items = order !== p.plan.hint_order ? [{ key: "hint_order", from: p.plan.hint_order, to: order, why: "Hint approach" }] : [];
+    apply(p, items, `Standing instruction: ${text}.`);
+    if (!items.length) S.log[p.id].push({ when: "Nov 7", what: `Standing instruction: ${text}.` });
+    if (p.teaching && after === "meaning") { p.teaching.sessions_after.forEach((s, i) => p.sessions.push({ ...s, after: i + 1 })); S.openSession = p.sessions.length - 1; }
+    renderClinician(); toast(`${p.first}'s future sessions will follow your instruction.`);
   };
-  const map = { "pl-level": "level", "pl-order": "hint_order", "pl-n": "pictures_per_session", "pl-att": "max_attempts", "pl-brk": "break_after_misses", "pl-days": "days_per_week" };
-  const why = { level: "Starting level", hint_order: "Hint order", pictures_per_session: "Pictures per session", max_attempts: "Tries before showing the word", break_after_misses: "Break after missed pictures", days_per_week: "Days per week" };
-  for (const [id, key] of Object.entries(map)) $(id).onchange = (e) => {
-    const v = key === "hint_order" ? e.target.value : +e.target.value;
-    applyChanges(p, [{ key, from: p.plan[key], to: v, why: why[key] }], "Dr. Patel, SLP (plan)"); renderClinician(); toast("Plan updated.");
-  };
+  const map = { "pl-min": "session_minutes", "pl-n": "pictures_per_session", "pl-level": "level", "pl-order": "hint_order", "pl-att": "max_attempts", "pl-brk": "break_after_misses", "pl-adv": "advance_rule" };
+  const why = { session_minutes: "Minutes per session", pictures_per_session: "Pictures per session", level: "Starting level", hint_order: "Hint approach", max_attempts: "Tries before showing the word", break_after_misses: "Break after misses", advance_rule: "When to move up" };
+  for (const [id, key] of Object.entries(map)) $(id).onchange = (e) => { const v = ["hint_order", "advance_rule"].includes(key) ? e.target.value : +e.target.value;
+    apply(p, [{ key, from: p.plan[key], to: v, why: why[key] }]); renderClinician(); toast("Plan updated."); };
+  document.querySelectorAll("[data-day]").forEach((b) => (b.onclick = () => { const d = b.dataset.day, cur = p.plan.days;
+    const to = cur.includes(d) ? cur.filter((x) => x !== d) : DAYS.filter((x) => cur.includes(x) || x === d);
+    apply(p, [{ key: "days", from: cur, to, why: "Practice days" }]); renderClinician(); }));
+  document.querySelectorAll("[data-rm]").forEach((b) => (b.onclick = () => { const w = b.dataset.rm;
+    apply(p, [{ key: "personal_words", from: p.plan.personal_words, to: p.plan.personal_words.filter((x) => x !== w), why: `Remove personal word: ${w}` }]); renderClinician(); }));
+  const pw = $("pw-add"); pw.onkeydown = (e) => { if (e.key === "Enter" && pw.value.trim()) { const w = pw.value.trim();
+    apply(p, [{ key: "personal_words", from: p.plan.personal_words, to: [...p.plan.personal_words, w], why: `Add personal word: ${w}` }]); renderClinician(); toast(`Added “${w}”.`); } };
 }
 
-/* ---------- boot ---------- */
-const h = location.hash.slice(1);
-if (h === "patient" || h === "clinician") S.view = h;
+const h0 = location.hash.slice(1); if (h0 === "patient" || h0 === "clinician") S.view = h0;
 render();
 </script>
 
