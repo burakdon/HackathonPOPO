@@ -9,6 +9,7 @@ environment; the override is agents/ditto.py on the trained MaskablePPO policy.
 """
 from __future__ import annotations
 
+import collections
 import copy
 import uuid
 from dataclasses import dataclass, field
@@ -23,6 +24,7 @@ from pydantic import BaseModel
 
 from neurocue.baselines import BASELINES
 from neurocue.env import ACTIONS, CUE_KINDS, EngineTherapyEnv, action_index, load_engine_env_config
+from patientmodel.cues import Cue
 from patientmodel.dell_sp import NAMING_CATEGORIES
 from patientmodel.items import Item, load_item_bank
 from patientmodel.lexicon import build_lexicon
@@ -182,6 +184,45 @@ def image(item_id: str):
     raise HTTPException(404, "no picture")
 
 
+OPTION_RULES = ("repeat", "due")
+
+
+def counterfactuals(env: EngineTherapyEnv, a_actual: int) -> tuple[dict, str]:
+    """At the current decision, the expected one-step effect of every clinician action on predicted
+    retention at the first test day, relative to the action the policy is about to take.
+
+    For an action (which word, which cue): the word's chance of success now (unaided or cue-boosted,
+    from the SP model), the trace a success or a failure would lay (fitted weights; a cued success lays
+    a weaker trace by the cue's effort share), and the word's predicted retention at the test day after
+    that trace, including activation-dependent decay (so an immediate retry pays the spacing cost).
+    Returned in percentage points of the 20-word mean retention. Positive = better than the policy."""
+    tp, now, T, n = env.tp, env._now(), env.cfg.test_days[0], len(env.items)
+    lp, cc = tp.learning.p, tp.snapshot.cue_cfg
+
+    def expected_gain(item, cue_kind):
+        mem = tp.memory(item); base = tp.learning.probability(mem, T)
+        cue = Cue(cue_kind) if cue_kind else None
+        p_now = tp.learning.probability(mem, now, tp.cue_boost(item, cue))
+        w_ok = lp.w_success - (cue.effort(cc) if cue else 0.0) * (lp.w_success - lp.w_study)
+        def after(w):
+            m = copy.deepcopy(mem); tp.learning.record(m, now, w); return tp.learning.probability(m, T)
+        return (p_now * after(w_ok) + (1.0 - p_now) * after(lp.w_fail_feedback) - base) / n
+
+    gains: dict[str, float] = {}
+    for rule in OPTION_RULES:
+        if rule == "repeat" and (env.last_item is None or env.trial_in_session == 0):
+            continue
+        item = env.items[env.last_item] if rule == "repeat" else env.items[env._pick_item("due")]
+        for ck in CUE_KINDS:
+            gains[f"{rule}|{ck or 'none'}"] = expected_gain(item, ck)
+    rule_a, cue_a = ACTIONS[a_actual]
+    key_a = f"{rule_a}|{cue_a or 'none'}"
+    if key_a not in gains:
+        gains[key_a] = expected_gain(env.items[env._pick_item(rule_a)], cue_a)
+    base = gains[key_a]
+    return {k: round(100.0 * (v - base), 3) for k, v in gains.items()}, key_a
+
+
 def run_course(policy, tp: TreatablePatient, item_seed: int, record_obs: bool = False) -> dict:
     env = Shared.env
     obs, info = env.reset(options={"patient": tp, "item_seed": item_seed})
@@ -195,16 +236,31 @@ def run_course(policy, tp: TreatablePatient, item_seed: int, record_obs: bool = 
             a, _ = policy.predict(obs, action_masks=mask, deterministic=True); a = int(a)
         else:
             a = policy.act(env.observable(), mask, rng)
+        cf = None
         if record_obs:
             obs_log.append(obs.copy()); mask_log.append(mask.copy())
+            cf = counterfactuals(env, a) if trials else None
+        prev = trials[-1]["category"] if trials else None
         obs, _, done, _, info = env.step(a)
-        rec = dict(info["response"]); rec["retention"] = info["retention_now"]; rec["action"] = a
+        rec = dict(info["response"]); rec["retention"] = info["retention_now"]; rec["action"] = a; rec["prev"] = prev
+        if cf is not None:
+            rec["cf"], rec["cf_actual"] = cf
         trials.append(rec)
     out = {"trials": trials, "start": {str(int(k)): v for k, v in start.items()},
            "final": {str(int(k)): v for k, v in info["retention"].items()},
            "words": [it.word for it in env.items]}
     if record_obs:
         out["_obs"], out["_masks"] = obs_log, mask_log
+        # Opportunity table: mean expected effect of each clinician action, by what had just happened.
+        agg: dict[tuple, list] = collections.defaultdict(list)
+        for t in trials:
+            if "cf" not in t:
+                continue
+            ctx = "correct" if t["prev"] == "correct" else t["prev"]
+            for k, v in t["cf"].items():
+                agg[(ctx, k)].append(v); agg[("any_error" if ctx != "correct" else "correct", k)].append(v) if ctx != "correct" else None
+        out["cf_table"] = [{"context": c, "action": k, "mean_pp": round(float(np.mean(v)), 3), "n": len(v)}
+                           for (c, k), v in agg.items()]
     return out
 
 
@@ -235,7 +291,8 @@ def course(pid: str, req: CourseReq) -> dict:
 
 
 class OverrideReq(BaseModel):
-    trial: int
+    trial: int = -1              # the decision to override; -1 = pick the first decision whose context matches `context`
+    context: str | None = None   # nonword | semantic | formal | mixed | unrelated | correct | any_error
     cue: str | None              # None | phonemic_initial | semantic | whole_word
     scope: str = "same_error"    # one | same_error | any_error
     n_demos: int = 4
@@ -258,6 +315,17 @@ def override(pid: str, req: OverrideReq) -> dict:
         raise HTTPException(400, "run the trained policy's course first")
     from agents.ditto import Demo, action_probs, ditto
     trials = d.ppo_run["trials"]; t = req.trial          # the DECISION being overridden; its context is trial t-1
+    scope = req.scope
+    if t < 0 and req.context:
+        if req.context == "any_error":
+            cands = [i for i in range(1, len(trials)) if not trials[i - 1]["correct"]]; scope = "any_error"
+        else:
+            cands = [i for i in range(1, len(trials)) if trials[i - 1]["category"] == req.context]; scope = "same_error"
+        # prefer a decision where a retry is allowed (not a session's first trial)
+        cands = [i for i in cands if i % 40 != 0] or cands
+        if not cands:
+            raise HTTPException(400, f"no recorded moment after a {req.context} response")
+        t = cands[0]
     if not 1 <= t < len(trials):
         raise HTTPException(400, "trial out of range (the override applies to the decision after the clicked outcome)")
     O, M = np.stack(d.ppo_run["_obs"]), np.stack(d.ppo_run["_masks"])
@@ -268,9 +336,9 @@ def override(pid: str, req: OverrideReq) -> dict:
     after_ok = [i for i in idx if trials[i - 1]["correct"]]
     other_err = [i for i in after_error if i not in same]
     rng = np.random.default_rng(t)
-    if req.scope == "one":
+    if scope == "one":
         demo_idx, anchor_idx, held = [t], [i for i in idx if i != t], []
-    elif req.scope == "any_error" and prev_cat != "correct":
+    elif scope == "any_error" and prev_cat != "correct":
         pool = [i for i in after_error if i != t]
         demo_idx = [t] + [int(i) for i in rng.permutation(pool)[: max(req.n_demos - 1, 0)]]
         anchor_idx, held = after_ok, [i for i in after_error if i not in demo_idx]
@@ -297,7 +365,7 @@ def override(pid: str, req: OverrideReq) -> dict:
     gives_cue = lambda idx, acts: float(np.mean([acts[i] % nC == cue_idx for i in idx])) if idx else None
     tp = make_patient(d.aq, d.lesion, d.seed)
     res = run_course(tuned, tp, d.seed)
-    return {"demo_prob": log[-1]["demo_prob"], "n_demos": len(demos), "n_demos_total": len(d.demos), "scope": req.scope,
+    return {"demo_prob": log[-1]["demo_prob"], "n_demos": len(demos), "n_demos_total": len(d.demos), "scope": scope, "trial": int(t),
             "changed_states": [int(i) for i in np.flatnonzero(before != after)], "n_states": int(len(O)),
             "cue_before": [int(a % nC) for a in before], "cue_after": [int(a % nC) for a in after],
             "rule_before": [int(a // nC) for a in before], "rule_after": [int(a // nC) for a in after],

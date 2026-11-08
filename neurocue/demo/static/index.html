@@ -22,12 +22,13 @@ body { margin:0; background:var(--bg); color:var(--fg); font: 15px/1.45 -apple-s
 .chip.c { color:#fff; }
 .c-correct{background:var(--correct)} .c-semantic{background:var(--semantic)} .c-formal{background:var(--formal)} .c-mixed{background:var(--mixed)} .c-unrelated{background:var(--unrelated)} .c-nonword{background:var(--nonword)} .c-omission{background:var(--omission)}
 /* stepper */
-.steps { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; margin:16px 0 14px; }
+.steps { display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:10px; margin:16px 0 14px; }
 .step { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px; display:flex; gap:10px; align-items:flex-start; }
 .step .num { width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; display:grid; place-items:center; flex:none; font-size:13px; }
 .step b { display:block; font-size:13.5px; }
 .step span { font-size:12.5px; color:var(--muted); }
-@media (max-width: 900px) { .steps { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1100px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 700px) { .steps { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
 /* panels */
 main { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
@@ -118,7 +119,8 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
   <div class="step"><span class="num">1</span><div><b>Choose a patient</b><span>Severity and lesion type. Press New patient.</span></div></div>
   <div class="step"><span class="num">2</span><div><b>Hear her name pictures</b><span>Real pictures, realistic errors, spoken aloud.</span></div></div>
   <div class="step"><span class="num">3</span><div><b>Diagnose her</b><span>Watch the fitter recover the lesion from the answers.</span></div></div>
-  <div class="step"><span class="num">4</span><div><b>Treat her</b><span>Clinic practice vs the trained policy. Override a cue.</span></div></div>
+  <div class="step"><span class="num">4</span><div><b>Treat her</b><span>Clinic practice vs the trained policy, same patient.</span></div></div>
+  <div class="step"><span class="num">5</span><div><b>Teach the policy</b><span>Correct it a few times; DITTO learns your rule. The engine prices it.</span></div></div>
 </div>
 
 <main>
@@ -264,23 +266,50 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
   <div class="ll"><span><i style="background:#8a948f"></i>cueing hierarchy</span><span><i style="background:var(--accent)"></i><span id="leg2">trained policy</span></span><span><i style="background:var(--accent-2)"></i>after clinician override</span><span class="counter">· vertical dashed lines = session days · y = predicted retention at day 17</span></div>
   <svg id="chart" class="chart" viewBox="0 0 640 260" width="100%" height="260" role="img" aria-label="Predicted retention during the course"></svg>
   <div class="lbl" style="margin-top:8px">Trained policy's 160 trials · one row per session</div>
-  <div class="counter">Green = named correctly, red = error. Letter = cue given: <b>p</b> first sound, <b>s</b> meaning cue, <b>w</b> whole word, blank = no cue. Hover for the word. <b>Click a trial to override its cue as the clinician</b>; DITTO retrains the policy on that one demonstration.</div>
+  <div class="counter">Green = named correctly, red = error. Letter = cue given: <b>p</b> first sound, <b>s</b> meaning cue, <b>w</b> whole word, blank = no cue. Hover for the word. Click an error to take it to step 5.</div>
   <div class="strip" id="strip"></div>
-  <div id="override"></div>
-  <div id="ditto" style="display:none; margin-top:12px">
-    <div class="lbl">What the override changed · the policy's cue on each of the 160 recorded trials, before and after</div>
-    <div class="ll" style="margin-top:6px"><span><i style="background:#8a948f; height:10px; width:10px; border-radius:2px"></i>no cue</span><span><i style="background:var(--accent); height:10px; width:10px; border-radius:2px"></i>first sound</span><span><i style="background:var(--semantic); height:10px; width:10px; border-radius:2px"></i>meaning cue</span><span><i style="background:var(--accent-2); height:10px; width:10px; border-radius:2px"></i>whole word</span><span><i style="border:2px solid #e8c547; height:8px; width:8px; border-radius:2px; background:transparent"></i>the clinician's demonstrations</span><span><i style="border:2px solid #fff; height:8px; width:8px; border-radius:2px; background:transparent"></i>changed</span><span>· dot = a trial that matches the clinician's situation but was not shown</span></div>
-    <div class="counter" style="margin-top:6px">before</div><div class="strip" id="stripBefore"></div>
-    <div class="counter" style="margin-top:6px">after</div><div class="strip" id="stripAfter"></div>
-    <svg id="dittoBars" class="chart" viewBox="0 0 640 170" width="100%" height="170" role="img" aria-label="How often the policy gives the clinician's cue, before and after, by situation"></svg>
-    <p id="osummary" style="font-size:13.5px; margin:6px 0 0"></p>
-  </div>
   <p id="summary"></p>
   <details><summary>What the trainer learned, on 80 held-out patients</summary>
     <ul><li>Spaced retrieval with no cues: +0.32 retention at one week. The trained policy: +0.32, cueing on 1% of trials. Cueing hierarchy: +0.29. Errorless (whole word every time): +0.26. Massed practice: +0.23.</li>
       <li><b>Why an override rarely lifts the curve.</b> In the fitted learning layer a cue raises the chance of success now, but a cued success lays a weaker memory trace (0.79 against 1.00 for an unaided success; a failure followed by the word lays 0.59). The arithmetic favours a first-sound cue only while the word is still below about 40% retrievability, and retrying a word right after failing it also loses the spacing benefit. The trained policy already sits at this model's optimum, so a clinician's override is adopted faithfully and then priced: on severe patients it can edge the curve up, on moderate ones it costs a point or holds even. The trace weights for cued successes are assumptions, not fitted, so this is the engine's current opinion, not a verdict on cueing.</li>
       <li>The policy rediscovered spaced, uncued retrieval practice, the best clinical practice, and found nothing better. A cue buys success now and a weaker memory trace later; that trade-off is the fitted learning layer's, not an assumption of the trainer.</li>
       <li>One clinician override moves the policy in about 10 of 160 states, half of them the same kind of situation, none unrelated.</li></ul>
+  </details>
+</section>
+<section id="teach" style="grid-column: 1 / -1">
+  <div class="phead"><span class="num">5</span><h2>Teach the policy as the clinician (DITTO)</h2></div>
+  <p class="what">Correct the policy a few times and it learns your rule: DITTO treats each of your corrections as preferred over what the policy would have done and retrains it against the original as an anchor. Before you teach it anything, the engine shows where a correction would help and where it would hurt, from its own arithmetic. Run the course in step 4 first.</p>
+
+  <div class="lbl">A · Where a correction would help, moment by moment</div>
+  <div class="counter" style="margin:4px 0 6px">For each of the 160 decisions the engine asks: what if the clinician had chosen differently here? For every option it computes the word's chance of success now (cued or not), the memory trace a success or failure would lay, and the word's predicted retention at day 17 after it, including the spacing cost of an immediate retry. The cell shows the <b>best alternative to what the policy did</b>: green = would have helped, red = every alternative would have hurt, grey = nothing to gain. Hover for the numbers.</div>
+  <div class="strip" id="oppStrip"></div>
+  <div class="ll" style="margin-top:6px"><span><i style="background:#2e7d32; height:10px; width:10px; border-radius:2px"></i>a different choice would help</span><span><i style="background:#8a948f; height:10px; width:10px; border-radius:2px"></i>nothing to gain (within 0.02 pp)</span><span><i style="background:#c62828; height:10px; width:10px; border-radius:2px"></i>every alternative would hurt</span><span>· units: percentage points of the 20-word retention at day 17, per moment</span></div>
+  <p id="oppHeadline" style="font-size:14px; margin:12px 0 6px"></p>
+  <div class="counter">Mean effect per moment, in percentage points of retention at day 17, of each clinician choice against what the policy did. Rows: what she had just done (number of such moments). Click a cell to put that rule in the form below.</div>
+  <div style="overflow-x:auto; margin-top:6px"><table id="oppTable" style="border-collapse:collapse; width:100%; font-size:13.5px; font-variant-numeric:tabular-nums"></table></div>
+
+  <div class="lbl" style="margin-top:16px">B · Teach it a rule</div>
+  <div class="row" style="gap:10px; margin-top:6px; align-items:flex-end">
+    <div class="field"><span class="counter">whenever she has just…</span><select id="tctx"></select></div>
+    <div class="field"><span class="counter">I would have…</span><select id="trule"><option value="repeat">retried the word she just had</option><option value="due">moved on to the next word</option></select></div>
+    <div class="field"><span class="counter">with…</span><select id="tcue"><option value="phonemic_initial">the first sound</option><option value="semantic">a meaning cue</option><option value="whole_word">the whole word</option><option value="">no cue</option></select></div>
+    <button id="tapply" disabled>Teach it (DITTO, 6 demonstrations)</button>
+    <span class="counter" id="tstat"></span>
+  </div>
+  <p id="tpred" class="counter" style="margin:8px 0 0"></p>
+
+  <div id="ditto" style="display:none; margin-top:16px">
+    <div class="lbl">C · What it learned · the policy's cue on each of the 160 recorded trials, before and after</div>
+    <div class="ll" style="margin-top:6px"><span><i style="background:#8a948f; height:10px; width:10px; border-radius:2px"></i>no cue</span><span><i style="background:var(--accent); height:10px; width:10px; border-radius:2px"></i>first sound</span><span><i style="background:var(--semantic); height:10px; width:10px; border-radius:2px"></i>meaning cue</span><span><i style="background:var(--accent-2); height:10px; width:10px; border-radius:2px"></i>whole word</span><span><i style="border:2px solid #e8c547; height:8px; width:8px; border-radius:2px; background:transparent"></i>the clinician's demonstrations</span><span><i style="border:2px solid #fff; height:8px; width:8px; border-radius:2px; background:transparent"></i>changed</span><span>· dot = a moment that matches the rule's situation but was not shown</span></div>
+    <div class="counter" style="margin-top:6px">before</div><div class="strip" id="stripBefore"></div>
+    <div class="counter" style="margin-top:6px">after</div><div class="strip" id="stripAfter"></div>
+    <svg id="dittoBars" class="chart" viewBox="0 0 640 170" width="100%" height="170" role="img" aria-label="How often the policy gives the clinician's cue, before and after, by situation"></svg>
+    <p id="osummary" style="font-size:13.5px; margin:6px 0 0"></p>
+  </div>
+  <details><summary>How to read this honestly</summary>
+    <ul><li>Block A is a one-step calculation with the fitted learning layer: it says what a single different choice would do to one word's retention, not what a whole different policy would do over the course. The trained policy is already near this model's optimum, so most cells are grey or red; the green ones are where a cue is cheap because the word is still weak.</li>
+      <li>Block C is DITTO's own test: the gold squares are the six demonstrations (the training set), the dotted squares are matching moments it never saw (the test set), and the two lower bars are leakage. A rule adopted at 80-100% on the dots with 0% on the other rows is the method working.</li>
+      <li>The cued-success trace weight (a cue does half the work of a retrieval) is an assumption, not fitted. If it is wrong, block A moves with it.</li></ul>
   </details>
 </section>
 </main>
@@ -380,7 +409,7 @@ $("#newp").onclick = async () => {
     $("#who").textContent = `Marisol, 23 · AQ ${P.aq} · ${P.lesion} lesion`; $("#count").textContent = "0 pictures"; $("#picname").textContent = "–"; $("#runstate").textContent = "Ready. Takes a few seconds.";
     $("#feed").innerHTML = ""; $("#target").textContent = "–"; $("#said").textContent = "–"; $("#type").textContent = "–";
     $("#n").textContent = 0; $("#read").textContent = "–"; $("#pacc").textContent = "–"; $("#map").textContent = "–"; $("#truth").textContent = "hidden";
-    drawHeat(null); $("#chart").innerHTML = ""; $("#strip").innerHTML = ""; $("#summary").textContent = ""; $("#override").style.display = "none";
+    drawHeat(null); $("#chart").innerHTML = ""; $("#strip").innerHTML = ""; $("#summary").textContent = ""; $("#oppStrip").innerHTML = ""; $("#oppTable").innerHTML = ""; $("#oppHeadline").textContent = ""; $("#tpred").textContent = ""; $("#ditto").style.display = "none"; $("#tapply").disabled = true;
     ["#name1","#name10","#namen","#reveal","#run"].forEach(s => $(s).disabled = false);
     $("#runnote").textContent = P.ppo_available ? "MaskablePPO trained on predicted retention; picks the word (due / repeat / weakest / strongest) and the cue each trial" : "not loaded on this server; the comparison runs spaced retrieval (no cues) instead";
     $("#leg2").textContent = P.ppo_available ? "trained policy" : "spaced retrieval";
@@ -463,8 +492,10 @@ function drawStrip(run) {
   const st = $("#strip"); st.innerHTML = ""; if (!run || !run.trials) return;
   run.trials.forEach((t, i) => { const d = document.createElement("div"); d.style.background = t.correct ? "var(--correct)" : "var(--nonword)";
     d.textContent = t.cue ? {phonemic_initial:"p", semantic:"s", whole_word:"w"}[t.cue] : ""; d.title = `trial ${i+1} · ${t.word} · ${t.rule}${t.cue?" + "+t.cue:""} · ${t.category}`;
-    d.onclick = () => openOverride(i, t, run.trials[i + 1]); st.appendChild(d); });
+    d.onclick = () => { if (!t.correct) prefill(t.category, "repeat", "phonemic_initial"); }; st.appendChild(d); });
 }
+const ACTION_LABEL = k => { const [rule, cue] = k.split("|"); return `${rule === "repeat" ? "retry the word" : rule === "due" ? "move on" : rule + " word"} · ${cue === "none" ? "no cue" : cue === "phonemic_initial" ? "first sound" : cue === "semantic" ? "meaning cue" : "whole word"}`; };
+const CTX_LABEL = c => c === "any_error" ? "made any error" : c === "correct" ? "answered correctly" : `made a ${c} error`;
 function drawDitto(r) {
   const box = $("#ditto"); box.style.display = "block";
   const CUECOL = ["#8a948f", "var(--accent)", "var(--semantic)", "var(--accent-2)"];
@@ -475,9 +506,9 @@ function drawDitto(r) {
   fill($("#stripBefore"), r.cue_before, false); fill($("#stripAfter"), r.cue_after, true);
   const svg = $("#dittoBars"); svg.innerHTML = "";
   const ns = (t, a, txt) => { const e = document.createElementNS("http://www.w3.org/2000/svg", t); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
-  const groups = [["matching trials, not shown to it", r.adoption_heldout_before, r.adoption_heldout, r.n_heldout], ["after other kinds of error", r.leak_other_errors_before, r.leak_other_errors, r.n_other_errors], ["after a success", r.leak_after_correct_before, r.leak_after_correct, r.n_after_correct]];
+  const groups = [["matching moments, not shown to it", r.adoption_heldout_before, r.adoption_heldout, r.n_heldout], ["after other kinds of error", r.leak_other_errors_before, r.leak_other_errors, r.n_other_errors], ["after a success", r.leak_after_correct_before, r.leak_after_correct, r.n_after_correct]];
   const W = 640, L = 250, R = 60, T = 16, rh = 44; const x = v => L + (W - L - R) * (v || 0);
-  ns("text", {x: L, y: 10, fill: "var(--muted)", "font-size": 10}, `how often the policy gives ${(r.cue || "no cue").replace("_", " ")} · grey = before, teal = after the override`);
+  ns("text", {x: L, y: 10, fill: "var(--muted)", "font-size": 10}, `how often the policy gives ${(r.cue || "no cue").replace("_", " ")} · grey = before, teal = after`);
   groups.forEach((g, i) => { const y = T + i * rh + 6;
     ns("text", {x: L - 10, y: y + 14, "text-anchor": "end"}, `${g[0]} (n=${g[3]})`);
     ns("rect", {x: x(0), y, width: Math.max(0, x(g[1]) - x(0)), height: 10, fill: "#8a948f", rx: 2}); ns("text", {x: x(g[1]) + 5, y: y + 9, "font-size": 10}, g[1] == null ? "–" : Math.round(g[1]*100) + "%");
@@ -485,34 +516,65 @@ function drawDitto(r) {
   });
   [0, .5, 1].forEach(v => ns("text", {x: x(v), y: T + 3 * rh + 8, "text-anchor": "middle", fill: "var(--muted)", "font-size": 10}, Math.round(v*100) + "%"));
 }
-function openOverride(i, t, next) {
-  const o = $("#override"); o.style.display = "block";
-  if (!next) { o.innerHTML = `<div class="lbl">Clinician override</div><div class="counter">Trial ${i+1} was the last trial of the course; there is no next decision to override. Click an earlier trial.</div>`; return; }
-  const kind = t.correct ? "a correct answer" : `a ${t.category} error`;
-  o.innerHTML = `<div class="lbl">Clinician override · after trial ${i+1}</div>
-    <div style="margin:6px 0">She was shown <i>${t.word}</i> and answered <span class="chip c c-${t.category}">${t.category}</span>${t.cue ? ` (with ${t.cue.replace("_", " ")})` : ""}. The policy's next move was the <b>${next.rule}</b> word${next.rule === "repeat" ? "" : ` (<i>${next.word}</i>)`} with <b>${next.cue ? next.cue.replace("_", " ") : "no cue"}</b>.</div>
-    <div class="row" style="gap:8px">
-      <label>I would have <select id="orule"><option value="repeat" selected>retried <i>${t.word}</i></option><option value="keep">moved on to the next word</option></select></label>
-      <label>with <select id="ocue"><option value="">no cue</option><option value="phonemic_initial" selected>the first sound</option><option value="semantic">a meaning cue</option><option value="whole_word">the whole word</option></select></label>
-      <label>and I mean this <select id="oscope"><option value="same_error" selected>whenever she has just given ${kind} (6 demonstrations)</option>${t.correct ? "" : `<option value="any_error">whenever she has just made any error (6 demonstrations)</option>`}<option value="one">only this once (1 demonstration)</option></select></label>
-      <button id="oapply">Apply override (DITTO)</button> <span class="counter" id="ostat"></span>
-    </div>
-    <div class="counter" style="margin-top:6px">DITTO treats each demonstration as preferred over what the policy would have done and retrains it against the original as an anchor. One demonstration teaches it nothing beyond that moment; a handful of consistent ones teach the rule.</div>`;
-  const decision = i + 1;
-  $("#oapply").onclick = async () => { $("#oapply").disabled = true; $("#ostat").textContent = "retraining the policy on the demonstrations…";
-    try { const r = await post(`/api/patient/${P.id}/override`, {trial: decision, cue: $("#ocue").value || null, scope: $("#oscope").value, n_demos: 6, rule: $("#orule").value});
-      courses.tuned = r.course; drawChart(); drawDitto(r);
-      const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
-      const cueName = ($("#ocue").value || "no cue").replace("_", " ");
-      $("#osummary").innerHTML = `<b>Override applied</b> (${r.n_demos} demonstration${r.n_demos === 1 ? "" : "s"} this time, ${r.n_demos_total} in total, scope: ${$("#oscope").selectedOptions[0].textContent.replace(/ \(.*\)/, "")}). The retrained policy now gives <b>${cueName}</b> in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching moments it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} moments after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} moments after a success. Choice changed in ${r.changed_states.length} of ${r.n_states} states. Retention at one week: trained ${Math.round(courses.ppo.final["17"]*100)}%, after the override ${Math.round(r.course.final["17"]*100)}%. The engine says what the clinician's preference costs or gains this patient.`;
-      $("#ostat").textContent = "done"; } catch (e) { $("#ostat").textContent = e.message.slice(0, 200); } finally { $("#oapply").disabled = false; } };
+function drawOpportunity(run) {
+  const st = $("#oppStrip"); st.innerHTML = "";
+  run.trials.forEach((t, i) => { const d = document.createElement("div");
+    if (!t.cf) { d.style.background = "#3a4541"; d.title = `trial ${i+1} · first decision, nothing before it`; st.appendChild(d); return; }
+    const entries = Object.entries(t.cf).filter(([k]) => k !== t.cf_actual); let best = entries.reduce((a, b) => b[1] > a[1] ? b : a, entries[0]);
+    const v = best[1]; const mag = Math.min(1, Math.abs(v) / 0.3);
+    d.style.background = Math.abs(v) < 0.02 ? "#8a948f" : v > 0 ? `rgba(46,125,50,${0.35 + 0.65 * mag})` : `rgba(198,40,40,${0.35 + 0.65 * mag})`;
+    d.title = `after trial ${i} (${t.prev}) · policy: ${ACTION_LABEL(t.cf_actual)} · best alternative: ${ACTION_LABEL(best[0])} ${v >= 0 ? "+" : ""}${v.toFixed(2)} pp`;
+    d.onclick = () => { if (t.prev && t.prev !== "correct") { $("#tctx").value = t.prev; $("#tctx").dispatchEvent(new Event("change")); } };
+    st.appendChild(d); });
+  // Matrix: rows = what had just happened, columns = what the clinician could do instead; cell = mean effect per moment.
+  const ACTS = ["due|phonemic_initial", "due|semantic", "due|whole_word", "repeat|phonemic_initial", "repeat|whole_word", "repeat|none"];
+  const ACT_HEAD = {"due|phonemic_initial": "move on, first sound", "due|semantic": "move on, meaning cue", "due|whole_word": "move on, whole word", "repeat|phonemic_initial": "retry, first sound", "repeat|whole_word": "retry, whole word", "repeat|none": "retry, no cue"};
+  const CTX_ORDER = ["nonword", "semantic", "formal", "mixed", "unrelated", "any_error", "correct"];
+  const table = run.cf_table || []; const get = (c, k) => table.find(r => r.context === c && r.action === k);
+  const ctxs = CTX_ORDER.filter(c => ACTS.some(k => get(c, k)));
+  const cellStyle = v => Math.abs(v) < 0.02 ? "color:var(--muted)" : v > 0 ? "color:var(--correct); font-weight:600" : "color:var(--nonword); font-weight:600";
+  const tbl = $("#oppTable");
+  tbl.innerHTML = `<thead><tr style="text-align:left; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em"><th style="padding:6px 8px">whenever she has just…</th>${ACTS.map(k => `<th style="padding:6px 8px">${ACT_HEAD[k]}</th>`).join("")}</tr></thead><tbody>` +
+    ctxs.map(c => `<tr style="border-top:1px solid var(--line)"><td style="padding:6px 8px">${CTX_LABEL(c)} <span class="counter">(${(get(c, ACTS[0]) || {n: 0}).n})</span></td>` + ACTS.map(k => { const r = get(c, k); if (!r) return `<td style="padding:6px 8px; color:var(--muted)">–</td>`;
+      const [rule, cue] = k.split("|"); return `<td style="padding:6px 8px; ${cellStyle(r.mean_pp)}; cursor:pointer" title="click to put this rule in the form" onclick="prefill('${c}','${rule}','${cue}')">${r.mean_pp >= 0 ? "+" : ""}${r.mean_pp.toFixed(2)}</td>`; }).join("") + "</tr>").join("") + "</tbody>";
+  // Headline: the best rule available, or the honest absence of one.
+  const cands = table.filter(r => ACTS.includes(r.action) && r.context !== "correct");
+  const best = cands.reduce((a, r) => (!a || r.mean_pp > a.mean_pp) ? r : a, null);
+  const hl = $("#oppHeadline");
+  if (best && best.mean_pp > 0.02) hl.innerHTML = `<b style="color:var(--correct)">A rule that helps exists for this patient:</b> whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}: ${best.mean_pp >= 0 ? "+" : ""}${best.mean_pp.toFixed(2)} pp per moment over ${best.n} moments, about +${(best.mean_pp * best.n).toFixed(1)} pp on retention if adopted everywhere it applies. Cues pay only while a word is still weak, so this is a severe-patient, early-session effect.`;
+  else if (best) hl.innerHTML = `<b>No correction improves on the trained policy for this patient.</b> The cheapest deviation is "whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}" at ${best.mean_pp.toFixed(2)} pp per moment; every retry costs more, because an immediate retry loses the spacing benefit and a cued success lays a weaker trace. You can still teach a rule: the policy will adopt it (block C) and the course will show its price.`;
+  else hl.textContent = "";
+  // contexts for the form
+  const ctxs = [...new Set(run.trials.filter(t => t.prev && t.prev !== "correct").map(t => t.prev))];
+  $("#tctx").innerHTML = ctxs.map(c => `<option value="${c}">${CTX_LABEL(c)}</option>`).join("") + `<option value="any_error">${CTX_LABEL("any_error")}</option>`;
+  $("#tapply").disabled = false; updatePrediction();
 }
+function prefill(ctx, rule, cue) { $("#tctx").value = ctx; $("#trule").value = rule; $("#tcue").value = cue === "none" ? "" : cue; updatePrediction(); $("#teach").scrollIntoView({behavior: "smooth", block: "start"}); }
+function updatePrediction() {
+  if (!courses.ppo || !courses.ppo.cf_table) { $("#tpred").textContent = ""; return; }
+  const ctx = $("#tctx").value, key = `${$("#trule").value}|${$("#tcue").value || "none"}`;
+  const row = courses.ppo.cf_table.find(r => r.context === ctx && r.action === key);
+  if (!row) { $("#tpred").textContent = "No recorded moment of that kind in this course."; return; }
+  const v = row.mean_pp, tot = v * row.n;
+  $("#tpred").innerHTML = `<b>Predicted effect before teaching it:</b> over the ${row.n} moments where she had just ${CTX_LABEL(ctx)}, this choice changes predicted retention by <b style="color:${Math.abs(v) < 0.02 ? "var(--muted)" : v > 0 ? "var(--correct)" : "var(--nonword)"}">${v >= 0 ? "+" : ""}${v.toFixed(2)} pp per moment</b>, about ${tot >= 0 ? "+" : ""}${tot.toFixed(1)} pp if the policy adopted it everywhere it applies. Teaching it shows whether the policy adopts it (block C) and what actually happens to the course (the orange line in step 4).`;
+}
+["#tctx", "#trule", "#tcue"].forEach(sel => $(sel).onchange = updatePrediction);
+$("#tapply").onclick = async () => {
+  $("#tapply").disabled = true; $("#tstat").textContent = "building 6 demonstrations and retraining…";
+  try {
+    const r = await post(`/api/patient/${P.id}/override`, {trial: -1, context: $("#tctx").value, cue: $("#tcue").value || null, rule: $("#trule").value === "repeat" ? "repeat" : "keep", n_demos: 6});
+    courses.tuned = r.course; drawChart(); drawDitto(r);
+    const pct = v => v == null ? "–" : Math.round(v * 100) + "%"; const cueName = ($("#tcue").value || "no cue").replace("_", " ");
+    $("#osummary").innerHTML = `<b>Taught</b> with ${r.n_demos} demonstrations (${r.n_demos_total} in total): "whenever she has just ${CTX_LABEL($("#tctx").value)}, ${$("#trule").value === "repeat" ? "retry the word" : "move on"} with ${cueName}". The retrained policy now gives <b>${cueName}</b> in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching moments it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} moments after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} moments after a success; its choice changed in ${r.changed_states.length} of ${r.n_states} states. <b>Retention at one week:</b> trained policy ${Math.round(courses.ppo.final["17"]*100)}%, after teaching ${Math.round(r.course.final["17"]*100)}% (${(100*(r.course.final["17"] - courses.ppo.final["17"])).toFixed(1)} pp). The engine priced the clinician's rule; block A predicted its sign.`;
+    $("#tstat").textContent = "done";
+  } catch (e) { $("#tstat").textContent = e.message.slice(0, 200); } finally { $("#tapply").disabled = false; }
+};
 $("#run").onclick = async () => {
   $("#run").disabled = true; $("#summary").textContent = ""; $("#runstate").textContent = "Running two 160-trial courses on identical copies of her…";
   try {
     const pols = P.ppo_available ? ["spaced_hierarchy", "ppo"] : ["spaced_hierarchy", "spaced_plain"];
     courses = await post(`/api/patient/${P.id}/course`, {policies: pols});
-    drawChart(); drawStrip(courses.ppo || courses.spaced_plain);
+    drawChart(); drawStrip(courses.ppo || courses.spaced_plain); if (courses.ppo) drawOpportunity(courses.ppo);
     const h = courses.spaced_hierarchy, m = courses.ppo || courses.spaced_plain;
     $("#runstate").textContent = "Done.";
     $("#summary").innerHTML = `<b>Result.</b> Her 20 words started at ${Math.round(h.start["17"]*100)}% predicted retention. After the course: <b>cueing hierarchy</b> ${Math.round(h.final["17"]*100)}% at one week, ${Math.round(h.final["38"]*100)}% at one month · <b>${courses.ppo?"trained policy":"spaced retrieval"}</b> ${Math.round(m.final["17"]*100)}% and ${Math.round(m.final["38"]*100)}%. Both lines are the engine's learning layer predicting unaided naming; the gap between them is the therapy.`;
