@@ -8,7 +8,8 @@ history; patientmodel/learning.py, fitted to Middleton et al. 2019).
 Actions (16 = 4 item rules x 4 cues):
   item rule   due       the word practised longest ago (round-robin, maximal spacing)
               repeat    the word just practised (massed; masked on a session's first trial)
-              weakest   the word with the lowest observed accuracy so far (the one the patient fails)
+              weakest   the word with the lowest observed accuracy so far (unattempted = 0.5), i.e. the
+                        words the patient is failing, then the ones not yet tried
               strongest the word with the highest observed accuracy (maintenance)
   cue         none | phonemic_initial | semantic | whole_word   (patientmodel/cues.py)
 
@@ -219,14 +220,16 @@ class EngineTherapyEnv(gym.Env):
         return mask
 
     def _pick_item(self, rule: str) -> int:
+        """Unattempted words count as 0.5 observed accuracy (unknown), so `weakest` moves on from a word
+        once it succeeds and `strongest` does not pick a word nobody has tried. Ties go to the word
+        practised longest ago."""
         n = len(self.items)
         if rule == "repeat" and self.last_item is not None:
             return self.last_item
-        attempted = [i for i in range(n) if self.stats[i].attempts > 0]
-        if rule == "weakest" and attempted:
-            return min(attempted, key=lambda i: (self.stats[i].accuracy, self.stats[i].last_trial))
-        if rule == "strongest" and attempted:
-            return max(attempted, key=lambda i: (self.stats[i].accuracy, -self.stats[i].last_trial))
+        if rule == "weakest":
+            return min(range(n), key=lambda i: (self.stats[i].accuracy, self.stats[i].last_trial, i))
+        if rule == "strongest":
+            return max(range(n), key=lambda i: (self.stats[i].accuracy, -self.stats[i].last_trial, -i))
         return min(range(n), key=lambda i: (self.stats[i].last_trial, i))      # due
 
     # ------------------------------------------------------------------ gym API
