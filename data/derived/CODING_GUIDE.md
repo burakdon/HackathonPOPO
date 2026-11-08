@@ -58,14 +58,23 @@ original `utterances.tsv`).
 6. **When in doubt**, pick the category a speech-language pathologist would write on a PNT score
    sheet, and write a word in `notes`. Disagreement with the machine is the point.
 
-## Round 2 (optional)
+## Round 2: the 50-row audit (about twenty minutes)
 
-Your first 278 codes are in and counted (thank you). They showed that the machine's `formal` and `mixed`
-calls are unreliable even when it was confident (you kept 3 of 91 formal). Rather than ask for more
-of your time, a model trained on your 278 codes (`scripts/learn_coder.py`) now codes the remaining
-111 noun rows; its guess and confidence are in `learned_category` and `learned_prob`. If you ever
-have another half hour, those 111 rows are the ones to look at, lowest `learned_prob` first, and
-anything you put in `final_category` overrides the model.
+Your first 278 codes are in and counted (thank you). They showed the machine's `formal` and `mixed`
+calls are unreliable, so a model trained on your codes (`scripts/learn_coder.py`) now codes the 111
+noun rows you have not seen. Two things remain unchecked, and `data/derived/psst_audit_sample.csv`
+is a 50-row sample chosen to check them:
+
+- `audit_confident` (30 rows): errors the machine coded with high confidence that nobody has
+  looked at. They are 20 phonological nonwords within three edits of the target and 10 WordNet
+  semantic errors. Half of all real errors are rows like these, so this is the sample that decides
+  whether the real nonword share we compare the engine against is right.
+- `audit_learned` (20 rows): a random draw of the model's 111 codes, to measure its real accuracy
+  (`learned_category` and `learned_prob` show its guess).
+
+For this file, **fill `final_category` on every row**, even when you agree with the machine; a blank
+here means not done. Same categories as before. Send the file back and it is merged by
+`uv run python -m scripts.merge_adjudication data/derived/psst_audit_sample.csv`.
 
 ## What happens with your codes
 

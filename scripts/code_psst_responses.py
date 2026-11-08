@@ -263,7 +263,8 @@ def main() -> None:
             rd = csv.DictReader(f)
             extra = [k for k in rd.fieldnames if k not in FIELDS] or extra
             for r in rd:
-                if r.get("final_category") or r.get("notes"):
+                # Keep any row a human touched or that was drawn into an audit sample.
+                if r.get("final_category") or r.get("notes") or r.get("sample_group"):
                     previous[r["utterance_id"]] = {k: r.get(k, "") for k in extra}
     # Learned codes (scripts/learn_coder.py) are recomputed by that script; do not carry stale ones.
     blank = {k: "" for k in extra}
