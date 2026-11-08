@@ -1,0 +1,38 @@
+# Semantic-phonological (SP) interactive two-step model of lexical access.
+# Foygel & Dell (2000), J. Memory & Language 43; architecture and constants restated in
+# Dell, Lawler, Harris & Gordon (2004), Cognitive Neuropsychology 21, pp. 127-128, and
+# Dell, Schwartz, Nozari, Faseyitan & Coslett (2013). Values below are from those papers unless
+# marked ASSUMPTION.
+
+# Activation rule (Dell et al. 2004, eq. on p. 128):
+#   a[j,t] = a[j,t-1] * (1 - decay) + sum_i w[i,j] * a[i,t-1] + noise
+#   noise  = N(0, intrinsic_noise_sd) + N(0, activation_noise_sd * a[j,t])
+decay: 0.6                     # "Decay is set to a constant 0.6 for the semantic-phonological model" (2004, fn 2)
+intrinsic_noise_sd: 0.01
+activation_noise_sd: 0.16
+steps_per_stage: 8             # eight time steps for word access, eight more for phonological access
+semantic_jolt: 10.0            # 10 units to each of the target's semantic features
+lexical_jolt: 100.0            # 100 units to the selected word
+
+# Lesionable weights. Both directions of a connection share one weight (connections are bidirectional).
+#   s: semantic feature <-> word      p: word <-> phoneme
+# Normal (unimpaired) network: s = p = 0.04 (WebFit; Dell et al. 2013 treat .04-.06 as the normal range).
+normal_weight: 0.04
+weight_max: 0.06               # upper edge of the fitting grid (Dell et al. 2013 allowed up to .06)
+
+# Lexical neighbourhood (Walker 2016, pp. 37-38): six words; target, one semantic neighbour sharing
+# 3 of 10 features, two formal neighbours differing only in onset, two unrelated words. 10 phoneme units.
+features_per_word: 10
+mixed_opportunity: 0.2         # share of trials on which a formal neighbour is also semantically related (Walker 2016, p. 38)
+shared_features: 3             # features a semantic (or mixed) neighbour shares with the target
+
+# Omissions (Dell et al. 2004, lexical-threshold account): if the most active word's activation at
+# word selection is below this threshold the trial is an omission ("no response"). null = disabled.
+omission_threshold: null
+
+# Fitting grid for (s, p); the response-probability table is simulated once and cached.
+fit:
+  grid_step: 0.002
+  trials_per_cell: 4000
+  seed: 20261107
+  probability_floor: 1.0e-4    # smoothing so a zero simulated cell never gives -inf log-likelihood

@@ -19,3 +19,6 @@ checkpoints/
 
 # Third-party raw data: re-fetch with scripts/fetch_data.py (see data/README.md)
 data/raw/
+
+# Simulated response-probability grids for model fitting (rebuilt on demand)
+data/cache/

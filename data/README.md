@@ -39,3 +39,11 @@ Key columns: `picnum`, `ename` (dominant name), `elex1` (% producing the target 
    data. One person applies; credentials go in `~/.config/psstdata/settings.json`, never in the repo.
 2. **MAPPD access**: email Dan Mirman. Item-level PNT responses are what the per-patient Dell fits
    need; without them we sample patients from published parameter distributions.
+
+## Calibration
+
+`data/calibration/dell2004_table2_sp_fits.csv` holds the observed PNT proportions and the (s, p)
+Dell's own fitter chose for 14 patients (Dell et al. 2004, Table 2, SP-ind rows) plus the Dell et al.
+(2013) Table 1 example. `uv run python -m scripts.fit_dell_sp` fits our implementation to the same
+proportions and prints both side by side; mean |delta s| and |delta p| are about 0.003 on a 0.002 grid.
+The simulated probability grid is cached under `data/cache/` (gitignored, rebuilt in about 80 s).
