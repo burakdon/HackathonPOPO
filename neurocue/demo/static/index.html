@@ -104,7 +104,7 @@ svg text { fill: var(--fg); font-size: 11px; }
 <section id="trainer">
   <h2>4 · A trainer treats the patient</h2>
   <div class="row"><button id="run" disabled>Run a four-session course</button><span class="muted" id="runnote">Hierarchy vs trained policy, same patient, same random stream.</span></div>
-  <div class="legend" style="margin-top:8px"><span><i style="background:#8a948f"></i>cueing hierarchy</span><span><i style="background:var(--accent)"></i>trained policy</span><span><i style="background:var(--accent-2)"></i>after clinician override</span></div>
+  <div class="legend" style="margin-top:8px"><span><i style="background:#8a948f"></i>cueing hierarchy</span><span><i style="background:var(--accent)"></i><span id="leg2">trained policy</span></span><span><i style="background:var(--accent-2)"></i>after clinician override</span></div>
   <svg id="chart" viewBox="0 0 640 260" width="100%" height="260" role="img" aria-label="Predicted retention during the course"></svg>
   <div class="muted">Trained policy's trials, one row per session. Green = correct, red = error. Letter = cue (p first sound, s meaning, w whole word). Click a trial to override its cue as the clinician.</div>
   <div class="strip" id="strip"></div>
@@ -132,6 +132,7 @@ $("#newp").onclick = async () => {
     drawHeat(null); $("#chart").innerHTML = ""; $("#strip").innerHTML = ""; $("#summary").textContent = ""; $("#override").style.display = "none";
     ["#name1","#name10","#reveal","#run"].forEach(s => $(s).disabled = false);
     $("#runnote").textContent = P.ppo_available ? "Hierarchy vs trained policy, same patient, same random stream." : "Trained policy not available yet (training); hierarchy vs spaced retrieval.";
+    $("#leg2").textContent = P.ppo_available ? "trained policy" : "spaced retrieval";
   } finally { $("#newp").disabled = false; }
 };
 
@@ -179,11 +180,12 @@ function drawChart() {
   [0,.25,.5,.75,1].forEach(v => { ns("line", {x1:L, x2:W-R, y1:y(v), y2:y(v), stroke:"var(--line)"}); ns("text", {x:L-6, y:y(v)+4, "text-anchor":"end"}).textContent = Math.round(v*100)+"%"; });
   const per = n / 4; ["day 0","day 3","day 7","day 10"].forEach((d,k) => { ns("line", {x1:x(k*per), x2:x(k*per), y1:T, y2:H-B, stroke:"var(--line)", "stroke-dasharray":"3 3"}); ns("text", {x:x(k*per)+3, y:H-B+14}).textContent = d; });
   ns("text", {x:L, y:H-4, fill:"var(--muted)"}).textContent = "predicted unaided retention of the practised words, one week after the course";
-  const col = {spaced_hierarchy:"#8a948f", spaced_plain:"#8a948f", ppo:"var(--accent)", tuned:"var(--accent-2)"};
+  const col = {spaced_hierarchy:"#8a948f", spaced_plain:"var(--accent)", ppo:"var(--accent)", tuned:"var(--accent-2)"};
+  const lab = {spaced_hierarchy:"hierarchy", spaced_plain:"spaced retrieval", ppo:"trained", tuned:"override"};
   names.forEach(k => {
     const tr = courses[k].trials; const d = tr.map((t,i) => `${i?"L":"M"}${x(i).toFixed(1)},${y(t.retention).toFixed(1)}`).join(" ");
     ns("path", {d, fill:"none", stroke:col[k]||"#999", "stroke-width":2.2});
-    const last = tr[tr.length-1]; ns("text", {x:x(n-1)+6, y:y(last.retention)+4}).textContent = `${Math.round(last.retention*100)}% ${k==="ppo"?"trained":k==="tuned"?"override":"hierarchy"}`;
+    const last = tr[tr.length-1]; ns("text", {x:x(n-1)+6, y:y(last.retention)+4}).textContent = `${Math.round(last.retention*100)}% ${lab[k]||k}`;
   });
   const start = courses[names[0]].start["17"]; ns("circle", {cx:x(0), cy:y(start), r:3, fill:"var(--fg)"});
 }
