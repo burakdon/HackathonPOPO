@@ -4,6 +4,8 @@ Versions:
   bandit                    Beta-Bernoulli Thompson bandit baseline (no language model)
   base                      unadapted language model with the normal task instruction
   prompted                  the same model with the 20 training demonstrations in its prompt
+  prompted_all              the same model with as many v2 training demonstrations (of 119) as fit
+                            in its context window
   sft:<run_id>              the run's supervised-only adapter (isolates the effect of DITTO rounds)
   ditto:<run_id>            the run's final DITTO adapter
   ditto:<run_id>@round<k>   an intermediate DITTO round (evaluation)
@@ -15,6 +17,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import json
+import random
 import re
 import threading
 from pathlib import Path
@@ -25,6 +28,8 @@ from core.config import resolve
 from core.practice import DecisionContext, PracticeConfig, parse_action, render_context
 
 TRAIN_DEMOS = "data/demonstrations/demonstrator_a_v1.jsonl"
+ALL_TRAIN_DEMOS = "data/demonstrations/demonstrator_a_v2.jsonl"
+PROMPT_RESERVE_TOKENS = 1024      # left free for the decision context and the answer
 
 
 def few_shot_examples(path: str = TRAIN_DEMOS, history_in_prompt: int = 4) -> list[tuple[str, str]]:
@@ -36,6 +41,30 @@ def few_shot_examples(path: str = TRAIN_DEMOS, history_in_prompt: int = 4) -> li
         ctx = DecisionContext(**r["context"])
         out.append((render_context(ctx, [parse_action(o) for o in r["options"]], history_in_prompt), r["preferred"]))
     return out
+
+
+def fit_few_shot(shots: list[tuple[str, str]], tokenizer, window: int,
+                 reserve: int = PROMPT_RESERVE_TOKENS) -> tuple[list[tuple[str, str]], int]:
+    """The longest prefix of `shots` whose prompt (instruction + demonstrations) stays within
+    `window - reserve` tokens, found by binary search on the exact chat-template token count.
+    Returns (shots, prompt tokens)."""
+    from agents.llm_runtime import chat_prompt
+    from core.practice import TASK_INSTRUCTION
+
+    def n_tokens(k: int) -> int:
+        msgs = [{"role": "system", "content": TASK_INSTRUCTION}]
+        for ctx, answer in shots[:k]:
+            msgs += [{"role": "user", "content": ctx}, {"role": "assistant", "content": answer}]
+        return len(tokenizer(chat_prompt(tokenizer, msgs), add_special_tokens=False)["input_ids"])
+
+    lo, hi = 0, len(shots)
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if n_tokens(mid) <= window - reserve:
+            lo = mid
+        else:
+            hi = mid - 1
+    return shots[:lo], n_tokens(lo)
 
 
 class ModelRegistry:
@@ -118,6 +147,15 @@ class ModelRegistry:
             elif version == "prompted":
                 few_shot = few_shot_examples(TRAIN_DEMOS, self.pcfg.history_in_prompt)
                 detail["few_shot_examples"] = len(few_shot)
+            elif version == "prompted_all":
+                runtime.load()
+                shots = few_shot_examples(ALL_TRAIN_DEMOS, self.pcfg.history_in_prompt)
+                random.Random(0).shuffle(shots)      # a truncated prefix still mixes the rules
+                window = min(llm.context_tokens, getattr(runtime.model.config, "max_position_embeddings",
+                                                         llm.context_tokens))
+                few_shot, n_tok = fit_few_shot(shots, runtime.tokenizer, window)
+                detail.update({"few_shot_examples": len(few_shot), "few_shot_available": len(shots),
+                               "prompt_tokens_before_context": n_tok, "context_window": window})
             elif version.startswith(("sft:", "ditto:")):
                 adapter, path, m = self.adapter_path(version)
                 runtime.ensure_adapter(adapter, path)

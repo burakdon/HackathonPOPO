@@ -46,6 +46,8 @@ class LLMConfig(BaseModel):
     # valid option and take the most likely one (output is always a valid option; also used to
     # sample DITTO alternatives in training).
     decoding: Literal["generate", "score"] = "generate"
+    # Context window used to fit the "prompted_all" baseline's demonstrations (Qwen3: 32,768 native).
+    context_tokens: int = Field(default=32768, ge=1024)
     max_new_tokens: int = Field(ge=4, le=64)
     timeout_s: float = Field(gt=0)
     runs_dir: str                         # where training runs (adapters + manifests) live
