@@ -1,0 +1,16 @@
+# Keep the build context to what the demo server needs. Transcripts (data/raw/psst, data/derived)
+# are never in the repository, but excluding them here makes a local build safe too.
+.git
+.github
+.claude
+.venv
+**/__pycache__
+results
+runs
+docs
+tests
+frontend
+*.mp4
+*.webm
+data/raw/psst
+data/derived

@@ -1,0 +1,32 @@
+# Mirrors every push to main onto the Hugging Face Space, so the live demo tracks the repository.
+# Needs one repository secret, HF_TOKEN (a Hugging Face token with write access). Until it is set
+# the job exits without doing anything. Optional repository variable HF_SPACE = "owner/neurocue"
+# when the Space does not live under the token owner's account.
+name: Deploy demo to Hugging Face Space
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: deploy-hf-space
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_SPACE: ${{ vars.HF_SPACE }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: No HF_TOKEN secret, nothing to deploy
+        if: env.HF_TOKEN == ''
+        run: echo "Add a repository secret HF_TOKEN to enable deployment."
+      - uses: actions/setup-python@v5
+        if: env.HF_TOKEN != ''
+        with:
+          python-version: "3.11"
+      - name: Upload the committed tree to the Space
+        if: env.HF_TOKEN != ''
+        run: |
+          pip install -q -U huggingface_hub
+          ./scripts/deploy_hf.sh ${HF_SPACE:-}

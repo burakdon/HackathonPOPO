@@ -7,10 +7,14 @@ same picture with a predefined hint, or move on to a new picture at a chosen dif
 clinician-facing view captures preferred decisions and shows how a model adapted with
 **DITTO** (Shaikh et al., ICLR 2025) behaves.
 
-## Run the NeuroCue demo locally (team)
+## NeuroCue demo: hosted, or run it locally (team)
 
-Everything the demo needs is in this branch: code, trained policies, picture norms and pictures,
-and the caches (fitted model grid, lexicon, WordNet). One command:
+Repository: https://github.com/burakdon/neurocue (default branch `main`; the earlier scaffold is kept
+as `legacy-main`). The hosted demo is a Hugging Face Space built from this repository with the
+`Dockerfile` at the root; see "Deploy" below for the one command that publishes or updates it.
+
+Everything the demo needs is in `main`: code, trained policies, picture norms and pictures, and the
+caches (fitted model grid, lexicon, WordNet). To run it on your machine, one command:
 
 ```bash
 ./scripts/run_demo.sh
@@ -27,6 +31,31 @@ Rehearsed seeds: AQ 55 phonological seed 3, then AQ 50 semantic seed 3 (same pic
 
 Not in the branch: the PSST transcripts (TalkBank data; `uv run python -m scripts.fetch_data` gets them)
 and the papers' PDFs. Neither is needed to run the demo.
+
+### Deploy (Hugging Face Space, free CPU tier)
+
+The `Dockerfile` serves the console on port 7860, the Spaces convention. Publishing or updating the
+hosted demo takes a Hugging Face account and three commands:
+
+```bash
+pip install -U huggingface_hub
+```
+
+```bash
+hf auth login
+```
+
+```bash
+./scripts/deploy_hf.sh
+```
+
+The script uploads the committed tree (files git ignores, such as transcripts, never leave the machine)
+to the Space `<your HF user>/neurocue`, creating it on first use, and prints the app URL
+(`https://<user>-neurocue.hf.space`). The first build takes 5-10 minutes; the first request after a
+build waits a minute or two while the engine loads. To keep the Space in step with every push to
+`main`, add a repository secret `HF_TOKEN` (a write token) on GitHub: the workflow in
+`.github/workflows/deploy-hf-space.yml` then runs the same script. Local container check:
+`docker build -t neurocue-demo . && docker run --rm -p 7860:7860 neurocue-demo`.
 
 **Proof-of-concept question:** can model adaptation make exercise-selection decisions follow a
 demonstrator's preferences in situations it has not seen?
@@ -334,12 +363,14 @@ frontend/  patient app and clinician dashboard
 
 ## Branches
 
-- `main`: stable and demo-ready only. Updated from `dev` at checkpoints, when the demo works end to end.
-- `dev`: integration branch. Small fixes (CORS, typos, README) may be committed here directly.
+- `main` (default): the NeuroCue engine, therapy trainer and demo described at the top; everything
+  needed to run the demo is committed here.
+- `legacy-main`: the original CueAgain scaffold that `main` grew from, kept for reference.
+- `dev`: integration branch for the CueAgain app. Small fixes (CORS, typos, README) may be committed here directly.
 - `feature/rl-agent`: all RL work (simulator, bandits, training, evaluation), branched from `dev`.
 
-Merges happen only through pull requests on GitHub (`feature/rl-agent` → `dev`, and `dev` → `main`
-at checkpoints), opened once the tests pass and a piece works. Nobody merges locally.
+Merges into `dev` happen through pull requests on GitHub (`feature/rl-agent` → `dev`), opened once the
+tests pass and a piece works. Nobody merges locally.
 
 ## Interfaces
 
