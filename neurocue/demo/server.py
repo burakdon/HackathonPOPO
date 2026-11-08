@@ -239,6 +239,7 @@ class OverrideReq(BaseModel):
     cue: str | None              # None | phonemic_initial | semantic | whole_word
     scope: str = "same_error"    # one | same_error | any_error
     n_demos: int = 4
+    rule: str = "repeat"         # repeat (retry the word she just failed, what a clinician means) | keep (the policy's word choice)
 
 
 @app.post("/api/patient/{pid}/override")
@@ -277,7 +278,8 @@ def override(pid: str, req: OverrideReq) -> dict:
         anchor_idx, held = after_ok + other_err, [i for i in same if i not in demo_idx]
     demos = []
     for i in demo_idx:
-        a = action_index(trials[i]["rule"], req.cue)
+        rule = "repeat" if req.rule == "repeat" and M[i][action_index("repeat", req.cue)] else trials[i]["rule"]
+        a = action_index(rule, req.cue)
         if M[i][a]:
             demos.append(Demo(obs=O[i], mask=M[i], action=a))
     if not demos:

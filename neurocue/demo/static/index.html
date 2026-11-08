@@ -277,6 +277,7 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
   <p id="summary"></p>
   <details><summary>What the trainer learned, on 80 held-out patients</summary>
     <ul><li>Spaced retrieval with no cues: +0.32 retention at one week. The trained policy: +0.32, cueing on 1% of trials. Cueing hierarchy: +0.29. Errorless (whole word every time): +0.26. Massed practice: +0.23.</li>
+      <li><b>Why an override rarely lifts the curve.</b> In the fitted learning layer a cue raises the chance of success now, but a cued success lays a weaker memory trace (0.79 against 1.00 for an unaided success; a failure followed by the word lays 0.59). The arithmetic favours a first-sound cue only while the word is still below about 40% retrievability, and retrying a word right after failing it also loses the spacing benefit. The trained policy already sits at this model's optimum, so a clinician's override is adopted faithfully and then priced: on severe patients it can edge the curve up, on moderate ones it costs a point or holds even. The trace weights for cued successes are assumptions, not fitted, so this is the engine's current opinion, not a verdict on cueing.</li>
       <li>The policy rediscovered spaced, uncued retrieval practice, the best clinical practice, and found nothing better. A cue buys success now and a weaker memory trace later; that trade-off is the fitted learning layer's, not an assumption of the trainer.</li>
       <li>One clinician override moves the policy in about 10 of 160 states, half of them the same kind of situation, none unrelated.</li></ul>
   </details>
@@ -489,13 +490,14 @@ function openOverride(i, t) {
   o.innerHTML = `<div class="lbl">Clinician override · trial ${i+1}</div>
     <div style="margin:6px 0">Word <i>${t.word}</i> · the policy chose the <b>${t.rule}</b> word with <b>${t.cue ? t.cue.replace("_", " ") : "no cue"}</b> · she answered <span class="chip c c-${t.category}">${t.category}</span>${prev ? ` · the trial before was <span class="chip c c-${prev}">${prev}</span>` : ""}.</div>
     <div class="row" style="gap:8px">
-      <label>I would have given <select id="ocue"><option value="">no cue</option><option value="phonemic_initial" selected>first sound</option><option value="semantic">meaning cue</option><option value="whole_word">whole word</option></select></label>
+      <label>I would have <select id="orule"><option value="repeat" selected>retried the word she just failed</option><option value="keep">moved on to the next word</option></select></label>
+      <label>with <select id="ocue"><option value="">no cue</option><option value="phonemic_initial" selected>the first sound</option><option value="semantic">a meaning cue</option><option value="whole_word">the whole word</option></select></label>
       <label>and I mean this <select id="oscope"><option value="same_error" selected>whenever she has just made this kind of error (6 demonstrations)</option><option value="any_error">whenever she has just made any error (6 demonstrations)</option><option value="one">only on this trial (1 demonstration)</option></select></label>
       <button id="oapply">Apply override (DITTO)</button> <span class="counter" id="ostat"></span>
     </div>
     <div class="counter" style="margin-top:6px">DITTO treats each demonstration as preferred over what the policy would have done and retrains it against the original as an anchor. One demonstration teaches it nothing beyond that trial; a handful of consistent ones teach the rule.</div>`;
   $("#oapply").onclick = async () => { $("#oapply").disabled = true; $("#ostat").textContent = "retraining the policy on the demonstrations…";
-    try { const r = await post(`/api/patient/${P.id}/override`, {trial: i, cue: $("#ocue").value || null, scope: $("#oscope").value, n_demos: 6});
+    try { const r = await post(`/api/patient/${P.id}/override`, {trial: i, cue: $("#ocue").value || null, scope: $("#oscope").value, n_demos: 6, rule: $("#orule").value});
       courses.tuned = r.course; drawChart(); drawDitto(r);
       const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
       const cueName = ($("#ocue").value || "no cue").replace("_", " ");
