@@ -278,20 +278,19 @@ footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margi
 </section>
 
 <section id="trainer">
-  <div class="phead"><span class="num">4</span><h2>Three therapists treat the same patient</h2></div>
-  <p class="what">A course of therapy personalised to her: twenty words she struggles with, four sessions over ten days, scored the way a real study scored it, by what she can still name unaided a week and a month later. Three therapists run on identical copies of her with identical dice, so every difference is the therapy, and every line is the engine's own prediction.</p>
+  <div class="phead"><span class="num">4</span><h2>Two therapists treat the same patient</h2></div>
+  <p class="what">A course of therapy personalised to her: twenty words she struggles with, four sessions over ten days, scored the way a real study scored it, by what she can still name unaided a week and a month later. Both therapists run on identical copies of her with identical dice, so the difference is the therapy, and every line is the engine's own prediction.</p>
   <div class="rows">
     <span class="k">course design</span><span>4 sessions on days 0, 3, 7, 10 · 40 trials each · 20 words she personally struggles with</span>
     <span class="k">scored on</span><span>predicted unaided retention of those words at day 17 and day 38 (Middleton et al. 2019's design)</span>
     <span class="k">cueing hierarchy</span><span>what clinics do: round-robin through the words; after an error, repeat with the first sound, then the whole word</span>
-    <span class="k">retention-trained policy</span><span>MaskablePPO trained on the engine's <b>hidden</b> objective, predicted retention a week later. It knows what a clinic cannot measure, so it is the ceiling here.</span>
-    <span class="k">clinic-trained policy</span><span>the same network trained only on what a session can observe, <b>correct answers in session</b>. This is what a deployed app could actually train on. It learns to drill the words she already knows: high accuracy in the room, little retained.</span>
-    <span class="k">in step 5 you teach</span><span><select id="pmodel" style="padding:4px 6px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--fg); font-size:13px"><option value="observable">the clinic-trained policy (where a clinician's rule can help)</option><option value="retention">the retention-trained policy (already optimal; nothing to gain)</option></select> <span id="runnote" class="counter"></span></span>
+    <span class="k">trained policy</span><span>MaskablePPO trained on predicted retention; it picks the word (due / repeat / weakest / strongest) and the cue each trial from what a session records. It personalises to her: the words it chooses come from her own history.</span>
+    <span class="k">in step 5 you teach</span><span><select id="pmodel" style="padding:4px 6px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--fg); font-size:13px"><option value="retention">the trained policy above</option><option value="observable">an alternative trained only on in-session correct answers (adds a third line; shows what corrections do to a weaker agent)</option></select> <span id="runnote" class="counter"></span></span>
   </div>
   <div class="row" style="margin-top:12px"><button id="run" disabled>Run a four-session course</button><span class="counter" id="runstate">Create a patient first.</span></div>
-  <div class="ll"><span><i style="background:#8a948f"></i>cueing hierarchy</span><span><i style="background:var(--accent)"></i><span id="leg2">retention-trained policy</span></span><span><i style="background:#9b7bdc"></i>clinic-trained policy</span><span><i style="background:var(--accent-2)"></i>clinic-trained policy after the clinician taught it (step 5)</span><span class="counter">· dashed lines = session days · y = predicted retention at day 17</span></div>
+  <div class="ll"><span><i style="background:#8a948f"></i>cueing hierarchy</span><span><i style="background:var(--accent)"></i><span id="leg2">trained policy</span></span><span id="legObs" style="display:none"><i style="background:#9b7bdc"></i>in-session-trained alternative</span><span><i style="background:var(--accent-2)"></i>after the clinician taught it (step 5)</span><span class="counter">· dashed lines = session days · y = predicted retention at day 17</span></div>
   <svg id="chart" class="chart" viewBox="0 0 640 260" width="100%" height="260" role="img" aria-label="Predicted retention during the course"></svg>
-  <div class="lbl" style="margin-top:8px"><span id="stripTitle">Clinic-trained policy's</span> 160 trials · one row per session · this is the policy you teach in step 5</div>
+  <div class="lbl" style="margin-top:8px"><span id="stripTitle">Trained policy's</span> 160 trials · one row per session · the same policy as the teal line, and the one you teach in step 5</div>
   <div class="counter">Green = named correctly, red = error. Letter = cue given: <b>p</b> first sound, <b>s</b> meaning cue, <b>w</b> whole word, blank = no cue. Hover for the word. Click an error to take it to step 5.</div>
   <div class="strip" id="strip"></div>
   <p id="summary"></p>
@@ -304,7 +303,7 @@ footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margi
 </section>
 <section id="teach" style="grid-column: 1 / -1">
   <div class="phead"><span class="num">5</span><h2>Teach the therapist as the clinician</h2></div>
-  <p class="what">This is where the agent becomes yours. Correct it a few times and DITTO turns the corrections into a rule: each one is treated as preferred over what the policy would have done, and the policy is retrained against its original self as an anchor, so it changes where you meant and nowhere else. Before you teach it anything, the engine shows what each possible rule would do. After, it shows what the rule did. Run the course in step 4 first.</p>
+  <p class="what">This is the infrastructure for physician input. A clinician corrects the agent a few times and DITTO turns the corrections into a rule: each is treated as preferred over what the policy would have done, and the policy is retrained against its original self as an anchor, so it changes where the clinician meant and nowhere else. Everything about that is shown: beforehand, what each possible rule would do to her retention; afterwards, where the rule was adopted, where it leaked, and what it cost or gained. The trained policy above is already at this learning model's optimum, so no rule can raise its number today; that is the honest baseline. The gain comes with real clinicians and a learning layer fitted to more therapy data, and the plumbing for it is what you are looking at. Run the course in step 4 first.</p>
 
   <div class="block"><div class="lbl">A · Before you teach: what each rule would do, moment by moment</div>
   <div class="counter" style="margin:4px 0 6px">For each of the 160 decisions the engine asks: what if the clinician had chosen differently here? For every option it computes the word's chance of success now (cued or not), the memory trace a success or failure would lay, and the word's predicted retention at day 17 after it, including the spacing cost of an immediate retry. The cell shows the <b>best alternative to what the policy did</b>: green = would have helped, red = every alternative would have hurt, grey = nothing to gain. Hover for the numbers.</div>
@@ -441,9 +440,9 @@ $("#newp").onclick = async () => {
     ["#name1","#name10","#namen","#reveal","#run"].forEach(s => $(s).disabled = false);
     ["#st1","#st2","#st3","#st4","#st5"].forEach(s => $(s).classList.remove("done")); $("#st1").classList.add("done");
     const ma = P.models_available || {}; [...$("#pmodel").options].forEach(o => { o.disabled = !ma[o.value]; o.textContent = o.textContent.replace(/ · not loaded$/, "") + (ma[o.value] ? "" : " · not loaded"); });
-    if (!ma[$("#pmodel").value]) $("#pmodel").value = ma.observable ? "observable" : "retention";
+    if (!ma[$("#pmodel").value]) $("#pmodel").value = ma.retention ? "retention" : "observable";
     $("#runnote").textContent = (ma.retention || ma.observable) ? "" : "no trained policy loaded on this server; the comparison runs spaced retrieval (no cues) instead";
-    $("#leg2").textContent = P.ppo_available ? "retention-trained policy" : "spaced retrieval";
+    $("#leg2").textContent = P.ppo_available ? "trained policy" : "spaced retrieval";
   } finally { $("#newp").disabled = false; }
 };
 
@@ -512,7 +511,7 @@ function drawChart() {
   const per = n / 4; ["day 0","day 3","day 7","day 10"].forEach((d,k) => { ns("line", {x1:x(k*per), x2:x(k*per), y1:T, y2:H-B, stroke:"var(--line)", "stroke-dasharray":"3 3"}); ns("text", {x:x(k*per)+3, y:H-B+14}).textContent = d; });
   ns("text", {x:L, y:H-4, fill:"var(--muted)"}).textContent = "predicted unaided retention of the practised words, one week after the course";
   const col = {spaced_hierarchy:"#8a948f", spaced_plain:"var(--accent)", ppo:"var(--accent)", ppo_retention:"var(--accent)", ppo_observable:"#9b7bdc", tuned:"var(--accent-2)"};
-  const lab = {spaced_hierarchy:"hierarchy", spaced_plain:"spaced retrieval", ppo:"trained", ppo_retention:"retention-trained", ppo_observable:"clinic-trained", tuned:"after teaching"};
+  const lab = {spaced_hierarchy:"hierarchy", spaced_plain:"spaced retrieval", ppo:"trained", ppo_retention:"trained policy", ppo_observable:"in-session alt.", tuned:"after teaching"};
   const ends = [];
   names.forEach(k => {
     const tr = courses[k].trials; const d = tr.map((t,i) => `${i?"L":"M"}${x(i).toFixed(1)},${y(t.retention).toFixed(1)}`).join(" ");
@@ -578,9 +577,9 @@ function drawOpportunity(run) {
   const cands = table.filter(r => ACTS.includes(r.action) && r.context !== "any_error");
   const best = cands.reduce((a, r) => (!a || r.mean_pp > a.mean_pp) ? r : a, null);
   const hl = $("#oppHeadline");
-  const which = (run.model === "observable") ? "the clinic-trained policy" : "the retention-trained policy";
+  const which = (run.model === "observable") ? "the in-session-trained alternative" : "the trained policy";
   if (best && best.mean_pp > 0.02) hl.innerHTML = `<b style="color:var(--correct)">A rule that helps exists against ${which}:</b> whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}: ${best.mean_pp >= 0 ? "+" : ""}${best.mean_pp.toFixed(2)} pp per moment over ${best.n} moments, about +${(best.mean_pp * best.n).toFixed(1)} pp on retention if adopted everywhere it applies. Cues pay only while a word is still weak, so this is a severe-patient, early-session effect.`;
-  else if (best) hl.innerHTML = `<b>No correction improves on ${which} for this patient.</b> The cheapest deviation is "whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}" at ${best.mean_pp.toFixed(2)} pp per moment; every retry costs more, because an immediate retry loses the spacing benefit and a cued success lays a weaker trace. You can still teach a rule: the policy will adopt it (block C) and the course will show its price.`;
+  else if (best) hl.innerHTML = `<b>No correction improves on ${which} for this patient: it already does what the fitted learning model rewards.</b> The cheapest deviation is "whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}" at ${best.mean_pp.toFixed(2)} pp per moment; every retry costs more, because an immediate retry loses the spacing benefit and a cued success lays a weaker trace. Teach a rule anyway: block C shows the mechanism working, adoption where meant and nowhere else, and the course shows its price. With real clinician input and a learning model fitted to more therapy data, this is where personalisation beyond the trained optimum would come from.`;
   else hl.textContent = "";
   // contexts for the form
   const formCtxs = CTX_ORDER.filter(c => c !== "any_error" && run.trials.some(t => t.prev === c));
@@ -606,7 +605,7 @@ $("#tapply").onclick = async () => {
     const r = await post(`/api/patient/${P.id}/override`, {trial: -1, context: $("#tctx").value, cue: $("#tcue").value || null, rule: $("#trule").value, n_demos: 6});
     courses.tuned = r.course; drawChart(); drawDitto(r);
     const pct = v => v == null ? "–" : Math.round(v * 100) + "%"; const cueName = ($("#tcue").value || "no cue").replace("_", " ");
-    $("#osummary").innerHTML = `<b>Taught</b> with ${r.n_demos} demonstrations (${r.n_demos_total} in total): "whenever she has just ${CTX_LABEL($("#tctx").value)}, ${$("#trule").value === "repeat" ? "retry the word" : "move on"} with ${cueName}". The retrained policy now takes that action in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching moments it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} moments after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} moments after a success; its choice changed in ${r.changed_states.length} of ${r.n_states} states. <b>Retention at one week:</b> ${$("#pmodel").value === "retention" ? "retention-trained" : "clinic-trained"} policy ${Math.round(taughtRun().final["17"]*100)}%, after teaching ${Math.round(r.course.final["17"]*100)}% (${(100*(r.course.final["17"] - taughtRun().final["17"])).toFixed(1)} pp)${courses.ppo_retention && $("#pmodel").value !== "retention" ? `; the retention-trained policy, which knows the hidden objective, reaches ${Math.round(courses.ppo_retention.final["17"]*100)}%` : ""}. The engine priced the clinician's rule; block A predicted its sign.`;
+    $("#osummary").innerHTML = `<b>Taught</b> with ${r.n_demos} demonstrations (${r.n_demos_total} in total): "whenever she has just ${CTX_LABEL($("#tctx").value)}, ${$("#trule").value === "repeat" ? "retry the word" : "move on"} with ${cueName}". The retrained policy now takes that action in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching moments it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} moments after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} moments after a success; its choice changed in ${r.changed_states.length} of ${r.n_states} states. <b>Retention at one week:</b> ${$("#pmodel").value === "retention" ? "trained policy" : "in-session-trained alternative"} ${Math.round(taughtRun().final["17"]*100)}%, after teaching ${Math.round(r.course.final["17"]*100)}% (${(100*(r.course.final["17"] - taughtRun().final["17"])).toFixed(1)} pp)${courses.ppo_retention && $("#pmodel").value !== "retention" ? `; the trained policy reaches ${Math.round(courses.ppo_retention.final["17"]*100)}%` : ""}. The engine priced the clinician's rule; block A predicted its sign.`;
     $("#tstat").textContent = "done"; $("#st5").classList.add("done");
   } catch (e) { $("#tstat").textContent = e.message.slice(0, 200); } finally { $("#tapply").disabled = false; }
 };
@@ -614,16 +613,17 @@ $("#run").onclick = async () => {
   $("#run").disabled = true; $("#summary").textContent = ""; $("#runstate").textContent = "Running two 160-trial courses on identical copies of her…";
   try {
     const ma = P.models_available || {}; const teach = $("#pmodel").value;
-    const pols = ["spaced_hierarchy"].concat(ma.retention ? ["ppo_retention"] : [], ma.observable ? ["ppo_observable"] : [], (!ma.retention && !ma.observable) ? ["spaced_plain"] : []);
+    const pols = ["spaced_hierarchy"].concat(ma.retention ? ["ppo_retention"] : [], (teach === "observable" && ma.observable) ? ["ppo_observable"] : [], (!ma.retention && !ma.observable) ? ["spaced_plain"] : []);
+    $("#legObs").style.display = teach === "observable" ? "" : "none";
     courses = await post(`/api/patient/${P.id}/course`, {policies: pols, teach});
     for (const k of Object.keys(courses)) if (courses[k] && courses[k].unavailable) delete courses[k];
     const taught = taughtRun();
     drawChart(); drawStrip(taught || courses.spaced_plain); if (taught) drawOpportunity(taught);
-    $("#stripTitle").textContent = teach === "retention" ? "Retention-trained policy's" : "Clinic-trained policy's";
+    $("#stripTitle").textContent = teach === "retention" ? "Trained policy's" : "In-session-trained alternative's";
     const h = courses.spaced_hierarchy, rt = courses.ppo_retention, ob = courses.ppo_observable;
     const f = c => c ? `${Math.round(c.final["17"]*100)}% at one week, ${Math.round(c.final["38"]*100)}% at one month` : "–";
     $("#runstate").textContent = "Done."; $("#st4").classList.add("done");
-    $("#summary").innerHTML = `<b>Result.</b> Her 20 words started at ${Math.round(h.start["17"]*100)}% predicted retention. <b>Cueing hierarchy</b>: ${f(h)}. ` + (rt ? `<b>Retention-trained policy</b> (knows the hidden objective): ${f(rt)}. ` : "") + (ob ? `<b>Clinic-trained policy</b> (sees only in-session answers): ${f(ob)}. ` : "") + `All lines are the engine's learning layer predicting unaided naming. The clinic-trained policy is the one a real app could train; step 5 shows what a clinician's corrections do to it.`;
+    $("#summary").innerHTML = `<b>Result.</b> Her 20 words started at ${Math.round(h.start["17"]*100)}% predicted retention. <b>Cueing hierarchy</b>: ${f(h)}. ` + (rt ? `<b>Trained policy</b>: ${f(rt)}. ` : "") + (ob ? `<b>In-session-trained alternative</b> (sees only correct answers in the room, so it drills what she already knows): ${f(ob)}. ` : "") + `Both lines are the engine's learning layer predicting unaided naming; the gap between them is the therapy.`;
   } catch (e) { $("#runstate").textContent = "Failed."; $("#summary").innerHTML = `<b>The course did not run.</b> ${e.message.slice(0, 300)}`; } finally { $("#run").disabled = false; }
 };
 </script>
