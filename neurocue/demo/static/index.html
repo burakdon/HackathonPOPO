@@ -5,89 +5,150 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NeuroCue Patient Console</title>
 <style>
-:root { --bg:#f6f7f5; --card:#ffffff; --fg:#17201e; --muted:#6a7572; --line:#dfe4e1; --accent:#0e6e63; --accent-2:#c96f1f;
+:root { --bg:#f4f6f5; --card:#ffffff; --fg:#17201e; --muted:#60706b; --line:#dbe3df; --accent:#0e6e63; --accent-soft:#e3f1ee; --accent-2:#c96f1f; --accent-2-soft:#faeadb;
   --correct:#2e7d32; --semantic:#1565c0; --formal:#ef6c00; --mixed:#6a1b9a; --unrelated:#757575; --nonword:#c62828; --omission:#9e9e9e; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#101513; --card:#182019; --fg:#e8ebe8; --muted:#9aa7a2; --line:#2a3530; --accent:#5fc2b3; --accent-2:#f0a05a; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0f1413; --card:#171e1c; --fg:#e8ebe8; --muted:#9aa7a2; --line:#28332f; --accent:#5fc2b3; --accent-soft:#17312d; --accent-2:#f0a05a; --accent-2-soft:#3a2a18; } }
 * { box-sizing: border-box; }
 body { margin:0; background:var(--bg); color:var(--fg); font: 15px/1.45 -apple-system, "Segoe UI", Inter, Roboto, sans-serif; }
-header { display:flex; align-items:baseline; gap:16px; padding:18px 24px 6px; }
-header h1 { font-size:20px; margin:0; letter-spacing:.2px; }
-header .sub { color:var(--muted); font-size:13px; }
-main { display:grid; grid-template-columns: 1fr 1fr; gap:16px; padding:12px 24px 32px; }
-@media (max-width: 980px) { main { grid-template-columns: 1fr; } }
-section { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; min-width:0; }
-section h2 { font-size:14px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:0 0 10px; }
+.wrap { max-width: 1380px; margin: 0 auto; padding: 18px 24px 40px; }
+/* header */
+.top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.top h1 { font-size:22px; margin:0; letter-spacing:.2px; }
+.top .tag { color:var(--muted); font-size:14px; margin:4px 0 0; max-width:70ch; }
+.status { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.chip { display:inline-block; padding:2px 9px; border-radius:10px; font-size:12px; font-weight:600; }
+.chip.on { background:var(--accent-soft); color:var(--accent); }
+.chip.off { background:var(--accent-2-soft); color:var(--accent-2); }
+.chip.c { color:#fff; }
+.c-correct{background:var(--correct)} .c-semantic{background:var(--semantic)} .c-formal{background:var(--formal)} .c-mixed{background:var(--mixed)} .c-unrelated{background:var(--unrelated)} .c-nonword{background:var(--nonword)} .c-omission{background:var(--omission)}
+/* stepper */
+.steps { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; margin:16px 0 14px; }
+.step { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px; display:flex; gap:10px; align-items:flex-start; }
+.step .num { width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; display:grid; place-items:center; flex:none; font-size:13px; }
+.step b { display:block; font-size:13.5px; }
+.step span { font-size:12.5px; color:var(--muted); }
+@media (max-width: 900px) { .steps { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+/* panels */
+main { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+@media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+section { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px 14px; min-width:0; }
+.phead { display:flex; align-items:baseline; gap:10px; margin-bottom:2px; }
+.phead .num { width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; display:grid; place-items:center; flex:none; font-size:12.5px; align-self:center; }
+.phead h2 { font-size:16px; margin:0; }
+.what { color:var(--muted); font-size:13px; margin:0 0 12px 34px; }
+.lbl { font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; }
 .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-button { background:var(--accent); color:#fff; border:0; border-radius:9px; padding:8px 14px; font-weight:600; cursor:pointer; }
+.field { display:flex; flex-direction:column; gap:4px; }
+button { background:var(--accent); color:#fff; border:0; border-radius:9px; padding:8px 14px; font-weight:600; cursor:pointer; font-size:14px; }
 button.ghost { background:transparent; color:var(--fg); border:1px solid var(--line); }
 button:disabled { opacity:.5; cursor:default; }
 .seg { display:inline-flex; border:1px solid var(--line); border-radius:9px; overflow:hidden; }
 .seg button { background:transparent; color:var(--fg); border-radius:0; font-weight:500; }
 .seg button.on { background:var(--accent); color:#fff; }
-input[type=range] { width:220px; accent-color:var(--accent); }
-.kv { display:grid; grid-template-columns:auto 1fr; gap:2px 12px; font-size:14px; margin-top:8px; }
-.kv .k { color:var(--muted); }
-.pic { display:grid; grid-template-columns: 200px 210px 1fr; gap:14px; align-items:start; }
-@media (max-width: 1240px) { .pic { grid-template-columns: 1fr 1fr; } .pic > div:last-child { grid-column: 1 / -1; } }
+input[type=range] { width:240px; accent-color:var(--accent); }
+.scale { display:flex; justify-content:space-between; width:240px; font-size:11px; color:var(--muted); }
+.kv { display:grid; grid-template-columns:auto 1fr; gap:3px 14px; font-size:14px; margin-top:10px; align-items:baseline; }
+.kv .k { color:var(--muted); font-size:12.5px; }
+.help { font-size:12.5px; color:var(--muted); margin:6px 0 0; }
+details { margin-top:10px; border-top:1px dashed var(--line); padding-top:8px; }
+details summary { cursor:pointer; font-size:12.5px; color:var(--accent); font-weight:600; }
+details p, details ul { font-size:12.5px; color:var(--muted); margin:6px 0 0; }
+details ul { padding-left:18px; }
+/* naming */
+.pic { display:grid; grid-template-columns: 200px 210px; gap:14px 18px; align-items:start; }
+.pic > div:last-child { grid-column: 1 / -1; }
+@media (min-width: 1600px) { .pic { grid-template-columns: 200px 210px 1fr; } .pic > div:last-child { grid-column: auto; } }
+@media (max-width: 480px) { .pic { grid-template-columns: 1fr; } }
+.legend { display:grid; grid-template-columns: 1fr 1fr; gap:6px 12px; font-size:12.5px; color:var(--muted); margin-top:10px; }
+.legend > span { display:flex; align-items:center; gap:6px; }
+.legend .lbl { grid-column: 1 / -1; }
+.picbox img { width:200px; height:200px; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:10px; display:block; }
+.picbox .cap, .avatar .who { text-align:center; font-size:12px; color:var(--muted); margin-top:6px; }
 .avatar { position:relative; width:210px; }
 .avatar svg { width:210px; height:220px; display:block; border-radius:14px; background: radial-gradient(circle at 50% 30%, #f3ece4 0%, #e3d7cb 70%, #d2c3b4 100%); }
-.avatar .mouth { transition: d .07s linear; }
-.avatar .lid { transition: transform .08s; }
-.avatar .brow { transition: transform .35s ease; }
-.avatar .pupil { transition: cx .25s ease, cy .25s ease; }
-.avatar .who { text-align:center; font-size:12.5px; color:var(--muted); margin-top:6px; }
+.avatar .mouth { transition: d .07s linear; } .avatar .lid { transition: transform .08s; } .avatar .brow { transition: transform .35s ease; } .avatar .pupil { transition: cx .25s ease, cy .25s ease; }
 .bubble { position:absolute; left:8px; right:8px; top:0; transform: translateY(-4px); background:var(--card); border:1px solid var(--line); border-radius:12px; padding:6px 10px; font-size:13px; line-height:1.3; box-shadow:0 4px 14px rgba(0,0,0,.08); opacity:0; transition:opacity .2s; pointer-events:none; }
 .bubble.on { opacity:1; }
-.bubble .ph { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--muted); font-size:11.5px; display:block; margin-top:2px; }
+.bubble .ph { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--muted); font-size:11.5px; display:block; margin:2px 0 0; }
 .bubble .dots span { display:inline-block; width:6px; height:6px; margin-right:4px; border-radius:50%; background:var(--muted); animation: dot 1s infinite; }
 .bubble .dots span:nth-child(2) { animation-delay:.2s } .bubble .dots span:nth-child(3) { animation-delay:.4s }
 @keyframes dot { 0%,80%,100% { opacity:.25 } 40% { opacity:1 } }
 @media (prefers-reduced-motion: reduce) { .bubble .dots span { animation: none; } }
-.pic img { width:220px; height:220px; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:10px; }
-.feed { max-height:260px; overflow:auto; border-top:1px solid var(--line); margin-top:10px; padding-top:6px; font-variant-numeric: tabular-nums; }
+.legend .chip { font-size:11px; padding:1px 7px; flex:none; }
+.counter { font-size:13px; color:var(--muted); }
+.feed { max-height:250px; overflow:auto; border-top:1px solid var(--line); margin-top:10px; padding-top:6px; font-variant-numeric: tabular-nums; }
+.feed .hd { display:grid; grid-template-columns: 28px 110px 1fr auto; gap:8px; padding:2px 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
 .feed .r { display:grid; grid-template-columns: 28px 110px 1fr auto; gap:8px; padding:5px 0; border-bottom:1px dashed var(--line); align-items:center; font-size:14px; }
-.feed .r .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; color:var(--muted); }
-.chip { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; font-weight:600; color:#fff; }
-.c-correct{background:var(--correct)} .c-semantic{background:var(--semantic)} .c-formal{background:var(--formal)} .c-mixed{background:var(--mixed)} .c-unrelated{background:var(--unrelated)} .c-nonword{background:var(--nonword)} .c-omission{background:var(--omission)}
+.feed .r .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; color:var(--muted); }
+/* diagnose */
 canvas { border-radius:8px; border:1px solid var(--line); background:#fff; }
 .diag { display:grid; grid-template-columns: 300px 1fr; gap:16px; align-items:start; }
-.big { font-size:26px; font-weight:700; }
-svg text { fill: var(--fg); font-size: 11px; }
+@media (max-width: 1240px) { .diag { grid-template-columns: 1fr; } }
+.axis { font-size:11.5px; color:var(--muted); text-align:center; margin-top:4px; }
+/* trainer */
+svg.chart text { fill: var(--fg); font-size: 11px; }
+.ll { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; margin-top:8px; }
+.ll span { display:inline-flex; align-items:center; gap:6px; } .ll i { width:16px; height:3px; display:inline-block; border-radius:2px; }
 .strip { display:grid; grid-template-columns: repeat(40, 1fr); gap:2px; margin-top:6px; }
 .strip div { aspect-ratio:1; border-radius:2px; font-size:8px; line-height:1; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; opacity:.9; }
 .strip div:hover { outline:2px solid var(--accent-2); }
-.muted { color:var(--muted); font-size:13px; }
-.legend span { display:inline-flex; align-items:center; gap:6px; margin-right:12px; font-size:13px; }
-.legend i { width:14px; height:3px; display:inline-block; border-radius:2px; }
-#override { border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:10px; display:none; }
-.note { font-size:13px; color:var(--muted); margin-top:8px; }
+.rows { display:grid; grid-template-columns: 1fr 1fr; gap:4px 16px; font-size:13px; margin-top:8px; }
+.rows .k { color:var(--muted); }
+#override { border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:10px; display:none; font-size:13.5px; }
+#summary { font-size:13.5px; margin-top:10px; }
+footer { margin-top:18px; border-top:1px solid var(--line); padding-top:12px; font-size:12.5px; color:var(--muted); display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; }
+footer b { color:var(--fg); display:block; font-size:12.5px; }
+@media (max-width: 900px) { footer { grid-template-columns: 1fr 1fr; } }
 </style>
 </head>
 <body>
-<header><h1>NeuroCue patient console</h1><span class="sub">A synthetic aphasia patient you can run experiments on. Everything shown is the validated engine, live.</span></header>
-<main>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>NeuroCue patient console</h1>
+    <p class="tag">A synthetic aphasia patient you can run experiments on. Every number on this page is produced live by the validated engine: the Dell word-retrieval model, the lesion fitter, the learning layer fitted to a real therapy study, and the trained therapist.</p>
+  </div>
+  <div class="status">
+    <span class="lbl">Engine</span><span class="chip on">model + fitter loaded</span><span class="chip off" id="ppochip">trained policy: checking…</span>
+  </div>
+</header>
 
+<div class="steps">
+  <div class="step"><span class="num">1</span><div><b>Choose a patient</b><span>Severity and lesion type. Press New patient.</span></div></div>
+  <div class="step"><span class="num">2</span><div><b>Hear her name pictures</b><span>Real pictures, realistic errors, spoken aloud.</span></div></div>
+  <div class="step"><span class="num">3</span><div><b>Diagnose her</b><span>Watch the fitter recover the lesion from the answers.</span></div></div>
+  <div class="step"><span class="num">4</span><div><b>Treat her</b><span>Clinic practice vs the trained policy. Override a cue.</span></div></div>
+</div>
+
+<main>
 <section id="patient">
-  <h2>1 · Who are you listening to</h2>
-  <div class="row">
-    <label>Severity (Aphasia Quotient) <input id="aq" type="range" min="20" max="95" value="60"> <b id="aqv">60</b></label>
-  </div>
-  <div class="row" style="margin-top:8px">
-    <span class="muted">Lesion</span>
-    <div class="seg" id="lesion">
-      <button data-v="semantic">semantic</button><button data-v="balanced" class="on">balanced</button><button data-v="phonological">phonological</button>
+  <div class="phead"><span class="num">1</span><h2>Who are you listening to</h2></div>
+  <p class="what">Two numbers make the patient: how severe, and where the damage is. Change them and the same pictures produce a different person.</p>
+  <div class="row" style="gap:22px; align-items:flex-start">
+    <div class="field"><span class="lbl">Severity · WAB Aphasia Quotient (0–100, higher = milder)</span>
+      <input id="aq" type="range" min="20" max="95" value="60"><div class="scale"><span>very severe</span><span>severe</span><span>moderate</span><span>mild</span></div>
+      <div class="help">AQ <b id="aqv">60</b> · <span id="bandlab">moderate</span> · expected naming accuracy for this severity: <b id="aqacc">–</b></div>
     </div>
-    <label class="muted">seed <input id="seed" type="number" value="1" style="width:64px"></label>
-    <button id="newp">New patient</button>
+    <div class="field"><span class="lbl">Lesion type · which connections are weak</span>
+      <div class="seg" id="lesion"><button data-v="semantic">semantic</button><button data-v="balanced" class="on">balanced</button><button data-v="phonological">phonological</button></div>
+      <div class="help" id="lesionhelp">Both connection weights lowered alike: a mix of meaning errors and sound errors.</div>
+    </div>
+    <div class="field"><span class="lbl">Random seed · same seed, same patient</span>
+      <div class="row"><input id="seed" type="number" value="1" style="width:72px; padding:6px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--fg)"><button id="newp">New patient</button></div>
+    </div>
   </div>
-  <div class="kv" id="pcard"><span class="k">patient</span><span>none yet</span></div>
-  <p class="note">The patient is the Dell semantic-phonological model with two lesion weights drawn from the population prior fitted to PSST, with word errors realized against a real lexicon. Change the slider and the same pictures produce a different person.</p>
+  <div class="kv" id="pcard"><span class="k">patient</span><span>none yet. Press New patient.</span></div>
+  <details><summary>What the two lesion weights are</summary>
+    <p>In the Dell semantic-phonological model, naming is two steps: meaning activates a word, then the word activates its sounds. Each step runs over a connection weight. Healthy speakers have both at about 0.04. A weak <b>semantic</b> weight (s) lets neighbouring words win, so the patient says <i>chair</i> for <i>bench</i> or <i>home</i> for <i>house</i>. A weak <b>phonological</b> weight (p) lets the sounds come out wrong, so the patient says <i>kwiyd</i> for <i>queen</i>. The population prior that picks s and p was fitted to 74 real PSST participants; Dell's original prior is kept as an alternative.</p>
+  </details>
 </section>
 
 <section id="naming">
-  <h2>2 · The patient names pictures</h2>
+  <div class="phead"><span class="num">2</span><h2>The patient names pictures</h2></div>
+  <p class="what">She looks at the picture, pauses for as long as the engine says the response took, then says it. Nonwords are spoken from their phoneme string. The framing around the word, "uh", "it's a", a false start, is sampled from how real PSST patients framed theirs.</p>
   <div class="pic">
-    <img id="img" alt="picture" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3C/svg%3E">
+    <div class="picbox"><img id="img" alt="picture to name" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3C/svg%3E"><div class="cap">Picture · <span id="picname">–</span> · IPNP naming norms</div></div>
     <div class="avatar" id="avatar" aria-label="the patient, Marisol">
       <svg viewBox="0 0 210 220" role="img" aria-hidden="true">
         <!-- hair, back -->
@@ -125,54 +186,94 @@ svg text { fill: var(--fg); font-size: 11px; }
         <!-- mouth -->
         <path id="mouth" class="mouth" d="M88 158 C 94 156, 116 156, 122 158 C 116 160, 94 160, 88 158 Z" fill="#a9474f"/>
       </svg>
-      <div class="who">Marisol, 23</div>
+      <div class="who" id="who">Marisol, 23 · synthetic patient</div>
       <div class="bubble" id="bubble"></div>
     </div>
     <div>
-      <div class="row"><button id="name1" disabled>Name it</button><button id="name10" class="ghost" disabled>Ten in a row</button>
-        <label class="muted"><input id="speak" type="checkbox" checked> speak</label></div>
-      <div class="kv"><span class="k">target</span><b id="target">–</b><span class="k">said</span><span id="said">–</span><span class="k">type</span><span id="type">–</span></div>
-      <p class="note">The patient looks at the picture, pauses for as long as the engine says the response took, then speaks it. Mouth shapes follow the phonemes produced, so a nonword is mouthed as the sounds that came out, not the word that was meant.</p>
+      <div class="row"><button id="name1" disabled>Name it</button><button id="name10" class="ghost" disabled>Ten in a row</button><label class="counter"><input id="speak" type="checkbox" checked> speak aloud</label></div>
+      <div class="kv"><span class="k">target word</span><b id="target">–</b><span class="k">what she said</span><span id="said">–</span><span class="k">response type</span><span id="type">–</span><span class="k">so far</span><span id="count" class="counter">0 pictures</span></div>
+      <div class="legend"><span class="lbl">Response types (PNT convention)</span>
+        <span><span class="chip c c-correct">correct</span></span>
+        <span><span class="chip c c-semantic">semantic</span> related in meaning: bench → chair</span>
+        <span><span class="chip c c-formal">formal</span> related in sound: comb → coat</span>
+        <span><span class="chip c c-mixed">mixed</span> both: cat → rat</span>
+        <span><span class="chip c c-unrelated">unrelated</span> neither: house → table</span>
+        <span><span class="chip c c-nonword">nonword</span> sounds scrambled: queen → kwiyd</span>
+      </div>
     </div>
   </div>
-  <div class="feed" id="feed"></div>
+  <div class="feed" id="feedwrap"><div class="hd"><span>#</span><span>target</span><span>what she said</span><span>type</span></div><div id="feed"></div></div>
 </section>
 
 <section id="diagnose">
-  <h2>3 · Diagnose the patient from what you heard</h2>
+  <div class="phead"><span class="num">3</span><h2>Diagnose the patient from what you heard</h2></div>
+  <p class="what">The fitter estimates the two lesion weights from the pattern of response types alone. This is the same grid likelihood that reproduced Dell's published patients. Watch it narrow as answers arrive, then reveal the truth.</p>
   <div class="diag">
-    <canvas id="heat" width="300" height="300"></canvas>
+    <div>
+      <canvas id="heat" width="300" height="300" aria-label="posterior over the two lesion weights"></canvas>
+      <div class="axis">horizontal: semantic weight s (0 → 0.06) · vertical: phonological weight p (0 → 0.06) · bright = likely · ring = best estimate · orange dot = truth</div>
+    </div>
     <div>
       <div class="kv">
-        <span class="k">responses</span><b id="n">0</b>
-        <span class="k">reading</span><span id="read">–</span>
-        <span class="k">predicted naming</span><span id="pacc">–</span>
-        <span class="k">best estimate</span><span id="map">–</span>
-        <span class="k">truth</span><span id="truth">hidden</span>
+        <span class="k">responses used</span><b id="n">0</b>
+        <span class="k">lesion read from the errors</span><span id="read">–</span>
+        <span class="k">predicted naming accuracy</span><span id="pacc">–</span>
+        <span class="k">best estimate (s · p)</span><span id="map">–</span>
+        <span class="k">true weights (s · p)</span><span id="truth">hidden until revealed</span>
       </div>
       <div class="row" style="margin-top:10px"><button id="reveal" class="ghost" disabled>Reveal true lesion</button></div>
-      <p class="note">The heat map is the fitter's posterior over the two lesion weights given the response types so far, the same grid likelihood used to refit Dell's published patients. Horizontal: semantic weight. Vertical: phonological weight. Bright = likely.</p>
+      <details><summary>How to read the heat map</summary>
+        <p>Each cell is one possible patient: a semantic weight (left to right) and a phonological weight (bottom to top). Brightness is how likely that patient would have produced the response types heard so far. Healthy speakers sit at the top right, around 0.04 on both. Semantic errors pull the estimate left; nonwords pull it down. With 8 to 10 answers the bright region usually contains the truth; with 30 it is a small blob.</p>
+      </details>
     </div>
   </div>
 </section>
 
 <section id="trainer">
-  <h2>4 · A trainer treats the patient</h2>
-  <div class="row"><button id="run" disabled>Run a four-session course</button><span class="muted" id="runnote">Hierarchy vs trained policy, same patient, same random stream.</span></div>
-  <div class="legend" style="margin-top:8px"><span><i style="background:#8a948f"></i>cueing hierarchy</span><span><i style="background:var(--accent)"></i><span id="leg2">trained policy</span></span><span><i style="background:var(--accent-2)"></i>after clinician override</span></div>
-  <svg id="chart" viewBox="0 0 640 260" width="100%" height="260" role="img" aria-label="Predicted retention during the course"></svg>
-  <div class="muted">Trained policy's trials, one row per session. Green = correct, red = error. Letter = cue (p first sound, s meaning, w whole word). Click a trial to override its cue as the clinician.</div>
+  <div class="phead"><span class="num">4</span><h2>A trainer treats the patient</h2></div>
+  <p class="what">A course of therapy on this patient, scored the way a real study scored it: what she can still name, unaided, after the course. Two therapists run on identical copies of her, so the difference is the therapy.</p>
+  <div class="rows">
+    <span class="k">course design</span><span>4 sessions on days 0, 3, 7, 10 · 40 trials each · 20 words she personally struggles with</span>
+    <span class="k">scored on</span><span>predicted unaided retention of those words at day 17 and day 38 (Middleton et al. 2019's design)</span>
+    <span class="k">cueing hierarchy</span><span>what clinics do: round-robin through the words; after an error, repeat with the first sound, then the whole word</span>
+    <span class="k">trained policy</span><span id="runnote">MaskablePPO trained on predicted retention; picks the word (due / repeat / weakest / strongest) and the cue each trial</span>
+  </div>
+  <div class="row" style="margin-top:12px"><button id="run" disabled>Run a four-session course</button><span class="counter" id="runstate">Create a patient first.</span></div>
+  <div class="ll"><span><i style="background:#8a948f"></i>cueing hierarchy</span><span><i style="background:var(--accent)"></i><span id="leg2">trained policy</span></span><span><i style="background:var(--accent-2)"></i>after clinician override</span><span class="counter">· vertical dashed lines = session days · y = predicted retention at day 17</span></div>
+  <svg id="chart" class="chart" viewBox="0 0 640 260" width="100%" height="260" role="img" aria-label="Predicted retention during the course"></svg>
+  <div class="lbl" style="margin-top:8px">Trained policy's 160 trials · one row per session</div>
+  <div class="counter">Green = named correctly, red = error. Letter = cue given: <b>p</b> first sound, <b>s</b> meaning cue, <b>w</b> whole word, blank = no cue. Hover for the word. <b>Click a trial to override its cue as the clinician</b>; DITTO retrains the policy on that one demonstration.</div>
   <div class="strip" id="strip"></div>
   <div id="override"></div>
-  <p class="note" id="summary"></p>
+  <p id="summary"></p>
+  <details><summary>What the trainer learned, on 80 held-out patients</summary>
+    <ul><li>Spaced retrieval with no cues: +0.32 retention at one week. The trained policy: +0.32, cueing on 1% of trials. Cueing hierarchy: +0.29. Errorless (whole word every time): +0.26. Massed practice: +0.23.</li>
+      <li>The policy rediscovered spaced, uncued retrieval practice, the best clinical practice, and found nothing better. A cue buys success now and a weaker memory trace later; that trade-off is the fitted learning layer's, not an assumption of the trainer.</li>
+      <li>One clinician override moves the policy in about 10 of 160 states, half of them the same kind of situation, none unrelated.</li></ul>
+  </details>
 </section>
 </main>
+
+<footer>
+  <div><b>Step 1 runs</b> PopulationSampler with the prior fitted to PSST (log p/s −0.2) and the severity curve fitted on 74 participants, held out on 33.</div>
+  <div><b>Step 2 runs</b> the Dell semantic-phonological model (reproduces published fits to 0.006) and the word realizer over 487 IPNP pictures; framing from PSST transcript counts.</div>
+  <div><b>Step 3 runs</b> the grid maximum-likelihood fitter (recovers 14 published fits to 0.002); the heat map is its posterior.</div>
+  <div><b>Step 4 runs</b> the ACT-R learning layer fitted to Middleton 2019 (14 cells within 0.08), cues calibrated to Nardo 2017, MaskablePPO, and the repository's DITTO.</div>
+</footer>
+</div>
 <script>
 const $ = (s) => document.querySelector(s);
 const CAT = {correct:"var(--correct)", semantic:"var(--semantic)", formal:"var(--formal)", mixed:"var(--mixed)", unrelated:"var(--unrelated)", nonword:"var(--nonword)", omission:"var(--omission)"};
 let P = null, lesion = "balanced", truthShown = false, courses = {};
-$("#aq").oninput = e => $("#aqv").textContent = e.target.value;
-document.querySelectorAll("#lesion button").forEach(b => b.onclick = () => { document.querySelectorAll("#lesion button").forEach(x => x.classList.remove("on")); b.classList.add("on"); lesion = b.dataset.v; });
+const bandOf = aq => aq < 26 ? "very severe" : aq < 51 ? "severe" : aq < 76 ? "moderate" : "mild";
+const accOf = aq => 1 / (1 + Math.exp(-(-2.517 + 0.0353 * aq)));   // the fitted severity curve (patientmodel/population.py)
+const updAq = () => { const aq = +$("#aq").value; $("#aqv").textContent = aq; $("#bandlab").textContent = bandOf(aq); $("#aqacc").textContent = Math.round(accOf(aq) * 100) + "%"; };
+$("#aq").oninput = updAq; updAq();
+const LESION_HELP = { semantic: "Semantic weight lowered: she knows the sounds but neighbouring meanings win. Expect chair for bench, home for house, few nonwords.",
+  balanced: "Both connection weights lowered alike: a mix of meaning errors and sound errors.",
+  phonological: "Phonological weight lowered: she finds the word but its sounds come out wrong. Expect kwiyd for queen, ring for bridge." };
+fetch("/api/patient", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({aq: 60, lesion: "balanced", seed: 999})}).then(r => r.json()).then(p => { $("#ppochip").textContent = p.ppo_available ? "trained policy loaded" : "trained policy not loaded"; $("#ppochip").className = "chip " + (p.ppo_available ? "on" : "off"); }).catch(() => {});
+document.querySelectorAll("#lesion button").forEach(b => b.onclick = () => { document.querySelectorAll("#lesion button").forEach(x => x.classList.remove("on")); b.classList.add("on"); lesion = b.dataset.v; $("#lesionhelp").textContent = LESION_HELP[lesion]; });
 async function post(url, body) { const r = await fetch(url, {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(body||{})}); if (!r.ok) throw new Error(await r.text()); return r.json(); }
 // ---- the avatar: a stylised patient whose mouth follows the phonemes the engine produced
 const VISEME = {
@@ -242,25 +343,28 @@ $("#newp").onclick = async () => {
   try {
     P = await post("/api/patient", {aq: +$("#aq").value, lesion, seed: +$("#seed").value});
     truthShown = false; courses = {};
-    $("#pcard").innerHTML = `<span class="k">patient</span><span>${P.id} · AQ ${P.aq} · ${P.lesion} prior</span><span class="k">expected naming</span><span>${Math.round(P.expected_accuracy*100)}% on these pictures</span>`;
+    $("#pcard").innerHTML = `<span class="k">patient</span><span>Marisol, 23 · id ${P.id}</span><span class="k">severity</span><span>AQ ${P.aq} · ${bandOf(P.aq)}</span><span class="k">lesion prior</span><span>${P.lesion}</span><span class="k">expected naming</span><span>${Math.round(P.expected_accuracy*100)}% on the pictures she is about to see</span><span class="k">true lesion weights</span><span>hidden · revealed in step 3</span>`;
+    $("#who").textContent = `Marisol, 23 · AQ ${P.aq} · ${P.lesion} lesion`; $("#count").textContent = "0 pictures"; $("#picname").textContent = "–"; $("#runstate").textContent = "Ready. Takes a few seconds.";
     $("#feed").innerHTML = ""; $("#target").textContent = "–"; $("#said").textContent = "–"; $("#type").textContent = "–";
     $("#n").textContent = 0; $("#read").textContent = "–"; $("#pacc").textContent = "–"; $("#map").textContent = "–"; $("#truth").textContent = "hidden";
     drawHeat(null); $("#chart").innerHTML = ""; $("#strip").innerHTML = ""; $("#summary").textContent = ""; $("#override").style.display = "none";
     ["#name1","#name10","#reveal","#run"].forEach(s => $(s).disabled = false);
-    $("#runnote").textContent = P.ppo_available ? "Hierarchy vs trained policy, same patient, same random stream." : "Trained policy not available yet (training); hierarchy vs spaced retrieval.";
+    $("#runnote").textContent = P.ppo_available ? "MaskablePPO trained on predicted retention; picks the word (due / repeat / weakest / strongest) and the cue each trial" : "not loaded on this server; the comparison runs spaced retrieval (no cues) instead";
     $("#leg2").textContent = P.ppo_available ? "trained policy" : "spaced retrieval";
   } finally { $("#newp").disabled = false; }
 };
 
 async function nameOne() {
   const {response: r, posterior: q} = await post(`/api/patient/${P.id}/name`);
-  $("#img").src = r.image; $("#target").textContent = r.target; $("#said").textContent = "…"; $("#type").textContent = "";
+  $("#img").src = r.image; $("#picname").textContent = r.target; $("#target").textContent = r.target; $("#said").textContent = "…"; $("#type").textContent = "";
   await avatar.say(r);
   const said = r.said_text || (r.word ? r.word : (r.phonemes ? r.phonemes.join(" ") : "(no response)"));
   $("#said").textContent = said; $("#type").innerHTML = `<span class="chip c-${r.category}">${r.category}</span>`;
   const row = document.createElement("div"); row.className = "r";
   row.innerHTML = `<span class="mono">${r.n}</span><span>${r.target}</span><span>${said}${r.phonemes && !r.word ? ` <span class="mono">${r.phonemes.join(" ")}</span>` : ""}</span><span class="chip c-${r.category}">${r.category}</span>`;
   $("#feed").prepend(row);
+  const rows = $("#feed").children.length, ok = [...$("#feed").children].filter(x => x.textContent.trim().endsWith("correct")).length;
+  $("#count").textContent = `${rows} picture${rows === 1 ? "" : "s"} · ${ok} correct · ${rows - ok} errors`;
   $("#n").textContent = q.n; $("#read").textContent = `${q.lesion_read} lesion`; $("#pacc").textContent = `${Math.round(q.predicted_accuracy*100)}%`;
   $("#map").textContent = `s ${q.map.s.toFixed(3)} · p ${q.map.p.toFixed(3)}`;
   drawHeat(q);
@@ -313,23 +417,24 @@ function drawStrip(run) {
 }
 function openOverride(i, t) {
   const o = $("#override"); o.style.display = "block";
-  o.innerHTML = `<b>Trial ${i+1}</b> · word <i>${t.word}</i> · rule ${t.rule} · policy gave <b>${t.cue||"no cue"}</b> · outcome ${t.category}. As the clinician, I would have given:
+  o.innerHTML = `<b>Clinician override · trial ${i+1}</b> · word <i>${t.word}</i> · the policy chose the <b>${t.rule}</b> word with <b>${t.cue ? t.cue.replace("_", " ") : "no cue"}</b> · she answered: <span class="chip c c-${t.category}">${t.category}</span>. As the clinician, I would have given:
     <select id="ocue"><option value="">no cue</option><option value="phonemic_initial">first sound</option><option value="semantic">meaning cue</option><option value="whole_word">whole word</option></select>
     <button id="oapply">Apply override (DITTO)</button> <span class="muted" id="ostat"></span>`;
   $("#oapply").onclick = async () => { $("#oapply").disabled = true; $("#ostat").textContent = "retraining the policy on this one demonstration…";
     try { const r = await post(`/api/patient/${P.id}/override`, {trial: i, cue: $("#ocue").value || null});
       courses.tuned = r.course; drawChart();
-      $("#summary").textContent = `After one demonstration the policy's choice changed in ${r.changed_states.length} of ${r.n_states} recorded states` + (r.n_same_context ? `, ${r.changed_in_same_context} of the ${r.n_same_context} that followed the same kind of error` : "") + `. Retention after the course: trained ${Math.round(courses.ppo.final["17"]*100)}%, after override ${Math.round(r.course.final["17"]*100)}%.`;
+      $("#summary").innerHTML = `<b>Override applied.</b> From one demonstration the policy's choice changed in ${r.changed_states.length} of ${r.n_states} recorded states` + (r.n_same_context ? `, ${r.changed_in_same_context} of the ${r.n_same_context} that followed the same kind of error` : "") + `, and nowhere unrelated. Retention at one week: trained ${Math.round(courses.ppo.final["17"]*100)}%, after the override ${Math.round(r.course.final["17"]*100)}%. The engine says what the clinician's preference costs or gains this patient.`;
       $("#ostat").textContent = "done"; } catch (e) { $("#ostat").textContent = e.message; } finally { $("#oapply").disabled = false; } };
 }
 $("#run").onclick = async () => {
-  $("#run").disabled = true; $("#summary").textContent = "running two courses…";
+  $("#run").disabled = true; $("#summary").textContent = ""; $("#runstate").textContent = "Running two 160-trial courses on identical copies of her…";
   try {
     const pols = P.ppo_available ? ["spaced_hierarchy", "ppo"] : ["spaced_hierarchy", "spaced_plain"];
     courses = await post(`/api/patient/${P.id}/course`, {policies: pols});
     drawChart(); drawStrip(courses.ppo || courses.spaced_plain);
     const h = courses.spaced_hierarchy, m = courses.ppo || courses.spaced_plain;
-    $("#summary").textContent = `Words started at ${Math.round(h.start["17"]*100)}% predicted retention. After the course: hierarchy ${Math.round(h.final["17"]*100)}% at one week and ${Math.round(h.final["38"]*100)}% at one month; ${courses.ppo?"trained policy":"spaced retrieval"} ${Math.round(m.final["17"]*100)}% and ${Math.round(m.final["38"]*100)}%.`;
+    $("#runstate").textContent = "Done.";
+    $("#summary").innerHTML = `<b>Result.</b> Her 20 words started at ${Math.round(h.start["17"]*100)}% predicted retention. After the course: <b>cueing hierarchy</b> ${Math.round(h.final["17"]*100)}% at one week, ${Math.round(h.final["38"]*100)}% at one month · <b>${courses.ppo?"trained policy":"spaced retrieval"}</b> ${Math.round(m.final["17"]*100)}% and ${Math.round(m.final["38"]*100)}%. Both lines are the engine's learning layer predicting unaided naming; the gap between them is the therapy.`;
   } catch (e) { $("#summary").textContent = e.message; } finally { $("#run").disabled = false; }
 };
 </script>
