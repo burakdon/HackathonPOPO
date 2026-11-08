@@ -38,16 +38,18 @@ bands and overshoots by 0.08-0.10 in the two middle bands (n = 12 and 8 particip
 each). Synthetic accuracy correlates 0.43 with severity against 0.52 for the real participants.
 PSST codes correctness only. `scripts/code_psst_responses.py` machine-codes its transcripts into
 PNT-style types with a confidence; a clinician on the team adjudicated the 278 uncertain noun rows
-(`data/derived/CODING_GUIDE.md`; agreement in `results/psst_coder_agreement.md`: the machine's
-semantic and phonological-nonword calls held up, its formal, mixed and unrelated calls mostly did
-not). Those 278 rows are then ground truth for `scripts/learn_coder.py`, a random forest on 42
-features of the target/response pair that codes the remaining 111 uncertain noun rows; by
-leave-one-target-out cross-validation it is right 48% of the time on nine categories and 66% on the
-five SP error types, against 32% and 36% for the rules (`results/psst_coder_learned.md`). Order of
-precedence downstream: clinician > learned > rules. Table 2c of `results/engine_validation.md`
-compares error-only mixes on that basis. Real patients on these items: semantic 0.29, formal about
-0.01 (the clinician kept 3 of 91 formal calls, so the learned coder never predicts it; the true
-share lies between that and 0.10), mixed 0.04, unrelated 0.05, nonword 0.61. The engine: 0.21,
+and then a 50-row audit (`data/derived/CODING_GUIDE.md`; agreement in
+`results/psst_coder_agreement.md`). The audit checked 30 rows the machine had coded with high
+confidence: all 10 semantic calls held, and 17 of 20 phonological-nonword calls stayed nonwords
+(8 as fragments), while 3 were productions she judged effectively correct that PSST scored wrong.
+The 328 adjudicated rows are ground truth for `scripts/learn_coder.py`, a random forest on 42
+features of the target/response pair that codes the remaining 91 uncertain noun rows; by
+leave-one-target-out cross-validation it is right 51% of the time on nine categories and 68% on
+the five SP error types, against 35% and 42% for the rules; on the 20 audited rows it had coded, it
+was right on 8 (`results/psst_coder_learned.md`). Precedence downstream: clinician > learned >
+rules. Table 2c of `results/engine_validation.md` compares error-only mixes on that basis. Real
+patients on these items: semantic 0.32, formal 0.01 (she kept 3 of 91 formal calls, so the
+learned coder never predicts it), mixed 0.03, unrelated 0.05, nonword 0.58. The engine: 0.21,
 0.22, 0.04, 0.23, 0.30. Item difficulty is not the cause (synthetic nonword share on the 13 BNT
 items is 0.35). The population prior (log p/s mean 0.5, from Dell's Philadelphia patients) explains
 the nonword shortfall: a mean near -0.5 gives nonword 0.63. The formal and unrelated excess comes
