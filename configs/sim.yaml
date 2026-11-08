@@ -11,8 +11,10 @@ items:
   # difficulty[i] = beta_frequency * (-z(frequency)) + beta_length * z(length), z-scored within the
   # bank so the units of `frequency` and `length` only need to be consistent.
   # Direction: lower frequency and longer words are named less accurately in aphasia
-  # (Nickels & Howard 1995). ASSUMPTION: magnitudes, frequency weighted more than length.
-  beta_frequency: 0.9
+  # (Nickels & Howard 1995). CALIBRATED (data/calibration_targets.yaml): beta_frequency gives a
+  # conditional slope of ~0.6 log-odds per log10 frequency unit, inside the published 0.41-0.88
+  # (Kittredge et al. 2008; Mirman et al. 2024); was 0.9 (slope 1.25, too steep). Length: ASSUMPTION.
+  beta_frequency: 0.43
   beta_length: 0.5
 
 cues:
@@ -20,9 +22,13 @@ cues:
   # phon_resp / sem_resp are the patient's responsiveness to phonological / semantic cueing.
   # Direction: phonemic cues have larger immediate effects than semantic cues on average
   # (Meteyard & Bose 2018); responsiveness varies between patients (phonemic vs semantic
-  # responders). ASSUMPTION: the per-cue weights below.
-  phonemic_weight: {none: 0.0, first_sound: 1.0, first_letter: 0.5, sentence_frame: 0.3, semantic: 0.0}
-  semantic_weight: {none: 0.0, first_sound: 0.0, first_letter: 0.0, sentence_frame: 0.5, semantic: 0.8}
+  # responders). CALIBRATED channel magnitudes (data/calibration_targets.yaml, Meteyard & Bose 2018):
+  # the phonemic channel was scaled x0.64 so the mean first-sound gain is ~0.65 log-odds (published
+  # 0.65, CI 0.48-0.82), and the semantic channel x0.45 so the mean semantic gain is ~0.25 (published
+  # -0.04, CI -0.41 to 0.32; their cue was an associated word, ours a semantic hint). The relative mix
+  # within each cue (e.g. sentence frame = part phonemic, part semantic) remains an ASSUMPTION.
+  phonemic_weight: {none: 0.0, first_sound: 0.64, first_letter: 0.32, sentence_frame: 0.19, semantic: 0.0}
+  semantic_weight: {none: 0.0, first_sound: 0.0, first_letter: 0.0, sentence_frame: 0.22, semantic: 0.36}
 
 fatigue:
   # fatigue <- fatigue * (1 - recovery) + rate * (1 + streak_gain * fail_streak), capped at `cap`.
@@ -102,25 +108,31 @@ parameters: [ability, phon_resp, sem_resp, phon_impair, sem_impair, omission_bia
              fatigue_rate, fatigue_recovery, learn_rate]
 
 population:
-  ability:          {mean: 0.6, sd: 1.1, low: -1.8, high: 3.0}
+  # CALIBRATED: ability sd widened from 1.1 so the spread of patient accuracy and the between-patient
+  # logit SD match published data (Kittredge et al. 2008: 3-98% range; Meteyard & Bose 2018: SD ~1.3);
+  # phon/sem impairment means set so the error mix matches Kittredge et al. 2008 (semantic 5%,
+  # phonological 15%, omission 12% of responses); were 0.35 / 0.30 (semantic errors twice too common).
+  ability:          {mean: 0.6, sd: 1.5, low: -1.8, high: 3.0}
   phon_resp:        {mean: 1.0, sd: 0.4, low: 0.1, high: 2.0}
   sem_resp:         {mean: 0.7, sd: 0.4, low: 0.0, high: 1.8}
-  phon_impair:      {mean: 0.35, sd: 0.2, low: 0.02, high: 0.9}
-  sem_impair:       {mean: 0.3, sd: 0.2, low: 0.02, high: 0.9}
+  phon_impair:      {mean: 0.5, sd: 0.2, low: 0.02, high: 0.9}
+  sem_impair:       {mean: 0.15, sd: 0.1, low: 0.02, high: 0.9}
   omission_bias:    {mean: 0.4, sd: 0.2, low: 0.05, high: 0.9}
   fatigue_rate:     {mean: 0.012, sd: 0.006, low: 0.002, high: 0.04}
   fatigue_recovery: {mean: 0.06, sd: 0.03, low: 0.01, high: 0.2}
   learn_rate:       {mean: 0.15, sd: 0.06, low: 0.03, high: 0.35}
 
 presets:
-  # Mild anomic aphasia: good overall retrieval; failures are mostly omissions/circumlocution and
-  # semantic errors, few sound errors.
+  # Mild anomic aphasia: good overall retrieval; failures are mostly omissions/circumlocution.
+  # CALIBRATED: among non-omission errors, phonological errors outnumber semantic ones, as in the
+  # anomic group of Dell et al. 2007 (phonological/(phonological+semantic) = 0.59); were semantic-
+  # dominant (phon_impair 0.15, sem_impair 0.35).
   mild_anomic:
     ability:          {mean: 2.0, sd: 0.3, low: 1.2, high: 3.0}
     phon_resp:        {mean: 1.0, sd: 0.2, low: 0.3, high: 2.0}
     sem_resp:         {mean: 0.8, sd: 0.2, low: 0.1, high: 1.8}
-    phon_impair:      {mean: 0.15, sd: 0.05, low: 0.02, high: 0.4}
-    sem_impair:       {mean: 0.35, sd: 0.08, low: 0.05, high: 0.7}
+    phon_impair:      {mean: 0.2, sd: 0.05, low: 0.02, high: 0.4}
+    sem_impair:       {mean: 0.12, sd: 0.04, low: 0.02, high: 0.4}
     omission_bias:    {mean: 0.5, sd: 0.08, low: 0.1, high: 0.9}
     fatigue_rate:     {mean: 0.008, sd: 0.002, low: 0.002, high: 0.02}
     fatigue_recovery: {mean: 0.08, sd: 0.02, low: 0.02, high: 0.2}

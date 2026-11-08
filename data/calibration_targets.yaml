@@ -1,0 +1,87 @@
+# Published group-level statistics used to calibrate the simulator (eval/calibration.py,
+# tests/test_calibration.py). Every value was read in the cited source; quotes are verbatim.
+# `range` is the acceptance range for the simulator measure described in `measure`.
+sources:
+  K08: "Kittredge, Dell, Verkuilen & Schwartz (2008). Where is the effect of frequency in word production? Insights from aphasic picture-naming errors. Cognitive Neuropsychology 25(4), 463-492. https://pmc.ncbi.nlm.nih.gov/articles/PMC2963561/"
+  D07: "Dell, Martin & Schwartz (2007). A case-series test of the interactive two-step model of lexical access: Predicting word repetition from picture naming. Journal of Memory and Language 56(4), 490-520. https://pmc.ncbi.nlm.nih.gov/articles/PMC2981040/"
+  MB18: "Meteyard & Bose (2018). What does a cue do? Comparing phonological and semantic cues for picture naming in aphasia. JSLHR 61(3), 658-674. https://centaur.reading.ac.uk/75215/"
+  MK24: "Mirman, Krason, Thothathiri & Middleton (2024). Effect of fatigue on word production in aphasia. Proceedings of CogSci 46. https://pmc.ncbi.nlm.nih.gov/articles/PMC11310858/"
+
+targets:
+  population_accuracy_mean:
+    source: K08
+    published: "PNT accuracy 59% (range 3%-98%), 50 chronic left-hemisphere stroke patients (mixed aphasia types)"
+    quote: "for accuracy on the Philadelphia Naming Test (PNT), 59% (3% – 98%)"
+    measure: "mean uncued accuracy over the item bank, broad simulated population (500 patients)"
+    range: [0.47, 0.71]          # 59% +/- 12 points (different items; the PNT has 175)
+  population_accuracy_spread:
+    source: K08
+    published: "range 3%-98% across 50 patients"
+    measure: "5th and 95th percentile of patient accuracy in the simulated population must lie within [0.03, 0.98] and span at least 0.6"
+    range: [0.6, 1.0]            # width of the 5th-95th percentile interval
+  error_share_semantic:
+    source: K08
+    published: "share of all responses: Semantic 5%, Phonological 15%, Omission 12% (Correct 59%)"
+    quote: "Correct 59% ... Semantic 5% ... Phonological 15% ... Omission 12%"
+    measure: "semantic errors as a share of (semantic + phonological + omission) errors, simulated population; published 5/32 = 0.16"
+    range: [0.10, 0.22]
+  error_share_phonological:
+    source: K08
+    measure: "phonological errors as a share of (semantic + phonological + omission) errors; published 15/32 = 0.47"
+    range: [0.39, 0.55]
+  error_share_omission:
+    source: K08
+    measure: "omissions as a share of (semantic + phonological + omission) errors; published 12/32 = 0.375"
+    range: [0.29, 0.46]
+  anomic_normalised_accuracy:
+    source: D07
+    published: "anomic patients (n=20), normalised proportion correct mean 0.818, SD 0.159 (aggregated from Table 1; normalised = omissions and other non-model responses removed)"
+    quote: "the responses outside of these categories are removed and the proportions are recalculated so that they add to 1.0"
+    measure: "mild_anomic cohort accuracy normalised the same way (omissions removed from the denominator); range = mean +/- 1 SD"
+    range: [0.66, 0.98]
+  broca_normalised_accuracy:
+    source: D07
+    published: "Broca's patients (n=19), normalised proportion correct mean 0.690, SD 0.243"
+    measure: "moderate_broca cohort accuracy normalised the same way; range = mean +/- 1 SD"
+    range: [0.45, 0.93]
+  anomic_phonological_vs_semantic:
+    source: D07
+    published: "anomic: semantic .055, formal .034, nonword .044 -> phonological/(phonological+semantic) = 0.59"
+    measure: "mild_anomic cohort: phonological errors / (phonological + semantic errors)"
+    range: [0.45, 0.73]
+  broca_phonological_vs_semantic:
+    source: D07
+    published: "Broca's: semantic .068, formal .054, nonword .103 -> phonological/(phonological+semantic) = 0.70"
+    measure: "moderate_broca cohort: phonological errors / (phonological + semantic errors)"
+    range: [0.58, 0.85]
+  frequency_logodds_per_log10:
+    source: [K08, MK24]
+    published: "K08: +0.414 (SE .078) log-odds correct per unit of base-10 log frequency per million (CELEX lemma), with age of acquisition, density, length, imageability and name agreement in the model; MK24: 0.88, 0.83, 0.75 per unit of log frequency with length in the model"
+    quote: "a significant increase in the log odds of making a Correct response per unit increase in Log Frequency (regression coefficient = .414 (standard error = .078)"
+    measure: "conditional log-odds slope of p(correct) per Zipf unit (= one base-10 log unit) of the item bank, length held fixed"
+    range: [0.30, 0.90]
+  phonemic_cue_logodds:
+    source: MB18
+    published: "Phonological Cue vs No Phonological Cue: estimate 0.65, SE 0.09, Wald 95% CI 0.48-0.82 (n=10, cue 750 ms before the picture)"
+    quote: "the presence of a phonological cue almost doubles the likelihood of getting a correct naming response (1.92)"
+    measure: "mean log-odds gain of the first-sound cue over no cue, simulated population"
+    range: [0.48, 0.82]
+  semantic_cue_logodds:
+    source: MB18
+    published: "Semantic Cue vs Tone Control: -0.04, 95% CI -0.41 to 0.32; vs Non-associated Control 0.00 (CI -0.23 to 0.23). Their semantic cue is an associated word before the picture; ours is a semantic hint, so this is the closest verified estimate, not an exact match"
+    measure: "mean log-odds gain of the semantic cue over no cue, simulated population"
+    range: [-0.41, 0.32]
+  ability_sd_logit:
+    source: MB18
+    published: "random intercept variance for participants 1.74 / 1.91 in the two reported models (SD about 1.3-1.4 on the logit scale), n=10"
+    measure: "standard deviation of patient ability (logit scale) in the simulated population"
+    range: [0.9, 1.7]
+  fatigue_direction:
+    source: MK24
+    published: "trial number -0.76 (SE 0.18) and -0.50 (SE 0.15) in two samples of 330-trial sessions (significant), -0.28 n.s. in a third; trial scaling not reported"
+    measure: "direction only: mean p(correct) over the word list falls across a 40-trial session with learning switched off, in every cohort"
+    range: [0.0, 1.0]            # drop must be > 0 (and < 1)
+
+# Ranges drawn on results/simulator_validation.png
+figure:
+  cue_effect_pp: {}              # published effects are on the log-odds scale; shown in the README instead
