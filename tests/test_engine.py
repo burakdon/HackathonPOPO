@@ -225,3 +225,37 @@ def test_nonwords_are_legal_nonwords_across_the_bank(model: DellSPModel) -> None
             assert is_phonotactically_legal(ph, reference=lex.pron(it.word)), (it.word, ph)
             assert ph != lex.pron(it.word)
     assert n > 1000
+
+
+@pytest.mark.slow
+def test_treatable_patient_learns_and_forgets(model: DellSPModel) -> None:
+    from patientmodel.lexicon import build_lexicon
+    from patientmodel.patient import Patient
+    from patientmodel.realize import Realizer
+    from patientmodel.treatment import TreatablePatient
+    items = load_item_bank()
+    lex = build_lexicon(extra_words=[i.word for i in items if i.pronounceable])
+    rz = Realizer(lex)
+    bank = [i for i in items if i.pronounceable and i.word in lex.index]
+    rng = np.random.default_rng(5)
+    test = list(rng.choice(bank, 40, replace=False)); practised, untreated = test[:20], test[20:]
+    pt = TreatablePatient(Patient("severe", 0.005, 0.018, model, rz, rng=np.random.default_rng(2)))
+    # baseline retrievability equals the snapshot's P(correct) for the item
+    for it in test[:3]:
+        assert abs(pt.retrievability(it, 0.0) - pt.baseline_probability(it)) < 1e-6
+    base = np.mean([pt.retrievability(i, 0.0) for i in practised])
+    for d in (0, 3, 7, 10):
+        pt.session(practised, d, mode="attempt", presentations=3, lag=24)
+    r17 = np.mean([pt.retrievability(i, 17) for i in practised])
+    r60 = np.mean([pt.retrievability(i, 60) for i in practised])
+    assert r17 > base + 0.2                       # practice helps
+    assert r60 < r17                              # and fades
+    assert r60 > base                             # but not below the untreated floor
+    assert abs(np.mean([pt.retrievability(i, 17) for i in untreated]) - np.mean([pt.baseline_probability(i) for i in untreated])) < 1e-6
+    # probes leave no trace; attempts do
+    before = pt.retrievability(untreated[0], 20)
+    pt.probe(untreated[0], 20); assert pt.retrievability(untreated[0], 20.01) == pytest.approx(before, abs=1e-9)
+    pt.attempt(untreated[0], 20.02); assert pt.retrievability(untreated[0], 20.03) > before
+    # responses on failure are realized errors, never the target
+    resp = [pt.probe(i, 17) for i in practised]
+    assert all((r.correct and r.word == r.item.word) or (not r.correct and r.word != r.item.word) for r in resp)

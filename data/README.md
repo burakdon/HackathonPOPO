@@ -23,8 +23,9 @@ reachable; the two gated sources need the credentials described below.
 - `analysis_code.docx`: the authors' Stata code.
 
 This is the only public item-level dataset we have found on how practice schedule changes naming
-over days in aphasia. It anchors the learning model's spacing and retrieval-practice effects; it is
-four participants, so it constrains effect direction and rough size, not individual dynamics.
+over days in aphasia. `patientmodel/learning_fit.py` simulates the published protocol and fits the
+learning model to these 56 cells (`results/learning_fit.md`). Four participants constrain effect
+direction and size, not individual dynamics.
 
 ## IPNP US English norms (`USpno.xls`, sheet `database`)
 

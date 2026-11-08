@@ -2,8 +2,10 @@
 
 A mechanistic simulator of single-word retrieval in aphasia. Two cognitive parameters and a
 severity level produce a patient who names pictures, makes the error types real patients make in
-the proportions real patients make them, says actual words or nonwords, takes a realistic time, and
-is harder to understand on harder pictures. Everything is seeded and reproducible; a 4,000-trial
+the proportions real patients make them, says actual words or nonwords, is harder to understand on
+harder pictures, and, with the learning layer, gets better with practice the way Middleton's
+patients did: more from effortful retrieval than from repetition, more from spaced than massed
+practice, and forgetting over the following weeks. Everything is seeded and reproducible; a 4,000-trial
 patient simulates in about 80 ms.
 
 An independent code review (2026-11-07) of the first version found real-word "nonwords", a latency
@@ -23,6 +25,8 @@ deliverables are synthetic patients, cohorts and datasets, validated against rea
 | `items.py` | 520 IPNP object pictures with norms and a difficulty index (healthy RT, frequency, length; name agreement deliberately excluded); 244 drawings; 39 compound-name items flagged `pronounceable=False`. | Bates et al. 2003; Szekely et al. 2004. |
 | `lexicon.py` | About 4,800 picturable nouns: concreteness >= 4, WordNet noun, CMUdict pronunciation, not on the profanity or sensitive-word lists; Zipf frequency; MiniLM embeddings; the full CMUdict pronunciation set; the PNT formal-relatedness criterion; English phonotactic legality. | CMUdict; Brysbaert et al. 2014; WordNet; wordfreq; all-MiniLM-L6-v2. |
 | `realize.py` | Turns a response category into an actual response for a target: semantic neighbours need embedding similarity plus a WordNet taxonomic relation (or very high similarity); formal neighbours meet the PNT criterion and are not semantic; mixed need both and shared onset or <= 2 edits; unrelated are frequent nouns sharing nothing; nonwords are length-scaled, class-preserving phoneme edits that are not any English word and are phonotactically legal. Fallbacks when a category has no candidate are recorded in `fallback_from`. | Qualitative; the nonword edit rate is an ASSUMPTION pending category-coded PSST data. |
+| `learning.py` | Item-level learning and forgetting: ACT-R activation with per-trace decay that depends on activation at practice (Pavlik & Anderson 2005), which produces the spacing effect mechanically, plus trace weights for successful retrieval, failed retrieval with feedback, and errorless study (the retrieval-practice effect). | Fitted to Middleton, Rawson & Verkuilen 2019 item-level data by simulating their protocol (`learning_fit.py`, `results/learning_fit.md`): all 14 pooled condition x delay cells within 0.09, spacing and retrieval-practice effects and 7-to-28-day forgetting reproduced. Individual differences in the retrieval-practice effect are not captured. |
+| `treatment.py` | `TreatablePatient`: the snapshot patient plus one memory per word. Baseline retrievability per word equals the snapshot's P(correct) for that item; `attempt` (retrieval practice with feedback), `study` (errorless), `probe` (no trace), and `session` schedule practice over days. Errors on failed retrieval still come from the SP model conditioned on an error. | Cues are not modelled yet (next layer). |
 | `patient.py` | `Patient.name(item)`: per-item effective weights `(s, p) * exp(-item_beta * difficulty)`, category from the SP model, word from the realizer, and an utterance-duration proxy. Distinct patients get distinct random streams; diagnostics use a separate stream. | Item-effect mechanism and strength are ASSUMPTIONS. Durations are PSST clip lengths, not response latency, and are never reported as latency. |
 
 ## Validation so far (`results/engine_validation.md`)
@@ -48,7 +52,10 @@ the long BNT targets, which adjudication will settle before any model change.
   an estimate after removing binomial noise. BNT items are harder than the PNT's.
 - Item effects and nonword edit rates are assumptions until item-level and category-coded patient
   data are available. The 39 compound-name items (the hardest) are skipped by the realizer.
-- No learning yet: the patient is a snapshot. Practice-driven change over days is the next layer.
+- The learning layer is fitted to four participants with anomic aphasia (AQ 81-90) on personally
+  unnameable proper nouns; its transfer to common nouns and to severe patients is an assumption.
+- Cues (phonemic, semantic) are not modelled: a cue should raise retrieval probability on the trial
+  and lower the weight of the trace it leaves. That is the next layer.
 
 ## Usage
 

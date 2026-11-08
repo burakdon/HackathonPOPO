@@ -1,0 +1,540 @@
+{
+ "nll": 1721.0868808135506,
+ "iterations": 205,
+ "converged": true,
+ "params": {
+  "c": 0.20051088167842523,
+  "alpha": 0.13915343034587538,
+  "tau": -0.7,
+  "s": 0.25125741555723013,
+  "w_success": 1.0,
+  "w_fail_feedback": 0.5876513303726514,
+  "w_study": 0.5841831898707822,
+  "trial_seconds": 12.0,
+  "time_floor_seconds": 1.0
+ },
+ "subjects": {
+  "P1": {
+   "beta": -1.1780183238847424,
+   "learn_scale": 1.0
+  },
+  "P2": {
+   "beta": -1.4085846342167256,
+   "learn_scale": 1.0
+  },
+  "P3": {
+   "beta": -1.8395646959377912,
+   "learn_scale": 1.0
+  },
+  "P4": {
+   "beta": -1.4615767530177415,
+   "learn_scale": 1.0
+  }
+ },
+ "fit_table": [
+  {
+   "subject": "P1",
+   "training": "repetition",
+   "spacing": "Massed",
+   "measure": "followup",
+   "observed": 0.396,
+   "n": 48,
+   "predicted": 0.388
+  },
+  {
+   "subject": "P1",
+   "training": "repetition",
+   "spacing": "Massed",
+   "measure": "retention",
+   "observed": 0.562,
+   "n": 48,
+   "predicted": 0.502
+  },
+  {
+   "subject": "P1",
+   "training": "repetition",
+   "spacing": "Spaced",
+   "measure": "followup",
+   "observed": 0.438,
+   "n": 48,
+   "predicted": 0.45
+  },
+  {
+   "subject": "P1",
+   "training": "repetition",
+   "spacing": "Spaced",
+   "measure": "retention",
+   "observed": 0.521,
+   "n": 48,
+   "predicted": 0.575
+  },
+  {
+   "subject": "P1",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day1",
+   "observed": 0.104,
+   "n": 48,
+   "predicted": 0.278
+  },
+  {
+   "subject": "P1",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day2",
+   "observed": 0.354,
+   "n": 48,
+   "predicted": 0.443
+  },
+  {
+   "subject": "P1",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day3",
+   "observed": 0.562,
+   "n": 48,
+   "predicted": 0.552
+  },
+  {
+   "subject": "P1",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "followup",
+   "observed": 0.521,
+   "n": 48,
+   "predicted": 0.448
+  },
+  {
+   "subject": "P1",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "retention",
+   "observed": 0.75,
+   "n": 48,
+   "predicted": 0.532
+  },
+  {
+   "subject": "P1",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day1",
+   "observed": 0.292,
+   "n": 48,
+   "predicted": 0.323
+  },
+  {
+   "subject": "P1",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day2",
+   "observed": 0.479,
+   "n": 48,
+   "predicted": 0.492
+  },
+  {
+   "subject": "P1",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day3",
+   "observed": 0.812,
+   "n": 48,
+   "predicted": 0.64
+  },
+  {
+   "subject": "P1",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "followup",
+   "observed": 0.604,
+   "n": 48,
+   "predicted": 0.547
+  },
+  {
+   "subject": "P1",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "retention",
+   "observed": 0.812,
+   "n": 48,
+   "predicted": 0.627
+  },
+  {
+   "subject": "P2",
+   "training": "repetition",
+   "spacing": "Massed",
+   "measure": "followup",
+   "observed": 0.312,
+   "n": 48,
+   "predicted": 0.312
+  },
+  {
+   "subject": "P2",
+   "training": "repetition",
+   "spacing": "Massed",
+   "measure": "retention",
+   "observed": 0.417,
+   "n": 48,
+   "predicted": 0.372
+  },
+  {
+   "subject": "P2",
+   "training": "repetition",
+   "spacing": "Spaced",
+   "measure": "followup",
+   "observed": 0.271,
+   "n": 48,
+   "predicted": 0.4
+  },
+  {
+   "subject": "P2",
+   "training": "repetition",
+   "spacing": "Spaced",
+   "measure": "retention",
+   "observed": 0.458,
+   "n": 48,
+   "predicted": 0.5
+  },
+  {
+   "subject": "P2",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day1",
+   "observed": 0.229,
+   "n": 48,
+   "predicted": 0.2
+  },
+  {
+   "subject": "P2",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day2",
+   "observed": 0.333,
+   "n": 48,
+   "predicted": 0.328
+  },
+  {
+   "subject": "P2",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day3",
+   "observed": 0.479,
+   "n": 48,
+   "predicted": 0.527
+  },
+  {
+   "subject": "P2",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "followup",
+   "observed": 0.333,
+   "n": 48,
+   "predicted": 0.393
+  },
+  {
+   "subject": "P2",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "retention",
+   "observed": 0.562,
+   "n": 48,
+   "predicted": 0.5
+  },
+  {
+   "subject": "P2",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day1",
+   "observed": 0.312,
+   "n": 48,
+   "predicted": 0.24
+  },
+  {
+   "subject": "P2",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day2",
+   "observed": 0.521,
+   "n": 48,
+   "predicted": 0.405
+  },
+  {
+   "subject": "P2",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day3",
+   "observed": 0.688,
+   "n": 48,
+   "predicted": 0.598
+  },
+  {
+   "subject": "P2",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "followup",
+   "observed": 0.438,
+   "n": 48,
+   "predicted": 0.455
+  },
+  {
+   "subject": "P2",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "retention",
+   "observed": 0.625,
+   "n": 48,
+   "predicted": 0.568
+  },
+  {
+   "subject": "P3",
+   "training": "repetition",
+   "spacing": "Massed",
+   "measure": "followup",
+   "observed": 0.208,
+   "n": 48,
+   "predicted": 0.233
+  },
+  {
+   "subject": "P3",
+   "training": "repetition",
+   "spacing": "Massed",
+   "measure": "retention",
+   "observed": 0.208,
+   "n": 48,
+   "predicted": 0.307
+  },
+  {
+   "subject": "P3",
+   "training": "repetition",
+   "spacing": "Spaced",
+   "measure": "followup",
+   "observed": 0.271,
+   "n": 48,
+   "predicted": 0.287
+  },
+  {
+   "subject": "P3",
+   "training": "repetition",
+   "spacing": "Spaced",
+   "measure": "retention",
+   "observed": 0.438,
+   "n": 48,
+   "predicted": 0.435
+  },
+  {
+   "subject": "P3",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day1",
+   "observed": 0.229,
+   "n": 48,
+   "predicted": 0.128
+  },
+  {
+   "subject": "P3",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day2",
+   "observed": 0.125,
+   "n": 48,
+   "predicted": 0.215
+  },
+  {
+   "subject": "P3",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day3",
+   "observed": 0.271,
+   "n": 48,
+   "predicted": 0.372
+  },
+  {
+   "subject": "P3",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "followup",
+   "observed": 0.229,
+   "n": 48,
+   "predicted": 0.255
+  },
+  {
+   "subject": "P3",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "retention",
+   "observed": 0.229,
+   "n": 48,
+   "predicted": 0.425
+  },
+  {
+   "subject": "P3",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day1",
+   "observed": 0.188,
+   "n": 48,
+   "predicted": 0.147
+  },
+  {
+   "subject": "P3",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day2",
+   "observed": 0.229,
+   "n": 48,
+   "predicted": 0.287
+  },
+  {
+   "subject": "P3",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day3",
+   "observed": 0.396,
+   "n": 48,
+   "predicted": 0.477
+  },
+  {
+   "subject": "P3",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "followup",
+   "observed": 0.312,
+   "n": 48,
+   "predicted": 0.35
+  },
+  {
+   "subject": "P3",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "retention",
+   "observed": 0.25,
+   "n": 48,
+   "predicted": 0.49
+  },
+  {
+   "subject": "P4",
+   "training": "repetition",
+   "spacing": "Massed",
+   "measure": "followup",
+   "observed": 0.208,
+   "n": 48,
+   "predicted": 0.307
+  },
+  {
+   "subject": "P4",
+   "training": "repetition",
+   "spacing": "Massed",
+   "measure": "retention",
+   "observed": 0.271,
+   "n": 48,
+   "predicted": 0.435
+  },
+  {
+   "subject": "P4",
+   "training": "repetition",
+   "spacing": "Spaced",
+   "measure": "followup",
+   "observed": 0.312,
+   "n": 48,
+   "predicted": 0.35
+  },
+  {
+   "subject": "P4",
+   "training": "repetition",
+   "spacing": "Spaced",
+   "measure": "retention",
+   "observed": 0.292,
+   "n": 48,
+   "predicted": 0.455
+  },
+  {
+   "subject": "P4",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day1",
+   "observed": 0.292,
+   "n": 48,
+   "predicted": 0.217
+  },
+  {
+   "subject": "P4",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day2",
+   "observed": 0.375,
+   "n": 48,
+   "predicted": 0.33
+  },
+  {
+   "subject": "P4",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "day3",
+   "observed": 0.479,
+   "n": 48,
+   "predicted": 0.487
+  },
+  {
+   "subject": "P4",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "followup",
+   "observed": 0.312,
+   "n": 48,
+   "predicted": 0.32
+  },
+  {
+   "subject": "P4",
+   "training": "retrievalpractice",
+   "spacing": "Massed",
+   "measure": "retention",
+   "observed": 0.562,
+   "n": 48,
+   "predicted": 0.47
+  },
+  {
+   "subject": "P4",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day1",
+   "observed": 0.458,
+   "n": 48,
+   "predicted": 0.23
+  },
+  {
+   "subject": "P4",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day2",
+   "observed": 0.667,
+   "n": 48,
+   "predicted": 0.422
+  },
+  {
+   "subject": "P4",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "day3",
+   "observed": 0.688,
+   "n": 48,
+   "predicted": 0.552
+  },
+  {
+   "subject": "P4",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "followup",
+   "observed": 0.354,
+   "n": 48,
+   "predicted": 0.45
+  },
+  {
+   "subject": "P4",
+   "training": "retrievalpractice",
+   "spacing": "Spaced",
+   "measure": "retention",
+   "observed": 0.729,
+   "n": 48,
+   "predicted": 0.552
+  }
+ ]
+}
