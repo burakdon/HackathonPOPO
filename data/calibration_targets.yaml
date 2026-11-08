@@ -82,6 +82,8 @@ targets:
     measure: "direction only: mean p(correct) over the word list falls across a 40-trial session with learning switched off, in every cohort"
     range: [0.0, 1.0]            # drop must be > 0 (and < 1)
 
-# Ranges drawn on results/simulator_validation.png
+# Annotations drawn on results/simulator_validation.png
 figure:
-  cue_effect_pp: {}              # published effects are on the log-odds scale; shown in the README instead
+  cue_logodds_ci: {first_sound: [0.48, 0.82], semantic: [-0.41, 0.32]}
+  frequency_slope: "slope 0.6 log-odds per log10 unit (published 0.41-0.88)"
+  fatigue: "direction matches Mirman et al. 2024 (accuracy falls over long sessions)"
