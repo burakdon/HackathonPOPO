@@ -7,6 +7,27 @@ same picture with a predefined hint, or move on to a new picture at a chosen dif
 clinician-facing view captures preferred decisions and shows how a model adapted with
 **DITTO** (Shaikh et al., ICLR 2025) behaves.
 
+## Run the NeuroCue demo locally (team)
+
+Everything the demo needs is in this branch: code, trained policies, picture norms and pictures,
+and the caches (fitted model grid, lexicon, WordNet). One command:
+
+```bash
+./scripts/run_demo.sh
+```
+
+It installs `uv` if you do not have it, creates the Python environment (first time: a few minutes,
+mostly PyTorch), starts the server and opens http://localhost:8765. Use Chrome or Safari with sound
+on for the spoken responses. Stop with Ctrl-C. Another port: `NEUROCUE_PORT=9000 ./scripts/run_demo.sh`.
+
+Demo flow (also on the page): choose a patient, have her name pictures (or name 20 instantly),
+diagnose her from the answers, run the four-session course against the clinic's cueing hierarchy,
+then teach the policy a rule as the clinician and watch DITTO adopt it and the engine price it.
+Rehearsed seeds: AQ 55 phonological seed 3, then AQ 50 semantic seed 3 (same pictures, different errors).
+
+Not in the branch: the PSST transcripts (TalkBank data; `uv run python -m scripts.fetch_data` gets them)
+and the papers' PDFs. Neither is needed to run the demo.
+
 **Proof-of-concept question:** can model adaptation make exercise-selection decisions follow a
 demonstrator's preferences in situations it has not seen?
 

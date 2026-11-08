@@ -260,7 +260,7 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
     <span class="k">course design</span><span>4 sessions on days 0, 3, 7, 10 · 40 trials each · 20 words she personally struggles with</span>
     <span class="k">scored on</span><span>predicted unaided retention of those words at day 17 and day 38 (Middleton et al. 2019's design)</span>
     <span class="k">cueing hierarchy</span><span>what clinics do: round-robin through the words; after an error, repeat with the first sound, then the whole word</span>
-    <span class="k">trained policy</span><span id="runnote">MaskablePPO trained on predicted retention; picks the word (due / repeat / weakest / strongest) and the cue each trial</span>
+    <span class="k">trained policy</span><span><select id="pmodel" style="padding:4px 6px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--fg); font-size:13px"><option value="observable">trained on in-session correct answers, what a clinic can measure</option><option value="retention">trained on predicted retention, the engine's own objective</option></select> <span id="runnote" class="counter">MaskablePPO; picks the word (due / repeat / weakest / strongest) and the cue each trial</span></span>
   </div>
   <div class="row" style="margin-top:12px"><button id="run" disabled>Run a four-session course</button><span class="counter" id="runstate">Create a patient first.</span></div>
   <div class="ll"><span><i style="background:#8a948f"></i>cueing hierarchy</span><span><i style="background:var(--accent)"></i><span id="leg2">trained policy</span></span><span><i style="background:var(--accent-2)"></i>after clinician override</span><span class="counter">· vertical dashed lines = session days · y = predicted retention at day 17</span></div>
@@ -411,7 +411,9 @@ $("#newp").onclick = async () => {
     $("#n").textContent = 0; $("#read").textContent = "–"; $("#pacc").textContent = "–"; $("#map").textContent = "–"; $("#truth").textContent = "hidden";
     drawHeat(null); $("#chart").innerHTML = ""; $("#strip").innerHTML = ""; $("#summary").textContent = ""; $("#oppStrip").innerHTML = ""; $("#oppTable").innerHTML = ""; $("#oppHeadline").textContent = ""; $("#tpred").textContent = ""; $("#ditto").style.display = "none"; $("#tapply").disabled = true;
     ["#name1","#name10","#namen","#reveal","#run"].forEach(s => $(s).disabled = false);
-    $("#runnote").textContent = P.ppo_available ? "MaskablePPO trained on predicted retention; picks the word (due / repeat / weakest / strongest) and the cue each trial" : "not loaded on this server; the comparison runs spaced retrieval (no cues) instead";
+    const ma = P.models_available || {}; [...$("#pmodel").options].forEach(o => { o.disabled = !ma[o.value]; o.textContent = o.textContent.replace(/ · not loaded$/, "") + (ma[o.value] ? "" : " · not loaded"); });
+    if (!ma[$("#pmodel").value]) $("#pmodel").value = ma.observable ? "observable" : "retention";
+    $("#runnote").textContent = P.ppo_available ? "MaskablePPO; picks the word (due / repeat / weakest / strongest) and the cue each trial" : "no trained policy loaded on this server; the comparison runs spaced retrieval (no cues) instead";
     $("#leg2").textContent = P.ppo_available ? "trained policy" : "spaced retrieval";
   } finally { $("#newp").disabled = false; }
 };
@@ -527,8 +529,8 @@ function drawOpportunity(run) {
     d.onclick = () => { if (t.prev && t.prev !== "correct") { $("#tctx").value = t.prev; $("#tctx").dispatchEvent(new Event("change")); } };
     st.appendChild(d); });
   // Matrix: rows = what had just happened, columns = what the clinician could do instead; cell = mean effect per moment.
-  const ACTS = ["due|phonemic_initial", "due|semantic", "due|whole_word", "repeat|phonemic_initial", "repeat|whole_word", "repeat|none"];
-  const ACT_HEAD = {"due|phonemic_initial": "move on, first sound", "due|semantic": "move on, meaning cue", "due|whole_word": "move on, whole word", "repeat|phonemic_initial": "retry, first sound", "repeat|whole_word": "retry, whole word", "repeat|none": "retry, no cue"};
+  const ACTS = ["due|none", "due|phonemic_initial", "due|semantic", "due|whole_word", "repeat|none", "repeat|phonemic_initial", "repeat|whole_word"];
+  const ACT_HEAD = {"due|none": "move on, no cue", "due|phonemic_initial": "move on, first sound", "due|semantic": "move on, meaning cue", "due|whole_word": "move on, whole word", "repeat|none": "retry, no cue", "repeat|phonemic_initial": "retry, first sound", "repeat|whole_word": "retry, whole word"};
   const CTX_ORDER = ["nonword", "semantic", "formal", "mixed", "unrelated", "any_error", "correct"];
   const table = run.cf_table || []; const get = (c, k) => table.find(r => r.context === c && r.action === k);
   const ctxs = CTX_ORDER.filter(c => ACTS.some(k => get(c, k)));
@@ -541,8 +543,9 @@ function drawOpportunity(run) {
   const cands = table.filter(r => ACTS.includes(r.action) && r.context !== "correct");
   const best = cands.reduce((a, r) => (!a || r.mean_pp > a.mean_pp) ? r : a, null);
   const hl = $("#oppHeadline");
-  if (best && best.mean_pp > 0.02) hl.innerHTML = `<b style="color:var(--correct)">A rule that helps exists for this patient:</b> whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}: ${best.mean_pp >= 0 ? "+" : ""}${best.mean_pp.toFixed(2)} pp per moment over ${best.n} moments, about +${(best.mean_pp * best.n).toFixed(1)} pp on retention if adopted everywhere it applies. Cues pay only while a word is still weak, so this is a severe-patient, early-session effect.`;
-  else if (best) hl.innerHTML = `<b>No correction improves on the trained policy for this patient.</b> The cheapest deviation is "whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}" at ${best.mean_pp.toFixed(2)} pp per moment; every retry costs more, because an immediate retry loses the spacing benefit and a cued success lays a weaker trace. You can still teach a rule: the policy will adopt it (block C) and the course will show its price.`;
+  const which = (run.model === "observable") ? "the clinic-observable policy" : "the retention-trained policy";
+  if (best && best.mean_pp > 0.02) hl.innerHTML = `<b style="color:var(--correct)">A rule that helps exists against ${which}:</b> whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}: ${best.mean_pp >= 0 ? "+" : ""}${best.mean_pp.toFixed(2)} pp per moment over ${best.n} moments, about +${(best.mean_pp * best.n).toFixed(1)} pp on retention if adopted everywhere it applies. Cues pay only while a word is still weak, so this is a severe-patient, early-session effect.`;
+  else if (best) hl.innerHTML = `<b>No correction improves on ${which} for this patient.</b> The cheapest deviation is "whenever she has just ${CTX_LABEL(best.context)}, ${ACTION_LABEL(best.action)}" at ${best.mean_pp.toFixed(2)} pp per moment; every retry costs more, because an immediate retry loses the spacing benefit and a cued success lays a weaker trace. You can still teach a rule: the policy will adopt it (block C) and the course will show its price.`;
   else hl.textContent = "";
   // contexts for the form
   const formCtxs = [...new Set(run.trials.filter(t => t.prev && t.prev !== "correct").map(t => t.prev))];
@@ -573,7 +576,7 @@ $("#run").onclick = async () => {
   $("#run").disabled = true; $("#summary").textContent = ""; $("#runstate").textContent = "Running two 160-trial courses on identical copies of her…";
   try {
     const pols = P.ppo_available ? ["spaced_hierarchy", "ppo"] : ["spaced_hierarchy", "spaced_plain"];
-    courses = await post(`/api/patient/${P.id}/course`, {policies: pols});
+    courses = await post(`/api/patient/${P.id}/course`, {policies: pols, model: $("#pmodel").value});
     drawChart(); drawStrip(courses.ppo || courses.spaced_plain); if (courses.ppo) drawOpportunity(courses.ppo);
     const h = courses.spaced_hierarchy, m = courses.ppo || courses.spaced_plain;
     $("#runstate").textContent = "Done.";

@@ -36,7 +36,8 @@ from patientmodel.utterance import UtteranceShaper, respell
 
 ROOT = Path(__file__).resolve().parents[2]
 STATIC = Path(__file__).resolve().parent / "static"
-PPO_PATH = ROOT / "models" / "engine_ppo_privileged_seed0.zip"
+PPO_PATHS = {"retention": ROOT / "models" / "engine_ppo_privileged_seed0.zip",     # trained on predicted retention (the engine's objective)
+             "observable": ROOT / "models" / "engine_ppo_observable_seed0.zip"}     # trained on in-session correct answers (what a clinic can measure)
 LESION_PRIOR = {"semantic": 1.0, "balanced": 0.0, "phonological": -1.0}   # log p/s centre per lesion type
 
 SHAPER = UtteranceShaper()
@@ -47,6 +48,7 @@ class Shared:
     realizer: Realizer
     pictures: list[Item]
     ppo = None
+    models: dict = {}
 
     @classmethod
     def load(cls) -> None:
@@ -60,9 +62,11 @@ class Shared:
         cls.env.bank = [i for i in bank if i.word in lex.index]
         cls.pictures = sorted([i for i in load_item_bank(require_image=True) if i.pronounceable and i.word in lex.index],
                               key=lambda i: i.word)
-        if PPO_PATH.exists():
-            from sb3_contrib import MaskablePPO
-            cls.ppo = MaskablePPO.load(str(PPO_PATH), device="cpu")
+        from sb3_contrib import MaskablePPO
+        for name, path in PPO_PATHS.items():
+            if path.exists():
+                cls.models[name] = MaskablePPO.load(str(path), device="cpu")
+        cls.ppo = cls.models.get("retention")
 
 
 @dataclass
@@ -77,6 +81,7 @@ class DemoPatient:
     counts: np.ndarray = field(default_factory=lambda: np.zeros(len(NAMING_CATEGORIES)))
     responses: list[dict] = field(default_factory=list)
     ppo_run: dict | None = None
+    ppo_model: str = "retention"
     tuned = None
 
 
@@ -130,7 +135,7 @@ def new_patient(req: NewPatient) -> dict:
     probe = [Shared.pictures[k] for k in order[:12]]
     acc = float(np.mean([tp.baseline_probability(it) for it in probe]))
     return {"id": pid, "aq": req.aq, "lesion": req.lesion, "s": tp.snapshot.s, "p": tp.snapshot.p, "expected_accuracy": acc,
-            "ppo_available": Shared.ppo is not None}
+            "ppo_available": Shared.ppo is not None, "models_available": {k: k in Shared.models for k in PPO_PATHS}}
 
 
 def _get(pid: str) -> DemoPatient:
@@ -266,6 +271,7 @@ def run_course(policy, tp: TreatablePatient, item_seed: int, record_obs: bool = 
 
 class CourseReq(BaseModel):
     policies: list[str] = ["spaced_hierarchy", "ppo"]
+    model: str = "retention"      # which trained policy "ppo" means: retention | observable
 
 
 @app.post("/api/patient/{pid}/course")
@@ -275,10 +281,12 @@ def course(pid: str, req: CourseReq) -> dict:
     for name in req.policies:
         tp = make_patient(d.aq, d.lesion, d.seed)        # a fresh copy: same parameters, same random stream
         if name == "ppo":
-            if Shared.ppo is None:
+            model = Shared.models.get(req.model)
+            if model is None:
                 out[name] = {"unavailable": True}; continue
-            res = run_course(Shared.ppo, tp, d.seed, record_obs=True)
-            d.ppo_run = res
+            res = run_course(model, tp, d.seed, record_obs=True)
+            d.ppo_run = res; d.ppo_model = req.model; d.tuned = None; d.demos = []
+            res["model"] = req.model
             res = {k: v for k, v in res.items() if not k.startswith("_")}
         elif name == "tuned":
             if d.tuned is None:
@@ -311,7 +319,8 @@ def override(pid: str, req: OverrideReq) -> dict:
     mean: trials that followed a success, and for the same-error scope trials after other error types.
     Retraining always starts from the original policy with every demonstration given so far."""
     d = _get(pid)
-    if Shared.ppo is None or d.ppo_run is None:
+    base_model = Shared.models.get(d.ppo_model)
+    if base_model is None or d.ppo_run is None:
         raise HTTPException(400, "run the trained policy's course first")
     from agents.ditto import Demo, action_probs, ditto
     trials = d.ppo_run["trials"]; t = req.trial          # the DECISION being overridden; its context is trial t-1
@@ -356,10 +365,10 @@ def override(pid: str, req: OverrideReq) -> dict:
         raise HTTPException(400, "that cue is not allowed in this state")
     d.demos = getattr(d, "demos", []) + demos
     anchors = [(O[i], M[i]) for i in anchor_idx] or None
-    tuned, log = ditto(Shared.ppo, d.demos, rounds=6, samples_per_state=8, beta=0.5, lr=2e-3, steps_per_round=12, seed=0,
+    tuned, log = ditto(base_model, d.demos, rounds=6, samples_per_state=8, beta=0.5, lr=2e-3, steps_per_round=12, seed=0,
                        anchors=anchors, anchor_weight=3.0)
     d.tuned = tuned
-    before = action_probs(Shared.ppo, O, M).argmax(1); after = action_probs(tuned, O, M).argmax(1)
+    before = action_probs(base_model, O, M).argmax(1); after = action_probs(tuned, O, M).argmax(1)
     cue_idx = CUE_KINDS.index(req.cue)
     nC = len(CUE_KINDS)
     gives_cue = lambda idx, acts: float(np.mean([acts[i] % nC == cue_idx for i in idx])) if idx else None
@@ -381,4 +390,5 @@ app.mount("/", StaticFiles(directory=str(STATIC), html=True), name="static")
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8765)
+    import os
+    uvicorn.run(app, host=os.environ.get("NEUROCUE_HOST", "127.0.0.1"), port=int(os.environ.get("NEUROCUE_PORT", "8765")))

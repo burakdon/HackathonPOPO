@@ -17,11 +17,16 @@ checkpoints/
 
 .DS_Store
 
-# Third-party raw data: re-fetch with scripts/fetch_data.py (see data/README.md)
-data/raw/
+# Third-party raw data. What the demo and the engine need at runtime IS committed (IPNP norms and
+# pictures, Brysbaert concreteness, Middleton 2019 open data). Not committed: PSST archives (TalkBank
+# transcripts; fetch with scripts/fetch_data.py) and paper PDFs/texts (copyright; fetch likewise).
+data/raw/psst/
+data/raw/refs/
+data/raw/**/*.pdf
+data/raw/**/*.html
 
-# Simulated response-probability grids for model fitting (rebuilt on demand)
-data/cache/
+# Caches ARE committed so a fresh clone starts the demo in seconds: the fitted SP grid, the lexicon
+# with its embeddings, and WordNet. Rebuilt automatically if missing.
 
 # Derived PSST codings contain AphasiaBank transcripts: regenerate with scripts/code_psst_responses.py, share directly, do not commit
 data/derived/*.csv
@@ -29,3 +34,4 @@ data/derived/*.csv
 # demo recordings: keep the mp4 and captions, not the raw webm
 results/demo/_video/
 results/demo/*.webm
+data/raw/**/*.zip
