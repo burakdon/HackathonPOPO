@@ -129,4 +129,6 @@ def test_demo_personas_have_their_error_profiles():
             d = p.error_distribution(i, "none")
             e += [d["meaning"], d["sound"], d["no_response"]]
         share[key] = e / e.sum()
-    assert share["demo_maria"][1] > 0.5 and share["demo_james"][0] > 0.5   # sound vs meaning errors
+    # Fitted to real patient groups (data/mappd_naming_recovery.csv): conduction 73%, anomic 58% sound-based errors.
+    sound = {k: v[1] / (v[0] + v[1]) for k, v in share.items()}
+    assert abs(sound["demo_maria"] - 0.73) < 0.03 and abs(sound["demo_james"] - 0.58) < 0.03

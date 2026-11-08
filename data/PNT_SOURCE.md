@@ -7,6 +7,14 @@ Two files ground the data-based simulator (`configs/sim_pnt.yaml`) in real peopl
 | `pnt_items.csv` | 175 | The 175 PNT target words with their **measured** 1PL (Rasch) item difficulty `irt_difficulty_t` on the T-scale (common discrimination 0.182 per T-point). `frequency` (Zipf, from the `wordfreq` package), `length` (letters) and `tier` (difficulty terciles) are added by us. `image_file` is a placeholder path: **the PNT pictures are copyrighted test materials and are not included.** |
 | `pnt_thetas.csv` | 335 | PNT naming-ability scores (T-scale) of **335 people with aphasia**, described by the source app as coming from the Moss Aphasia Psycholinguistics Project Database (MAPPD) and an R03 study sample. No identifiers. |
 
+| `mappd_naming_recovery.csv` | 115 | PNT results of **23 people with aphasia** (6 anomic, 9 conduction, 8 Wernicke's) at the start of a treatment trial (`TestTime` 0) and at later test points: proportion correct and proportions of semantic, mixed, formal, unrelated and nonword errors. Anonymous IDs. Used to fit the demo personas (docs/PERSONAS.md). |
+
+`mappd_naming_recovery.csv` is the `NamingRecovery` dataset of the gazer R package
+(https://github.com/jgeller112/gazer, `data/NamingRecovery.rda`, GPL-3), documented there as coming
+from the Moss Aphasia Psycholinguistics Project Database (mappd.org). Exported with pyreadr. Its
+later test points are real recovery trajectories during treatment, a possible check on the
+simulator's learning rule (not done yet).
+
 ## Where the numbers come from
 
 - Item difficulties and the ability scale: Fergadiotis, Kellough & Hula (2015). Item response theory

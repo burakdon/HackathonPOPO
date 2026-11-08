@@ -1,49 +1,57 @@
 # Demo patients: Maria and James
 
-Two **composite personas** (not real people) used in the demo, the slides and the simulator. Their
-numbers come from real data where it exists and are labelled as assumptions where it does not.
-Simulator: `configs/sim_pnt.yaml`, presets `demo_maria` and `demo_james`. Check and agent results:
-`uv run python -m scripts.demo_patients` -> [`results/demo_patients.md`](../results/demo_patients.md).
+Two **composite personas** (not real people). Each one is **fitted to the average Philadelphia Naming
+Test (PNT) results of a group of real patients** in `data/mappd_naming_recovery.csv` (23 people with
+aphasia from the Moss Aphasia Psycholinguistics Project Database, PNT at the start of a treatment
+trial; see `data/PNT_SOURCE.md`). Simulator: `configs/sim_pnt.yaml`, presets `demo_maria` and
+`demo_james`. Check and agent results: `uv run python -m scripts.demo_patients` ->
+[`results/demo_patients.md`](../results/demo_patients.md).
 
-## Maria, 62: "the word is there, the sounds come out wrong"
+How the fit works: the two-step model gives each persona a meaning -> word strength (s) and a
+word -> sounds strength (p). s and p are chosen so that, over the 175 real PNT items with their
+measured difficulty, the persona's accuracy and the share of errors that are sound-based (formal +
+nonword) vs wrong-word (semantic + mixed + unrelated) equal the real group's averages.
 
-- Eight months after a left-hemisphere stroke; retired teacher; lives with her husband.
-- **Type:** moderate Broca's-type aphasia. Effortful speech; she knows the word but the sounds come
-  out wrong ("cap" for "cat").
-- **Naming ability:** Philadelphia Naming Test score about 49, the **40th percentile of 335 real
-  people with aphasia** (data/pnt_thetas.csv).
-- **Errors:** sound 61%, no response 24%, meaning 16% (simulated, from her two-step profile:
-  meaning -> word strong, word -> sounds weak).
-- **What helps:** the first-sound cue (+0.22 on tier-2 items), then first letter; a semantic cue
-  barely helps (+0.02).
-- **Practice:** tires after about 20 to 25 minutes; discouraged after three failures in a row.
-- **Personal words (for the intake):** her grandchildren's names, garden plants, classroom objects.
-- **In simulation (50 sessions):** fixed difficulty keeps her in the 75-90% band 38% of the time and
-  she quits 12% of sessions; our agent 62% and 6%, with higher learning gain (3.75 vs 2.85 x100).
+## Maria, 62: conduction aphasia, "the word is there, the sounds come out wrong"
 
-## James, 58: "the right word does not come, a related one does"
+- **Fitted to 9 real patients with conduction aphasia:** 53% correct on the PNT; 73% of errors are
+  sound-based ("lat" or "mat" for "cat"). The persona matches both.
+- **Naming ability:** PNT about 47, the **32nd percentile of 335 real people with aphasia**.
+- **What helps (model):** the first-sound cue (+0.26 on tier-2 items) and first letter (+0.16);
+  semantic cues barely help (+0.03).
+- **In simulation (50 sessions):** with fixed difficulty she quits **26%** of sessions and is in the
+  75-90% band 19% of the time; with our agent she quits **2%**, is in band 42% of the time, and her
+  learning gain more than doubles (2.96 vs 1.31 x100).
+- Invented details (persona only): retired teacher; personal words are her grandchildren's names,
+  garden plants, classroom objects; tires after 20 to 25 minutes.
 
-- Five months after a stroke; former bus driver; his daughter helps him practise.
-- **Type:** semantic-type naming impairment. Sounds are intact; he picks a related wrong word
-  ("dog" for "cat") or says nothing.
-- **Naming ability:** PNT score about 50, the **44th percentile** of the same 335 real people.
-- **Errors:** meaning 63%, no response 30%, sound 7%.
-- **What helps:** a semantic cue (+0.16) or a sentence frame (+0.14); the first sound helps less (+0.08).
-- **In simulation:** our agent beats fixed difficulty (band 67% vs 46%, learning gain 4.19 vs 3.40
-  x100) **but after his meaning errors it still mostly gives the first-sound cue (54%)**, which is not
-  what helps him most. **This is the demo moment for the clinician:** she overrides a few of those
-  choices with a semantic cue, the agent learns from her (DITTO), and from then on it gives James the
-  semantic cue after a meaning error.
+## James, 58: anomic aphasia, "I know it... it's the thing you..."
 
-## How each part is grounded
+- **Fitted to 6 real patients with anomic aphasia:** 66% correct; 58% of errors sound-based and 42%
+  wrong-word. The persona matches both.
+- **Naming ability:** PNT about 50, the **44th percentile** of the same 335 real people.
+- **In simulation:** our agent keeps him in band more (64% vs 51%) with slightly higher learning
+  gain (4.27 vs 4.00 x100); the gap is smaller than for Maria because fixed tier 2 already suits him.
+- **Clinician demo moment:** after James's wrong-word errors the agent mostly gives the first-sound
+  cue (46%). Many clinicians would give a meaning-based cue there (semantic feature analysis is a
+  standard approach for anomia). That is a clinical preference the reward cannot express, which is
+  exactly what learning from the clinician (DITTO) is for: she overrides a few of those choices, and
+  the agent adopts her approach for James.
+- Invented details: former bus driver; his daughter helps him practise.
+
+## Grounded vs assumed
 
 | part | source |
 |---|---|
-| Naming ability | Real PNT ability scores of 335 people with aphasia (MAPPD + R03; data/PNT_SOURCE.md) |
+| Accuracy and error mix (sound-based vs wrong-word) | Real group means: 9 conduction and 6 anomic patients (MAPPD, via data/mappd_naming_recovery.csv) |
+| Placement among people with aphasia | Real PNT ability scores of 335 people (data/pnt_thetas.csv) |
 | Words and their difficulty | The 175 PNT words with difficulty measured on real patients (Fergadiotis et al. 2015) |
-| Error profile and which cue helps | The two-step model of word retrieval (Dell et al. 1997; Foygel & Dell 2000) with these persona parameters (ASSUMPTION), reviewed by the team's clinical lead |
-| How they speak (for the pitch) | Teaching videos: AphasiaBank Telerounds (public, cite MacWhinney et al. 2011) and Grand Rounds (watch only; do not download or redistribute) |
-| Fatigue, frustration, life details | Assumptions / invented for the persona |
+| Structure linking errors to cues | Two-step model of word retrieval (Dell et al. 1997; Foygel & Dell 2000) |
+| How much each cue helps, omissions, fatigue, learning | ASSUMPTIONS, to be reviewed by the clinical lead |
+| Life details | Invented |
 
-Say in the pitch: "Maria and James are composites. Their naming ability is placed on the scale of
-335 real people with aphasia, and their error patterns follow the standard model of word retrieval."
+Limits: group averages over 9 and 6 patients, not individuals; no recordings are used anywhere; the
+real data does not code omissions separately, so the personas have few no-responses (5%).
+
+Say in the pitch: "Maria and James are composites fitted to real patients' naming test results:
+Maria to nine people with conduction aphasia, James to six with anomic aphasia."
