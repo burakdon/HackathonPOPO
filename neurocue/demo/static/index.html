@@ -4,111 +4,135 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NeuroCue Patient Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-:root { --bg:#f4f6f5; --card:#ffffff; --fg:#17201e; --muted:#60706b; --line:#dbe3df; --accent:#0e6e63; --accent-soft:#e3f1ee; --accent-2:#c96f1f; --accent-2-soft:#faeadb;
-  --correct:#2e7d32; --semantic:#1565c0; --formal:#ef6c00; --mixed:#6a1b9a; --unrelated:#757575; --nonword:#c62828; --omission:#9e9e9e; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0f1413; --card:#171e1c; --fg:#e8ebe8; --muted:#9aa7a2; --line:#28332f; --accent:#5fc2b3; --accent-soft:#17312d; --accent-2:#f0a05a; --accent-2-soft:#3a2a18; } }
-* { box-sizing: border-box; }
-body { margin:0; background:var(--bg); color:var(--fg); font: 15px/1.45 -apple-system, "Segoe UI", Inter, Roboto, sans-serif; }
-.wrap { max-width: 1380px; margin: 0 auto; padding: 18px 24px 40px; }
-/* header */
-.top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-.top h1 { font-size:22px; margin:0; letter-spacing:.2px; }
-.top .tag { color:var(--muted); font-size:14px; margin:4px 0 0; max-width:70ch; }
-.status { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-.chip { display:inline-block; padding:2px 9px; border-radius:10px; font-size:12px; font-weight:600; }
+:root { --bg:#f3f6f5; --card:#ffffff; --card-2:#f7faf9; --fg:#14201d; --muted:#5f6f6a; --line:#dde5e1; --accent:#0e6e63; --accent-soft:#e1f0ec; --accent-2:#c96f1f; --accent-2-soft:#fbeadb; --violet:#7c5cd6; --violet-soft:#ece6fa;
+  --correct:#2e7d32; --semantic:#1565c0; --formal:#ef6c00; --mixed:#6a1b9a; --unrelated:#757575; --nonword:#c62828; --omission:#9e9e9e;
+  --shadow: 0 1px 2px rgba(20,32,29,.04), 0 8px 24px rgba(20,32,29,.06);
+  --display:"Sora","Avenir Next","Segoe UI",sans-serif; --body:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0e1412; --card:#151d1a; --card-2:#1a2420; --fg:#e9eeec; --muted:#97a6a0; --line:#263230; --accent:#5fc2b3; --accent-soft:#163430; --accent-2:#f0a05a; --accent-2-soft:#3a2816; --violet:#9b7bdc; --violet-soft:#2a2342; --shadow:none; color-scheme:dark; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 var(--body); }
+.wrap { max-width:1380px; margin:0 auto; padding:22px 28px 56px; }
+/* hero */
+.top { display:grid; grid-template-columns: 1fr auto; gap:18px 28px; align-items:start; margin-bottom:18px; }
+@media (max-width: 900px) { .top { grid-template-columns:1fr; } }
+.brand { font:600 12px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
+.top h1 { font:700 clamp(26px,3.4vw,38px)/1.1 var(--display); margin:8px 0 10px; letter-spacing:-.01em; text-wrap:balance; }
+.top .tag { color:var(--muted); font-size:16px; margin:0; max-width:72ch; }
+.pillars { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:16px; }
+@media (max-width: 760px) { .pillars { grid-template-columns:1fr; } }
+.pillar { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; box-shadow:var(--shadow); }
+.pillar b { display:block; font:600 13.5px/1.3 var(--display); margin-bottom:3px; }
+.pillar span { font-size:13px; color:var(--muted); }
+.status { display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+@media (max-width: 900px) { .status { flex-direction:row; flex-wrap:wrap; align-items:center; } }
+.chip { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600; font-family:var(--mono); }
 .chip.on { background:var(--accent-soft); color:var(--accent); }
 .chip.off { background:var(--accent-2-soft); color:var(--accent-2); }
-.chip.c { color:#fff; }
+.chip.c { color:#fff; font-family:var(--body); border-radius:8px; }
 .c-correct{background:var(--correct)} .c-semantic{background:var(--semantic)} .c-formal{background:var(--formal)} .c-mixed{background:var(--mixed)} .c-unrelated{background:var(--unrelated)} .c-nonword{background:var(--nonword)} .c-omission{background:var(--omission)}
-/* stepper */
-.steps { display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:10px; margin:16px 0 14px; }
-.step { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px; display:flex; gap:10px; align-items:flex-start; }
-.step .num { width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; display:grid; place-items:center; flex:none; font-size:13px; }
-.step b { display:block; font-size:13.5px; }
-.step span { font-size:12.5px; color:var(--muted); }
-@media (max-width: 1100px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+/* progress rail */
+.steps { display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:10px; margin:18px 0 18px; }
+@media (max-width: 1100px) { .steps { grid-template-columns: repeat(3,1fr); } }
 @media (max-width: 700px) { .steps { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+.step { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; display:flex; gap:12px; align-items:flex-start; box-shadow:var(--shadow); position:relative; transition: border-color .3s, background .3s; }
+.step .num { width:28px; height:28px; border-radius:50%; background:var(--card-2); border:1.5px solid var(--line); color:var(--muted); font:700 13px/1 var(--display); display:grid; place-items:center; flex:none; transition: all .3s; }
+.step.done .num { background:var(--accent); border-color:var(--accent); color:#fff; }
+.step.done .num::after { content:"✓"; }
+.step.done .num span { display:none; }
+.step b { display:block; font:600 14px/1.3 var(--display); }
+.step span.sub { font-size:12.5px; color:var(--muted); }
 /* panels */
-main { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
-@media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
-section { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px 14px; min-width:0; }
-.phead { display:flex; align-items:baseline; gap:10px; margin-bottom:2px; }
-.phead .num { width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; display:grid; place-items:center; flex:none; font-size:12.5px; align-self:center; }
-.phead h2 { font-size:16px; margin:0; }
-.what { color:var(--muted); font-size:13px; margin:0 0 12px 34px; }
-.lbl { font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; }
+main { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+@media (max-width: 1000px) { main { grid-template-columns:1fr; } }
+section { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:20px 22px 18px; min-width:0; box-shadow:var(--shadow); }
+section#teach { background: linear-gradient(180deg, var(--card) 0%, var(--card-2) 100%); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+.phead { display:flex; align-items:center; gap:12px; margin-bottom:4px; }
+.phead .num { width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font:700 13px/1 var(--display); display:grid; place-items:center; flex:none; }
+.phead h2 { font:600 18px/1.25 var(--display); margin:0; letter-spacing:-.005em; }
+.what { color:var(--muted); font-size:13.5px; margin:0 0 14px 40px; max-width:80ch; }
+.lbl { font:600 11px/1.3 var(--mono); text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
 .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-.field { display:flex; flex-direction:column; gap:4px; }
-button { background:var(--accent); color:#fff; border:0; border-radius:9px; padding:8px 14px; font-weight:600; cursor:pointer; font-size:14px; }
+.field { display:flex; flex-direction:column; gap:5px; }
+button { background:var(--accent); color:#fff; border:0; border-radius:10px; padding:9px 16px; font:600 14px var(--body); cursor:pointer; transition: transform .08s, filter .15s; }
+button:hover:not(:disabled) { filter:brightness(1.06); } button:active:not(:disabled) { transform: translateY(1px); }
 button.ghost { background:transparent; color:var(--fg); border:1px solid var(--line); }
-button:disabled { opacity:.5; cursor:default; }
-.seg { display:inline-flex; border:1px solid var(--line); border-radius:9px; overflow:hidden; }
-.seg button { background:transparent; color:var(--fg); border-radius:0; font-weight:500; }
+button:disabled { opacity:.45; cursor:default; }
+.seg { display:inline-flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--card-2); }
+.seg button { background:transparent; color:var(--fg); border-radius:0; font-weight:500; padding:7px 13px; }
 .seg button.on { background:var(--accent); color:#fff; }
-input[type=range] { width:240px; accent-color:var(--accent); }
-.scale { display:flex; justify-content:space-between; width:240px; font-size:11px; color:var(--muted); }
-.kv { display:grid; grid-template-columns:auto 1fr; gap:3px 14px; font-size:14px; margin-top:10px; align-items:baseline; }
-.kv .k { color:var(--muted); font-size:12.5px; }
+input[type=range] { width:250px; accent-color:var(--accent); }
+.scale { display:flex; justify-content:space-between; width:250px; font:11px var(--mono); color:var(--muted); }
+input[type=number], select { padding:6px 8px; border:1px solid var(--line); border-radius:9px; background:var(--card); color:var(--fg); font:14px var(--body); }
+.kv { display:grid; grid-template-columns:auto 1fr; gap:4px 16px; font-size:14px; margin-top:12px; align-items:baseline; }
+.kv .k { color:var(--muted); font:500 12px var(--mono); letter-spacing:.02em; }
 .help { font-size:12.5px; color:var(--muted); margin:6px 0 0; }
-details { margin-top:10px; border-top:1px dashed var(--line); padding-top:8px; }
-details summary { cursor:pointer; font-size:12.5px; color:var(--accent); font-weight:600; }
-details p, details ul { font-size:12.5px; color:var(--muted); margin:6px 0 0; }
+details { margin-top:12px; border-top:1px dashed var(--line); padding-top:10px; }
+details summary { cursor:pointer; font:600 12.5px var(--body); color:var(--accent); }
+details p, details ul { font-size:13px; color:var(--muted); margin:8px 0 0; line-height:1.55; }
 details ul { padding-left:18px; }
 /* naming */
-.pic { display:grid; grid-template-columns: 200px 210px; gap:14px 18px; align-items:start; }
-.pic > div:last-child { grid-column: 1 / -1; }
-@media (min-width: 1600px) { .pic { grid-template-columns: 200px 210px 1fr; } .pic > div:last-child { grid-column: auto; } }
-@media (max-width: 480px) { .pic { grid-template-columns: 1fr; } }
-.legend { display:grid; grid-template-columns: 1fr 1fr; gap:6px 12px; font-size:12.5px; color:var(--muted); margin-top:10px; }
-.legend > span { display:flex; align-items:center; gap:6px; }
-.legend .lbl { grid-column: 1 / -1; }
-.picbox img { width:200px; height:200px; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:10px; display:block; }
-.picbox .cap, .avatar .who { text-align:center; font-size:12px; color:var(--muted); margin-top:6px; }
+.pic { display:grid; grid-template-columns:200px 210px; gap:14px 20px; align-items:start; }
+.pic > div:last-child { grid-column:1 / -1; }
+@media (min-width: 1600px) { .pic { grid-template-columns:200px 210px 1fr; } .pic > div:last-child { grid-column:auto; } }
+@media (max-width: 480px) { .pic { grid-template-columns:1fr; } }
+.picbox img { width:200px; height:200px; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:14px; display:block; }
+.picbox .cap, .avatar .who { text-align:center; font:12px var(--mono); color:var(--muted); margin-top:6px; }
 .avatar { position:relative; width:210px; }
-.avatar svg { width:210px; height:220px; display:block; border-radius:14px; background: radial-gradient(circle at 50% 30%, #f3ece4 0%, #e3d7cb 70%, #d2c3b4 100%); }
-.avatar .mouth { transition: d .07s linear; } .avatar .lid { transition: transform .08s; } .avatar .brow { transition: transform .35s ease; } .avatar .pupil { transition: cx .25s ease, cy .25s ease; }
-.bubble { position:absolute; left:8px; right:8px; top:0; transform: translateY(-4px); background:var(--card); border:1px solid var(--line); border-radius:12px; padding:6px 10px; font-size:13px; line-height:1.3; box-shadow:0 4px 14px rgba(0,0,0,.08); opacity:0; transition:opacity .2s; pointer-events:none; }
+.avatar svg { width:210px; height:220px; display:block; border-radius:14px; background: radial-gradient(circle at 50% 30%, #f3ece4 0%, #e3d7cb 70%, #d2c3b4 100%); border:1px solid var(--line); }
+.avatar .mouth { transition:d .07s linear; } .avatar .lid { transition:transform .08s; } .avatar .brow { transition:transform .35s ease; } .avatar .pupil { transition:cx .25s ease, cy .25s ease; }
+.bubble { position:absolute; left:8px; right:8px; top:0; transform:translateY(-4px); background:var(--card); border:1px solid var(--line); border-radius:12px; padding:6px 10px; font-size:13px; line-height:1.3; box-shadow:var(--shadow); opacity:0; transition:opacity .2s; pointer-events:none; }
 .bubble.on { opacity:1; }
-.bubble .ph { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--muted); font-size:11.5px; display:block; margin:2px 0 0; }
-.bubble .dots span { display:inline-block; width:6px; height:6px; margin-right:4px; border-radius:50%; background:var(--muted); animation: dot 1s infinite; }
-.bubble .dots span:nth-child(2) { animation-delay:.2s } .bubble .dots span:nth-child(3) { animation-delay:.4s }
-@keyframes dot { 0%,80%,100% { opacity:.25 } 40% { opacity:1 } }
-@media (prefers-reduced-motion: reduce) { .bubble .dots span { animation: none; } }
+.bubble .ph { font-family:var(--mono); color:var(--muted); font-size:11.5px; display:block; margin:2px 0 0; }
+.bubble .dots span { display:inline-block; width:6px; height:6px; margin-right:4px; border-radius:50%; background:var(--muted); animation:dot 1s infinite; }
+.bubble .dots span:nth-child(2){animation-delay:.2s} .bubble .dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+@media (prefers-reduced-motion: reduce) { .bubble .dots span { animation:none; } }
+.legend { display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; font-size:12.5px; color:var(--muted); margin-top:12px; }
+.legend > span { display:flex; align-items:center; gap:6px; }
+.legend .lbl { grid-column:1 / -1; }
 .legend .chip { font-size:11px; padding:1px 7px; flex:none; }
 .counter { font-size:13px; color:var(--muted); }
-.feed { max-height:250px; overflow:auto; border-top:1px solid var(--line); margin-top:10px; padding-top:6px; font-variant-numeric: tabular-nums; }
-.feed .hd { display:grid; grid-template-columns: 28px 110px 1fr auto; gap:8px; padding:2px 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
-.feed .r { display:grid; grid-template-columns: 28px 110px 1fr auto; gap:8px; padding:5px 0; border-bottom:1px dashed var(--line); align-items:center; font-size:14px; }
-.feed .r .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; color:var(--muted); }
+.feed { max-height:250px; overflow:auto; border-top:1px solid var(--line); margin-top:12px; padding-top:6px; font-variant-numeric:tabular-nums; }
+.feed .hd { display:grid; grid-template-columns:28px 110px 1fr auto; gap:8px; padding:2px 0 6px; font:600 10.5px var(--mono); text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+.feed .r { display:grid; grid-template-columns:28px 110px 1fr auto; gap:8px; padding:6px 0; border-bottom:1px dashed var(--line); align-items:center; font-size:14px; }
+.feed .r .mono { font-family:var(--mono); font-size:12.5px; color:var(--muted); }
 /* diagnose */
-canvas { border-radius:8px; border:1px solid var(--line); background:#fff; }
-.diag { display:grid; grid-template-columns: 300px 1fr; gap:16px; align-items:start; }
-@media (max-width: 1240px) { .diag { grid-template-columns: 1fr; } }
-.axis { font-size:11.5px; color:var(--muted); text-align:center; margin-top:4px; }
+canvas { border-radius:12px; border:1px solid var(--line); background:#fff; }
+.diag { display:grid; grid-template-columns:300px 1fr; gap:18px; align-items:start; }
+@media (max-width: 1240px) { .diag { grid-template-columns:1fr; } }
+.axis { font:11.5px var(--mono); color:var(--muted); text-align:center; margin-top:6px; }
 /* trainer */
-svg.chart text { fill: var(--fg); font-size: 11px; }
-.ll { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; margin-top:8px; }
+svg.chart text { fill:var(--fg); font:11px var(--mono); }
+.ll { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; margin-top:10px; }
 .ll span { display:inline-flex; align-items:center; gap:6px; } .ll i { width:16px; height:3px; display:inline-block; border-radius:2px; }
-.strip { display:grid; grid-template-columns: repeat(40, 1fr); gap:2px; margin-top:6px; }
-.strip div { aspect-ratio:1; border-radius:2px; font-size:8px; line-height:1; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; opacity:.9; }
+.strip { display:grid; grid-template-columns:repeat(40,1fr); gap:2px; margin-top:6px; }
+.strip div { aspect-ratio:1; border-radius:3px; font:8px var(--mono); line-height:1; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; opacity:.92; }
 .strip div:hover { outline:2px solid var(--accent-2); }
-.rows { display:grid; grid-template-columns: 1fr 1fr; gap:4px 16px; font-size:13px; margin-top:8px; }
-.rows .k { color:var(--muted); }
-#override { border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:10px; display:none; font-size:13.5px; }
-#summary { font-size:13.5px; margin-top:10px; }
-footer { margin-top:18px; border-top:1px solid var(--line); padding-top:12px; font-size:12.5px; color:var(--muted); display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; }
-footer b { color:var(--fg); display:block; font-size:12.5px; }
-@media (max-width: 900px) { footer { grid-template-columns: 1fr 1fr; } }
+.rows { display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; font-size:13.5px; margin-top:10px; }
+.rows .k { color:var(--muted); font:500 12px var(--mono); }
+#summary, #osummary { font-size:14px; margin-top:12px; line-height:1.55; }
+.block { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-top:14px; }
+.block .lbl { color:var(--accent); }
+.oppHead { font:600 15px/1.4 var(--display); margin:10px 0 6px; }
+footer { margin-top:22px; border-top:1px solid var(--line); padding-top:14px; font-size:12.5px; color:var(--muted); display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margin-bottom:2px; }
+@media (max-width: 900px) { footer { grid-template-columns:1fr 1fr; } }
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="top">
   <div>
-    <h1>NeuroCue patient console</h1>
-    <p class="tag">A synthetic aphasia patient you can run experiments on. Every number on this page is produced live by the validated engine: the Dell word-retrieval model, the lesion fitter, the learning layer fitted to a real therapy study, and the trained therapist.</p>
+    <div class="brand">NeuroCue · patient console</div>
+    <h1>A synthetic aphasia patient you can run experiments on, and a therapist you can correct</h1>
+    <p class="tag">Every patient is two lesion weights in a published model of word retrieval. Every therapist is a policy you can watch, question and teach. Every number on this page is produced live by the validated engine, and the page tells you where each one comes from.</p>
+    <div class="pillars">
+      <div class="pillar"><b>Personalised</b><span>Severity and lesion type make the patient; her words, her errors and her course are hers. Change two numbers and she is someone else.</span></div>
+      <div class="pillar"><b>Customisable</b><span>A clinician corrects the therapist a few times and DITTO turns the corrections into a rule, adopted where it applies and nowhere else.</span></div>
+      <div class="pillar"><b>Transparent</b><span>The lesion is recoverable from her answers. Before any rule is taught, the engine shows what it would do. After, it shows what it did.</span></div>
+    </div>
   </div>
   <div class="status">
     <span class="lbl">Engine</span><span class="chip on">model + fitter loaded</span><span class="chip off" id="ppochip">trained policy: checking…</span>
@@ -116,17 +140,17 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
 </header>
 
 <div class="steps">
-  <div class="step"><span class="num">1</span><div><b>Choose a patient</b><span>Severity and lesion type. Press New patient.</span></div></div>
-  <div class="step"><span class="num">2</span><div><b>Hear her name pictures</b><span>Real pictures, realistic errors, spoken aloud.</span></div></div>
-  <div class="step"><span class="num">3</span><div><b>Diagnose her</b><span>Watch the fitter recover the lesion from the answers.</span></div></div>
-  <div class="step"><span class="num">4</span><div><b>Treat her</b><span>Clinic practice vs the trained policy, same patient.</span></div></div>
-  <div class="step"><span class="num">5</span><div><b>Teach the policy</b><span>Correct it a few times; DITTO learns your rule. The engine prices it.</span></div></div>
+  <div class="step" id="st1"><span class="num"><span>1</span></span><div><b>Make a patient</b><span class="sub">Two numbers: how severe, where the damage is.</span></div></div>
+  <div class="step" id="st2"><span class="num"><span>2</span></span><div><b>Hear her</b><span class="sub">Real pictures, her errors, spoken the way real patients speak.</span></div></div>
+  <div class="step" id="st3"><span class="num"><span>3</span></span><div><b>Diagnose her</b><span class="sub">The fitter recovers her lesion from her answers alone.</span></div></div>
+  <div class="step" id="st4"><span class="num"><span>4</span></span><div><b>Treat her</b><span class="sub">Three therapists on identical copies of her, scored a month later.</span></div></div>
+  <div class="step" id="st5"><span class="num"><span>5</span></span><div><b>Teach the therapist</b><span class="sub">Your corrections become its rule. The engine shows the price.</span></div></div>
 </div>
 
 <main>
 <section id="patient">
   <div class="phead"><span class="num">1</span><h2>Who are you listening to</h2></div>
-  <p class="what">Two numbers make the patient: how severe, and where the damage is. Change them and the same pictures produce a different person.</p>
+  <p class="what">Two numbers make the patient: how severe, and where the damage is. Change them and the same pictures produce a different person, with her own words, her own errors and her own course of therapy.</p>
   <div class="row" style="gap:22px; align-items:flex-start">
     <div class="field"><span class="lbl">Severity · WAB Aphasia Quotient (0–100, higher = milder)</span>
       <input id="aq" type="range" min="20" max="95" value="60"><div class="scale"><span>very severe</span><span>severe</span><span>moderate</span><span>mild</span></div>
@@ -254,8 +278,8 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
 </section>
 
 <section id="trainer">
-  <div class="phead"><span class="num">4</span><h2>A trainer treats the patient</h2></div>
-  <p class="what">A course of therapy on this patient, scored the way a real study scored it: what she can still name, unaided, after the course. Two therapists run on identical copies of her, so the difference is the therapy.</p>
+  <div class="phead"><span class="num">4</span><h2>Three therapists treat the same patient</h2></div>
+  <p class="what">A course of therapy personalised to her: twenty words she struggles with, four sessions over ten days, scored the way a real study scored it, by what she can still name unaided a week and a month later. Three therapists run on identical copies of her with identical dice, so every difference is the therapy, and every line is the engine's own prediction.</p>
   <div class="rows">
     <span class="k">course design</span><span>4 sessions on days 0, 3, 7, 10 · 40 trials each · 20 words she personally struggles with</span>
     <span class="k">scored on</span><span>predicted unaided retention of those words at day 17 and day 38 (Middleton et al. 2019's design)</span>
@@ -279,18 +303,19 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
   </details>
 </section>
 <section id="teach" style="grid-column: 1 / -1">
-  <div class="phead"><span class="num">5</span><h2>Teach the policy as the clinician (DITTO)</h2></div>
-  <p class="what">Correct the policy a few times and it learns your rule: DITTO treats each of your corrections as preferred over what the policy would have done and retrains it against the original as an anchor. Before you teach it anything, the engine shows where a correction would help and where it would hurt, from its own arithmetic. Run the course in step 4 first.</p>
+  <div class="phead"><span class="num">5</span><h2>Teach the therapist as the clinician</h2></div>
+  <p class="what">This is where the agent becomes yours. Correct it a few times and DITTO turns the corrections into a rule: each one is treated as preferred over what the policy would have done, and the policy is retrained against its original self as an anchor, so it changes where you meant and nowhere else. Before you teach it anything, the engine shows what each possible rule would do. After, it shows what the rule did. Run the course in step 4 first.</p>
 
-  <div class="lbl">A · Where a correction would help, moment by moment</div>
+  <div class="block"><div class="lbl">A · Before you teach: what each rule would do, moment by moment</div>
   <div class="counter" style="margin:4px 0 6px">For each of the 160 decisions the engine asks: what if the clinician had chosen differently here? For every option it computes the word's chance of success now (cued or not), the memory trace a success or failure would lay, and the word's predicted retention at day 17 after it, including the spacing cost of an immediate retry. The cell shows the <b>best alternative to what the policy did</b>: green = would have helped, red = every alternative would have hurt, grey = nothing to gain. Hover for the numbers.</div>
   <div class="strip" id="oppStrip"></div>
   <div class="ll" style="margin-top:6px"><span><i style="background:#2e7d32; height:10px; width:10px; border-radius:2px"></i>a different choice would help</span><span><i style="background:#8a948f; height:10px; width:10px; border-radius:2px"></i>nothing to gain (within 0.02 pp)</span><span><i style="background:#c62828; height:10px; width:10px; border-radius:2px"></i>every alternative would hurt</span><span>· units: percentage points of the 20-word retention at day 17, per moment</span></div>
-  <p id="oppHeadline" style="font-size:14px; margin:12px 0 6px"></p>
+  <p id="oppHeadline" class="oppHead"></p>
   <div class="counter">Mean effect per moment, in percentage points of retention at day 17, of each clinician choice against what the policy did. Rows: what she had just done (number of such moments). Click a cell to put that rule in the form below.</div>
   <div style="overflow-x:auto; margin-top:6px"><table id="oppTable" style="border-collapse:collapse; width:100%; font-size:13.5px; font-variant-numeric:tabular-nums"></table></div>
+  </div>
 
-  <div class="lbl" style="margin-top:16px">B · Teach it a rule</div>
+  <div class="block"><div class="lbl">B · Teach it a rule</div>
   <div class="row" style="gap:10px; margin-top:6px; align-items:flex-end">
     <div class="field"><span class="counter">whenever she has just…</span><select id="tctx"></select></div>
     <div class="field"><span class="counter">I would have…</span><select id="trule"><option value="due">moved on to the word that is due</option><option value="repeat">retried the word she just had</option></select></div>
@@ -299,9 +324,10 @@ footer b { color:var(--fg); display:block; font-size:12.5px; }
     <span class="counter" id="tstat"></span>
   </div>
   <p id="tpred" class="counter" style="margin:8px 0 0"></p>
+  </div>
 
-  <div id="ditto" style="display:none; margin-top:16px">
-    <div class="lbl">C · What it learned · the policy's cue on each of the 160 recorded trials, before and after</div>
+  <div id="ditto" class="block" style="display:none">
+    <div class="lbl">C · After you teach: what it adopted, where, and what it cost or gained her</div>
     <div class="ll" style="margin-top:6px"><span><i style="background:#8a948f; height:10px; width:10px; border-radius:2px"></i>no cue</span><span><i style="background:var(--accent); height:10px; width:10px; border-radius:2px"></i>first sound</span><span><i style="background:var(--semantic); height:10px; width:10px; border-radius:2px"></i>meaning cue</span><span><i style="background:var(--accent-2); height:10px; width:10px; border-radius:2px"></i>whole word</span><span><i style="border:2px solid #e8c547; height:8px; width:8px; border-radius:2px; background:transparent"></i>the clinician's demonstrations</span><span><i style="border:2px solid #fff; height:8px; width:8px; border-radius:2px; background:transparent"></i>changed</span><span>· letter = word rule: <b>R</b> retry the same word, <b>W</b> weakest, <b>S</b> strongest, blank = move on to the due word · dot = a matching moment that was not shown</span></div>
     <div class="counter" style="margin-top:6px">before</div><div class="strip" id="stripBefore"></div>
     <div class="counter" style="margin-top:6px">after</div><div class="strip" id="stripAfter"></div>
@@ -413,6 +439,7 @@ $("#newp").onclick = async () => {
     $("#n").textContent = 0; $("#read").textContent = "–"; $("#pacc").textContent = "–"; $("#map").textContent = "–"; $("#truth").textContent = "hidden";
     drawHeat(null); $("#chart").innerHTML = ""; $("#strip").innerHTML = ""; $("#summary").textContent = ""; $("#oppStrip").innerHTML = ""; $("#oppTable").innerHTML = ""; $("#oppHeadline").textContent = ""; $("#tpred").textContent = ""; $("#ditto").style.display = "none"; $("#tapply").disabled = true;
     ["#name1","#name10","#namen","#reveal","#run"].forEach(s => $(s).disabled = false);
+    ["#st1","#st2","#st3","#st4","#st5"].forEach(s => $(s).classList.remove("done")); $("#st1").classList.add("done");
     const ma = P.models_available || {}; [...$("#pmodel").options].forEach(o => { o.disabled = !ma[o.value]; o.textContent = o.textContent.replace(/ · not loaded$/, "") + (ma[o.value] ? "" : " · not loaded"); });
     if (!ma[$("#pmodel").value]) $("#pmodel").value = ma.observable ? "observable" : "retention";
     $("#runnote").textContent = (ma.retention || ma.observable) ? "" : "no trained policy loaded on this server; the comparison runs spaced retrieval (no cues) instead";
@@ -439,14 +466,14 @@ async function nameOne() {
   const {response: r, posterior: q} = await post(`/api/patient/${P.id}/name`);
   $("#img").src = r.image; $("#picname").textContent = r.target; $("#target").textContent = r.target; $("#said").textContent = "…"; $("#type").textContent = "";
   await avatar.say(r);
-  renderResponse(r); applyPosterior(q);
+  renderResponse(r); applyPosterior(q); $("#st2").classList.add("done");
 }
 async function nameBatch() {
   const n = Math.max(1, Math.min(200, +$("#nbatch").value || 20));
   ["#name1","#name10","#namen"].forEach(s => $(s).disabled = true);
   try {
     const {responses, posterior: q} = await post(`/api/patient/${P.id}/name_batch`, {n});
-    responses.forEach(renderResponse); applyPosterior(q);
+    responses.forEach(renderResponse); applyPosterior(q); $("#st2").classList.add("done");
     avatar.show(`named ${n} pictures`); setTimeout(() => avatar.show("", false), 1600);
   } catch (e) { $("#said").textContent = e.message.slice(0, 120); }
   finally { ["#name1","#name10","#namen"].forEach(s => $(s).disabled = false); }
@@ -472,7 +499,7 @@ function drawHeat(q) {
   if (truthShown && truth) { g.fillStyle = "#c96f1f"; g.beginPath(); g.arc(sx(truth.s), py(truth.p), 6, 0, 7); g.fill(); g.fillStyle="#c96f1f"; g.font="12px sans-serif"; g.fillText("truth", sx(truth.s)+9, py(truth.p)+4); }
   g.fillStyle = "#444"; g.font = "11px sans-serif"; g.fillText("semantic weight →", 6, c.height - 6); g.save(); g.translate(12, 120); g.rotate(-Math.PI/2); g.fillText("phonological weight →", 0, 0); g.restore();
 }
-$("#reveal").onclick = async () => { truth = await (await fetch(`/api/patient/${P.id}/truth`)).json(); truthShown = true; $("#truth").textContent = `s ${truth.s.toFixed(3)} · p ${truth.p.toFixed(3)}`; drawHeat(lastQ); };
+$("#reveal").onclick = async () => { truth = await (await fetch(`/api/patient/${P.id}/truth`)).json(); truthShown = true; $("#st3").classList.add("done"); $("#truth").textContent = `s ${truth.s.toFixed(3)} · p ${truth.p.toFixed(3)}`; drawHeat(lastQ); };
 
 function taughtRun() { const t = $("#pmodel").value; return courses[`ppo_${t}`] || courses.ppo || null; }
 function drawChart() {
@@ -576,7 +603,7 @@ $("#tapply").onclick = async () => {
     courses.tuned = r.course; drawChart(); drawDitto(r);
     const pct = v => v == null ? "–" : Math.round(v * 100) + "%"; const cueName = ($("#tcue").value || "no cue").replace("_", " ");
     $("#osummary").innerHTML = `<b>Taught</b> with ${r.n_demos} demonstrations (${r.n_demos_total} in total): "whenever she has just ${CTX_LABEL($("#tctx").value)}, ${$("#trule").value === "repeat" ? "retry the word" : "move on"} with ${cueName}". The retrained policy now takes that action in ${pct(r.adoption_heldout)} of the ${r.n_heldout} matching moments it was not shown, in ${pct(r.leak_other_errors)} of the ${r.n_other_errors} moments after other kinds of error, and in ${pct(r.leak_after_correct)} of the ${r.n_after_correct} moments after a success; its choice changed in ${r.changed_states.length} of ${r.n_states} states. <b>Retention at one week:</b> ${$("#pmodel").value === "retention" ? "retention-trained" : "clinic-trained"} policy ${Math.round(taughtRun().final["17"]*100)}%, after teaching ${Math.round(r.course.final["17"]*100)}% (${(100*(r.course.final["17"] - taughtRun().final["17"])).toFixed(1)} pp)${courses.ppo_retention && $("#pmodel").value !== "retention" ? `; the retention-trained policy, which knows the hidden objective, reaches ${Math.round(courses.ppo_retention.final["17"]*100)}%` : ""}. The engine priced the clinician's rule; block A predicted its sign.`;
-    $("#tstat").textContent = "done";
+    $("#tstat").textContent = "done"; $("#st5").classList.add("done");
   } catch (e) { $("#tstat").textContent = e.message.slice(0, 200); } finally { $("#tapply").disabled = false; }
 };
 $("#run").onclick = async () => {
@@ -591,7 +618,7 @@ $("#run").onclick = async () => {
     $("#stripTitle").textContent = teach === "retention" ? "Retention-trained policy's" : "Clinic-trained policy's";
     const h = courses.spaced_hierarchy, rt = courses.ppo_retention, ob = courses.ppo_observable;
     const f = c => c ? `${Math.round(c.final["17"]*100)}% at one week, ${Math.round(c.final["38"]*100)}% at one month` : "–";
-    $("#runstate").textContent = "Done.";
+    $("#runstate").textContent = "Done."; $("#st4").classList.add("done");
     $("#summary").innerHTML = `<b>Result.</b> Her 20 words started at ${Math.round(h.start["17"]*100)}% predicted retention. <b>Cueing hierarchy</b>: ${f(h)}. ` + (rt ? `<b>Retention-trained policy</b> (knows the hidden objective): ${f(rt)}. ` : "") + (ob ? `<b>Clinic-trained policy</b> (sees only in-session answers): ${f(ob)}. ` : "") + `All lines are the engine's learning layer predicting unaided naming. The clinic-trained policy is the one a real app could train; step 5 shows what a clinician's corrections do to it.`;
   } catch (e) { $("#runstate").textContent = "Failed."; $("#summary").innerHTML = `<b>The course did not run.</b> ${e.message.slice(0, 300)}`; } finally { $("#run").disabled = false; }
 };
