@@ -18,6 +18,10 @@ from core.practice import LLMConfig
 # Template settings recorded in every run manifest. Qwen3: thinking disabled consistently in
 # training, evaluation and serving (the template then inserts an empty <think></think> block).
 TEMPLATE_SETTINGS = {"add_generation_prompt": True, "enable_thinking": False}
+# Option scoring runs all options of a decision in one batch unless that batch would exceed this
+# many tokens; then it scores one option at a time. A prompt with all 119 training demonstrations
+# (~23k tokens) times 6 options ran out of memory on a 40 GB A100 when batched.
+MAX_SCORE_BATCH_TOKENS = 16_000
 
 
 def chat_prompt(tokenizer, msgs: list[dict[str, str]]) -> str:
@@ -103,10 +107,17 @@ class LLMRuntime:
             enc = Encoder(self.tokenizer, self.device)
             prompt = enc.prompt_ids(msgs)
             ctx = self._adapter_ctx(adapter)
+            items = [(prompt, enc.answer_ids(c)) for c in candidates]
+            batch = items if len(prompt) * len(items) <= MAX_SCORE_BATCH_TOKENS else None
             t0 = time.perf_counter()
             with ctx, torch.inference_mode():
-                lp = answer_logps(self.model, enc, [(prompt, enc.answer_ids(c)) for c in candidates])
-            return [float(x) for x in lp.float().cpu()], time.perf_counter() - t0
+                if batch is not None:
+                    lps = [float(x) for x in answer_logps(self.model, enc, batch).float().cpu()]
+                else:      # long prompt: one option per forward pass to bound memory
+                    lps = [float(answer_logps(self.model, enc, [it]).float().cpu()[0]) for it in items]
+                    if self.device == "cuda":
+                        torch.cuda.empty_cache()
+            return lps, time.perf_counter() - t0
 
     def generate(self, msgs: list[dict[str, str]], adapter: str | None = None) -> tuple[str, float]:
         """Greedy decoding with `adapter` active (None = the unadapted base). Returns (text, seconds)."""

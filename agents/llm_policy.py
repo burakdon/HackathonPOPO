@@ -68,14 +68,15 @@ class BanditDecisionPolicy:
 class LLMDecisionPolicy:
     def __init__(self, runtime, version: str, adapter: str | None, detail: dict, history_in_prompt: int,
                  timeout_s: float, few_shot: list[tuple[str, str]] | None = None,
-                 executor: concurrent.futures.Executor | None = None) -> None:
+                 executor: concurrent.futures.Executor | None = None, prompt_format: str = "v1") -> None:
         self.runtime, self.version, self.adapter, self.detail = runtime, version, adapter, detail
+        self.prompt_format = prompt_format
         self.history_in_prompt, self.timeout_s, self.few_shot = history_in_prompt, timeout_s, few_shot
         self.executor = executor or concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.name = version
 
     def generate(self, ctx: DecisionContext, options: list[PracticeAction]) -> tuple[str, float]:
-        msgs = messages(ctx, options, self.history_in_prompt, self.few_shot)
+        msgs = messages(ctx, options, self.history_in_prompt, self.few_shot, self.prompt_format)
         if getattr(getattr(self.runtime, "cfg", None), "decoding", "generate") == "score":
             keys = [format_action(o) for o in options]
             fut = self.executor.submit(self.runtime.score, msgs, keys, self.adapter)

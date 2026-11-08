@@ -65,3 +65,32 @@ def test_runtime_scores_match_training_logps_and_option_samples_are_valid_and_se
     draw = lambda: sample_options(rt.model, enc, enc.prompt_ids(msgs), keys, 12, 1.0, torch.Generator().manual_seed(3))
     a = draw()
     assert len(a) == 12 and set(a) <= set(keys) and a == draw()
+
+
+def test_stage_selection_prefers_the_earlier_stage_on_ties():
+    from training.ditto import select_stage
+    assert select_stage({"sft": 20, "round1": 22, "round2": 22, "round3": 18}) == "round1"
+    assert select_stage({"sft": 22, "round1": 22, "round2": 21}) == "sft"
+    assert select_stage({"sft": 10, "round1": 9, "round2": 8}) == "sft"
+
+
+@pytest.mark.skipif(_tokenizer() is None, reason="needs the llm extra and a cached Qwen3 tokenizer")
+def test_one_option_at_a_time_scoring_equals_batched_scoring(tmp_path, monkeypatch):
+    import torch
+    from transformers import Qwen3Config, Qwen3ForCausalLM
+
+    import agents.llm_runtime as llm_runtime
+    from core.practice import messages
+    tok = _tokenizer()
+    cfg = Qwen3Config(vocab_size=len(tok), hidden_size=32, intermediate_size=64, num_hidden_layers=2,
+                      num_attention_heads=2, num_key_value_heads=1, head_dim=16, max_position_embeddings=2048)
+    torch.manual_seed(0)
+    Qwen3ForCausalLM(cfg).save_pretrained(tmp_path)
+    tok.save_pretrained(tmp_path)
+    rt = llm_runtime.LLMRuntime(LLMConfig(base_model=str(tmp_path), device="cpu", dtype="float32", max_new_tokens=8,
+                                          timeout_s=10, runs_dir="runs/ditto", decoding="score"))
+    msgs, keys = messages(CTX, OPTIONS, 4, fmt="v2"), [format_action(o) for o in OPTIONS]
+    batched, _ = rt.score(msgs, keys)
+    monkeypatch.setattr(llm_runtime, "MAX_SCORE_BATCH_TOKENS", 1)
+    single, _ = rt.score(msgs, keys)
+    assert single == pytest.approx(batched, abs=1e-4)

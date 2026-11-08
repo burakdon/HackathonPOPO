@@ -129,10 +129,12 @@ def to_trainer(state: dict, bank: ItemBank | None = None) -> tuple[DecisionConte
     return ctx, options, ids
 
 
-def model_messages(state: dict, history_in_prompt: int, bank: ItemBank | None = None) -> list[dict[str, str]]:
-    """The exact chat messages the trained model sees for this patient_state."""
+def model_messages(state: dict, history_in_prompt: int, bank: ItemBank | None = None,
+                   fmt: str = "v1") -> list[dict[str, str]]:
+    """The exact chat messages the trained model sees for this patient_state (in prompt format `fmt`,
+    which must be the one the adapter was trained with)."""
     ctx, options, _ = to_trainer(state, bank)
-    return messages(ctx, options, history_in_prompt)
+    return messages(ctx, options, history_in_prompt, fmt=fmt)
 
 
 def to_action_id(model_text: str, state: dict, bank: ItemBank | None = None) -> dict | None:
