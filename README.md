@@ -1,46 +1,433 @@
-# CueAgain (Aphasia Trainer)
+# NeuroCue
 
-Picture-naming practice with speech input and a decision model adapted from human demonstrations.
-The patient sees a picture and names it aloud. A pretrained speech recogniser proposes a transcript,
-a helper confirms or corrects the result, and a decision model chooses what happens next: retry the
-same picture with a predefined hint, or move on to a new picture at a chosen difficulty. A
-clinician-facing view captures preferred decisions and shows how a model adapted with
-**DITTO** (Shaikh et al., ICLR 2025) behaves.
+**A clinically grounded synthetic aphasia patient, a therapist policy trained against it, and a loop
+that lets the clinician correct that policy.** Winner of the Health track and 3rd overall at the
+Triangle AI Hackathon (November 2026).
 
-## NeuroCue demo: hosted, or run it locally (team)
+Anomia therapy is a sequence of decisions: which word next, which cue, retry or move on, how to space
+practice. Reinforcement learning could optimise those decisions, but it needs a patient to practise
+on, and no simulator existed that was grounded in real naming errors and real retention data.
+NeuroCue builds one. Every layer of the patient is fitted to published data and checked on held-out
+data; the therapy environment, the trained policy, the clinician-feedback loop and the live console
+all run on that same engine.
 
-Repository: https://github.com/burakdon/neurocue (default branch `main`; the earlier scaffold is kept
-as `legacy-main`). Hosted demo: **https://burakdonbekci--neurocue-web.modal.run** (Modal; the first
-request after an idle period waits about a minute while the engine loads). See "Deploy" below.
-Captioned video walkthrough (2.5 min): [results/demo/neurocue_demo.mp4](results/demo/neurocue_demo.mp4).
-Presentation notes, every number with its source file:
-[docs/presentation_talking_points.md](docs/presentation_talking_points.md).
+| | |
+|---|---|
+| Hosted demo | **https://burakdonbekci--neurocue-web.modal.run** (first visit after idle waits about a minute while the engine loads) |
+| Video walkthrough | [results/demo/neurocue_demo.mp4](results/demo/neurocue_demo.mp4) (2.5 min, captioned) |
+| Presentation notes | [docs/presentation_talking_points.md](docs/presentation_talking_points.md): every number with its source file |
+| Engine internals | [patientmodel/README.md](patientmodel/README.md): module-by-module grounding |
+| Data sources | [data/README.md](data/README.md): what each dataset is for, licences, what could not be obtained |
+| Repository | https://github.com/burakdon/neurocue (`main`; the original scaffold is `legacy-main`) |
 
-Everything the demo needs is in `main`: code, trained policies, picture norms and pictures, and the
-caches (fitted model grid, lexicon, WordNet). To run it on your machine, one command:
+> **Prototype, not a clinical tool.** No claim of clinical effectiveness, diagnosis or assessment of
+> impaired speech is made. No real patient is simulated: the patient is a model fitted to population
+> data. The policy's results are the engine's current opinion under stated assumptions, not a verdict
+> on any therapy. No real patient data is used in the demo.
+
+## Contents
+
+1. [Quick start](#1-quick-start)
+2. [What is in the repository](#2-what-is-in-the-repository)
+3. [The patient engine](#3-the-patient-engine-patientmodel)
+4. [The therapy environment and the trained therapist](#4-the-therapy-environment-and-the-trained-therapist-neurocue)
+5. [Learning from clinician corrections: DITTO with anchors](#5-learning-from-clinician-corrections-ditto-with-anchors)
+6. [The console and the demo](#6-the-console-and-the-demo)
+7. [Deployment](#7-deployment)
+8. [Reproducing every result](#8-reproducing-every-result)
+9. [Limits, stated](#9-limits-stated)
+10. [Earlier generations kept in the repository](#10-earlier-generations-kept-in-the-repository)
+11. [Data and licences](#11-data-and-licences)
+12. [Branches and team workflow](#12-branches-and-team-workflow)
+13. [References](#13-references)
+
+## 1. Quick start
+
+Everything the demo needs is committed: code, trained policies, picture norms and pictures, and the
+caches (fitted model grid, lexicon, WordNet). One command:
 
 ```bash
 ./scripts/run_demo.sh
 ```
 
-It installs `uv` if you do not have it, creates the Python environment (first time: a few minutes,
-mostly PyTorch), starts the server and opens http://localhost:8765. Use Chrome or Safari with sound
-on for the spoken responses. Stop with Ctrl-C. Another port: `NEUROCUE_PORT=9000 ./scripts/run_demo.sh`.
+It installs `uv` if you do not have it, creates the Python 3.11 environment (first time: a few
+minutes, mostly PyTorch), starts the server and opens http://localhost:8765. Use Chrome or Safari
+with sound on for the spoken responses. Stop with Ctrl-C. Another port:
+`NEUROCUE_PORT=9000 ./scripts/run_demo.sh`.
 
-Demo flow (also on the page): choose a patient, have her name pictures (or name 20 instantly),
-diagnose her from the answers, run the four-session course against the clinic's cueing hierarchy,
-then teach the policy a rule as the clinician and watch DITTO adopt it and the engine price it.
-Rehearsed seeds: AQ 55 phonological seed 3, then AQ 50 semantic seed 3 (same pictures, different errors).
+The test suite (250 tests, engine, environment, service and the earlier generations):
 
-Not in the branch: the PSST transcripts (TalkBank data; `uv run python -m scripts.fetch_data` gets them)
-and the papers' PDFs. Neither is needed to run the demo.
+```bash
+uv run python -m pytest
+```
 
-### Deploy
+Not in the branch: the PSST transcripts and audio (TalkBank data) and the papers' PDFs. Neither is
+needed to run the demo or the tests; `uv run python -m scripts.fetch_data` downloads the public
+datasets for the fitting and validation scripts.
+
+## 2. What is in the repository
+
+The system is five layers. Each one consumes the one before it and is validated on its own.
+
+| layer | code | what it does | fitted to / checked against |
+|---|---|---|---|
+| Data and labels | `scripts/code_psst_responses.py`, `scripts/learn_coder.py`, `data/derived/` | Codes real naming responses into error types; a clinician adjudicated the uncertain rows; a learned coder fills the rest | PSST corpus (Gale et al. 2022); 328 clinician-coded rows |
+| Patient engine | `patientmodel/` | A mechanistic model of word retrieval, a population prior, real words and nonwords as errors, cues, learning and forgetting over days | Dell's published patients; PSST held-out participants; Middleton et al. 2019 retention data; Nardo et al. 2017 cue effects |
+| Therapy environment | `neurocue/env.py`, `neurocue/baselines.py` | A Gymnasium course of four sessions on one engine patient, judged on retention one week and one month later; six clinical baselines | Middleton et al. 2019's protocol |
+| Trained therapist | `neurocue/train_ppo.py`, `neurocue/evaluate.py`, `models/engine_ppo_*.zip` | MaskablePPO on the environment; paired evaluation against the baselines | 80 held-out synthetic patients |
+| Clinician loop | `agents/ditto.py`, `neurocue/demo/server.py` | A clinician's correction becomes a demonstration; DITTO with anchors updates the policy where the rule applies and nowhere else | Held-out states: adoption and containment |
+| Console | `neurocue/demo/` | FastAPI over the engine, an avatar whose mouth follows the phonemes produced, diagnosis, two-therapist course, teach-a-rule | Same code the validation ran |
+
+Repository layout:
+
+```
+patientmodel/   the synthetic patient engine (Dell SP model, fitting, population, words, cues, learning)
+neurocue/       therapy environment, baselines, PPO training and evaluation, the demo console (neurocue/demo/)
+agents/         therapist policies behind one interface; agents/ditto.py is the DITTO-with-anchors update
+core/           shared schema (State/Action/Outcome), typed config loading, action masks
+service/        FastAPI agent service of the earlier generations (section 10)
+sim/            the first-generation logistic patient simulator (section 10)
+envs/           the first-generation Gymnasium environment (section 10)
+train/          first-generation PPO, bandit-prior fitting, DITTO on PPO, GRPO exploration
+training/       DITTO on a language model for the CueAgain practice app (section 10)
+evaluation/     comparison of language-model decision policies (section 10)
+speech/         local Whisper transcription for the practice app (section 10)
+eval/           first-generation metrics, figures and ablations
+scripts/        data download, PSST coding, coder learning, Dell refits, prior and cue calibration,
+                validation, demo recording, deployment
+configs/        every tunable value, YAML, validated at load time; assumptions are marked ASSUMPTION
+data/           item banks, calibration tables, coded PSST rows (raw third-party data is not committed)
+models/         trained policies, committed so results reproduce without retraining
+results/        generated reports (markdown, CSV, PNG) that this README quotes; results/demo/ holds the video
+deploy/         Modal app and the Hugging Face Space scaffold; Dockerfile at the root
+frontend/       the CueAgain practice app and clinician view (section 10)
+tests/          pytest suite
+docs/           presentation notes; the original starter scaffold under docs/scaffold/
+```
+
+## 3. The patient engine (`patientmodel/`)
+
+Two cognitive parameters and a severity level produce a patient who names pictures, makes the error
+types real patients make in the proportions real patients make them, says actual words or nonwords,
+is harder to understand on harder pictures, and, with the learning layer, gets better with practice
+the way Middleton's patients did: more from effortful retrieval than from repetition, more from
+spaced than massed practice, and forgetting over the following weeks. Everything is seeded and
+reproducible; a 4,000-trial patient simulates in about 80 ms. The module table with per-module
+grounding is in [patientmodel/README.md](patientmodel/README.md); this section follows the data
+through the layers.
+
+### 3.1 Real data: PSST
+
+The Post-Stroke Speech Transcription corpus (Gale et al. 2022; TalkBank/AphasiaBank): 3,291 naming
+utterances from 107 sessions of about 75 people with aphasia on the Boston Naming Test and Verb
+Naming Test, with ARPAbet transcripts and WAB-R aphasia quotients. PSST labels correctness only, so
+error *types* had to be built. The 1,074 BNT noun rows drive the model: 74 training-split
+participants fit it, 33 validation/test participants check it and are never used for fitting.
+
+### 3.2 Manual labelling and the learned response coder
+
+`scripts/code_psst_responses.py` machine-codes every PSST response into Philadelphia Naming Test
+style types (correct, semantic, formal, mixed, unrelated, nonword, fragment, multiword) with a
+confidence, and writes the low-confidence rows out for a clinician
+([data/derived/CODING_GUIDE.md](data/derived/CODING_GUIDE.md)). A speech-language pathologist on
+the team adjudicated 278 uncertain noun rows and then a 50-row audit: 328 clinician-coded responses
+in all. Her shorthand on the sheets: "y" means the production was effectively correct, "xxx" means
+the speaker said a different word that is itself a test item.
+
+The labels changed the model. On the uncertain rows the rule-based coder agreed with her only 32%
+of the time, and only 3% of its "formal" codes survived (most were semantic errors or nonwords).
+The audit checked 30 rows the machine had coded with high confidence: all 10 semantic calls held,
+17 of 20 phonological-nonword calls stayed nonwords (8 as fragments), and 3 were productions she
+judged effectively correct that PSST had scored wrong
+([results/psst_coder_agreement.md](results/psst_coder_agreement.md)).
+
+`scripts/learn_coder.py` trains a random forest on 42 features of each target/response pair
+(normalised edit distance, MiniLM embedding cosine, WordNet similarity, length difference,
+shared-position ratio, the machine's own code) on the 328 clinician rows. Cross-validated leaving
+one target picture out, it is right 51% of the time on nine categories and 68% on the five
+semantic-phonological error types, against 35% and 42% for the rules; on the 20 audited rows it had
+coded it was right on 8. It then recoded the 91 remaining uncertain rows
+([results/psst_coder_learned.md](results/psst_coder_learned.md)). Precedence downstream:
+clinician > learned coder > rules.
+
+### 3.3 The retrieval model: Dell's semantic-phonological model (`patientmodel/dell_sp.py`, `patientmodel/fit.py`)
+
+The interactive two-step model of lexical access (Dell, Schwartz, Martin, Saffran and Gagnon 1997;
+Foygel and Dell 2000; Dell et al. 2004, 2013) with two lesion weights, **s** (semantic to lexical)
+and **p** (lexical to phonological). Six-word neighbourhood, 57 semantic units, 10 phonemes, decay
+.6, two noise terms, 8 steps per stage; returns the six PNT response categories. The implementation
+reproduces the proportions Dell published for his fitted patients to rmsd .002 to .011 and names 97%
+correctly at normal weights (`tests/test_dell_sp.py`).
+
+`patientmodel/fit.py` fits (s, p) to a patient's naming counts: a cached simulated probability grid keyed on the
+full model configuration, Laplace-smoothed multinomial likelihood, Dell's rmsd, a grid posterior
+with 95% intervals and a boundary flag. Refitting Dell's 2004 and 2013 patients from their published
+proportions recovers his s and p to .002 on the 14 interior fits; the one near-normal patient sits
+at the grid edge and is flagged (`scripts/fit_dell_sp.py`,
+[data/calibration/dell2004_table2_sp_fits.csv](data/calibration/dell2004_table2_sp_fits.csv)).
+The same fitter is the diagnosis shown in the console.
+
+### 3.4 Population prior fitted to real patients (`patientmodel/population.py`)
+
+A patient is sampled by AQ severity, a target accuracy from a logistic severity curve with
+between-patient heterogeneity (fitted on the 74 training participants' BNT noun items, heterogeneity
+estimated after removing binomial noise), and then an (s, p) cell consistent with that accuracy under
+a lognormal prior on p/s. Profiles mild / moderate / severe / very severe.
+
+Dell's Philadelphia prior (log p/s mean +0.5, sd 0.6) did not match PSST, so the prior was fitted by
+multinomial likelihood on the training participants' coded error types
+(`scripts/fit_population_prior.py`): **log p/s mean −0.2, sd 0.3** (deviance 164.8 against 279.5
+for Dell's values; his prior is kept as `PopulationConfig.dell_philadelphia()`). On the 33 held-out
+participants (154 codable errors) the fitted engine's nonword share is 0.56 against a real 0.53,
+where Dell's prior gives 0.33 ([results/population_prior_fit.md](results/population_prior_fit.md)).
+
+Held-out check of the severity mapping ([results/engine_validation.md](results/engine_validation.md)),
+BNT items only, matched synthetic cohort, 10 replicates:
+
+| AQ band | n real | real accuracy | synthetic accuracy |
+|---|---|---|---|
+| < 50 | 5 | 0.30 | 0.30 |
+| 50 to 69 | 12 | 0.35 | 0.44 |
+| 70 to 84 | 8 | 0.45 | 0.58 |
+| 85+ | 8 | 0.65 | 0.66 |
+
+With 15 items per participant the real values carry binomial noise of about 0.12. Correlation of
+accuracy with AQ: real 0.52, synthetic 0.46. What the prior cannot fix is the word-error split: real
+patients make semantic 0.37, formal 0.01, unrelated 0.07 of their errors; the engine makes 0.14,
+0.17, 0.11 at any prior setting. That comes from the SP model's six-word neighbourhood (two formal
+and two unrelated competitors against one semantic), a known approximation of the published model.
+Item difficulty is not the cause (synthetic nonword share on the 13 BNT items moved only 0.02).
+
+### 3.5 Words, pictures and how the patient talks (`patientmodel/items.py`, `patientmodel/lexicon.py`, `patientmodel/realize.py`, `patientmodel/utterance.py`, `patientmodel/patient.py`)
+
+- **Pictures.** 520 International Picture Naming Project object pictures with US English norms and
+  a difficulty index (healthy RT, frequency, length; name agreement deliberately excluded); 244
+  drawings; 39 compound-name items flagged `pronounceable=False` (Bates et al. 2003; Szekely et al.
+  2004).
+- **Lexicon.** About 4,800 picturable nouns: concreteness ≥ 4 (Brysbaert et al. 2014), WordNet
+  noun, CMUdict pronunciation, not on the profanity or sensitive-word lists; Zipf frequency
+  (wordfreq); MiniLM embeddings; the PNT formal-relatedness criterion; English phonotactic legality.
+- **Realisation.** A response category becomes an actual response: semantic neighbours need
+  embedding similarity plus a WordNet taxonomic relation; formal neighbours meet the PNT criterion
+  and are not semantic; mixed need both and a shared onset or ≤ 2 edits; unrelated are frequent
+  nouns sharing nothing; nonwords are length-scaled, class-preserving phoneme edits that are not any
+  English word and are phonotactically legal. Fallbacks are recorded in `fallback_from`.
+- **Utterance frames.** Carrier phrases, fillers, false starts and trailing words ("uh … house",
+  "okay that's a … home", "k- … crab") are sampled by severity band from counts mined off the PSST
+  transcripts (`scripts/mine_utterance_frames.py` →
+  `data/calibration/psst_utterance_frames.json`; frame rates 1% to 12% of responses, a lower bound
+  since clips are trimmed). The response word itself is untouched. This drives the avatar's speech.
+- **Item effects.** `Patient.name(item)` uses per-item effective weights
+  `(s, p) · exp(−item_beta · difficulty)`; the mechanism and strength are assumptions. Durations are
+  PSST clip lengths, never reported as latency.
+
+### 3.6 Learning and forgetting over days (`patientmodel/learning.py`, `patientmodel/treatment.py`)
+
+Item-level learning is ACT-R activation with per-trace decay that depends on activation at practice
+(Pavlik and Anderson 2005), which produces the spacing effect mechanically rather than by rule, plus
+trace weights for successful retrieval, failed retrieval with feedback, and errorless study (the
+retrieval-practice effect). `TreatablePatient` keeps one memory per word; baseline retrievability
+equals the snapshot's P(correct) for that item; `attempt`, `study`, `probe` and `session` schedule
+practice over days. Errors on failed retrieval still come from the SP model conditioned on an error.
+
+Fitted to Middleton, Rawson and Verkuilen 2019 by simulating their protocol (four people with
+aphasia, 192 items each, retrieval practice versus repetition, spaced versus massed, tests at 7 and
+28 days; 56 observed cells): trace weights **unaided success 1.00, failure followed by the word
+0.59, study 0.58**. All 14 pooled condition × delay cells are within 0.09 (worst 0.08); the spacing
+effect, the retrieval-practice advantage, the rise across sessions and the forgetting between one
+week and one month are reproduced. Individual differences in the retrieval-practice effect are not
+captured ([results/learning_fit.md](results/learning_fit.md)).
+
+### 3.7 Cues as activation (`patientmodel/cues.py`)
+
+A first sound (the target's onset unit), a last sound (the coda unit, shared with the formal
+neighbours), a meaning cue (the target's semantic features) or the whole word (all three phoneme
+units plus the word node, Dell 2013's dual-route repetition) enter the SP model as external
+activation. `Cue.effort` is the share of the retrieval the cue does; the learning layer weights a
+cued success between an unaided success and errorless study by it (direction from Howard et al.
+1985 and Middleton et al. 2019; the values are assumptions, not fits).
+
+Levels were calibrated on a synthetic cohort with unaided accuracy near Nardo et al. 2017's 0.60 so
+that the share of otherwise-failed items rescued matches theirs
+([results/cue_calibration.md](results/cue_calibration.md)):
+
+| cue | rescue share, engine | Nardo et al. 2017 |
+|---|---|---|
+| initial phoneme | 0.70 | 0.70 |
+| whole word | 0.82 | 0.825 |
+| final phoneme | 0.24 (best reachable) | 0.475 |
+
+The final-phoneme cue cannot be reproduced because both formal competitors in the six-word
+neighbourhood share the target's coda, so a coda cue lifts them as much as the target: a stated
+limit of the model's three-slot phonology. Two predictions the fit did not touch: initial-phoneme
+rescue falls with severity (0.79 mild to 0.46 severe), matching Pease and Goodglass 1978's direction
+and their 49% figure for severe patients; and the semantic cue helps semantic lesions most (0.42
+against 0.15), the opposite of Python et al. 2021, so that mechanism is flagged as suspect and its
+level is an assumption anyway.
+
+## 4. The therapy environment and the trained therapist (`neurocue/`)
+
+### 4.1 Formulation
+
+A Gymnasium environment on the engine (`neurocue/env.py`, settings in
+[configs/engine_env.yaml](configs/engine_env.yaml)). It keeps the repository's patterns from the
+first generation (observation from observables only, hard action masks, MaskablePPO, paired
+evaluation with common random numbers) and changes the problem to Middleton et al. 2019's design:
+
+- **Episode** = a course: four sessions on days 0, 3, 7 and 10, 40 trials each, on 20 personally
+  hard words (unaided P(correct) in [0.05, 0.55] before the course), judged by predicted unaided
+  retention of those words on days 17 and 38.
+- **Action** (16) = which word × which cue. Word rules: *due* (practised longest ago, maximal
+  spacing), *repeat* (the word just practised, masked on a session's first trial), *weakest* (lowest
+  observed accuracy), *strongest* (maintenance). Cues: none, first sound, meaning, whole word.
+  Spacing, difficulty targeting and scaffolding are all the agent's to discover.
+- **Observation** (136 floats, all recordable in a real session): the last 8 trials (cue, rule,
+  outcome, response type) and summary counts (session and overall accuracy, share of words
+  attempted, recency, share of words below 50% observed accuracy, position in the course). Hidden:
+  lesion weights, memory traces, true probabilities. It is a POMDP.
+- **Reward.** `privileged` is the change, after each trial, in the mean predicted unaided retention
+  of the practised words on the first test day; it telescopes exactly to the episode objective, so
+  it is dense without being a different objective. `observable` rewards unaided correct responses
+  (+1) and cued ones less (+1 − effort), which a real session could compute. Policies trained on
+  either are judged on retention.
+- **Patients.** `PopulationSampler` with the fitted prior; patient k of a split is seeded from
+  (root seed, split, k), so train, validation and test patients are disjoint and every policy meets
+  the same patient with the same random stream.
+- **Baselines** (`neurocue/baselines.py`): spaced retrieval without cues, massed practice, the
+  clinic's cueing hierarchy on a spaced schedule, errorless (whole word every time), weakest-first
+  with the hierarchy, random.
+
+### 4.2 Training
+
+MaskablePPO (Stable-Baselines3 and sb3-contrib; Schulman et al. 2017; Huang and Ontañón 2022;
+Raffin et al. 2021), MLP policy, learning rate 3e-4, 160k steps, one seed, minutes on a laptop CPU:
+
+```bash
+uv run python -m neurocue.train_ppo --reward privileged      # -> models/engine_ppo_privileged_seed0.zip
+uv run python -m neurocue.train_ppo --reward observable      # -> models/engine_ppo_observable_seed0.zip
+```
+
+### 4.3 Results on held-out patients
+
+80 held-out test patients, population cohort, every policy treats the same patients
+([results/engine_trainer.md](results/engine_trainer.md); 95% percentile bootstrap over patients;
+paired differences against the cueing hierarchy). Pre-course retention of the chosen words: 0.391.
+
+| policy | retention day 17 | gain day 17 | gain day 38 | paired gain vs hierarchy, day 17 | cued share | accuracy in practice |
+|---|---|---|---|---|---|---|
+| **trained policy** (privileged reward) | **0.706** | **+0.315** [+0.298, +0.332] | +0.252 | **+0.022** [+0.020, +0.026] | 0.01 | 0.69 |
+| spaced retrieval, no cues | 0.705 | +0.315 [+0.297, +0.331] | +0.252 | +0.022 [+0.020, +0.025] | 0.00 | 0.69 |
+| cueing hierarchy, spaced | 0.683 | +0.293 [+0.277, +0.307] | +0.232 | 0 (reference) | 0.26 | 0.73 |
+| errorless | 0.646 | +0.256 [+0.242, +0.270] | +0.202 | −0.037 | 1.00 | 0.94 |
+| random | 0.637 | +0.247 [+0.235, +0.258] | +0.194 | −0.046 | 0.75 | 0.84 |
+| massed, no cues | 0.619 | +0.228 [+0.216, +0.240] | +0.176 | −0.064 | 0.00 | 0.78 |
+| weakest-first, hierarchy | 0.609 | +0.218 [+0.203, +0.233] | +0.172 | −0.075 | 0.19 | 0.80 |
+
+Reading it honestly. Nobody told the policy about spacing or retrieval practice; it rediscovered
+spaced, uncued retrieval practice, which is the best clinical practice in the literature it was never
+shown, and found nothing better. It beats the clinic's cueing hierarchy by a small, tight margin and
+cues on 1% of trials. The learning layer was fitted to retrieval-practice data, so spaced beating
+massed and retrieval beating errorless study are built in. What is not built in is how a policy
+trades a cue-assisted success now against a weaker memory trace later, across words of different
+strength, over four sessions. This is the engine's current opinion under its cue-effort
+assumptions, not a verdict on cueing.
+
+## 5. Learning from clinician corrections: DITTO with anchors
+
+### 5.1 Method (`agents/ditto.py`)
+
+DITTO (Shaikh et al., ICLR 2025) treats a demonstration as preferred over everything the policy
+itself produces in the same situation and optimises that preference with the DPO loss (Rafailov et
+al. 2023) against a frozen reference. Here the policy is the trained MaskablePPO actor, a small
+network, so no LoRA is needed: each clinician correction is a demonstration, preferred over every
+action the policy samples in that state, including samples from earlier rounds; the masked action
+log-probabilities are optimised against a frozen copy of the original policy.
+
+Plain DITTO over-generalises with a handful of demonstrations: nothing tells the shared network to
+leave other states alone, so a rule such as "after a sound error, give the first sound" became "give
+the first sound after every error" (leakage 0.38 → 1.00 on other error states). Our addition is
+**anchors**: every agent choice the clinician saw and did not override is an implicit acceptance,
+and a KL term keeps the policy close to the reference on those states. Weight and learning rate were
+chosen by a small sweep scored only on the override patients' states.
+
+### 5.2 Results
+
+On the first-generation PPO policy, 10 overrides, evaluated on states from disjoint patients
+([results/ditto_report.md](results/ditto_report.md)):
+
+| held-out states | n | top action = clinician's cue, before → after: plain DITTO | with anchors | top action unchanged (anchors) |
+|---|---|---|---|---|
+| after a sound error (rule applies) | 273 | 0.35 → 1.00 | **0.35 → 0.96** | 0.38 |
+| after other errors (rule does not apply) | 557 | 0.38 → 1.00 | **0.38 → 0.40** | 0.93 |
+| all other states | 2,902 | 0.00 → 0.00 | 0.00 → 0.00 | **0.99** |
+
+A fresh validation repeated the live update five times with 10 overrides each from different
+validation patients and evaluated on yet other patients
+([results/live_ditto_validation.md](results/live_ditto_validation.md)): the top action switched to
+the clinician's cue in 89 to 98% of matching states, and 97 to 100% of other state types kept their
+top action. Each update takes about 0.33 s on CPU.
+
+On the NeuroCue policy (section 4), measured in the console: one demonstration teaches nothing
+beyond its own state (0% adoption in unseen matching moments); four to six consistent
+demonstrations teach the rule (76 to 100% adoption), with leakage to other error states and to
+after-correct states reported alongside.
+
+### 5.3 Why it is shown as adoption and containment, not as a score
+
+Because the policy is already optimal under the fitted learning layer, a correction cannot raise
+predicted retention on this engine. So the console judges a correction on two things only: adoption
+where the clinician meant it, and containment everywhere else. That is customisability with full
+transparency. The moment the engine's cue assumptions are replaced by cued-therapy retention data,
+the same loop prices the corrections.
+
+## 6. The console and the demo
+
+`neurocue/demo/server.py` is a FastAPI service over the engine, with a hand-drawn SVG avatar
+(Marisol, 23) whose mouth follows the phonemes she produced and browser speech synthesis for her
+utterances. Everything on screen is computed by the code the validation ran: the patient is
+`patientmodel.Patient` on the Dell model with the full word realizer; the diagnosis is the grid
+posterior the fitter uses; the retention curves are the fitted learning layer inside the therapy
+environment; the override is `agents/ditto.py` on the trained policy. Nothing is recorded.
+
+The five steps on the page (rehearsed seeds: AQ 55 phonological seed 3, then AQ 50 semantic seed 3,
+which gives the same pictures with different errors):
+
+1. **Who are you listening to.** Choose AQ, lesion type and seed. Two lesion weights are drawn
+   from the prior fitted to PSST.
+2. **She names pictures.** Name one at a time with sound on, or name 20 instantly. The avatar
+   mouths the phonemes she actually produced, nonwords and false starts included.
+3. **Diagnose.** The posterior heat map over (s, p) from the answers alone; reveal the true lesion
+   and it sits inside the bright region. Switch to a semantic patient and the errors become word
+   substitutions and the posterior moves.
+4. **Two therapists.** Run the four-session course on identical copies of her: the clinic's cueing
+   hierarchy against the trained policy, judged on what is still named a month later, with a strip
+   of which word and which cue, trial by trial.
+5. **Where the physician comes in.** Play one correction, then teach a rule live (for example:
+   after a nonword, retry the word with its first sound). Two chips report adoption where meant and
+   containment elsewhere.
+
+API of the console:
+
+| method | path | purpose |
+|---|---|---|
+| POST | `/api/patient` | sample a patient (AQ, lesion type, seed) → id and picture list |
+| POST | `/api/patient/{id}/name` | name one picture: category, word, phonemes, utterance frame, duration |
+| POST | `/api/patient/{id}/name_batch` | name n pictures at once |
+| GET | `/api/patient/{id}/truth` | the true (s, p) |
+| GET | `/api/image/{item_id}` | the IPNP drawing |
+| POST | `/api/patient/{id}/course` | run the four-session course under two policies on identical copies |
+| POST | `/api/patient/{id}/override` | teach a rule: DITTO with anchors on the policy, with adoption and leakage counts |
+
+`neurocue/demo/record_demo.py` drives the page with Playwright and burns captions into the video in
+`results/demo/`.
+
+## 7. Deployment
 
 The hosted demo runs on [Modal](https://modal.com) (serverless containers, free monthly credits, no
-card). `deploy/modal_app.py` builds the image from `pyproject.toml` and `uv.lock`, mounts the
-repository under the `.dockerignore` rules (ignored files such as transcripts never leave the
-machine) and serves the FastAPI app. Publishing or updating it:
+card). `deploy/modal_app.py` builds the image from `pyproject.toml` and `uv.lock` (CPU-only torch
+on Linux via the `pytorch-cpu` index), mounts the repository under the `.dockerignore` rules
+(ignored files such as transcripts never leave the machine) and serves the FastAPI app with
+2 CPUs and 3 GB. Publishing or updating it:
 
 ```bash
 uv tool install modal
@@ -58,840 +445,434 @@ The first build takes a few minutes (torch); later deploys reuse the image and t
 container scales to zero after 20 idle minutes, so the first visit afterwards waits about a minute
 while the engine loads; `min_containers=1` in `deploy/modal_app.py` keeps one warm at the cost of
 credits. To redeploy on every push to `main`, add the repository secrets `MODAL_TOKEN_ID` and
-`MODAL_TOKEN_SECRET` (from https://modal.com/settings/tokens) on GitHub: the workflow in
+`MODAL_TOKEN_SECRET` (from https://modal.com/settings/tokens) on GitHub; the workflow in
 `.github/workflows/deploy-modal.yml` then runs the same command.
 
-The same server also ships as a container: `Dockerfile` serves it on port 7860, so
-`docker build -t neurocue-demo . && docker run --rm -p 7860:7860 neurocue-demo` runs it anywhere
-Docker does. `scripts/deploy_hf.sh` publishes that container to a Hugging Face Space, which since
-late 2026 needs a PRO subscription for Docker Spaces.
+The same server also ships as a container. `Dockerfile` serves it on port 7860:
 
-**Proof-of-concept question:** can model adaptation make exercise-selection decisions follow a
-demonstrator's preferences in situations it has not seen?
+```bash
+docker build -t neurocue-demo . && docker run --rm -p 7860:7860 neurocue-demo
+```
 
-> **Prototype, not a clinical tool.** We make no claims of clinical effectiveness, faster recovery,
-> diagnosis, or reliable assessment of impaired speech. The demonstrations are **fictional mock
-> preferences** (team-authored, AI-drafted from a written strategy, pending human review), not
-> clinician-validated treatment knowledge. A teammate's live speech shows usability, not performance
-> on aphasic speech. No real patient data is used anywhere.
+`scripts/deploy_hf.sh` and `.github/workflows/deploy-hf-space.yml` publish that container to a
+Hugging Face Space, which since late 2026 needs a PRO subscription for Docker Spaces.
 
-Speech recognition and DITTO are separate components: the recogniser (pretrained Whisper, not
-trained here) turns audio into a *proposed* transcript; DITTO adapts a small language model
-(Qwen3-1.7B + LoRA) that chooses the next action from recent confirmed attempts and the valid options.
+## 8. Reproducing every result
 
-## CueAgain status (2026-11-07)
+All random sources take a seed; all tunable values live in `configs/*.yaml` and are validated at
+load time (`core/config.py`); assumptions are marked `ASSUMPTION` in the configs. Each report in
+`results/` names the command that generated it in its first line.
 
-Done and checked on this branch:
+Data (the public sources; PSST needs the TalkBank archives, see [data/README.md](data/README.md)):
 
-| piece | what exists | checked by |
-|---|---|---|
-| Patient practice screen | large picture, one main action, user-initiated microphone, explicit recording state, stop, hint, next picture, pause, no timer shown | used in the browser (typed answers; microphone path needs a person) |
-| Speech | local `faster-whisper` `base.en` on CPU, no API key; WebM/Opus and MP4 browser recordings decoded with PyAV; silent, undecodable, timed-out or failed audio returns an explicit status and is never scored | synthesized speech in WebM/Opus transcribed as "Umbrella." (260 ms); tests for garbage and silence |
-| Helper confirmation | transcript shown and editable, *suggested* match only, correct / sound / meaning / no response / **incorrect, type unclear**, or **not scored** (recording problem) | API tests |
-| Attempt state | `session_id`, `exercise_id`, `presentation_id`, `attempt_id`; raw vs corrected transcript, scoring status, hint actually shown; idempotent by `attempt_id` (repeat = same result, different content = 409); stale picture = 409 | API tests |
-| Retry vs next | explicit `retry_current` / `next_exercise`; the next picture is resolved deterministically from the manifest, never by the model | API tests |
-| Picture bank | 24 items (`data/items.json`), predefined hints for each, Twemoji images (CC BY 4.0, `data/ATTRIBUTION.md`) | tests |
-| Decision models | bandit baseline (existing Beta bandit, mapped to options), unadapted Qwen3-1.7B, few-shot prompted Qwen3-1.7B, SFT-only adapter, DITTO adapter; all validated against the valid options; invalid, unparseable or timed-out output falls back to the bandit **and says so** | API tests with scripted model outputs; real adapter in the browser and through `/act` |
-| DITTO training | reproducible CLI, SFT + 3 DITTO rounds with expert / replay / intermodel comparisons, per-round adapters, manifest with base revision, template settings, demonstration IDs and hash, config, seed, metrics, status | one completed run (`demoA-qwen3-1.7b-r1`, 323 s on an Apple M4 Pro GPU via MPS, 4.1 GB peak); adapter reloaded in a fresh process |
-| Evaluation | same reserved situations for every model, counts with denominators | `results/ditto_llm_test.md`, `results/ditto_llm_dev.md` |
-| Clinician view | latest decision with its source, fallback reason and raw model output; alternatives in plain words; note; scope (session / patient / all); "Use my choice" replaces a not-yet-answered picture; "Save the proposal as a good example"; saved examples shown as **pending** until a training run lists them | used in the browser; API tests |
-| Models & results view | activate a completed version for new sessions or the current session; training run details (demonstrations used, pairs per round, losses); measured comparison with per-situation successes and failures | used in the browser |
-| Tests | 190 collected: 189 pass, 1 skipped (pre-existing PPO skip) | `uv run --extra llm --extra speech pytest` |
+```bash
+uv run python -m scripts.fetch_data
+```
 
-Compute: the brief planned a GCP L4 VM. `gcloud` is not installed or configured on the build
-machine, and the local Apple GPU ran the whole pipeline (training 323 s, inference ~0.4 s per
-decision), so **no cloud was used and $0 was spent**. The base model and LoRA setup are as planned;
-only the device changed. On a CUDA machine the same commands pick `cuda` automatically.
+Labels and coder (section 3.2):
 
-### Results: does the adapted model follow the demonstrator on new situations?
+```bash
+uv run python -m scripts.code_psst_responses        # machine codes + adjudication sheet -> data/derived/
+uv run python -m scripts.merge_adjudication         # fold the clinician's sheets back in
+uv run python -m scripts.learn_coder                # random forest, leave-one-picture-out -> results/psst_coder_learned.md
+```
 
-Run `demoA-qwen3-1.7b-r1`, trained on the 20 training demonstrations. Settings were fixed before
-any evaluation and not tuned afterwards. "Agrees" = the final action is one the demonstrator
-accepts. On the test split every language-model answer was a valid option, so no result depends on
-a fallback, except intermediate round 1 (4/10 unparseable answers, replaced by the bandit and counted).
+Engine fits and validation (sections 3.3 to 3.7):
 
-| model | test (10 situations) | dev (5 situations) | valid output (test) | median latency |
+```bash
+uv run python -m scripts.fit_dell_sp                # refit Dell's 14 patients -> side-by-side s, p
+uv run python -m scripts.fit_population_prior       # lesion prior on the training participants -> results/population_prior_fit.md
+uv run python -m scripts.validate_engine            # held-out severity and error-mix check -> results/engine_validation.md
+uv run python -m scripts.mine_utterance_frames      # carrier phrases and fillers by severity -> data/calibration/
+uv run python -m patientmodel.learning_fit          # ACT-R layer on Middleton 2019 -> results/learning_fit.md
+uv run python -m scripts.calibrate_cues             # cue activation levels on Nardo 2017 -> results/cue_calibration.md
+```
+
+Environment, trainer and the clinician loop (sections 4 and 5):
+
+```bash
+uv run python -m neurocue.evaluate --n 100                                        # baselines -> results/engine_trainer_baselines.md
+uv run python -m neurocue.train_ppo --reward privileged                           # -> models/engine_ppo_privileged_seed0.zip
+uv run python -m neurocue.evaluate --ppo models/engine_ppo_privileged_seed0.zip   # -> results/engine_trainer.md
+uv run python -m train.ditto_ppo                                                  # DITTO with anchors on the first-generation policy -> results/ditto_report.md
+uv run python -m scripts.validate_live_ditto                                      # five fresh override sets -> results/live_ditto_validation.md
+```
+
+Demo video:
+
+```bash
+uv run playwright install chromium
+uv run python -m neurocue.demo.record_demo          # with the console running on :8765; writes results/demo/neurocue_demo.mp4
+```
+
+## 9. Limits, stated
+
+- **Scope.** Single-word naming only. No sentences, discourse, comprehension, motor speech or
+  conversation. Omissions and circumlocutions: the SP model's lexical-threshold variant is wired
+  (`omission_threshold`) but not calibrated, and descriptions are not generated.
+- **Error split.** The engine over-produces formal and unrelated errors and under-produces semantic
+  ones because of the SP model's six-word neighbourhood (section 3.4). The nonword share and the
+  severity curve are right; the word-error split is wrong in a known way.
+- **Severity curve.** 74 participants with 15 noun items each; the heterogeneity term is an estimate
+  after removing binomial noise; BNT items are harder than the PNT's. Item effects and the nonword
+  edit rate are assumptions until item-level, category-coded patient data exist. The 39
+  compound-name items (the hardest) are skipped by the realizer.
+- **Learning layer.** Fitted to four participants with anomic aphasia (AQ 81 to 90) on personally
+  unnameable proper nouns; transfer to common nouns and to severe patients is an assumption.
+- **Cues.** Effort weights are assumptions; the final-phoneme cue is unreachable; the semantic-cue
+  mechanism contradicts Python et al. 2021 and is flagged as suspect. No cued-therapy retention data
+  has been compared yet.
+- **Trainer.** One PPO seed. The advantage over the cueing hierarchy is real but small (+0.022). A
+  correction cannot beat the already optimal policy on this engine, which is why DITTO is shown as
+  adoption and containment, not as a retention gain.
+- **Labels.** The 328 clinician labels come from one adjudicator.
+- **Data not obtained.** MAPPD (item-level PNT responses for 240+ patients) is offline; the engine
+  samples from Dell's published fits instead ([data/README.md](data/README.md)).
+
+## 10. Earlier generations kept in the repository
+
+NeuroCue grew out of two earlier builds in this repository. Their code, tests and results are kept
+as they were, because the NeuroCue environment reuses their schema, masks, service patterns and the
+DITTO-with-anchors update, and because their results are cited above. Do not mix their numbers with
+the NeuroCue course results: they are different patients and different environments.
+
+### 10.1 First generation: RL therapist on a logistic patient simulator (`sim/`, `envs/`, `train/`, `eval/`, `service/`)
+
+**Problem.** One episode is one 40-trial session; the action is (difficulty tier 1..3) × (cue:
+none, first sound, first letter, sentence frame, semantic) = 15 discrete actions; clinical
+constraints are action masks, not penalties (tier moves at most one step per trial; cues only from
+the clinician-approved set in [configs/clinical.yaml](configs/clinical.yaml); cue only after an
+error). The target was 80 to 85% correct (Wilson et al. 2019's rule, theoretical, not shown for
+aphasia) and the objective "better later naming without hints", measured by review probes (every
+5th trial re-tests a practised word with no cue).
+
+**Simulated patients** (`sim/`, [configs/sim.yaml](configs/sim.yaml)):
+`p(correct) = sigmoid(ability + item_learning[i] − difficulty[i] + cue_gain[cue] − fatigue)` on the
+log-odds scale. Item difficulty from frequency and length (Nickels and Howard 1995); cues with
+per-patient phonemic and semantic responsiveness (Meteyard and Bose 2018); error types after a
+failure proportional to phonological impairment, semantic impairment and omission bias (simplified
+from Dell et al. 1997; Schwartz et al. 2006); fatigue with recovery; item-specific learning peaking
+at a configurable success rate with 5% spill-over to general ability (Nickels 2002; the peak is an
+assumption); log-normal response time; dropout after failure streaks. Training patients are drawn
+from broad distributions (domain randomisation); three narrow cohorts (mild anomic, moderate
+Broca's, severe) are for evaluation only; train and test populations are disjoint and every policy
+faces the same patients with the same outcome stream. The item bank
+([data/items_placeholder.csv](data/items_placeholder.csv)) is a placeholder of 60 nouns.
+
+**Agents** (`agents/`), all behind `act(state, mask) → Action`, `update(state, action, outcome)`:
+fixed difficulty; 2-up/1-down staircase (Levitt 1971); Beta-Bernoulli Thompson bandit; a
+contextual Bayesian logistic Thompson bandit with 17 features, closed-form Laplace/extended-Kalman
+posterior updates with random-walk process noise, and an empirical-Bayes prior fitted on 300
+simulated training patients (`train/fit_bandit_prior.py`); a shared selection rule
+(`agents/selection.py`: among actions within 0.06 of the 0.85 target, the hardest tier, then the
+weakest cue); and MaskablePPO.
+
+**MaskablePPO** (`envs/`, `train/train_ppo.py`). Observation from the State JSON only (the last 8
+trials as one-hot tier, cue and error type plus response time, and the current tier, rolling
+accuracy, fail streak and session progress), so the trained policy runs unchanged behind the
+service. Three rewards ([configs/reward.yaml](configs/reward.yaml)): the **proxy** reward uses only
+observable terms (+1 per trial with rolling accuracy in band; −1 per trial while the failure streak
+is 3 or more; −0.1 for a probably wasted heavy cue; a terminal +2 per tier climbed, paid only if the
+session spent at least half its trials in band, which removes a tier-oscillation exploit in the
+original scaffold); **proxy + probe** adds +1 per correct review probe; **privileged** (reference
+only) uses the true control error |p − 0.85|, the dense increase in true retrieval over the item
+bank and the probe lift. 3 seeds × 1.5M steps per reward, about 3 minutes each on CPU; all variants
+converge within about 100k steps ([results/learning_curves.png](results/learning_curves.png)).
+
+**Results** (`uv run python -m eval.compare --config configs/eval.yaml`; 200 held-out patients per
+cohort, 40 trials, dropout on, PPO averaged over its 3 seeds, 95% bootstrap intervals, paired
+differences in [results/paired_differences.csv](results/paired_differences.csv); full tables in
+[results/comparison.md](results/comparison.md)). The oracle reads the hidden state and picks the
+allowed action whose true p is nearest 0.85; it is a privileged heuristic, not an optimum.
+
+| cohort | policy | in band | \|p − 0.85\| | learning gain ×100 | probe recall | probe lift ×100 | quit |
+|---|---|---|---|---|---|---|---|
+| mild anomic | fixed (tier 2) | 0.46 | **0.066** | **3.53** | 0.92 | **2.84** | 0.01 |
+| mild anomic | staircase | 0.81 | 0.137 | 3.06 | 0.86 | 2.29 | 0.01 |
+| mild anomic | contextual bandit | 0.48 | 0.088 | 3.00 | 0.93 | 1.61 | 0.01 |
+| mild anomic | PPO, proxy reward | **0.86** | 0.129 | 2.61 | 0.90 | 1.71 | **0.00** |
+| mild anomic | PPO, simulation objective | 0.40 | 0.087 | 2.77 | 0.94 | 1.74 | 0.00 |
+| mild anomic | oracle (privileged) | 0.47 | 0.068 | 3.53 | 0.92 | 2.84 | 0.01 |
+| moderate Broca's | fixed (tier 2) | 0.52 | 0.110 | 4.56 | 0.75 | **4.40** | 0.02 |
+| moderate Broca's | staircase | 0.59 | 0.155 | 3.99 | 0.77 | 3.02 | 0.04 |
+| moderate Broca's | contextual bandit | 0.62 | 0.074 | 4.68 | 0.83 | 3.14 | 0.01 |
+| moderate Broca's | PPO, proxy reward | **0.83** | 0.112 | 4.20 | 0.81 | 2.95 | **0.00** |
+| moderate Broca's | PPO, simulation objective | 0.62 | **0.065** | **4.77** | 0.84 | 3.43 | 0.00 |
+| moderate Broca's | oracle (privileged) | 0.59 | 0.048 | 5.07 | 0.87 | 3.33 | 0.00 |
+| severe | fixed (tier 2) | 0.02 | 0.516 | 0.11 | 0.26 | 0.22 | 0.77 |
+| severe | staircase | 0.11 | 0.342 | 1.27 | 0.48 | 1.49 | 0.29 |
+| severe | contextual bandit | 0.24 | 0.284 | 1.71 | 0.49 | 1.78 | 0.17 |
+| severe | PPO, proxy reward | **0.33** | **0.240** | **2.08** | 0.55 | **2.26** | **0.10** |
+| severe | PPO, simulation objective | 0.29 | 0.251 | 2.04 | 0.53 | 2.20 | 0.12 |
+| severe | oracle (privileged) | 0.37 | 0.214 | 2.27 | 0.58 | 2.51 | 0.07 |
+
+![Policy comparison](results/comparison.png)
+
+What it showed: where difficulty matters most (severe patients) every adaptive policy beat fixed
+difficulty by a wide, tight margin (paired learning gain +1.9 to +2.0 points for PPO, abandoned
+sessions from 77% to 10 to 17%; PPO reached about 90% of the oracle's learning gain there). PPO
+trained on the simulation objective was the most consistent adaptive policy. Proxy-trained PPO held
+the band best but partly gamed it (true control error 1.5 to 1.7 times the simulation-objective
+policy's), so time in band is never reported alone. On mild patients fixed tier 2 equalled the
+oracle because tier 2 without a cue already sat at the simulator's learning peak: it is the
+*matching* that matters (fixed tier 1 gets 1.72 and fixed tier 3 gets 2.36 on mild patients; on
+moderate patients fixed tier 3 abandons 82% of sessions), and picking the right fixed tier per
+patient requires exactly the knowledge an adaptive policy acquires. Observed probe recall mostly
+measured how easy the practised words were. Severe patients stayed hard for every policy, partly
+because the "cue only after an error" rule forbids repeating their best action after a success.
+
+**Ablations** (`eval/ablations.py`, [results/ablations.md](results/ablations.md),
+[results/ablation_learning_peak.png](results/ablation_learning_peak.png)). The 85% target is
+load-bearing: with the learning peak moved to 0.5, every policy aiming at 85% learns little on mild
+patients (oracle 0.23) while the staircase gets 1.22; a learning-only PPO retrained at peak 0.5
+recovers most of the loss (2.23 mild, 3.00 moderate, best of all policies there), which is the
+argument for learning the target from the true objective rather than fixing it at 85%. Dropout
+matters only for severe patients. The four observable reward variants are indistinguishable; only
+the simulation objective changes behaviour.
+
+**Live behaviour.** `scripts/judge_demo.py` plays three scripted healthy "judges" through the HTTP
+API. The proxy-reward PPO (`models/ppo_seed0.zip`) was served live because it is the only agent
+whose behaviour shows the intended adaptation to a healthy user (climb to tier 3 on success, back
+off with a cue after errors, climb again); the simulation-objective PPO stays on tier 1 for a
+healthy user and the contextual bandit wanders. A trade-off, stated plainly: chosen for legible
+live behaviour, not because it is the best policy on the simulated objective.
+
+**Agent service and interface** (`service/`, [core/schema.py](core/schema.py)). A FastAPI service
+with one online-learning agent per `session_id`, validating every request against the pydantic
+schema (HTTP 422 on violation). `State` carries the last 10 trials (tier, cue, outcome, error type
+in {correct, sound, meaning, no_response}, response time, probe flag), the current tier, trial count
+and session minutes; `Action` is `{tier, cue, rationale}`; `Outcome` is
+`{correct, error_type, response_time}`. Endpoints: `GET /health`; `POST /next_trial` (applies the
+shared item-selection and review-probe rule from `sim/items.py`: a probe every 5th trial on an
+eligible practised item, otherwise an unseen item in the returned tier); `POST /act`;
+`POST /update` (idempotent by `attempt_id`); `POST /override` (stored as JSON lines in
+`runs/overrides.jsonl`); `POST /learn_from_overrides` (one DITTO-with-anchors round on this
+session's overrides, well under a second on CPU, swapped in for this session only; returns, per
+overridden state type, the probability of the clinician's cue before and after and the share of
+other states whose top action is unchanged). Service sessions derive their seed from the config seed
+and the session id, so replaying the same requests reproduces the same actions
+(`tests/test_service.py::test_full_session_replays_identically`). Interactive docs at `/docs`.
+
+```bash
+uv run uvicorn service.app:app --host 0.0.0.0 --port 8000
+uv run python -m scripts.service_smoke --url http://localhost:8000     # 40-trial session over HTTP
+uv run python -m scripts.judge_demo --url http://localhost:8000 --name live
+uv run python -m train.fit_bandit_prior
+uv run python -m train.train_ppo --reward full          # 3 seeds -> models/ppo_seed*.zip
+uv run python -m train.train_ppo --reward full_probe
+uv run python -m train.train_ppo --reward privileged
+uv run python -m eval.plots
+uv run python -m eval.compare --config configs/eval.yaml
+uv run python -m eval.ablations --config configs/ablations.yaml
+uv run python -m scripts.sanity_table --dropout on --out results/sanity_dropout_on.md
+```
+
+Known limitations of this generation: with an 8-trial window rolling accuracy takes values k/8, so
+even a perfect controller at p = 0.85 is in band only about 62% of the time, which is why true
+control error is reported; the simulator is parametric and its magnitudes are assumptions; one
+action per trial applies the cue to the *next* item, whereas real cueing happens within an item.
+Explored but out of scope: a language-model therapist trained with GRPO on Tinker
+(`agents/llm_prompt.py`, `train/grpo_*.py`, `uv sync --extra grpo`; never run against the API), and
+a prompted frontier-model baseline (`configs/eval_llm.yaml`, tested with a mocked API).
+
+### 10.2 Second generation: CueAgain, a practice app with a language-model decision policy (`frontend/`, `training/`, `evaluation/`, `speech/`)
+
+**What it is.** Picture-naming practice with speech input. The patient sees a picture and names it
+aloud; a pretrained speech recogniser proposes a transcript; a helper confirms or corrects the
+result; a decision model chooses what happens next: retry the same picture with a predefined hint,
+or move on to a new picture at a chosen difficulty. A clinician view captures preferred decisions.
+The proof-of-concept question was whether DITTO can make a small language model's exercise-selection
+decisions follow a demonstrator's preferences in situations it has not seen. The demonstrations are
+team-authored mock preferences written from a rule
+([data/demonstrations/README.md](data/demonstrations/README.md)), not clinician-validated treatment
+knowledge.
+
+**Components.** Patient screen (large picture, one main action, user-initiated microphone, explicit
+recording state, hint, next picture, pause). Speech: local `faster-whisper` `base.en` on CPU, no API
+key; WebM/Opus and MP4 browser recordings decoded with PyAV; silent, undecodable, timed-out or
+failed audio returns an explicit status and is never scored. Helper confirmation: editable
+transcript, suggested match only, correct / sound / meaning / no response / incorrect of unclear
+type / not scored. Attempt state keyed by `session_id`, `exercise_id`, `presentation_id`,
+`attempt_id`, idempotent (repeat = same result; different content = 409; stale picture = 409).
+Picture bank: 24 items ([data/items.json](data/items.json)) with predefined hints and Twemoji images
+(CC BY 4.0, [data/ATTRIBUTION.md](data/ATTRIBUTION.md); MultiPic could not be downloaded
+non-interactively). Decision models: the Beta bandit, unadapted Qwen3-1.7B, few-shot prompted
+Qwen3-1.7B, an SFT-only adapter and the DITTO adapter, all validated against the valid options, with
+invalid, unparseable or timed-out output falling back to the bandit and saying so. Clinician view
+with the latest decision, its source and fallback reason, alternatives in plain words, "Use my
+choice" and "Save as a good example"; a Models & results view to activate a version and read
+training runs. Hard constraints (at most 3 attempts per picture, tier moves of at most one step,
+approved hints only; [configs/practice.yaml](configs/practice.yaml)) are enforced on every model's
+output at the service boundary.
+
+**How the decision model is trained** (`training/ditto.py`, after `SALT-NLP/demonstrated-feedback`).
+All code paths render contexts and parse actions through `core/practice.py`, so training, evaluation
+and serving see identical text; the model answers with one option such as
+`{"op":"retry","hint":"first_sound"}` or `{"op":"next","tier":2}`; Qwen3 thinking is disabled.
+(1) SFT: LoRA adapter (r 16, q/k/v/o) on the demonstrations' answer tokens with an early stop on the
+loss. (2) DITTO: a copy of the SFT adapter is trained with the fixed SFT adapter as the DPO
+reference. (3) Each of 3 rounds: sample 6 answers per training context at temperature 1; build
+expert (demonstration ≻ this round's sample), replay (demonstration ≻ earlier rounds' samples) and
+intermodel (later round ≻ earlier round) comparisons; draw 70 / 20 / 10% of n_prompts × 3 pairs; 15
+DPO steps (β 0.1, lr 5e-5). Differences from the reference implementation, each recorded in the run
+manifest: pairs drawn once per round rather than per batch; pairs whose two sides are the same
+action, or whose rejected side is an action the demonstrator also accepts, are discarded rather than
+trained on; the DPO loss is implemented directly with reference log-probabilities computed once per
+round, so TRL is not a dependency; learning rate and β are larger than the reference's because the
+answers are about 10 tokens and each round has 15 steps, chosen before evaluation.
+
+**Result** (run `demoA-qwen3-1.7b-r1`, 20 training demonstrations, settings fixed before
+evaluation; [results/ditto_llm_test.md](results/ditto_llm_test.md),
+[results/ditto_llm_dev.md](results/ditto_llm_dev.md)). "Agrees" = the final action is one the
+demonstrator accepts.
+
+| model | test (10 situations) | dev (5) | valid output (test) | median latency |
 |---|---|---|---|---|
 | Qwen3-1.7B, task instruction only | 2/10 | 1/5 | 10/10 | 0.34 s |
-| same + 20 training demonstrations in the prompt | 5/10 | 2/5 | 10/10 | 2.7 s |
+| same + 20 demonstrations in the prompt | 5/10 | 2/5 | 10/10 | 2.7 s |
 | SFT adapter only | 3/10 | 1/5 | 10/10 | 0.38 s |
 | DITTO after round 1 / round 2 | 3/10 / 4/10 | 1/5 / 0/5 | 6/10 / 10/10 | 0.36 s |
 | **DITTO, final (round 3)** | **6/10** | **1/5** | 10/10 | 0.38 s |
 | bandit baseline | 4/10 | 1/5 | n/a | <1 ms |
 
-What this does and does not show (per-situation tables in `results/ditto_llm_test.md`):
-- On the test split the DITTO adapter agreed with the demonstrator more often (6/10) than the
-  unadapted model (2/10), the SFT-only adapter (3/10) and the bandit (4/10), and slightly more than
-  few-shot prompting (5/10) at about a seventh of its latency. Successive rounds moved 3 → 4 → 6.
-- **It is not robust.** On the 5 development situations every model scores 0 to 2. With 10 and 5
-  situations, one or two decisions change the ranking; this is an exploratory check, not evidence.
-- **The adapter learned "move on" better than "retry with the matched hint".** It got all
-  move-on situations right on test (tier up after a fast answer, same tier after a hint, easier
-  late in the session) except one, and missed every retry-with-hint situation (sound error → first
-  sound; unclear error → sentence; after the first sound → sentence or description). The same
-  happened live: after a confirmed meaning error it moved on instead of giving a description.
-- The preferences come from a written rule (`data/demonstrations/README.md`), so a hand-coded rule
-  would score 10/10. The question is whether a language model picks the preference up from 20
-  demonstrations, not whether a language model is needed for this rule.
-- Training statistics are in the run manifest: after SFT, 46 of 120 sampled decisions already
-  matched the demonstrator (60/120 by round 3); 42 expert, 12 replay and 6 intermodel comparisons
-  were used per round (available after filtering: 74 expert in round 1; 60 expert, 150 replay and
-  1,061 intermodel in round 3).
-
-### Not done / limitations
-
-- Live speech has only been exercised with synthesized speech and typed answers on the build
-  machine; a person must try the microphone path in a browser (Chrome or Safari) before the demo.
-  Whisper `base.en` is not evaluated on aphasic speech, and the helper always confirms.
-- Training was not triggered from the browser (optional in the brief); it is a CLI. Clinician
-  examples saved in the app are not in the trained checkpoint; they can be added to a future run
-  with `--extra-demos runs/demonstrations/captured.jsonl` (global-scope examples only).
-- The demonstrations are pending human review by a teammate.
-- MultiPic could not be downloaded non-interactively; Twemoji pictures are used instead (see
-  `data/ATTRIBUTION.md` for how to switch). Tiers are prototype settings.
-- One service worker; sessions are in memory with JSON snapshots in `runs/practice/` (restored at
-  startup). Multiple workers would need a shared store, and each would load its own model.
-- No recorded backup demo has been made yet.
-
-## Run CueAgain
+The DITTO adapter agreed with the demonstrator more often than the unadapted model, the SFT-only
+adapter and the bandit, and slightly more than few-shot prompting at a seventh of its latency, with
+successive rounds moving 3 → 4 → 6. It is not robust: on the 5 development situations every model
+scores 0 to 2, and with 10 and 5 situations one or two decisions change the ranking. The adapter
+learned "move on" better than "retry with the matched hint" (it missed every retry-with-hint
+situation), and a hand-coded rule would score 10/10; the question was whether a language model picks
+the preference up from 20 demonstrations. Compute: the whole pipeline ran on an Apple M4 Pro GPU via
+MPS (training 323 s, 4.1 GB peak, inference about 0.4 s per decision); no cloud was used.
 
 ```bash
-uv sync                                                         # CPU baseline: bandit decisions, typed answers
-uv run uvicorn service.app:app --port 8000                      # open http://localhost:8000/app/
-```
-```bash
-uv sync --extra speech                                          # + local speech recognition (no key; ~150 MB model on first use)
+uv sync --extra speech                                          # local speech recognition
 uv sync --extra llm --extra speech                              # + language-model decisions and training
-uv run --extra llm --extra speech uvicorn service.app:app --port 8000
-```
-`uv sync` without the extras removes them from the environment, so keep passing the extras you use.
-The default decision model for new sessions is `default_model` in `configs/practice.yaml`
-(`bandit`); switch versions in **Models & results**. Base model and pinned revision:
-`llm.base_model` / `llm.revision` in the same file.
-
-Reproduce the experiment (Apple MPS or CUDA; about 6 minutes on an M4 Pro):
-```bash
-uv run --extra llm python -m training.smoke --model Qwen/Qwen3-0.6B            # train/save/reload smoke test
-uv run python -m training.build_demonstrations                                    # rebuild the dataset (deterministic)
-uv run --extra llm python -m training.ditto --run-id demoA-qwen3-1.7b-r1          # SFT + 3 DITTO rounds -> runs/ditto/<run_id>/
+uv run --extra llm --extra speech uvicorn service.app:app --port 8000     # open http://localhost:8000/app/
+uv run --extra llm python -m training.smoke --model Qwen/Qwen3-0.6B
+uv run python -m training.build_demonstrations
+uv run --extra llm python -m training.ditto --run-id demoA-qwen3-1.7b-r1
 uv run --extra llm python -m evaluation.compare --run demoA-qwen3-1.7b-r1 --split test --rounds --markdown results/ditto_llm_test.md
-uv run --extra llm python -m evaluation.compare --run demoA-qwen3-1.7b-r1 --split dev --rounds --markdown results/ditto_llm_dev.md
-uv run --extra llm python -m training.ditto --extra-demos runs/demonstrations/captured.jsonl   # include saved clinician examples
 ```
-Serve an adapter behind the original `/act` contract: set `agent: llm` and
-`llm_model: "ditto:<run_id>"` in `configs/service.yaml`. `/act` then answers from the adapter when the
-State carries `current_exercise`. The response body stays `{tier, cue, rationale}`; the
-`X-Decision-Source`, `X-Requested-Model` and `X-Fallback-Reason` headers say which model answered.
 
-Runs, adapters, evaluations, sessions and captured examples live in `runs/` (gitignored). The
-adapter of the run above is 25 MB (`runs/ditto/demoA-qwen3-1.7b-r1/round3`); copy that folder to
-share it. No secrets are needed or committed.
+`uv sync` without the extras removes them, so keep passing the extras you use. The default decision
+model for new sessions is `default_model` in `configs/practice.yaml`; the base model and pinned
+revision are `llm.base_model` / `llm.revision` there. Runs, adapters, evaluations, sessions and
+captured examples live in `runs/` (gitignored); the adapter of the run above is 25 MB.
 
-## CueAgain API (added; existing endpoints unchanged)
+Practice API (additive to the agent service): `GET /items`; `POST /transcribe`;
+`GET /speech/status`; `POST /practice/sessions`, `GET /practice/sessions[/{id}]`;
+`POST /practice/sessions/{id}/attempts`, `/manual`, `/override`, `/model`, `/pause`;
+`POST/GET /demonstrations`; `GET/POST /models`, `/models/active`; `GET /runs[/{run_id}]`. Not done:
+training from the browser (it is a CLI; saved clinician examples can be added with
+`--extra-demos runs/demonstrations/captured.jsonl`); the microphone path was exercised with
+synthesized speech and typed answers only; Whisper `base.en` is not evaluated on aphasic speech;
+sessions are in memory with JSON snapshots in `runs/practice/`.
 
-| method | path | purpose |
+## 11. Data and licences
+
+Raw third-party data lives under `data/raw/` and is not committed; `uv run python -m scripts.fetch_data`
+re-downloads what is publicly reachable. Details and status per source in
+[data/README.md](data/README.md).
+
+| source | used for | terms |
 |---|---|---|
-| GET | `/items` | picture manifest with hints |
-| POST | `/transcribe` | multipart `audio` (+ `exercise_id`): `{status: ok/empty/failed/timeout/unavailable, text, provider, error, suggestion}` |
-| GET | `/speech/status` | which speech provider is configured |
-| POST | `/practice/sessions` | start a session (`model_version` optional) → first presentation |
-| GET | `/practice/sessions`, `/practice/sessions/{id}` | session list; full history, decisions, stats (named without a hint vs after a hint) |
-| POST | `/practice/sessions/{id}/attempts` | one attempt: `attempt_id`, `presentation_id`, raw and corrected transcript, `scoring_status` (`confirmed` / `unscored`), `correct`, `error_category` (`sound` / `meaning` / `no_response` / `unclassified`), `response_time_s` → decision + next presentation |
-| POST | `/practice/sessions/{id}/manual` | patient/helper "show a hint" or "next picture" (logged as manual) |
-| POST | `/practice/sessions/{id}/override` | clinician replaces a not-yet-answered decision (+ saves the example) |
-| POST | `/practice/sessions/{id}/model`, `/pause` | switch this session's model; pause/resume |
-| POST/GET | `/demonstrations` | save a preferred or accepted decision (with scope); list with training status |
-| GET/POST | `/models`, `/models/active` | versions and availability; activate for new sessions |
-| GET | `/runs`, `/runs/{run_id}` | training manifests and their evaluations |
+| PSST (Gale et al. 2022; AphasiaBank/TalkBank) | severity curve, error-type prior, utterance frames, coder labels | AphasiaBank / PSST terms; cite Gale et al. 2022; transcripts and audio never committed |
+| Middleton, Rawson and Verkuilen 2019 (OSF `cwq75`) | learning-layer fit | no licence stated; cite the paper; not redistributed |
+| International Picture Naming Project (Bates et al. 2003; Szekely et al. 2004) | 520 pictures, norms, difficulty index | pictures described as freeware; cite the papers |
+| Brysbaert, Warriner and Kuperman 2014 | concreteness for the lexicon | publisher supplement |
+| Dell et al. 2004, Table 2; Dell et al. 2013, Table 1 | refit targets, Philadelphia prior | published tables, transcribed to `data/calibration/` |
+| Nardo et al. 2017; Pease and Goodglass 1978 | cue calibration and checks | published figures |
+| CMUdict, WordNet (via NLTK), wordfreq (Speer 2022), all-MiniLM-L6-v2 | pronunciations, semantics, frequency, embeddings | their own licences |
+| Twemoji 15.1.0 | the 24 CueAgain pictures | CC BY 4.0 ([data/ATTRIBUTION.md](data/ATTRIBUTION.md)) |
 
-Changes to the existing contract (additive): `ErrorType` gains `unclassified` (a confirmed error of
-unknown kind; it has no one-hot slot in trained PPO observations); `TrialRecord` gains optional
-`exercise_id` / `attempt_id`; `State` gains optional `current_exercise`; `/update` accepts an optional
-`attempt_id` and is then idempotent (duplicate → `{"status": "duplicate"}`, conflicting content → 409).
-The `Action` body is unchanged.
+The clinician's adjudication sheets are summarised in `data/derived/`; the PSST transcripts they
+quote are not committed.
 
-## How the decision model is trained (DITTO)
+## 12. Branches and team workflow
 
-All code paths render contexts and parse actions through one module (`core/practice.py`), so
-training, evaluation and serving see identical text. The model receives the current picture and its
-tier, the hints already shown and attempts on it, the latest attempt, up to 4 earlier attempts, the
-session time, and the list of valid options, and must answer with one option, e.g.
-`{"op":"retry","hint":"first_sound"}` or `{"op":"next","tier":2}`. Qwen3 thinking is disabled
-consistently (`enable_thinking=False`).
-
-`training/ditto.py` follows the authors' implementation (`SALT-NLP/demonstrated-feedback`):
-1. **SFT**: LoRA adapter `sft` (r 16, q/k/v/o) on the demonstrations' answer tokens, with an early
-   stop on the loss (stopped at 6 steps, loss 0.14).
-2. **DITTO**: adapter `ditto` initialised as a copy of `sft`; the fixed `sft` adapter is the DPO
-   reference policy (as `ref_adapter_name="sft"` in the reference).
-3. Each round: sample 6 answers per training context from the current `ditto` policy (temperature 1)
-   into a cache keyed by round; build comparisons **expert** (demonstration ≻ this round's sample),
-   **replay** (demonstration ≻ earlier rounds' samples) and **intermodel** (later round's sample ≻
-   earlier round's sample); draw 70% / 20% / 10% of n_prompts × 3 pairs (reference defaults); run 15
-   DPO steps (β 0.1, lr 5e-5); save the round's adapter. 3 rounds.
-
-Differences from the reference, and why:
-- Pairs are drawn once per round, not per batch inside the data collator; rounds play the role of
-  the reference's `resample_rate` steps.
-- With structured answers, exact repeats are common. Pairs whose two sides are the same action
-  (even if worded differently), and pairs whose rejected side is an action the demonstrator also
-  accepts, are discarded rather than trained on. Generated comparisons add training material, not
-  independent expert judgments; the manifest records how many samples already matched the
-  demonstrator, so we never invent rejected examples to reach a pair count.
-- Intermodel pairs rest on DITTO's assumption that each round's policy is closer to the demonstrator
-  than earlier ones. Round 2 made more unparseable answers than round 1, so on this run the
-  assumption did not hold strictly. We kept the reference construction and report it.
-- The DPO loss (sigmoid, as in TRL's `DPOTrainer`) is implemented directly, with reference
-  log-probabilities computed once per round, instead of through TRL. This keeps the fixed SFT
-  reference adapter and the per-round pairs explicit; TRL is therefore not a dependency.
-- Learning rate and β are larger than the reference's (1e-6, 0.05) because the answers are about
-  10 tokens and each round has only 15 steps; chosen before any evaluation, not tuned.
-
-A preference never changes a hard constraint: at most 3 attempts per picture, tier moves of at most
-one step, approved hints only (`configs/clinical.yaml`, `configs/practice.yaml`). These are enforced
-on every model's output at the service boundary. The 85% target in `configs/clinical.yaml` belongs
-to the bandit/PPO research below; it is not the DITTO objective.
-
----
-
-The sections below describe the team's earlier RL research on simulated patients (PPO, bandits,
-DITTO-style tuning of the PPO policy). It is kept as is; the CueAgain flow above reuses its schema,
-masks, service and Beta bandit.
-
-## Aphasia Trainer: RL therapist research
-
-A home practice trainer for people with aphasia, the loss of language that follows many strokes. The
-patient names pictures; an AI therapist chooses the difficulty and the hint (cue) for every trial so
-the patient stays near 80 to 85 percent correct. The therapist is trained against a population of
-simulated patients and runs live on a real person, and a speech-language pathologist (SLP) can
-override any of its choices.
-
-> **Practice tool used under an SLP.** It does not diagnose, replace therapy, or make treatment
-> decisions. No real patient data is used anywhere. We do not claim it improves recovery in real
-> patients.
-
-## The system
-
-| component | what it does |
-|---|---|
-| Patient app | Browser app: shows a picture, takes a spoken or tapped answer, shows the cue. Large type, one thing on screen. |
-| Speech scorer | Transcribes the answer and labels it: correct, sound error, meaning error, or no response. |
-| Therapist agent | Chooses the next difficulty tier and cue from the session so far (`agents/`, served by `service/`). |
-| Patient simulator | A population of simulated patients used to train and evaluate the therapist (`sim/`). |
-| Clinician dashboard | Session trace (difficulty, accuracy, error types, the agent's choices) with an override on every choice. |
-| Expert-feedback loop | Clinician overrides are stored as demonstrations so the therapist can learn a clinician's preferences. |
-
-Live loop: the patient names a picture, the scorer labels the answer, the therapist picks the next
-picture's tier and cue, and the app shows it. Two learning signals feed the therapist: practice on
-simulated patients, and demonstrations from clinician overrides.
-
-## Status
-
-The team objective is **better later naming without hints**. Sessions therefore include review
-probes (an earlier practised word shown again with no cue), and every policy is evaluated on them.
-
-Implemented and tested (149 tests, `uv run pytest`):
-- Agent service (FastAPI) implementing the agreed State/Action interface, with one online-learning
-  agent per session, clinician overrides logged for later training, CORS for a frontend on the local
-  network, and `POST /next_trial`, which applies the shared item-selection and review-probe rule.
-- Patient simulator: population sampling with a held-out test split, three evaluation cohorts,
-  item difficulty from word frequency and length, patient-specific cue responsiveness, error types,
-  fatigue with recovery, learning with a configurable peak, patient dropout after failure streaks,
-  and review probes. The item bank is a placeholder.
-- Therapist agents: MaskablePPO trained on the observable proxy reward (the live demo agent, chosen
-  for visible adaptation to a healthy user), MaskablePPO trained on the simulation-only objective and
-  the contextual Bayesian logistic Thompson-sampling bandit (live fallbacks), a Beta-Bernoulli
-  Thompson bandit, and fixed-difficulty and staircase baselines.
-- Trained agent: a Gymnasium environment with clinical action masks and a decomposed reward, and
-  MaskablePPO trained on simulated patients with three rewards (observable proxy, proxy + review-probe
-  bonus, privileged simulator-only objective), 3 seeds each, learning curves on held-out patients.
-- Learning from clinician overrides: DITTO-style preference optimisation of the PPO policy from ~10
-  overrides, with a before/after evaluation on held-out states.
-- Evaluation harness: privileged oracle, 200 held-out patients per cohort, bootstrap CIs, paired
-  differences and the two result figures, reproduced by one command (`eval/compare.py`); ablations of
-  the learning-peak assumption, dropout and the reward (`eval/ablations.py`).
-
-In progress or planned:
-- Patient app, clinician view and speech transcription now exist for the CueAgain flow (above);
-  automatic error classification from speech is deliberately not done (the helper confirms).
-- The prompted frontier-model baseline is implemented and tested with a mocked API; it runs as soon as
-  an API key is available (`configs/eval_llm.yaml`).
-- A clinically curated item bank and clinical validation of the simulator's parameters.
-
-Explored, not part of the current scope: a language-model therapist trained with GRPO on Tinker
-(prompt format, offline reward and dataset, and a 10-step smoke test are in `agents/llm_prompt.py`
-and `train/grpo_*.py`; never run against the API).
-
-## Quick start
-
-```bash
-uv sync                                         # Python 3.11 env from uv.lock
-uv run pytest                                   # test suite
-uv run uvicorn service.app:app --host 0.0.0.0 --port 8000   # agent service, reachable on the LAN
-uv run python -m scripts.service_smoke --url http://localhost:8000   # 40-trial session over HTTP
-uv run python -m train.fit_bandit_prior         # refit the bandit's empirical-Bayes prior (~2 s)
-uv run python -m train.train_ppo --reward full          # MaskablePPO, 3 seeds (~3 min each on CPU) -> models/
-uv run python -m train.train_ppo --reward full_probe    # proxy + review-probe bonus
-uv run python -m train.train_ppo --reward privileged    # simulator-only objective (reference)
-uv run python -m eval.plots                     # learning curves -> results/learning_curves.png
-uv run python -m train.ditto_ppo                # DITTO-style tuning from overrides -> results/ditto_report.md
-uv run python -m scripts.validate_live_ditto     # live override learning on fresh states
-uv run python -m scripts.judge_demo --url http://localhost:8000 --name live   # healthy-judge check
-uv run python -m eval.compare --config configs/eval.yaml   # full evaluation -> results/
-uv run python -m scripts.sanity_table --dropout on --out results/sanity_dropout_on.md
-uv run python -m scripts.sanity_table --dropout off --out results/sanity_dropout_off.md
-uv sync --extra grpo && uv run python -m train.grpo_smoke   # explored, out of scope; needs TINKER_API_KEY
-```
-
-**Frontend on another laptop:** run the service with `--host 0.0.0.0`, find this machine's LAN IP
-(`ipconfig getifaddr en0` on macOS) and call `http://<that-ip>:8000`. CORS allows the Vite dev server
-(port 5173) on localhost and on any private-network address (`cors_origins` / `cors_origin_regex` in
-[`configs/service.yaml`](configs/service.yaml)). The macOS firewall may ask to allow incoming
-connections for Python the first time.
-
-## Repository layout
-
-RL and agent code lives at the repository root; the frontend app goes in `frontend/`.
-
-```
-core/      shared schema (State/Action/Outcome), typed config loading, action masks
-agents/    therapist policies behind one interface (agents/base.py)
-service/   FastAPI agent service the frontend calls
-sim/       simulated patient population
-envs/      Gymnasium environment with action masks
-train/     PPO training, bandit-prior fitting, language-model (GRPO) training
-eval/      metrics and figures
-models/    trained PPO policies (small, committed so results reproduce without retraining)
-configs/   all tunable values (YAML)
-scripts/   smoke tests and utilities
-tests/     pytest suite
-results/   committed CSV/PNG outputs for this README
-docs/      starter scaffold kept for reference (docs/scaffold/rl_starter.py)
-frontend/  patient app and clinician dashboard
-```
-
-## Branches
-
-- `main` (default): the NeuroCue engine, therapy trainer and demo described at the top; everything
-  needed to run the demo is committed here.
+- `main` (default): NeuroCue, everything needed to run the demo and reproduce the results.
 - `legacy-main`: the original CueAgain scaffold that `main` grew from, kept for reference.
-- `dev`: integration branch for the CueAgain app. Small fixes (CORS, typos, README) may be committed here directly.
-- `feature/rl-agent`: all RL work (simulator, bandits, training, evaluation), branched from `dev`.
-
-Merges into `dev` happen through pull requests on GitHub (`feature/rl-agent` → `dev`), opened once the
-tests pass and a piece works. Nobody merges locally.
-
-## Interfaces
-
-The contract between the frontend, the scorer and the agent. Defined once in
-[`core/schema.py`](core/schema.py) (pydantic); the service validates every request against it and
-returns HTTP 422 with a precise error on any violation.
-
-**Changes from the original contract (all additive and backward-compatible):**
-1. `State` has an optional `session_id`. The service keeps one online-learning agent per session;
-   requests without it share a single `default` session. **Please always send it** (one id per
-   patient session, any string up to 128 chars).
-2. `POST /update` takes an explicit `outcome` object (shape below).
-3. Review probes: trials may carry `"probe": true`; `POST /update` accepts `"probe": true`; and
-   `current_tier` means the tier of the last trial the **agent** chose (probes do not change it).
-4. New endpoint `POST /next_trial` returns the complete next trial (word, image, tier, cue, probe)
-   using the shared item-selection rule below, so the frontend does not have to implement it.
-5. New endpoint `POST /learn_from_overrides` (live demo of learning from the clinician, below).
-
-### State
-```json
-{"session_id": "patient-42-2026-11-07",
- "last_trials": [{"word": "cat", "tier": 2, "cue": "first_sound", "outcome": false,
-                  "error_type": "sound", "response_time": 3.1}],
- "current_tier": 2, "trial_count": 14, "session_minutes": 6.5}
-```
-| field | type | rule |
-|---|---|---|
-| `session_id` | string, optional | 1 to 128 chars |
-| `last_trials` | list | most recent last; up to 10 (longer lists are truncated to the last 10) |
-| `last_trials[].tier` | int | 1..3 |
-| `last_trials[].cue` | string | `none \| first_sound \| first_letter \| sentence_frame \| semantic` |
-| `last_trials[].outcome` | bool | must be `true` iff `error_type == "correct"` |
-| `last_trials[].error_type` | string | `correct \| sound \| meaning \| no_response` |
-| `last_trials[].response_time` | float | seconds, >= 0 |
-| `last_trials[].probe` | bool, optional | `true` for a review probe (default `false`) |
-| `current_tier` | int | 1..3, the tier of the last trial the agent chose; review probes do not change it |
-| `trial_count` | int | >= 0 |
-| `session_minutes` | float | >= 0 |
-
-Unknown extra fields are ignored, so adding e.g. a timestamp will not break anything.
-
-### Action
-```json
-{"tier": 2, "cue": "first_sound", "rationale": "short text for the dashboard"}
-```
-`tier` in 1..3, `cue` as above. `rationale` is a human-readable explanation (may be null).
-The agent never returns a tier more than one step from `current_tier`, and never a cue outside the
-clinician-approved set in [`configs/clinical.yaml`](configs/clinical.yaml).
-
-### Outcome
-```json
-{"correct": false, "error_type": "sound", "response_time": 3.1}
-```
-`correct` must be `true` iff `error_type == "correct"`.
-
-### Item selection and review probes (the frontend must use the same rule)
-The agent chooses only the tier and cue; the item is chosen by this rule (implemented in
-[`sim/items.py`](sim/items.py) and used by the simulator and by `POST /next_trial`). Trials are
-numbered k = 0, 1, 2, ... over the whole session, probes included.
-1. **Review probe** if review probes are enabled, (k + 1) is a multiple of 5, and an eligible item
-   exists. Eligible: practised earlier in this session as a normal trial, and not shown in the last
-   3 trials. Pick the eligible item with the fewest probes so far this session; ties go to the item
-   first practised earliest. Show it **with no cue**, at its own tier. Do not call `/act` for it.
-2. **Otherwise a normal trial:** call `/act`, then pick an item in the returned tier that has not
-   been shown this session; if all have been shown, the least recently shown (ties at random).
-Parameters live in [`configs/sim.yaml`](configs/sim.yaml) (`review_probes`: `every` = 5,
-`min_gap` = 3). The simplest integration is `POST /next_trial`, which applies this rule server-side.
-
-### Endpoints
-| method | path | body | returns |
-|---|---|---|---|
-| GET | `/health` | none | `{"status": "ok", "agent": "...", "active_sessions": n}` |
-| POST | `/next_trial` | `State` | `{"word", "image_file", "tier", "cue", "probe", "rationale"}` |
-| POST | `/act` | `State` | `Action` |
-| POST | `/update` | `{"state": State, "action": Action, "outcome": Outcome, "probe": false}` | `{"status": "ok", "session_id": "...", "agent_updated": bool}` |
-| POST | `/override` | `{"state": State, "agent_action": Action, "clinician_action": Action, "note": "optional"}` | `{"status": "stored", "session_id": "...", "n_overrides": n}` |
-| POST | `/learn_from_overrides` | `{"session_id": "..."}` | `{"n_overrides", "n_skipped", "n_anchor_states", "seconds", "by_state_type": [{"state_type", "clinician_cue", "n_overrides", "n_eval_states", "p_before", "p_after"}], "other_states_unchanged"}` |
-
-Session loop for the frontend:
-1. `POST /next_trial` with the current `State` (or apply the rule above yourself and call `/act`
-   for normal trials). Show the returned word with the returned cue.
-2. If the clinician overrides a normal trial, `POST /override` with both actions and show the
-   clinician's action.
-3. After the patient answers, `POST /update` with the same `State`, the action **actually shown**
-   (the clinician's if overridden), the `Outcome`, and `"probe"` as returned. Agents do not learn
-   from probes, which they did not choose.
-4. Append the trial (with `"probe"`) to `last_trials`; if it was not a probe, set `current_tier` to
-   its tier. Repeat.
-
-Overrides are stored as JSON lines in `runs/overrides.jsonl` (the input to `train/ditto_ppo.py --overrides`).
-
-**Live learning from overrides (`POST /learn_from_overrides`, PPO agent only).** Runs one
-DITTO-style round (see the DITTO section) on the overrides logged **in this session**, then swaps in
-the tuned policy **for this session only** (other sessions and the base model are unchanged).
-Anchors are this session's accepted choices plus the base policy's own decisions on 30 validation
-patients, excluding the state types the clinician overrode. It takes well under a second on CPU
-(~0.3 s for 10 overrides; the first call also collects the anchor pool, about 1 s). The response
-reports, for each overridden state type (for example `"after a sound error"`), the mean probability
-of choosing the clinician's cue in reference states of that type before and after, and the share of
-other reference states whose top action is unchanged. Example on the live agent with 10 overrides
-"after a sound error, use first_sound" collected from states the policy actually visits: `p_before`
-0.35, `p_after` 0.91, `other_states_unchanged` 1.00 (0.5 s); the session then chose first_sound in
-held-out sound-error states. Validation on fresh states: see the DITTO section. Errors: 409 if the live agent is not PPO, 400 if the session has no overrides.
-Demo flow: play a few trials, override the cue a handful of times on the dashboard, call this
-endpoint, and continue: the next similar states get the clinician's choice.
-Interactive API docs: `http://localhost:8000/docs` while the service runs.
-
-## Demo script
-
-Start the service (`uv run uvicorn service.app:app --host 0.0.0.0 --port 8000`; `GET /health` should
-report `"agent": "ppo"`). Use one `session_id` per demo, e.g. `"demo-judge"`. Each step below is one
-or more API calls; the right column is what the clinician dashboard should show.
-
-| step | API calls | dashboard shows |
-|---|---|---|
-| 1. Naming | `POST /next_trial` with the State (`trial_count` 0, `current_tier` 1, empty `last_trials`); the judge names the picture; `POST /update` with the outcome and `"probe": false`. Repeat. | The picture, the chosen tier and cue (`none`), the agent's `rationale`; the tier timeline and rolling accuracy with the 75-90% band. After 5-7 correct answers the tier climbs to 2, then 3. |
-| 2. Cue after an error | The judge gives a wrong answer (or none) on purpose, 2-3 times in a row; keep calling `POST /next_trial` and `POST /update`. | The agent steps the tier down and offers a cue (e.g. first letter), with the rationale; error types appear in the breakdown. After the judge recovers, the tier climbs back. |
-| 3. Review probe | Every 5th trial `POST /next_trial` returns `"probe": true` (a word practised earlier, `cue: "none"`); `POST /update` with `"probe": true`. | A "review, no hint" label on that trial; the current tier is unchanged; probe results are tallied as "recalled without a hint". |
-| 4. Override | On a trial right after a sound error, the clinician presses override and picks the first-sound cue (same tier): `POST /override` with `state`, `agent_action`, `clinician_action`; show the clinician's cue; `POST /update` with the clinician's action. Repeat on a few such trials (10 give a strong effect; fewer give a smaller one). | The override is marked on the timeline; the override count increases. |
-| 5. Learn from the clinician | `POST /learn_from_overrides` with `{"session_id": "demo-judge"}` (well under a second). | "After a sound error: P(first sound) 0.35 -> 0.9x; other behaviour unchanged ~98-100%" from the response (`by_state_type`, `other_states_unchanged`). |
-| 6. The agent now makes the clinician's choice | Continue the session; after the next sound error `POST /next_trial` returns the first-sound cue without an override. | The cue matches the clinician's earlier choice; no override was needed. |
-
-Fallback if the live agent misbehaves: set `ppo_model: models/ppo_privileged_seed0.zip` or
-`agent: logistic_bandit` in `configs/service.yaml` and restart (`/learn_from_overrides` needs a PPO
-agent).
-
-## Problem formulation
-
-A **POMDP**. The patient's true state (retrieval ability per item, fatigue, responsiveness to each
-cue type, learning rate) is hidden; the agent only observes trial outcomes through the State JSON.
-An **episode** is one session of 40 trials; a **step** is one trial. The **action** is (tier 1..3) x
-(cue: 5 types) = 15 discrete actions. Clinical constraints are **action masks**, not penalties: tier
-moves at most one step per trial, and cues outside the clinician-approved set are never offered.
-
-## Simulated patients (`sim/`)
-
-`p(correct) = sigmoid(ability + item_learning[i] - difficulty[i] + cue_gain[cue] - fatigue)`, all on
-the log-odds scale. Every parameter is in [`configs/sim.yaml`](configs/sim.yaml) with a comment that
-either cites the paper behind the *direction* of the effect or says `ASSUMPTION`.
-
-| component | model | grounding |
-|---|---|---|
-| item difficulty | `beta_f * (-z(frequency)) + beta_l * z(length)` | frequency and length effects on naming (Nickels & Howard 1995) |
-| cues | `phonemic_weight[cue] * phon_resp + semantic_weight[cue] * sem_resp`, per-patient responsiveness | phonemic > semantic on average, with phonemic vs semantic responders (Meteyard & Bose 2018) |
-| error types | after a failure, P(sound, meaning, no response) proportional to (phon_impair, sem_impair, omission_bias) | simplified from the two-step model (Dell et al. 1997; Schwartz et al. 2006) |
-| fatigue | grows per trial and faster during failure streaks, recovers a fraction each trial, capped | ASSUMPTION |
-| learning | on a success, item-specific gain with E[gain] = p^a (1-p)^b, peaking at a configurable `peak`; weaker cues teach more; 5% spills over to general ability | item-specific gains with limited generalisation (Nickels 2002); the peak location is an ASSUMPTION; see the learning-peak ablation |
-| response time | log-normal, slower for hard items and when fatigued | ASSUMPTION |
-| dropout | after 3 failures in a row the patient may quit: 5% per trial, +5% per further failure | ASSUMPTION (conservative); results reported with dropout on and off |
-| review probes | every 5th trial re-tests a practised word without a cue (rule in Interfaces); scored like any trial | measurement design, not a patient assumption |
-
-**Population, not fixed profiles.** Training patients are drawn from broad parameter distributions
-(domain randomisation). Three named presets (mild anomic, moderate Broca's, severe) are narrow
-cohorts used only for evaluation. Patient *k* of a split comes from `SeedSequence([seed, split, cohort, k])`,
-so the **train and test populations are disjoint** (tested), and every policy faces exactly the same
-patients with the same random outcome stream (common random numbers, so comparisons are paired).
-
-**Item bank.** Loaded from a CSV with columns `word,image_file,frequency,length,tier` (schema in
-[`sim/items.py`](sim/items.py)). The committed bank [`data/items_placeholder.csv`](data/items_placeholder.csv)
-is a **PLACEHOLDER**: 60 picturable nouns, frequencies from the `wordfreq` package (Zipf scale),
-length in letters, tiers = difficulty terciles. It is to be replaced by a clinically curated bank. Within a tier,
-items are shown unseen-first, then least recently seen; the app should use the same rule.
-
-## Agents (`agents/`)
-
-All agents implement one interface (`act(state, mask) -> Action`, `update(state, action, outcome)`)
-and decide from the State JSON only.
-
-- **Fixed difficulty** (worksheets today) and **2-up/1-down staircase** (Levitt 1971).
-- **Beta-Bernoulli Thompson bandit**: 15 independent arms, ported from the scaffold and bug-fixed.
-- **Contextual Bayesian logistic Thompson bandit** (live fallback; learns online per session): `p(correct) = sigmoid(w . phi)`
-  with 17 features (tier, cue, recent accuracy, fail streak, progress, response time, and last error
-  type x cue family; the simulator does not yet model that interaction, see below). Posterior updated online with the closed-form Laplace/extended-Kalman step,
-  with random-walk process noise so it tracks fatigue and learning. Weights are shared across
-  actions, so one observation informs many actions.
-- **Empirical-Bayes prior** for the contextual bandit, fitted on 300 simulated *training* patients
-  (`train/fit_bandit_prior.py`): the per-patient weights' mean and shrunk covariance. This is the
-  bandit's sim-to-real pretraining. It is inflated so a real person's data still dominates: in a test,
-  a patient far from the population moves the prediction from 0.85 to 0.44 in 30 trials (truth 0.40).
-- **Shared selection rule** (`agents/selection.py`): among actions whose predicted p is within 0.06
-  of the 0.85 target, take the hardest tier, then the weakest cue; otherwise the closest to target.
-  This fixes the tier-1 coasting of the first version of the bandit (37 of 40 trials on tier 1).
-- **DITTO-style learning from clinician overrides** (`agents/ditto.py`, method after Shaikh et al.
-  2025): see the section below.
-
-## Trained agent: MaskablePPO (`envs/`, `train/train_ppo.py`)
-
-**Environment.** One episode is one 40-trial session with a new simulated patient drawn from the
-broad training population. The observation is built from the State JSON only (the last 8 trials as
-one-hot tier, cue and error type plus response time, and the current tier, rolling accuracy, fail
-streak and session progress), so the trained policy runs unchanged behind the service. The history
-stack gives the policy memory in this POMDP. The action masks are the same clinical masks the
-bandits use, including "cue only after an error". (sb3-contrib has no recurrent *and* masked PPO,
-so we use MaskablePPO with a history stack rather than RecurrentPPO, which would turn masks into
-penalties.)
-
-**Rewards** ([`configs/reward.yaml`](configs/reward.yaml)). The default **proxy reward** uses
-only terms observable on a real patient: +1 per trial with rolling accuracy in the band; -1 per trial while the failure streak is 3
-or more; -0.1 when a correct uncued answer follows a correct answer with a heavy cue (cue probably
-wasted); and, once at the end, +2 per tier climbed, paid only if the session spent at least half its
-trials in band. Making the climb bonus terminal and conditional removes an exploit in the original
-scaffold (per-step reward for climbing while in band, no cost for dropping out of band, so
-oscillating tiers farmed reward). Tests check that oscillating tiers earns nothing per step and,
-in the environment, that alternating tiers 1 and 2 scores less than holding tier 2 (mean return
-13.8 vs 18.5 on validation patients). Two variants are trained for comparison:
-- **proxy + probe**: the proxy plus +1 for every review probe answered correctly (still observable).
-- **privileged** (reference only, not deployable): frustration penalty plus three simulator-only
-  terms: the true control error |p - 0.85| on every agent trial, the dense increase in true
-  retrieval over the item bank, and the probe lift (how much each probed word's uncued recall
-  improved since the session began). Raw probe recall is deliberately not used here: probes revisit
-  practised words, so a policy that practises only easy words gets easy probes. An earlier draft
-  that rewarded the true p on probes indeed drove the agent to tier 1.
-
-**Live agent.** A live demo is played by a healthy person who answers almost everything correctly,
-which is far outside the simulated patient population. `scripts/judge_demo.py` plays three scripted
-"judges" through the HTTP API (`/next_trial` + `/update`, review probes included) against each
-candidate agent, 30 trials each:
-
-| judge | PPO, proxy reward | PPO, simulation objective | contextual bandit |
-|---|---|---|---|
-| always correct | climbs to tier 3 by trial 7 and stays (mean tier 2.54) | stays on tier 1 (mean 1.04) | wanders between tiers 1-3 (7 tier changes, mean 1.96) |
-| ~90% correct | reaches tier 3 by trial 16, drops a tier with a cue after errors (mean 1.88) | stays on tier 1 | tiers 1-2, cues after errors (mean 1.75) |
-| 3 errors in a row at trial 12 | tier 3 -> 2 with a first-letter cue -> 1, then back up to tier 3 within 8 trials | stays on tier 1, one cue | tier 2 -> 1, then oscillates 1-2 |
-
-**We serve the proxy-reward PPO live** (`models/ppo_seed0.zip`, seed 0): it is the only agent whose
-behaviour shows the intended adaptation to a healthy user (climb on success, back off with a cue
-after errors, climb again). The simulation-objective PPO is better on the true objective in
-simulation but stays on tier 1 for a healthy user, because in its training population tier 1 is
-usually close to the target; it and the contextual bandit are configured fallbacks
-(`configs/service.yaml`). Trade-off, stated plainly: in simulation the proxy-reward policy partly
-games the 8-trial band (Results); it is chosen for legible live behaviour, not because it is the best
-policy on the simulated objective. The policies do not update their weights during a session; they
-react through their observation (the last 8 trials).
-
-**Training.** 3 seeds x 1.5M steps per reward, CPU, about 3 minutes per run. Learning curves are
-measured on 64 fixed validation patients disjoint from both the training and the test patients. All
-variants converge within about 100k steps. The proxy-trained policies reach about 0.71 time in band
-with a true control error near 0.14; the privileged policy holds the band less (about 0.52) but has
-a much lower true control error (about 0.11) and higher learning gain and probe lift.
-
-![PPO learning curves](results/learning_curves.png)
-
-## Results
-
-**Full evaluation** (`uv run python -m eval.compare --config configs/eval.yaml`, about 20 s): 200
-held-out test patients per cohort, 40 trials (every 5th a review probe), dropout on. Every policy
-faces the same patients with the same random outcome stream; PPO is run with each of its 3 training
-seeds and averaged per patient (per-seed results in `results/comparison_seeds.csv`). Intervals are
-95% percentile bootstrap intervals over patients; differences between policies are **paired**
-(same patients) in `results/paired_differences.csv`. Full tables, including % of oracle:
-[`results/comparison.md`](results/comparison.md).
-
-The **oracle** reads the patient's hidden state and picks, among allowed actions, the one whose true
-p is near 0.85 (hardest tier, then weakest cue, within 0.06), under the same clinical masks. It is a
-privileged *heuristic*, not a proven optimum: it is myopic and targets the band rather than
-learning, so a policy can exceed it on learning gain or probe lift (fixed tier 2 does on moderate
-patients).
-
-Columns: time in band (observable); true control error |p - 0.85| (sim-only); learning gain over the
-whole item bank (sim-only, x100); probe recall = unassisted recall on review probes (observable);
-probe lift = improvement of the probed words' uncued recall since session start (sim-only, x100);
-share of sessions abandoned. Bold = best non-oracle policy for that metric.
-
-| cohort | policy | in band | \|p-0.85\| | learning gain | probe recall | probe lift | quit |
-|---|---|---|---|---|---|---|---|
-| mild anomic | fixed (tier 2) | 0.46 | **0.066 [0.064, 0.068]** | **3.53 [3.37, 3.68]** | 0.92 | **2.84 [2.69, 2.99]** | 0.01 |
-| mild anomic | staircase | 0.81 | 0.137 [0.135, 0.140] | 3.06 [2.94, 3.18] | 0.86 | 2.29 [2.16, 2.42] | 0.01 |
-| mild anomic | contextual bandit | 0.48 | 0.088 [0.085, 0.090] | 3.00 [2.86, 3.15] | 0.93 | 1.61 [1.50, 1.73] | 0.01 |
-| mild anomic | PPO, proxy reward | **0.86** | 0.129 [0.127, 0.131] | 2.61 [2.50, 2.72] | 0.90 | 1.71 [1.61, 1.81] | **0.00** |
-| mild anomic | PPO, simulation objective | 0.40 | 0.087 [0.085, 0.089] | 2.77 [2.63, 2.90] | 0.94 | 1.74 [1.63, 1.86] | 0.00 |
-| mild anomic | oracle (privileged) | 0.47 | 0.068 [0.065, 0.070] | 3.53 [3.36, 3.68] | 0.92 | 2.84 [2.70, 2.99] | 0.01 |
-| moderate Broca's | fixed (tier 2) | 0.52 | 0.110 [0.102, 0.117] | 4.56 [4.36, 4.75] | 0.75 | **4.40 [4.22, 4.58]** | 0.02 |
-| moderate Broca's | staircase | 0.59 | 0.155 [0.151, 0.160] | 3.99 [3.85, 4.12] | 0.77 | 3.02 [2.89, 3.15] | 0.04 |
-| moderate Broca's | contextual bandit | 0.62 | 0.074 [0.072, 0.077] | 4.68 [4.51, 4.85] | 0.83 | 3.14 [3.00, 3.29] | 0.01 |
-| moderate Broca's | PPO, proxy reward | **0.83** | 0.112 [0.109, 0.115] | 4.20 [4.05, 4.35] | 0.81 | 2.95 [2.82, 3.08] | **0.00** |
-| moderate Broca's | PPO, simulation objective | 0.62 | **0.065 [0.063, 0.068]** | **4.77 [4.61, 4.93]** | 0.84 | 3.43 [3.28, 3.58] | 0.00 |
-| moderate Broca's | oracle (privileged) | 0.59 | 0.048 [0.047, 0.049] | 5.07 [4.90, 5.25] | 0.87 | 3.33 [3.18, 3.48] | 0.00 |
-| severe | fixed (tier 2) | 0.02 | 0.516 [0.507, 0.525] | 0.11 [0.09, 0.13] | 0.26 | 0.22 [0.19, 0.26] | 0.77 |
-| severe | staircase | 0.11 | 0.342 [0.333, 0.352] | 1.27 [1.15, 1.40] | 0.48 | 1.49 [1.38, 1.60] | 0.29 |
-| severe | contextual bandit | 0.24 | 0.284 [0.274, 0.293] | 1.71 [1.57, 1.86] | 0.49 | 1.78 [1.65, 1.92] | 0.17 |
-| severe | PPO, proxy reward | **0.33** | **0.240 [0.232, 0.248]** | **2.08 [1.92, 2.23]** | 0.55 | **2.26 [2.11, 2.41]** | **0.10** |
-| severe | PPO, simulation objective | 0.29 | 0.251 [0.243, 0.260] | 2.04 [1.88, 2.20] | 0.53 | 2.20 [2.05, 2.34] | 0.12 |
-| severe | oracle (privileged) | 0.37 | 0.214 [0.206, 0.222] | 2.27 [2.11, 2.44] | 0.58 | 2.51 [2.35, 2.67] | 0.07 |
-
-![Policy comparison](results/comparison.png)
-
-A simplified slide version (severe cohort; fixed difficulty, staircase and the live agent; sessions
-abandoned and naming improvement) is generated by the same command: [`results/pitch_severe.png`](results/pitch_severe.png).
-
-![Rolling accuracy](results/rolling_accuracy.png)
-
-What this shows, honestly:
-- **Where difficulty matters most (severe patients), every adaptive policy beats fixed difficulty
-  by a wide, tight margin.** Paired against fixed tier 2: learning gain +1.9 points [1.8, 2.1] for
-  PPO (simulation objective), +2.0 for proxy PPO, +1.6 for the contextual bandit; abandoned
-  sessions fall from 77% to 10-17%. PPO reaches about 90% of the oracle's learning gain and probe
-  lift there.
-- **Among adaptive policies, PPO trained on the simulation objective is the most consistent.** It
-  beats the contextual bandit on learning gain and probe lift on moderate and severe patients
-  (paired: +0.09 [0.04, 0.14] and +0.29 [0.21, 0.38] on moderate; +0.33 [0.26, 0.39] and +0.41
-  [0.34, 0.48] on severe) and beats proxy PPO on moderate patients (gain +0.57 [0.53, 0.62]); on
-  severe patients the two PPO rewards are within 0.1 points of each other.
-- **Proxy-trained PPO holds the band best (0.86, 0.83) but partly games it.** Its true control error
-  on mild and moderate patients (0.129, 0.112) is 1.5-1.7 times the simulation-objective policy's
-  (0.087, 0.065), and on mild patients close to the staircase's (0.137): it steers the 8-trial
-  rolling accuracy rather than true difficulty. Time in band is therefore never reported alone.
-- **On mild patients, fixed tier 2 is as good as the oracle**, because for these patients tier 2
-  without a cue already sits at the simulator's learning peak (the oracle mostly chooses exactly
-  that). Adaptive policies pay for exploration and caution there (see below).
-- **Observed probe recall mostly measures how easy the practised words were.** It is high for
-  policies that practise easy words (mild patients: PPO simulation objective 0.94, contextual bandit
-  0.93) while their probe lift is low (1.74, 1.61 vs 2.84 for fixed tier 2). On a real patient probe
-  recall is what can be measured, so it must be read together with the difficulty of practised words.
-- **Severe patients remain hard for every policy**, including the oracle (rolling accuracy below the
-  band). One cause is the clinical rule "cue only after an error": their best action (tier 1 + first
-  sound, p~0.84) cannot be repeated after a success. Whether to keep the rule is to be validated
-  clinically (`cue_only_after_error`).
-
-Earlier 50-patient runs with the Beta bandit and the proxy + probe reward:
-[dropout on](results/sanity_dropout_on.md), [dropout off](results/sanity_dropout_off.md).
-Adding the probe bonus to the observable reward changed almost nothing (the agent cannot choose
-probe items, and a correct-probe bonus mostly rewards easy practice, which the band term already
-limits). The Beta bandit spends most of mild sessions on tier 1: its discounting pulls unvisited arms
-back to the tier-1 prior mean 0.80, inside the tolerance window.
-
-**Dropout on vs off** (50-patient runs). With dropout off, the mild and moderate rows are unchanged within their
-confidence intervals. The effect is on severe patients and on policies that let failures accumulate:
-fixed tier 2 abandons 76% of severe sessions (22 of 40 trials on average; learning gain 0.12 without
-dropout, 0.10 with), the staircase 38%, the contextual bandit 20%, proxy PPO 8%. Dropout is the
-mechanism by which frustration costs practice volume; it widens the gap between adaptive and fixed
-difficulty only where the fixed tier is wrong for the patient.
-
-### Why fixed difficulty can win learning gain in the simulator
-
-Fixed tier 2 has the highest learning gain and probe lift on mild patients (3.53, 2.84, equal to
-the oracle) and the highest probe lift on moderate ones (4.40). We did not tune the simulator to reverse this. The
-mechanism is visible in the "learn eff." column of the full tables (the mean expected learning per
-trial implied by the learning rule at the true p; 1.0 = every trial at the peak with no cue):
-learning gain tracks how much of the session is spent near the simulator's
-learning peak (p = 0.85) **without cues** (successes with cues teach less, by assumption).
-
-- For mild patients, tier 2 happens to give p of about 0.90, right next to the peak, every trial,
-  with no cue (learn eff. 0.78). Adaptive policies spend part of the session exploring, start on
-  tier 1 where p is about 0.96 and little is learned, and use cues after errors, all of which lower
-  learning per trial.
-- It is the *matching* that matters, not "fixed": on mild patients fixed tier 1 gets a learning
-  gain of 1.72 and fixed tier 3 gets 2.36; on moderate patients fixed tier 1 gets 4.86 while fixed
-  tier 3 gets 0.45 with 82% of sessions abandoned. Picking the right fixed tier for each patient requires
-  exactly the knowledge an adaptive policy acquires; worksheets do not make that choice per patient.
-
-What this **does** mean: in this simulator, with a single 40-trial session, a policy that sits at
-the learning peak from the first trial is hard to beat, and exploration has a real cost.
-What it **does not** mean: that fixed difficulty is a good strategy. The result depends on
-assumptions we cannot validate yet (the location of the learning peak, the cue discount, item-specific
-learning, a single session with no boredom or disengagement effects for items that are too easy) and
-it reverses as soon as the fixed tier does not match the patient (see the learning-peak ablation
-below). A multi-session evaluation and
-multi-session evaluation are planned.
-
-**Error-type x cue features.** The contextual bandit has six features crossing the last error type
-(sound, meaning, no response) with the cue family (phonemic, semantic). **The simulator does not
-model that interaction yet**: a patient's response to a cue does not depend on the error they just
-made. Accordingly these weights fit to about 0 in the empirical-Bayes prior. They are kept because
-real patients may show the dependency (for example, phonemic cues after sound errors), and they cost
-little.
-
-## Ablations (`eval/ablations.py`)
-
-`uv run python -m eval.ablations --config configs/ablations.yaml` (about 2 minutes) reruns the
-full-evaluation protocol (200 held-out patients per cohort, bootstrap CIs) under three changes.
-Tables: [`results/ablations.md`](results/ablations.md).
-
-**1. Where does learning peak?** The simulator's learning peak (the success rate at which practice
-teaches most) is an assumption; 0.85 mirrors the 85% rule. Every policy is evaluated with the peak at
-0.5, 0.7 and 0.85, and PPO is also retrained at each peak, once with the simulation objective (which
-still contains the -|p - 0.85| control term) and once with a **learning-only** objective (no 85%
-target at all).
-
-![Learning-peak ablation](results/ablation_learning_peak.png)
-
-- **The 85% target is load-bearing.** If learning actually peaked at 0.5, every policy that aims for
-  85% would learn little with mild patients (oracle 0.23, contextual bandit 0.27, simulation-objective
-  PPO trained at 0.85: 0.11, x100), while the harder-running staircase gets 1.22.
-- **Optimising the true objective recovers most of the loss.** The learning-only PPO retrained at
-  peak 0.5 reaches 2.23 [2.11, 2.35] on mild patients and 3.00 [2.87, 3.16] on moderate ones, the best
-  of all policies there. At peak 0.85 it is close to the others (mild 3.16, moderate 4.77). This is
-  the argument for learning the target from the true objective rather than fixing it at 85%: the
-  agent then follows wherever learning actually peaks.
-- **It is not uniformly best.** On severe patients at peak 0.5 the staircase (4.06) beats it (3.33),
-  and at peak 0.7 fixed tier 2 is best on moderate patients (5.17), again because that tier happens
-  to match. The retrained agents inherit every other simulator assumption.
-
-**2. Dropout on vs off.** Dropout matters only for severe patients: abandoned sessions with dropout
-on are 77% for fixed tier 2, 29% for the staircase, 17% for the contextual bandit, 10-12% for PPO and
-7% for the oracle; learning gain changes by at most 0.1 points (x100) when dropout is switched off.
-
-**3. Reward variants (PPO, 3 seeds each).** Band only, band + climb, full proxy and full proxy +
-probe bonus are indistinguishable on every metric in every cohort (time in band 0.82-0.88 on mild and
-moderate patients; learning gain within about 0.2 points): the band term drives the behaviour and the
-other observable terms change little. Only the simulation objective changes it (lower control error,
-higher learning gain and probe lift on moderate patients, much less time in band).
-
-## Learning from clinician overrides: DITTO-style (`agents/ditto.py`, `train/ditto_ppo.py`)
-
-The method follows DITTO (Shaikh et al., ICLR 2025), applied to the trained PPO policy instead of a
-language model. Each override is a demonstration; it is preferred over every action the policy
-itself samples in the same state, including samples from earlier rounds; the policy's masked action
-log-probabilities are optimised with the DPO loss against a frozen reference (the original policy),
-for 4 rounds. No LoRA is needed: the policy is a small MLP and only its actor is updated.
-
-**Demo.** A simulated clinician with one consistent preference the policy does not follow: "after a
-sound (phonological) error, give the first-sound cue" (keeping the policy's tier). 10 overrides are
-taken from sessions of one set of validation patients; evaluation uses decision states from a
-disjoint set of validation patients, plus full simulations on the three test cohorts. Real
-overrides from the dashboard use the same pipeline (`--overrides runs/overrides.jsonl`).
-
-**Result.** Plain DITTO-style tuning adopts the preference but **overgeneralises**: with only 10
-demonstrations, nothing tells the shared network to leave other states alone, so it gives the
-first-sound cue after *every* error and the policy's behaviour degrades (time in band on mild
-patients 0.85 -> 0.35). We add **accepted-choice anchors**: on the dashboard, every agent choice the
-clinician saw and did not override is an implicit acceptance, so a KL term keeps the policy close to
-the reference on those states (weight and learning rate chosen by a small sweep scored only on the
-override patients' states). Full report: [`results/ditto_report.md`](results/ditto_report.md).
-
-| held-out states | n | top action = clinician's cue, before -> after: plain | with anchors | top action unchanged (anchors) |
-|---|---|---|---|---|
-| after a sound error (preference applies) | 273 | 0.35 -> 1.00 | **0.35 -> 0.96** | 0.38 |
-| after other errors (cues allowed, preference does not apply) | 557 | 0.38 -> 1.00 | **0.38 -> 0.40** | 0.93 |
-| all other states | 2902 | 0.00 -> 0.00 | 0.00 -> 0.00 | **0.99** |
-
-With anchors, after 10 overrides the policy makes the clinician's choice in 96% of matching held-out
-states, leaves states after other errors essentially unchanged, and keeps 99% of all other decisions
-identical; time in band, control error, learning gain and probe recall on the three test cohorts are
-unchanged within noise. The anchors are our addition to DITTO and are only as good as the assumption
-that a non-override means acceptance.
-
-**Live endpoint, validated on fresh states.** The settings of `POST /learn_from_overrides` (one round,
-300 gradient steps, learning rate 0.002) were chosen by looking at override and evaluation states from
-validation patients 100+ of the moderate cohort. To check them honestly,
-`scripts/validate_live_ditto.py` repeats the update 5 times with 10 overrides each from *different*
-validation patients (1000+) and evaluates on states from yet other patients (2000+), for both PPO
-models and two cohorts ([`results/live_ditto_validation.md`](results/live_ditto_validation.md)):
-
-| model | cohort | P(clinician's cue) after a sound error, before -> after | top action = clinician's cue, before -> after | other state types, top action unchanged |
-|---|---|---|---|---|
-| PPO, proxy reward (live agent) | moderate Broca's | 0.35 -> 0.97 ± 0.01 | 0.37 -> 0.98 ± 0.01 | 0.98 |
-| PPO, proxy reward (live agent) | population | 0.37 -> 0.91 ± 0.10 | 0.37 -> 0.93 ± 0.09 | 0.97 |
-| PPO, simulation objective | moderate Broca's | 0.03 -> 0.90 ± 0.02 | 0.02 -> 0.92 ± 0.01 | 1.00 |
-| PPO, simulation objective | population | 0.04 -> 0.84 ± 0.05 | 0.04 -> 0.89 ± 0.04 | 0.99 |
-
-The effect holds on fresh states (top action switches in 89-98% of matching states, ± over the 5
-override sets). For the live agent 2-3% of other state types change their top action, slightly more
-than the 0% seen on the states used for tuning. Each update takes about 0.33 s on CPU.
-
-## Known limitations
-- With an 8-trial window, rolling accuracy only takes values k/8, so the [0.75, 0.90] band means
-  exactly 6/8 or 7/8. Even a perfect controller holding p = 0.85 is in band only ~62% of the time
-  (Binomial(8, 0.85)). This is why we also report true control error, and will report % of a privileged oracle.
-- The simulator is a parametric model; magnitudes are assumptions pending clinical review. The
-  bandit's fitted prior inherits these assumptions.
-- One action per trial applies the cue to the *next* item; real cueing happens within an item after
-  a failed attempt. Kept for the agreed interface.
-
-## Reproducibility
-- Every random source takes a seed. Service sessions derive their seed from
-  `(configs/bandit.yaml seed, session_id)` via crc32, so replaying the same requests reproduces the
-  same actions (tested in `tests/test_service.py::test_full_session_replays_identically`).
-- All tunable values live in `configs/*.yaml` and are validated at load time (`core/config.py`).
-
-## Citations
-Every paper cited in code or configs is listed here so it can be checked. Papers are cited only for
-the **direction** of an effect; specific numeric values are marked `ASSUMPTION` in the configs.
-
-| cited for | reference | where |
-|---|---|---|
-| 85% target accuracy (theoretical, not shown for aphasia) | Wilson, Shenhav, Straccia & Cohen (2019). The Eighty Five Percent Rule for optimal learning. *Nature Communications* 10, 4646. | `configs/clinical.yaml` |
-| Phonemic cues have larger immediate effects than semantic cues | Meteyard & Bose (2018). What does a cue do? Comparing phonological and semantic cues for picture naming in aphasia. *JSLHR* 61(3), 658–674. | `configs/clinical.yaml` |
-| Discounted Thompson sampling for non-stationary bandits | Raj & Kalyani (2017). Taming non-stationary bandits: A Bayesian approach. arXiv:1707.09727. | `configs/bandit.yaml` |
-| Word frequency and length predict naming accuracy in aphasia | Nickels & Howard (1995). Aphasic naming: What matters? *Neuropsychologia* 33(10), 1281–1303. | `configs/sim.yaml` (items) |
-| Naming therapy gains are largely item-specific, limited generalisation | Nickels (2002). Therapy for naming disorders: Revisiting, revising, and reviewing. *Aphasiology* 16(10–11), 935–979. | `configs/sim.yaml` (learning) |
-| Error types reflect semantic vs phonological impairment (two-step model) | Dell, Schwartz, Martin, Saffran & Gagnon (1997). Lexical access in aphasic and nonaphasic speakers. *Psychological Review* 104(4), 801–838. | `configs/sim.yaml` (errors) |
-| Case-series evidence for the two-step model in picture naming | Schwartz, Dell, Martin, Gahl & Sobel (2006). A case-series test of the interactive two-step model of lexical access. *Journal of Memory and Language* 54(2), 228–264. | `configs/sim.yaml` (errors) |
-| 2-up/1-down staircase converges near 70.7% correct | Levitt (1971). Transformed up-down methods in psychoacoustics. *JASA* 49(2B), 467–477. | `agents/baselines.py` |
-| Thompson sampling with a Laplace-approximated logistic model | Chapelle & Li (2011). An empirical evaluation of Thompson sampling. *NeurIPS* 24. | `agents/logistic_bandit.py` |
-| Word frequencies for the placeholder item bank | Speer (2022). wordfreq (software), v3. https://github.com/rspeer/wordfreq | `scripts/build_placeholder_items.py` |
-| Proximal policy optimisation | Schulman, Wolski, Dhariwal, Radford & Klimov (2017). Proximal Policy Optimization Algorithms. arXiv:1707.06347. | `train/train_ppo.py` |
-| Invalid-action masking in policy-gradient methods | Huang & Ontañón (2022). A Closer Look at Invalid Action Masking in Policy Gradient Algorithms. *FLAIRS-35*. | `envs/aphasia_env.py` |
-| PPO implementation | Raffin et al. (2021). Stable-Baselines3: Reliable Reinforcement Learning Implementations. *JMLR* 22(268). | `train/train_ppo.py` |
-| Group-relative policy optimisation (GRPO), explored only | Shao et al. (2024). DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models. arXiv:2402.03300. | `train/grpo_smoke.py` |
-| Learning from demonstrated feedback (DITTO), method followed for override learning | Shaikh et al. (2025). Show, Don't Tell: Aligning Language Models with Demonstrated Feedback. ICLR 2025. | `agents/ditto.py` |
-| Direct preference optimisation (DPO loss) | Rafailov, Sharma, Mitchell, Ermon, Manning & Finn (2023). Direct Preference Optimization: Your Language Model is Secretly a Reward Model. *NeurIPS* 36. | `agents/ditto.py` |
-
-## NeuroCue therapy environment on the patient engine (`neurocue/`)
-
-The simulator above (`sim/`) is the hackathon-brief patient: a logistic model with a learning peak
-at 85% success, one 40-trial session, no days and no forgetting. `patientmodel/` is the research
-engine that replaced it (see `patientmodel/README.md`): the Dell semantic-phonological model
-reproducing published fits, a population prior fitted to PSST, word-level errors, cues calibrated to
-cued-naming data, and a learning layer fitted to a four-week retrieval-practice study. `neurocue/`
-is the therapy environment built on that engine; it keeps this repository's patterns (observation
-from observables only, hard action masks, MaskablePPO, paired evaluation with common random
-numbers, `agents/ditto.py` for clinician demonstrations) and changes the problem:
-
-- **Episode** = a course: four sessions on days 0, 3, 7, 10 of 40 trials on 20 personally hard words,
-  judged by predicted unaided retention 7 and 28 days after the course (Middleton et al. 2019's design).
-- **Action** = which word (due / repeat / weakest / strongest) x which cue (none / first sound /
-  meaning / whole word). Spacing, difficulty targeting and scaffolding are all the agent's.
-- **Reward** `privileged` = change in predicted retention after every trial (telescopes exactly to
-  the objective); `observable` = unaided correct responses, which a real session could compute.
-- **Baselines** (`neurocue/baselines.py`): spaced retrieval, massed, the cueing hierarchy, errorless,
-  weakest-first with hierarchy, random.
-
-Run: `uv run python -m neurocue.evaluate --n 100` (baselines), `uv run python -m neurocue.train_ppo`,
-then `uv run python -m neurocue.evaluate --ppo models/engine_ppo_privileged_seed0.zip`. Results in
-`results/engine_trainer*.md`.
+- `dev`: integration branch of the CueAgain app; `feature/rl-agent`: the first-generation RL work;
+  `feature/cueagain-ditto`, `feature/ditto-training`, `kuba/clinician-real-data` and personal
+  branches: teammates' work during the hackathon.
+
+Merges into `dev` went through pull requests on GitHub once the tests passed. On `main`, pushes
+trigger the Modal redeploy when the secrets are set (section 7).
+
+## 13. References
+
+Papers are cited for the mechanism or the direction of an effect; where a numeric value is fitted the
+results file is named, and where it is assumed the config marks it `ASSUMPTION`.
+
+**Lexical access and aphasic naming**
+
+- Dell, G. S., Schwartz, M. F., Martin, N., Saffran, E. M. and Gagnon, D. A. (1997). Lexical access
+  in aphasic and nonaphasic speakers. *Psychological Review* 104(4), 801–838.
+- Foygel, D. and Dell, G. S. (2000). Models of impaired lexical access in speech production.
+  *Journal of Memory and Language* 43, 182–216.
+- Dell, G. S., Lawler, E. N., Harris, H. D. and Gordon, J. K. (2004). Models of errors of omission
+  in aphasic naming. *Cognitive Neuropsychology* 21(2–4), 125–145 (Table 2 SP-model fits, the refit
+  targets in `data/calibration/`).
+- Dell, G. S., Schwartz, M. F., Nozari, N., Faseyitan, O. and Coslett, H. B. (2013). Voxel-based
+  lesion-parameter mapping. *Cognition* 128(3), 380–396 (dual-route repetition, Table 1 example).
+- Schwartz, M. F., Dell, G. S., Martin, N., Gahl, S. and Sobel, P. (2006). A case-series test of the
+  interactive two-step model of lexical access. *Journal of Memory and Language* 54(2), 228–264.
+- Walker, G. M. (2016). WebFit: Bayesian fitting of the SP model.
+- Mirman, D. et al. (2010). The Moss Aphasia Psycholinguistics Project Database (MAPPD).
+- Nickels, L. and Howard, D. (1995). Aphasic naming: What matters? *Neuropsychologia* 33(10),
+  1281–1303.
+- Nickels, L. (2002). Therapy for naming disorders: Revisiting, revising, and reviewing.
+  *Aphasiology* 16(10–11), 935–979.
+
+**Data**
+
+- Gale, R. et al. (2022). Post-Stroke Speech Transcription (PSST) challenge corpus; AphasiaBank,
+  TalkBank.
+- Bates, E. et al. (2003). Timed picture naming in seven languages. *Psychonomic Bulletin & Review*
+  10(2), 344–380. Szekely, A. et al. (2004). A new on-line resource for psycholinguistic studies.
+  *Journal of Memory and Language* 51(2), 247–250.
+- Brysbaert, M., Warriner, A. B. and Kuperman, V. (2014). Concreteness ratings for 40 thousand
+  generally known English word lemmas. *Behavior Research Methods* 46, 904–911.
+- Speer, R. (2022). wordfreq, v3. https://github.com/rspeer/wordfreq
+
+**Learning, spacing and cues**
+
+- Middleton, E. L., Rawson, K. A. and Verkuilen, J. (2019). Retrieval practice and spacing effects
+  in multi-session treatment of naming impairment in aphasia. *Cortex* 119, 386–400. Middleton,
+  E. L. et al. (2016). Towards a theory of learning for naming rehabilitation. *JSLHR* 59.
+- Pavlik, P. I. and Anderson, J. R. (2005). Practice and forgetting effects on vocabulary memory:
+  An activation-based model of the spacing effect. *Cognitive Science* 29(4), 559–586.
+- Nardo, D. et al. (2017). Less is more: neural mechanisms underlying anomia treatment in chronic
+  aphasic patients. *Brain* 140(11), 3039–3054.
+- Pease, D. M. and Goodglass, H. (1978). The effects of cuing on picture naming in aphasia.
+  *Cortex* 14(2), 178–189.
+- Howard, D., Patterson, K., Franklin, S., Orchard-Lisle, V. and Morton, J. (1985). The facilitation
+  of picture naming in aphasia. *Cognitive Neuropsychology* 2(1), 49–80.
+- Python, G. et al. (2021). Phonological and semantic cue effects by type of lexical-semantic
+  impairment (cited for the direction the engine's semantic cue contradicts).
+- Meteyard, L. and Bose, A. (2018). What does a cue do? Comparing phonological and semantic cues for
+  picture naming in aphasia. *JSLHR* 61(3), 658–674.
+- Wilson, R. C., Shenhav, A., Straccia, M. and Cohen, J. D. (2019). The Eighty Five Percent Rule for
+  optimal learning. *Nature Communications* 10, 4646 (first generation's target; theoretical, not
+  shown for aphasia).
+- Levitt, H. (1971). Transformed up-down methods in psychoacoustics. *JASA* 49(2B), 467–477.
+
+**Learning algorithms**
+
+- Schulman, J., Wolski, F., Dhariwal, P., Radford, A. and Klimov, O. (2017). Proximal Policy
+  Optimization Algorithms. arXiv:1707.06347.
+- Huang, S. and Ontañón, S. (2022). A Closer Look at Invalid Action Masking in Policy Gradient
+  Algorithms. *FLAIRS-35*.
+- Raffin, A. et al. (2021). Stable-Baselines3: Reliable Reinforcement Learning Implementations.
+  *JMLR* 22(268). Gymnasium; sb3-contrib (MaskablePPO).
+- Rafailov, R., Sharma, A., Mitchell, E., Ermon, S., Manning, C. D. and Finn, C. (2023). Direct
+  Preference Optimization: Your Language Model is Secretly a Reward Model. *NeurIPS* 36.
+- Shaikh, O. et al. (2025). Show, Don't Tell: Aligning Language Models with Demonstrated Feedback.
+  *ICLR 2025*.
+- Chapelle, O. and Li, L. (2011). An empirical evaluation of Thompson sampling. *NeurIPS* 24.
+  Raj, V. and Kalyani, S. (2017). Taming non-stationary bandits: A Bayesian approach.
+  arXiv:1707.09727.
+- Shao, Z. et al. (2024). DeepSeekMath (GRPO). arXiv:2402.03300 (explored only).
+
+**Tools**: scikit-learn, NLTK, sentence-transformers, FastAPI, uv, Playwright, Modal, faster-whisper,
+transformers, peft.
