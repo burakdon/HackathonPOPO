@@ -73,14 +73,26 @@ details summary { cursor:pointer; font:600 12.5px var(--body); color:var(--accen
 details p, details ul { font-size:13px; color:var(--muted); margin:8px 0 0; line-height:1.55; }
 details ul { padding-left:18px; }
 /* naming */
-.pic { display:grid; grid-template-columns:200px 210px; gap:14px 20px; align-items:start; }
-.pic > div:last-child { grid-column:1 / -1; }
-@media (min-width: 1600px) { .pic { grid-template-columns:200px 210px 1fr; } .pic > div:last-child { grid-column:auto; } }
-@media (max-width: 480px) { .pic { grid-template-columns:1fr; } }
-.picbox img { width:200px; height:200px; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:14px; display:block; }
-.picbox .cap, .avatar .who { text-align:center; font:12px var(--mono); color:var(--muted); margin-top:6px; }
-.avatar { position:relative; width:210px; }
-.avatar svg { width:210px; height:220px; display:block; border-radius:14px; background: radial-gradient(circle at 50% 30%, #f3ece4 0%, #e3d7cb 70%, #d2c3b4 100%); border:1px solid var(--line); }
+/* Picture and patient sit side by side at every width: two fluid columns capped at 240px, the
+   controls underneath at full width. Nothing has a fixed pixel width, so nothing can overflow. */
+.pic { display:grid; grid-template-columns:repeat(2, minmax(0, 240px)); gap:14px 16px; align-items:start; }
+.pic > .ctl { grid-column:1 / -1; min-width:0; }
+.picbox, .avatar { min-width:0; }
+.picbox img { width:100%; aspect-ratio:1; height:auto; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:14px; display:block; }
+.picbox .cap, .avatar .who { text-align:center; font:12px var(--mono); color:var(--muted); margin-top:6px; overflow-wrap:anywhere; }
+.avatar { position:relative; }
+.face { display:block; width:100%; aspect-ratio:210/220; border-radius:14px; background: radial-gradient(circle at 50% 30%, #f3ece4 0%, #e3d7cb 70%, #d2c3b4 100%); border:1px solid var(--line); overflow:hidden; }
+.face svg { width:100%; height:100%; display:block; }
+/* patient picker */
+.roster { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin-top:4px; }
+.pcard { all:unset; box-sizing:border-box; cursor:pointer; display:grid; grid-template-columns:56px minmax(0,1fr); gap:10px; align-items:center; padding:10px; border:1.5px solid var(--line); border-radius:14px; background:var(--card-2); transition:border-color .2s, background .2s; }
+.pcard:hover { border-color:color-mix(in srgb, var(--accent) 50%, var(--line)); }
+.pcard:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.pcard.on { border-color:var(--accent); background:var(--accent-soft); }
+.pcard .face { width:56px; border-radius:12px; }
+.pcard b { display:block; font:600 14px/1.25 var(--display); color:var(--fg); }
+.pcard small { display:block; font:11.5px/1.35 var(--mono); color:var(--muted); }
+.blurb { font-size:13.5px; color:var(--muted); margin:12px 0 0; }
 .avatar .mouth { transition:d .07s linear; } .avatar .lid { transition:transform .08s; } .avatar .brow { transition:transform .35s ease; } .avatar .pupil { transition:cx .25s ease, cy .25s ease; }
 .bubble { position:absolute; left:8px; right:8px; top:0; transform:translateY(-4px); background:var(--card); border:1px solid var(--line); border-radius:12px; padding:6px 10px; font-size:13px; line-height:1.3; box-shadow:var(--shadow); opacity:0; transition:opacity .2s; pointer-events:none; }
 .bubble.on { opacity:1; }
@@ -89,7 +101,7 @@ details ul { padding-left:18px; }
 .bubble .dots span:nth-child(2){animation-delay:.2s} .bubble .dots span:nth-child(3){animation-delay:.4s}
 @keyframes dot { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
 @media (prefers-reduced-motion: reduce) { .bubble .dots span { animation:none; } }
-.legend { display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; font-size:12.5px; color:var(--muted); margin-top:12px; }
+.legend { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap:6px 12px; font-size:12.5px; color:var(--muted); margin-top:12px; }
 .legend > span { display:flex; align-items:center; gap:6px; }
 .legend .lbl { grid-column:1 / -1; }
 .legend .chip { font-size:11px; padding:1px 7px; flex:none; }
@@ -128,44 +140,33 @@ footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margi
   <div>
     <div class="brand">NeuroCue · patient console</div>
     <h1>A synthetic aphasia patient you can run experiments on, and a therapist you can correct</h1>
-    <p class="tag">Every patient is two lesion weights in a published model of word retrieval. Every therapist is a policy you can watch, question and teach. Every number on this page is produced live by the validated engine, and the page tells you where each one comes from.</p>
+    <p class="tag">Every patient is two lesion weights in a published model of word retrieval. Every therapist is a policy you can watch, question and teach. Every number on this page was produced by the validated engine (precomputed for six patients by <code>scripts/build_demo_patients.py</code>, so the page needs no server), and the page tells you where each one comes from.</p>
     <div class="pillars">
-      <div class="pillar"><b>Personalised</b><span>Severity and lesion type make the patient; her words, her errors and her course are hers. Change two numbers and she is someone else.</span></div>
+      <div class="pillar"><b>Personalised</b><span>Severity and lesion type make the patient; their words, their errors and their course are their own. Pick another patient and the same pictures produce someone else.</span></div>
       <div class="pillar"><b>Customisable</b><span>A clinician corrects the therapist a few times and DITTO turns the corrections into a rule, adopted where it applies and nowhere else.</span></div>
-      <div class="pillar"><b>Transparent</b><span>The lesion is recoverable from her answers, every curve is the engine's own prediction, and a taught rule shows exactly where it fires.</span></div>
+      <div class="pillar"><b>Transparent</b><span>The lesion is recoverable from the patient's answers, every curve is the engine's own prediction, and a taught rule shows exactly where it fires.</span></div>
     </div>
   </div>
   <div class="status">
-    <span class="lbl">Engine</span><span class="chip on">model + fitter loaded</span><span class="chip off" id="ppochip">trained policy: checking…</span>
+    <span class="lbl">Engine</span><span class="chip on" id="datachip">loading patients…</span><span class="chip on">trained policy · DITTO</span>
   </div>
 </header>
 
 <div class="steps">
-  <div class="step" id="st1"><span class="num"><span>1</span></span><div><b>Make a patient</b><span class="sub">Two numbers: how severe, where the damage is.</span></div></div>
-  <div class="step" id="st2"><span class="num"><span>2</span></span><div><b>Hear her</b><span class="sub">Real pictures, her errors, spoken the way real patients speak.</span></div></div>
-  <div class="step" id="st3"><span class="num"><span>3</span></span><div><b>Diagnose her</b><span class="sub">The fitter recovers her lesion from her answers alone.</span></div></div>
-  <div class="step" id="st4"><span class="num"><span>4</span></span><div><b>Treat her</b><span class="sub">Three therapists on identical copies of her, scored a month later.</span></div></div>
+  <div class="step" id="st1"><span class="num"><span>1</span></span><div><b>Choose a patient</b><span class="sub">Six people, each a severity and a lesion type.</span></div></div>
+  <div class="step" id="st2"><span class="num"><span>2</span></span><div><b>Hear them</b><span class="sub">Real pictures, their errors, spoken the way real patients speak.</span></div></div>
+  <div class="step" id="st3"><span class="num"><span>3</span></span><div><b>Diagnose</b><span class="sub">The fitter recovers the lesion from the answers alone.</span></div></div>
+  <div class="step" id="st4"><span class="num"><span>4</span></span><div><b>Treat</b><span class="sub">Two therapists on identical copies of the patient, scored a month later.</span></div></div>
   <div class="step" id="st5"><span class="num"><span>5</span></span><div><b>Bring in the physician</b><span class="sub">Corrections become rules, adopted where meant and nowhere else.</span></div></div>
 </div>
 
 <main>
 <section id="patient">
   <div class="phead"><span class="num">1</span><h2>Who are you listening to</h2></div>
-  <p class="what">Two numbers make the patient: how severe, and where the damage is. Change them and the same pictures produce a different person, with her own words, her own errors and her own course of therapy.</p>
-  <div class="row" style="gap:22px; align-items:flex-start">
-    <div class="field"><span class="lbl">Severity · WAB Aphasia Quotient (0–100, higher = milder)</span>
-      <input id="aq" type="range" min="20" max="95" value="60"><div class="scale"><span>very severe</span><span>severe</span><span>moderate</span><span>mild</span></div>
-      <div class="help">AQ <b id="aqv">60</b> · <span id="bandlab">moderate</span> · expected naming accuracy for this severity: <b id="aqacc">–</b></div>
-    </div>
-    <div class="field"><span class="lbl">Lesion type · which connections are weak</span>
-      <div class="seg" id="lesion"><button data-v="semantic">semantic</button><button data-v="balanced" class="on">balanced</button><button data-v="phonological">phonological</button></div>
-      <div class="help" id="lesionhelp">Both connection weights lowered alike: a mix of meaning errors and sound errors.</div>
-    </div>
-    <div class="field"><span class="lbl">Random seed · same seed, same patient</span>
-      <div class="row"><input id="seed" type="number" value="1" style="width:72px; padding:6px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--fg)"><button id="newp">New patient</button></div>
-    </div>
-  </div>
-  <div class="kv" id="pcard"><span class="k">patient</span><span>none yet. Press New patient.</span></div>
+  <p class="what">Two numbers make each patient: how severe the aphasia is (the WAB Aphasia Quotient, 0–100, higher = milder), and where the damage is. The six below span both. Pick one and the same pictures produce a different person, with their own words, their own errors and their own course of therapy.</p>
+  <div class="roster" id="roster" role="radiogroup" aria-label="Choose a patient"></div>
+  <p class="blurb" id="pblurb"></p>
+  <div class="kv" id="pcard"><span class="k">patient</span><span>loading…</span></div>
   <details><summary>What the two lesion weights are</summary>
     <p>In the Dell semantic-phonological model, naming is two steps: meaning activates a word, then the word activates its sounds. Each step runs over a connection weight. Healthy speakers have both at about 0.04. A weak <b>semantic</b> weight (s) lets neighbouring words win, so the patient says <i>chair</i> for <i>bench</i> or <i>home</i> for <i>house</i>. A weak <b>phonological</b> weight (p) lets the sounds come out wrong, so the patient says <i>kwiyd</i> for <i>queen</i>. The population prior that picks s and p was fitted to 74 real PSST participants; Dell's original prior is kept as an alternative.</p>
   </details>
@@ -173,74 +174,18 @@ footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margi
 
 <section id="naming">
   <div class="phead"><span class="num">2</span><h2>The patient names pictures</h2></div>
-  <p class="what">She looks at the picture, pauses for as long as the engine says the response took, then says it. Nonwords are spoken from their phoneme string. The framing around the word, "uh", "it's a", a false start, is sampled from how real PSST patients framed theirs.</p>
+  <p class="what">The patient looks at the picture, pauses for as long as the engine says the response took, then says it. Nonwords are spoken from their phoneme string. The framing around the word, "uh", "it's a", a false start, is sampled from how real PSST patients framed theirs.</p>
   <div class="pic">
     <div class="picbox"><img id="img" alt="picture to name" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3C/svg%3E"><div class="cap">Picture · <span id="picname">–</span> · IPNP naming norms</div></div>
-    <div class="avatar" id="avatar" aria-label="the patient, Marisol">
-      <svg viewBox="0 0 210 220" role="img" aria-hidden="true">
-        <defs>
-          <radialGradient id="skinG" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#d9a37d"/><stop offset="1" stop-color="#c48a62"/></radialGradient>
-          <linearGradient id="hairG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b2419"/><stop offset="1" stop-color="#1c110c"/></linearGradient>
-          <radialGradient id="irisG" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#7a4b2a"/><stop offset=".7" stop-color="#4a2c18"/><stop offset="1" stop-color="#2a170c"/></radialGradient>
-          <linearGradient id="topG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c8a82"/><stop offset="1" stop-color="#1c6560"/></linearGradient>
-        </defs>
-        <!-- hair, back: long and wavy -->
-        <path d="M40 120 C 30 72, 58 30, 105 30 C 152 30, 182 72, 170 120 C 178 150, 188 180, 180 220 L 30 220 C 22 180, 32 150, 40 120 Z" fill="url(#hairG)"/>
-        <path d="M44 128 C 36 160, 30 190, 36 220 L 58 220 C 52 190, 54 160, 62 130 Z" fill="#2a1a12"/>
-        <path d="M166 128 C 174 160, 180 190, 174 220 L 152 220 C 158 190, 156 160, 148 130 Z" fill="#2a1a12"/>
-        <path d="M58 150 C 52 172, 50 196, 56 220" stroke="#5a3a2a" stroke-width="1.5" fill="none" opacity=".7"/>
-        <path d="M152 150 C 158 172, 160 196, 154 220" stroke="#5a3a2a" stroke-width="1.5" fill="none" opacity=".7"/>
-        <!-- shoulders, v-neck top, pendant -->
-        <path d="M18 220 C 28 184, 64 174, 88 170 L 105 190 L 122 170 C 146 174, 182 184, 192 220 Z" fill="url(#topG)"/>
-        <path d="M86 168 L 105 192 L 124 168 L 118 158 L 92 158 Z" fill="#c48a62"/>
-        <path d="M105 160 L 105 176" stroke="#d6a93c" stroke-width="1.2"/><circle cx="105" cy="178" r="2.6" fill="#e2b84a"/>
-        <!-- neck -->
-        <path d="M91 148 C 92 162, 96 170, 105 172 C 114 170, 118 162, 119 148 Z" fill="#b97d57"/>
-        <!-- face -->
-        <path d="M49 108 C 49 58, 161 58, 161 108 C 161 146, 138 180, 105 182 C 72 180, 49 146, 49 108 Z" fill="url(#skinG)"/>
-        <!-- blush -->
-        <ellipse cx="74" cy="136" rx="10" ry="5.5" fill="#d9846f" opacity=".35"/><ellipse cx="136" cy="136" rx="10" ry="5.5" fill="#d9846f" opacity=".35"/>
-        <!-- ears and hoops -->
-        <ellipse cx="50" cy="120" rx="6" ry="10" fill="#c48a62"/><ellipse cx="160" cy="120" rx="6" ry="10" fill="#c48a62"/>
-        <circle cx="49" cy="142" r="9" fill="none" stroke="#e2b84a" stroke-width="2.4"/><circle cx="161" cy="142" r="9" fill="none" stroke="#e2b84a" stroke-width="2.4"/>
-        <!-- hair, front: side part with a sweep -->
-        <path d="M49 110 C 46 70, 68 42, 105 42 C 142 42, 164 70, 161 110 C 154 88, 142 72, 124 68 C 112 66, 104 74, 96 82 C 84 94, 68 100, 49 110 Z" fill="url(#hairG)"/>
-        <path d="M49 110 C 54 98, 62 90, 72 86 C 66 100, 58 112, 52 124 Z" fill="url(#hairG)"/>
-        <path d="M161 110 C 156 94, 148 84, 138 78 C 146 92, 152 106, 158 122 Z" fill="url(#hairG)"/>
-        <path d="M98 80 C 90 88, 78 94, 62 100" stroke="#6b4530" stroke-width="1.3" fill="none" opacity=".8"/>
-        <path d="M122 70 C 134 74, 146 84, 154 100" stroke="#6b4530" stroke-width="1.3" fill="none" opacity=".8"/>
-        <!-- brows -->
-        <path id="browL" class="brow" d="M72 95 Q 84 87, 98 92" stroke="#2a1a12" stroke-width="3.6" stroke-linecap="round" fill="none" style="transform-origin:85px 91px"/>
-        <path id="browR" class="brow" d="M112 92 Q 126 87, 138 95" stroke="#2a1a12" stroke-width="3.6" stroke-linecap="round" fill="none" style="transform-origin:125px 91px"/>
-        <!-- eyes -->
-        <g>
-          <path d="M74 110 C 79 102, 93 102, 97 110 C 93 116, 79 116, 74 110 Z" fill="#fff"/>
-          <circle cx="86" cy="110.5" r="5.2" fill="url(#irisG)"/><circle id="pupL" class="pupil" cx="86" cy="110.5" r="2.6" fill="#120c09"/><circle cx="88" cy="108.5" r="1.3" fill="#fff"/>
-          <path d="M73 110 C 79 101, 93 101, 98 109" stroke="#1a100b" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M96 108 L 100 106" stroke="#1a100b" stroke-width="2" stroke-linecap="round"/>
-          <path d="M76 114 C 81 117, 91 117, 95 114" stroke="#8b5a3c" stroke-width=".9" fill="none" opacity=".7"/>
-          <rect class="lid" id="lidL" x="72" y="100" width="28" height="18" fill="#cf9469" style="transform:scaleY(0);transform-origin:86px 100px"/>
-        </g>
-        <g>
-          <path d="M113 110 C 117 102, 131 102, 136 110 C 131 116, 117 116, 113 110 Z" fill="#fff"/>
-          <circle cx="124" cy="110.5" r="5.2" fill="url(#irisG)"/><circle id="pupR" class="pupil" cx="124" cy="110.5" r="2.6" fill="#120c09"/><circle cx="126" cy="108.5" r="1.3" fill="#fff"/>
-          <path d="M112 109 C 117 101, 131 101, 137 110" stroke="#1a100b" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M135 108 L 139 106" stroke="#1a100b" stroke-width="2" stroke-linecap="round"/>
-          <path d="M115 114 C 119 117, 129 117, 134 114" stroke="#8b5a3c" stroke-width=".9" fill="none" opacity=".7"/>
-          <rect class="lid" id="lidR" x="110" y="100" width="28" height="18" fill="#cf9469" style="transform:scaleY(0);transform-origin:124px 100px"/>
-        </g>
-        <!-- nose -->
-        <path d="M105 118 C 103 128, 100 134, 99 140 C 101 143, 109 143, 111 140 C 110 134, 107 128, 105 118" fill="#b97d57" opacity=".55"/>
-        <path d="M99 141 Q 105 145, 111 141" stroke="#9c6442" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-        <!-- lips: a soft upper-lip line above the viseme mouth -->
-        <path d="M91 155 Q 98 151, 105 154 Q 112 151, 119 155" stroke="#8e3a43" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-        <path id="mouth" class="mouth" d="M88 158 C 94 156, 116 156, 122 158 C 116 160, 94 160, 88 158 Z" fill="#b34a55"/>
-      </svg>
-      <div class="who" id="who">Marisol, 23 · synthetic patient</div>
+    <div class="avatar" id="avatar">
+      <div class="face" id="avsvg" role="img" aria-label="the patient"></div>
+      <div class="who" id="who">–</div>
       <div class="bubble" id="bubble"></div>
     </div>
-    <div>
+    <div class="ctl">
       <div class="row"><button id="name1" disabled>Name it</button><button id="name10" class="ghost" disabled>Ten in a row</button><label class="counter"><input id="speak" type="checkbox" checked> speak aloud</label></div>
-      <div class="row" style="margin-top:8px"><span class="counter">Or skip the listening:</span><label class="counter">name <input id="nbatch" type="number" value="20" min="1" max="200" style="width:64px; padding:4px 6px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--fg)"> pictures instantly</label><button id="namen" class="ghost" disabled>Go</button><span class="counter">· fills the feed and the diagnosis at once, no speech</span></div>
-      <div class="kv"><span class="k">target word</span><b id="target">–</b><span class="k">what she said</span><span id="said">–</span><span class="k">response type</span><span id="type">–</span><span class="k">so far</span><span id="count" class="counter">0 pictures</span></div>
+      <div class="row" style="margin-top:8px"><span class="counter">Or skip the listening:</span><label class="counter">name <input id="nbatch" type="number" value="20" min="1" max="200" style="width:64px; padding:4px 6px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--fg)"> pictures instantly</label><button id="namen" class="ghost" disabled>Go</button><span class="counter" id="remain"></span></div>
+      <div class="kv"><span class="k">target word</span><b id="target">–</b><span class="k">what they said</span><span id="said">–</span><span class="k">response type</span><span id="type">–</span><span class="k">so far</span><span id="count" class="counter">0 pictures</span></div>
       <div class="legend"><span class="lbl">Response types (PNT convention)</span>
         <span><span class="chip c c-correct">correct</span></span>
         <span><span class="chip c c-semantic">semantic</span> related in meaning: bench → chair</span>
@@ -251,7 +196,7 @@ footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margi
       </div>
     </div>
   </div>
-  <div class="feed" id="feedwrap"><div class="hd"><span>#</span><span>target</span><span>what she said</span><span>type</span></div><div id="feed"></div></div>
+  <div class="feed" id="feedwrap"><div class="hd"><span>#</span><span>target</span><span>what they said</span><span>type</span></div><div id="feed"></div></div>
 </section>
 
 <section id="diagnose">
@@ -280,12 +225,12 @@ footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margi
 
 <section id="trainer">
   <div class="phead"><span class="num">4</span><h2>Two therapists treat the same patient</h2></div>
-  <p class="what">A course of therapy personalised to her: twenty words she struggles with, four sessions over ten days, scored the way a real study scored it, by what she can still name unaided a week and a month later. Both therapists run on identical copies of her with identical dice, so the difference is the therapy, and every line is the engine's own prediction.</p>
+  <p class="what">A course of therapy personalised to the patient: twenty words they struggle with, four sessions over ten days, scored the way a real study scored it, by what they can still name unaided a week and a month later. Both therapists run on identical copies of the patient with identical dice, so the difference is the therapy, and every line is the engine's own prediction.</p>
   <div class="rows">
-    <span class="k">course design</span><span>4 sessions on days 0, 3, 7, 10 · 40 trials each · 20 words she personally struggles with</span>
+    <span class="k">course design</span><span>4 sessions on days 0, 3, 7, 10 · 40 trials each · 20 words this patient struggles with</span>
     <span class="k">scored on</span><span>predicted unaided retention of those words at day 17 and day 38 (Middleton et al. 2019's design)</span>
     <span class="k">cueing hierarchy</span><span>what clinics do: round-robin through the words; after an error, repeat with the first sound, then the whole word</span>
-    <span class="k">trained policy</span><span>MaskablePPO trained on predicted retention; it picks the word (due / repeat / weakest / strongest) and the cue each trial from what a session records. It personalises to her: the words it chooses come from her own history.</span>
+    <span class="k">trained policy</span><span>MaskablePPO trained on predicted retention; it picks the word (due / repeat / weakest / strongest) and the cue each trial from what a session records. It personalises to the patient: the words it chooses come from their own history.</span>
     <span class="k">note</span><span id="runnote" class="counter">The policy is trained on the engine's own prediction of retention, so it already encodes what the learning layer rewards: spaced retrieval, few cues.</span>
   </div>
   <div class="row" style="margin-top:12px"><button id="run" disabled>Run a four-session course</button><span class="counter" id="runstate">Create a patient first.</span></div>
@@ -304,11 +249,11 @@ footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margi
 </section>
 <section id="teach" style="grid-column: 1 / -1">
   <div class="phead"><span class="num">5</span><h2>Where the physician comes in</h2></div>
-  <p class="what">The trained therapist is generic: one policy for every patient the engine can produce. A clinician is not. She knows this patient, her frustration, the cue that works for her and the one that patronises her. DITTO is the mechanism that lets a clinician's corrections become the agent's rules: each correction is treated as preferred over what the agent would have done, the agent is retrained against its original self as an anchor, so it changes where the clinician meant and nowhere else. This step shows the loop, what it does over months of use, and the mechanism running live on the policy from step 4.</p>
+  <p class="what">The trained therapist is generic: one policy for every patient the engine can produce. A clinician is not. They know this patient: their frustration, the cue that works for them and the one that patronises them. DITTO is the mechanism that lets a clinician's corrections become the agent's rules: each correction is treated as preferred over what the agent would have done, the agent is retrained against its original self as an anchor, so it changes where the clinician meant and nowhere else. This step shows the loop, what it does over months of use, and the mechanism running live on the policy from step 4.</p>
 
   <div class="block">
     <div class="lbl">The correction loop</div>
-    <div class="counter" style="margin:4px 0 8px">Every session, the agent proposes, the patient responds, and the clinician corrects what she disagrees with. The corrections are folded into the policy, and the engine audits where the new rule applies before it is ever used on the patient. Press play to follow one correction round the loop.</div>
+    <div class="counter" style="margin:4px 0 8px">Every session, the agent proposes, the patient responds, and the clinician corrects what they disagree with. The corrections are folded into the policy, and the engine audits where the new rule applies before it is ever used on the patient. Press play to follow one correction round the loop.</div>
     <div class="row" style="align-items:flex-start; gap:18px">
       <svg id="loop" viewBox="0 0 760 300" width="100%" style="max-width:760px" role="img" aria-label="The correction loop between patient, agent, clinician and engine">
         <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/></marker></defs>
@@ -333,28 +278,28 @@ footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margi
       </svg>
       <div style="min-width:200px; flex:1">
         <button id="playLoop" class="ghost">Play one correction</button>
-        <p class="counter" style="margin-top:10px" id="loopCap">The agent proposes a word and a cue. The clinician, watching, would have done something else and says so. DITTO treats her choice as preferred over the agent's and retrains the policy against its original self. The engine then checks every recorded moment: the rule now fires where she meant it, and nowhere else.</p>
+        <p class="counter" style="margin-top:10px" id="loopCap">The agent proposes a word and a cue. The clinician, watching, would have done something else and says so. DITTO treats the clinician's choice as preferred over the agent's and retrains the policy against its original self. The engine then checks every recorded moment: the rule now fires where the clinician meant it, and nowhere else.</p>
       </div>
     </div>
   </div>
 
   <div class="block">
     <div class="lbl">What physician input does over months of use · an illustration</div>
-    <div class="counter" style="margin:4px 0 10px">A generic policy starts out matching a given clinician's practice only partly. Each week she corrects what she disagrees with; each correction becomes a rule; the share of decisions she would have made herself rises, and the number of corrections she needs to make falls. Move the sliders. <b>This is a conceptual model of the loop, not data</b>; the mechanism it describes is the one running live below.</div>
+    <div class="counter" style="margin:4px 0 10px">A generic policy starts out matching a given clinician's practice only partly. Each week the clinician corrects what they disagree with; each correction becomes a rule; the share of decisions they would have made themselves rises, and the number of corrections they need to make falls. Move the sliders. <b>This is a conceptual model of the loop, not data</b>; the mechanism it describes is the one running live below.</div>
     <div class="row" style="gap:22px">
       <label class="counter">corrections the clinician makes per week <input id="slCorr" type="range" min="1" max="10" value="4" style="width:160px"> <b id="slCorrV">4</b></label>
-      <label class="counter">how consistent her practice is <input id="slCons" type="range" min="60" max="100" value="90" style="width:160px"> <b id="slConsV">90%</b></label>
+      <label class="counter">how consistent the clinician's practice is <input id="slCons" type="range" min="60" max="100" value="90" style="width:160px"> <b id="slConsV">90%</b></label>
     </div>
     <svg id="loopChart" class="chart" viewBox="0 0 760 280" width="100%" role="img" aria-label="Illustration: alignment of the agent with the clinician rises over weeks while corrections needed fall"></svg>
-    <div class="ll"><span><i style="background:var(--accent)"></i>decisions that match this clinician's practice</span><span><i style="background:var(--accent-2)"></i>corrections she still needs to make per week</span><span><i style="background:#9b7bdc"></i>patient-specific rules the agent carries</span></div>
+    <div class="ll"><span><i style="background:var(--accent)"></i>decisions that match this clinician's practice</span><span><i style="background:var(--accent-2)"></i>corrections the clinician still makes per week</span><span><i style="background:#9b7bdc"></i>patient-specific rules the agent carries</span></div>
   </div>
 
   <div class="block">
     <div class="lbl">The mechanism, live, on the policy from step 4</div>
     <div class="counter" style="margin:4px 0 10px">Say what you would have done and when. The server turns it into six demonstrations from the recorded course, runs DITTO, and shows where the retrained policy now follows your rule and where it left the policy alone.</div>
     <div class="row" style="gap:10px; align-items:flex-end">
-      <div class="field"><span class="counter">whenever she has just…</span><select id="tctx"></select></div>
-      <div class="field"><span class="counter">I would have…</span><select id="trule"><option value="due">moved on to the word that is due</option><option value="repeat">retried the word she just had</option></select></div>
+      <div class="field"><span class="counter">whenever the patient has just…</span><select id="tctx"></select></div>
+      <div class="field"><span class="counter">I would have…</span><select id="trule"><option value="due">moved on to the word that is due</option><option value="repeat">retried the word they just had</option></select></div>
       <div class="field"><span class="counter">with…</span><select id="tcue"><option value="phonemic_initial">the first sound</option><option value="semantic">a meaning cue</option><option value="whole_word">the whole word</option><option value="">no cue</option></select></div>
       <button id="tapply" disabled>Teach it (DITTO, 6 demonstrations)</button>
       <span class="counter" id="tstat"></span>
@@ -385,19 +330,78 @@ footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margi
 <script>
 const $ = (s) => document.querySelector(s);
 const CAT = {correct:"var(--correct)", semantic:"var(--semantic)", formal:"var(--formal)", mixed:"var(--mixed)", unrelated:"var(--unrelated)", nonword:"var(--nonword)", omission:"var(--omission)"};
-let P = null, lesion = "balanced", truthShown = false, courses = {};
+let P = null, D = null, TABLE = null, ROSTER = [], cursor = 0, counts = null, truthShown = false, courses = {}, truth = null;
 const bandOf = aq => aq < 26 ? "very severe" : aq < 51 ? "severe" : aq < 76 ? "moderate" : "mild";
-const accOf = aq => 1 / (1 + Math.exp(-(-2.517 + 0.0353 * aq)));   // the fitted severity curve (patientmodel/population.py)
-const updAq = () => { const aq = +$("#aq").value; $("#aqv").textContent = aq; $("#bandlab").textContent = bandOf(aq); $("#aqacc").textContent = Math.round(accOf(aq) * 100) + "%"; };
-$("#aq").oninput = updAq; updAq();
-const LESION_HELP = { semantic: "Semantic weight lowered: she knows the sounds but neighbouring meanings win. Expect chair for bench, home for house, few nonwords.",
-  balanced: "Both connection weights lowered alike: a mix of meaning errors and sound errors.",
-  phonological: "Phonological weight lowered: she finds the word but its sounds come out wrong. Expect kwiyd for queen, ring for bridge." };
-fetch("/api/patient", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({aq: 60, lesion: "balanced", seed: 999})}).then(r => r.json()).then(p => { $("#ppochip").textContent = p.ppo_available ? "trained policy loaded" : "trained policy not loaded"; $("#ppochip").className = "chip " + (p.ppo_available ? "on" : "off"); }).catch(() => {});
-document.querySelectorAll("#lesion button").forEach(b => b.onclick = () => { document.querySelectorAll("#lesion button").forEach(x => x.classList.remove("on")); b.classList.add("on"); lesion = b.dataset.v; $("#lesionhelp").textContent = LESION_HELP[lesion]; });
-// If the engine server is down, say so at the top instead of failing silently.
-window.addEventListener("unhandledrejection", e => { if (String(e.reason && e.reason.message).includes("Failed to fetch")) { const c = $("#ppochip"); c.textContent = "engine server not reachable: start it with  uv run python -m neurocue.demo.server"; c.className = "chip off"; } });
-async function post(url, body) { const r = await fetch(url, {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(body||{})}); if (!r.ok) throw new Error(await r.text()); return r.json(); }
+const getJSON = async url => { const r = await fetch(url); if (!r.ok) throw new Error(`${url}: ${r.status}`); return r.json(); };
+// ---- the posterior over the two lesion weights: the fitter's grid likelihood (server.py posterior()), computed here
+function posterior(counts) {
+  const {s_values: sv, p_values: pv, logp, categories} = TABLE, S = sv.length, Pn = pv.length;
+  const ll = []; let mx = -Infinity;
+  for (let i = 0; i < S; i++) { ll.push([]); for (let j = 0; j < Pn; j++) { let v = 0; for (let k = 0; k < counts.length; k++) v += counts[k] * logp[i][j][k]; ll[i].push(v); if (v > mx) mx = v; } }
+  let tot = 0, bi = 0, bj = 0, best = -1; const w = ll.map(r => r.map(v => Math.exp(v - mx)));
+  w.forEach((r, i) => r.forEach((v, j) => { tot += v; if (v > best) { best = v; bi = i; bj = j; } }));
+  let ms = 0, mp = 0; w.forEach((r, i) => r.forEach((v, j) => { ms += v / tot * sv[i]; mp += v / tot * pv[j]; }));
+  const lr = Math.log(pv[bj] / Math.max(sv[bi], 1e-6));
+  return { s_values: sv, p_values: pv, grid: w.map(r => r.map(v => v / best)), map: {s: sv[bi], p: pv[bj]}, mean: {s: ms, p: mp},
+    n: counts.reduce((a, b) => a + b, 0), predicted_accuracy: Math.exp(logp[bi][bj][categories.indexOf("correct")]),
+    lesion_read: lr > 0.3 ? "semantic" : lr < -0.3 ? "phonological" : "balanced" };
+}
+// ---- avatars: one parametric face (the mouth, lids, brows and pupils animate), varied by skin, hair, eyes, glasses, beard
+const shade = (hex, f) => { const n = parseInt(hex.slice(1), 16); const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.round(Math.max(0, Math.min(255, f < 0 ? v * (1 + f) : v + (255 - v) * f)))); return "#" + c.map(v => v.toString(16).padStart(2, "0")).join(""); };
+const lum = hex => { const n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; };
+let avN = 0;
+function avatarSVG(a, main) {
+  const u = "av" + (avN++), id = n => main ? ` id="${n}"` : "", skin = a.skin, dk = shade(skin, -0.12), hair = a.hair, hairD = shade(hair, -0.3), brow = shade(hair, lum(hair) > 0.5 ? -0.45 : -0.2), lip = a.lip || (lum(skin) < 0.4 ? "#8e3f3f" : "#b34a55");
+  const hairBack = {
+    long: `<path d="M40 120 C 30 72, 58 30, 105 30 C 152 30, 182 72, 170 120 C 178 150, 188 180, 180 220 L 30 220 C 22 180, 32 150, 40 120 Z" fill="url(#${u}h)"/><path d="M44 128 C 36 160, 30 190, 36 220 L 58 220 C 52 190, 54 160, 62 130 Z" fill="${hairD}"/><path d="M166 128 C 174 160, 180 190, 174 220 L 152 220 C 158 190, 156 160, 148 130 Z" fill="${hairD}"/>`,
+    bun: `<circle cx="105" cy="44" r="19" fill="url(#${u}h)"/><path d="M46 118 C 40 74, 66 50, 105 50 C 144 50, 170 74, 164 118 Z" fill="url(#${u}h)"/>`,
+    wrap: `<path d="M36 124 C 28 62, 64 30, 105 30 C 146 30, 182 62, 174 124 C 178 160, 182 192, 192 220 L 18 220 C 28 192, 32 160, 36 124 Z" fill="${a.wrap}"/>`,
+    short: "", bald: "" }[a.hairStyle] || "";
+  const hairFront = {
+    long: `<path d="M49 110 C 46 70, 68 42, 105 42 C 142 42, 164 70, 161 110 C 154 88, 142 72, 124 68 C 112 66, 104 74, 96 82 C 84 94, 68 100, 49 110 Z" fill="url(#${u}h)"/><path d="M49 110 C 54 98, 62 90, 72 86 C 66 100, 58 112, 52 124 Z" fill="url(#${u}h)"/><path d="M161 110 C 156 94, 148 84, 138 78 C 146 92, 152 106, 158 122 Z" fill="url(#${u}h)"/>`,
+    curly: `<path d="M48 112 C 42 70, 70 46, 105 46 C 140 46, 168 70, 162 112 C 158 96, 150 86, 138 82 C 118 78, 92 78, 72 82 C 60 86, 52 96, 48 112 Z" fill="url(#${u}h)"/>${[[58,84],[70,68],[86,58],[105,54],[124,58],[140,68],[152,84],[64,98],[146,98],[78,74],[96,64],[114,64],[132,74]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="11" fill="url(#${u}h)"/>`).join("")}`,
+    short: `<path d="M46 116 C 40 66, 70 42, 105 42 C 140 42, 170 66, 164 116 C 160 100, 156 90, 150 84 C 138 76, 128 80, 118 76 C 104 72, 92 80, 80 78 C 66 78, 56 90, 52 102 Z" fill="url(#${u}h)"/>`,
+    bun: `<path d="M48 114 C 44 72, 70 54, 105 54 C 140 54, 166 72, 162 114 C 156 92, 142 78, 120 74 C 104 72, 90 76, 76 84 C 62 92, 54 102, 48 114 Z" fill="url(#${u}h)"/><path d="M84 62 C 94 58, 116 58, 126 62" stroke="${hairD}" stroke-width="1.2" fill="none" opacity=".6"/>`,
+    bald: `<path d="M47 96 C 42 108, 44 124, 52 134 C 52 120, 54 108, 58 98 Z" fill="url(#${u}h)"/><path d="M163 96 C 168 108, 166 124, 158 134 C 158 120, 156 108, 152 98 Z" fill="url(#${u}h)"/><ellipse cx="92" cy="78" rx="16" ry="6" fill="#fff" opacity=".18" transform="rotate(-12 92 78)"/>`,
+    wrap: `<path d="M48 116 C 44 66, 72 46, 105 46 C 138 46, 166 66, 162 116 C 158 92, 138 76, 105 76 C 72 76, 52 92, 48 116 Z" fill="${shade(a.wrap || "#888888", -0.1)}"/>`,
+  }[a.hairStyle] || "";
+  const showEars = a.hairStyle !== "wrap";
+  // slim: a narrower face, tapered jaw, slimmer neck (a young, fit patient); the eyes, nose and mouth stay put so the visemes still fit
+  const F = a.slim ? {face: "M55 106 C 55 60, 155 60, 155 106 C 155 138, 136 174, 105 179 C 74 174, 55 138, 55 106 Z", earL: 56, earR: 154, neck: "M94 148 C 95 162, 98 170, 105 172 C 112 170, 115 162, 116 148 Z", blush: .16}
+                 : {face: "M49 108 C 49 58, 161 58, 161 108 C 161 146, 138 180, 105 182 C 72 180, 49 146, 49 108 Z", earL: 50, earR: 160, neck: "M91 148 C 92 162, 96 170, 105 172 C 114 170, 118 162, 119 148 Z", blush: .25};
+  const drape = a.hairStyle === "wrap" ? `<path d="M40 130 C 46 168, 72 194, 105 196 C 138 194, 164 168, 170 130 C 176 170, 178 200, 184 220 L 26 220 C 32 200, 34 170, 40 130 Z" fill="${a.wrap}"/>` : "";
+  return `<svg viewBox="0 0 210 220" aria-hidden="true"><defs>
+    <radialGradient id="${u}s" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="${shade(skin, 0.12)}"/><stop offset="1" stop-color="${skin}"/></radialGradient>
+    <linearGradient id="${u}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shade(hair, 0.1)}"/><stop offset="1" stop-color="${hairD}"/></linearGradient>
+    <radialGradient id="${u}i" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="${shade(a.eyes, 0.25)}"/><stop offset="1" stop-color="${shade(a.eyes, -0.35)}"/></radialGradient></defs>
+    ${hairBack}
+    <path d="M18 220 C 28 184, 64 174, 88 170 L 105 190 L 122 170 C 146 174, 182 184, 192 220 Z" fill="${a.top}"/>
+    <path d="M86 168 L 105 192 L 124 168 L 118 158 L 92 158 Z" fill="${skin}"/>
+    <path d="${F.neck}" fill="${dk}"/>
+    ${drape}
+    ${showEars ? `<ellipse cx="${F.earL}" cy="120" rx="6" ry="10" fill="${skin}"/><ellipse cx="${F.earR}" cy="120" rx="6" ry="10" fill="${skin}"/>` : ""}
+    ${showEars && a.earrings ? `<circle cx="${F.earL - 1}" cy="140" r="${a.slim ? 6 : 9}" fill="none" stroke="#e2b84a" stroke-width="2.2"/><circle cx="${F.earR + 1}" cy="140" r="${a.slim ? 6 : 9}" fill="none" stroke="#e2b84a" stroke-width="2.2"/>` : ""}
+    <path d="${F.face}" fill="url(#${u}s)"/>
+    <ellipse cx="${a.slim ? 77 : 74}" cy="${a.slim ? 132 : 136}" rx="${a.slim ? 8 : 10}" ry="5" fill="#d9846f" opacity="${F.blush}"/><ellipse cx="${a.slim ? 133 : 136}" cy="${a.slim ? 132 : 136}" rx="${a.slim ? 8 : 10}" ry="5" fill="#d9846f" opacity="${F.blush}"/>
+    ${a.slim ? `<ellipse cx="75" cy="124" rx="9" ry="3.5" fill="#fff" opacity=".12" transform="rotate(-18 75 124)"/><ellipse cx="135" cy="124" rx="9" ry="3.5" fill="#fff" opacity=".12" transform="rotate(18 135 124)"/>` : ""}
+    ${a.beard ? `<path d="M54 122 C 56 160, 78 190, 105 192 C 132 190, 154 160, 156 122 C 150 146, 136 164, 122 166 C 114 168, 96 168, 88 166 C 74 164, 60 146, 54 122 Z" fill="${a.beard}"/><path d="M88 152 C 96 146, 114 146, 122 152 C 114 151, 96 151, 88 152 Z" fill="${a.beard}"/>` : ""}
+    ${hairFront}
+    <path${id("browL")} class="brow" d="M72 95 Q 84 87, 98 92" stroke="${brow}" stroke-width="3.4" stroke-linecap="round" fill="none" style="transform-origin:85px 91px"/>
+    <path${id("browR")} class="brow" d="M112 92 Q 126 87, 138 95" stroke="${brow}" stroke-width="3.4" stroke-linecap="round" fill="none" style="transform-origin:125px 91px"/>
+    <g><path d="M74 110 C 79 102, 93 102, 97 110 C 93 116, 79 116, 74 110 Z" fill="#fff"/><circle cx="86" cy="110.5" r="5.2" fill="url(#${u}i)"/><circle${id("pupL")} class="pupil" cx="86" cy="110.5" r="2.6" fill="#120c09"/><circle cx="88" cy="108.5" r="1.3" fill="#fff"/>
+      <path d="M73 110 C 79 101, 93 101, 98 109" stroke="#1a100b" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <rect class="lid"${id("lidL")} x="72" y="100" width="28" height="18" fill="${dk}" style="transform:scaleY(0);transform-origin:86px 100px"/></g>
+    <g><path d="M113 110 C 117 102, 131 102, 136 110 C 131 116, 117 116, 113 110 Z" fill="#fff"/><circle cx="124" cy="110.5" r="5.2" fill="url(#${u}i)"/><circle${id("pupR")} class="pupil" cx="124" cy="110.5" r="2.6" fill="#120c09"/><circle cx="126" cy="108.5" r="1.3" fill="#fff"/>
+      <path d="M112 109 C 117 101, 131 101, 137 110" stroke="#1a100b" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <rect class="lid"${id("lidR")} x="110" y="100" width="28" height="18" fill="${dk}" style="transform:scaleY(0);transform-origin:124px 100px"/></g>
+    ${a.age > 70 ? `<path d="M76 119 C 81 122, 91 122, 95 119" stroke="${shade(skin, -0.25)}" stroke-width=".9" fill="none"/><path d="M115 119 C 119 122, 129 122, 134 119" stroke="${shade(skin, -0.25)}" stroke-width=".9" fill="none"/>` : ""}
+    ${a.glasses ? `<g fill="rgba(255,255,255,.12)" stroke="#3a3330" stroke-width="2"><rect x="69" y="100" width="33" height="22" rx="8"/><rect x="108" y="100" width="33" height="22" rx="8"/></g><path d="M102 108 Q 105 105, 108 108 M69 106 L 52 104 M141 106 L 158 104" stroke="#3a3330" stroke-width="2" fill="none"/>` : ""}
+    <path d="M105 118 C 103 128, 100 134, 99 140 C 101 143, 109 143, 111 140 C 110 134, 107 128, 105 118" fill="${dk}" opacity=".6"/>
+    <path d="M99 141 Q 105 145, 111 141" stroke="${shade(skin, -0.3)}" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <path d="M91 155 Q 98 151, 105 154 Q 112 151, 119 155" stroke="${shade(lip, -0.25)}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <path${id("mouth")} class="mouth" d="M88 158 C 94 156, 116 156, 122 158 C 116 160, 94 160, 88 158 Z" fill="${lip}"/>
+  </svg>`;
+}
 // ---- the avatar: a stylised patient whose mouth follows the phonemes the engine produced
 const VISEME = {
   rest: "M88 158 C 94 156, 116 156, 122 158 C 116 160, 94 160, 88 158 Z",
@@ -460,25 +464,39 @@ const avatar = {
   },
 };
 setTimeout(() => avatar.blink(), 1500);
+boot();
 
-$("#newp").onclick = async () => {
-  $("#newp").disabled = true;
+function renderRoster() {
+  $("#roster").innerHTML = ROSTER.map(p => `<button class="pcard" role="radio" aria-checked="false" data-id="${p.id}"><span class="face">${avatarSVG({...p.avatar, age: p.age}, false)}</span><span><b>${p.name}, ${p.age}</b><small>AQ ${p.aq} · ${bandOf(p.aq)}</small><small>${p.lesion} lesion</small></span></button>`).join("");
+  document.querySelectorAll(".pcard").forEach(b => b.onclick = () => selectPatient(b.dataset.id));
+}
+async function selectPatient(pid) {
+  avatar.clear(); if (window.speechSynthesis) speechSynthesis.cancel(); naming = false;
+  document.querySelectorAll(".pcard").forEach(b => { const on = b.dataset.id === pid; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); });
+  D = await getJSON(`patients/${pid}.json`); P = D.patient;
+  cursor = 0; counts = TABLE.categories.map(() => 0); truthShown = false; truth = null; courses = {};
+  $("#avsvg").innerHTML = avatarSVG({...P.avatar, age: P.age}, true); $("#avsvg").setAttribute("aria-label", `${P.name}, the synthetic patient`);
+  $("#pblurb").textContent = P.blurb;
+  $("#pcard").innerHTML = `<span class="k">patient</span><span>${P.name}, ${P.age} · synthetic</span><span class="k">severity</span><span>AQ ${P.aq} · ${bandOf(P.aq)}</span><span class="k">lesion prior</span><span>${P.lesion}</span><span class="k">expected naming</span><span>${Math.round(P.expected_accuracy*100)}% on the pictures they are about to see</span><span class="k">true lesion weights</span><span>hidden · revealed in step 3</span>`;
+  $("#who").textContent = `${P.name}, ${P.age} · AQ ${P.aq} · ${P.lesion}`; $("#count").textContent = "0 pictures"; $("#picname").textContent = "–"; $("#runstate").textContent = "Ready.";
+  $("#img").src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3C/svg%3E";
+  $("#feed").innerHTML = ""; $("#target").textContent = "–"; $("#said").textContent = "–"; $("#type").textContent = "–";
+  $("#n").textContent = 0; $("#read").textContent = "–"; $("#pacc").textContent = "–"; $("#map").textContent = "–"; $("#truth").textContent = "hidden until revealed";
+  drawHeat(null); $("#chart").innerHTML = ""; $("#strip").innerHTML = ""; $("#summary").textContent = ""; $("#ditto").style.display = "none"; $("#tapply").disabled = true; $("#osummary").textContent = ""; $("#tstat").textContent = "";
+  ["#name1","#name10","#namen","#reveal","#run"].forEach(s => $(s).disabled = false); updRemain();
+  ["#st1","#st2","#st3","#st4","#st5"].forEach(s => $(s).classList.remove("done")); $("#st1").classList.add("done");
+  try { history.replaceState(null, "", "#" + pid); } catch (e) {}
+}
+const left = () => D ? D.responses.length - cursor : 0;
+function updRemain() { const n = left(); $("#remain").textContent = n ? `· ${n} of ${D.responses.length} recorded responses left` : `· all ${D.responses.length} recorded responses shown; pick the patient again to start over`; if (!n) ["#name1","#name10","#namen"].forEach(s => $(s).disabled = true); }
+async function boot() {
   try {
-    P = await post("/api/patient", {aq: +$("#aq").value, lesion, seed: +$("#seed").value});
-    truthShown = false; courses = {};
-    $("#pcard").innerHTML = `<span class="k">patient</span><span>Marisol, 23 · id ${P.id}</span><span class="k">severity</span><span>AQ ${P.aq} · ${bandOf(P.aq)}</span><span class="k">lesion prior</span><span>${P.lesion}</span><span class="k">expected naming</span><span>${Math.round(P.expected_accuracy*100)}% on the pictures she is about to see</span><span class="k">true lesion weights</span><span>hidden · revealed in step 3</span>`;
-    $("#who").textContent = `Marisol, 23 · AQ ${P.aq} · ${P.lesion} lesion`; $("#count").textContent = "0 pictures"; $("#picname").textContent = "–"; $("#runstate").textContent = "Ready. Takes a few seconds.";
-    $("#feed").innerHTML = ""; $("#target").textContent = "–"; $("#said").textContent = "–"; $("#type").textContent = "–";
-    $("#n").textContent = 0; $("#read").textContent = "–"; $("#pacc").textContent = "–"; $("#map").textContent = "–"; $("#truth").textContent = "hidden";
-    drawHeat(null); $("#chart").innerHTML = ""; $("#strip").innerHTML = ""; $("#summary").textContent = ""; $("#ditto").style.display = "none"; $("#tapply").disabled = true; $("#osummary").textContent = "";
-    ["#name1","#name10","#namen","#reveal","#run"].forEach(s => $(s).disabled = false);
-    ["#st1","#st2","#st3","#st4","#st5"].forEach(s => $(s).classList.remove("done")); $("#st1").classList.add("done");
-    const ma = P.models_available || {};
-    if (!ma.retention) $("#runnote").textContent = "no trained policy loaded on this server; the comparison runs spaced retrieval (no cues) instead";
-    $("#leg2").textContent = P.ppo_available ? "trained policy" : "spaced retrieval";
-  } finally { $("#newp").disabled = false; }
-};
-
+    const [idx, table] = await Promise.all([getJSON("patients/index.json"), getJSON("patients/table.json")]);
+    TABLE = table; ROSTER = idx.patients; renderRoster();
+    $("#datachip").textContent = `${ROSTER.length} patients · precomputed ${idx.built}`;
+    const want = location.hash.slice(1); await selectPatient(ROSTER.some(p => p.id === want) ? want : ROSTER[0].id);
+  } catch (e) { $("#datachip").textContent = "could not load patients/: " + e.message; $("#datachip").className = "chip off"; }
+}
 function renderResponse(r) {
   const said = r.said_text || (r.word ? r.word : (r.phonemes ? r.phonemes.join(" ") : "(no response)"));
   $("#img").src = r.image; $("#picname").textContent = r.target; $("#target").textContent = r.target;
@@ -494,27 +512,27 @@ function applyPosterior(q) {
   $("#map").textContent = `s ${q.map.s.toFixed(3)} · p ${q.map.p.toFixed(3)}`;
   drawHeat(q);
 }
+let naming = false;
+function takeResponse() { const r = D.responses[cursor++]; counts[TABLE.categories.indexOf(TABLE.categories.includes(r.category) ? r.category : "nonword")] += 1; return r; }
 async function nameOne() {
-  const {response: r, posterior: q} = await post(`/api/patient/${P.id}/name`);
+  if (!left()) return; const pid = P.id; const r = takeResponse(); updRemain();
   $("#img").src = r.image; $("#picname").textContent = r.target; $("#target").textContent = r.target; $("#said").textContent = "…"; $("#type").textContent = "";
   await avatar.say(r);
-  renderResponse(r); applyPosterior(q); $("#st2").classList.add("done");
+  if (!P || P.id !== pid) return;
+  renderResponse(r); applyPosterior(posterior(counts)); $("#st2").classList.add("done");
 }
-async function nameBatch() {
-  const n = Math.max(1, Math.min(200, +$("#nbatch").value || 20));
-  ["#name1","#name10","#namen"].forEach(s => $(s).disabled = true);
-  try {
-    const {responses, posterior: q} = await post(`/api/patient/${P.id}/name_batch`, {n});
-    responses.forEach(renderResponse); applyPosterior(q); $("#st2").classList.add("done");
-    avatar.show(`named ${n} pictures`); setTimeout(() => avatar.show("", false), 1600);
-  } catch (e) { $("#said").textContent = e.message.slice(0, 120); }
-  finally { ["#name1","#name10","#namen"].forEach(s => $(s).disabled = false); }
+function nameBatch() {
+  const n = Math.max(1, Math.min(left(), +$("#nbatch").value || 20)); if (!left()) return;
+  for (let i = 0; i < n; i++) renderResponse(takeResponse());
+  applyPosterior(posterior(counts)); $("#st2").classList.add("done"); updRemain();
+  avatar.show(`named ${n} pictures`); setTimeout(() => avatar.show("", false), 1600);
 }
 $("#namen").onclick = nameBatch;
-$("#name1").onclick = () => nameOne().catch(e => alert(e.message));
-$("#name10").onclick = async () => { $("#name10").disabled = true; for (let i = 0; i < 10; i++) { await nameOne(); await new Promise(r => setTimeout(r, 350)); } $("#name10").disabled = false; };
+$("#name1").onclick = async () => { if (naming) return; naming = true; $("#name1").disabled = $("#name10").disabled = true; try { await nameOne(); } finally { naming = false; if (left()) $("#name1").disabled = $("#name10").disabled = false; } };
+$("#name10").onclick = async () => { if (naming) return; naming = true; const pid = P.id; $("#name1").disabled = $("#name10").disabled = true;
+  try { for (let i = 0; i < 10 && left() && P.id === pid && naming; i++) { await nameOne(); await new Promise(r => setTimeout(r, 350)); } } finally { naming = false; if (left()) $("#name1").disabled = $("#name10").disabled = false; } };
 
-let lastQ = null, truth = null;
+let lastQ = null;
 function drawHeat(q) {
   lastQ = q; const c = $("#heat"), g = c.getContext("2d"); g.clearRect(0,0,c.width,c.height);
   g.fillStyle = "#fff"; g.fillRect(0,0,c.width,c.height);
@@ -531,7 +549,7 @@ function drawHeat(q) {
   if (truthShown && truth) { g.fillStyle = "#c96f1f"; g.beginPath(); g.arc(sx(truth.s), py(truth.p), 6, 0, 7); g.fill(); g.fillStyle="#c96f1f"; g.font="12px sans-serif"; g.fillText("truth", sx(truth.s)+9, py(truth.p)+4); }
   g.fillStyle = "#444"; g.font = "11px sans-serif"; g.fillText("semantic weight →", 6, c.height - 6); g.save(); g.translate(12, 120); g.rotate(-Math.PI/2); g.fillText("phonological weight →", 0, 0); g.restore();
 }
-$("#reveal").onclick = async () => { truth = await (await fetch(`/api/patient/${P.id}/truth`)).json(); truthShown = true; $("#st3").classList.add("done"); $("#truth").textContent = `s ${truth.s.toFixed(3)} · p ${truth.p.toFixed(3)}`; drawHeat(lastQ); };
+$("#reveal").onclick = () => { truth = D.truth; truthShown = true; $("#st3").classList.add("done"); $("#truth").textContent = `s ${truth.s.toFixed(3)} · p ${truth.p.toFixed(3)}`; drawHeat(lastQ); };
 
 function taughtRun() { return courses.ppo_retention || courses.ppo || null; }
 function drawChart() {
@@ -577,7 +595,7 @@ function drawLoopChart() {
   const x = w => L + (W - L - R) * w / weeks, yP = v => T + (H - T - B) * (1 - v), yR = v => T + (H - T - B) * (1 - Math.min(1, v / Math.max(rules[weeks], 1)));
   [0, .25, .5, .75, 1].forEach(v => { ns("line", {x1: L, x2: W - R, y1: yP(v), y2: yP(v), stroke: "var(--line)"}); ns("text", {x: L - 6, y: yP(v) + 4, "text-anchor": "end"}, Math.round(v * 100) + "%"); });
   [0, 4, 8, 12, 16, 20, 24].forEach(w => ns("text", {x: x(w), y: H - 18, "text-anchor": "middle"}, `week ${w}`));
-  ns("text", {x: L, y: H - 4, fill: "var(--muted)", "font-size": 10}, "illustration · weeks of a clinician using the agent with her patients");
+  ns("text", {x: L, y: H - 4, fill: "var(--muted)", "font-size": 10}, "illustration · weeks of a clinician using the agent with their patients");
   const path = (arr, yf, col, width) => ns("path", {d: arr.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${yf(v).toFixed(1)}`).join(" "), fill: "none", stroke: col, "stroke-width": width});
   path(align, yP, "var(--accent)", 2.6); path(corr.map(v => v / 10), yP, "var(--accent-2)", 2); path(rules, yR, "#9b7bdc", 2);
   ns("text", {x: x(weeks) + 6, y: yP(align[weeks]) + 4, fill: "var(--accent)"}, Math.round(align[weeks] * 100) + "%");
@@ -615,33 +633,34 @@ function setupTeach(run) {
   $("#tapply").disabled = false; $("#ditto").style.display = "none"; $("#osummary").textContent = "";
 }
 $("#tapply").onclick = async () => {
-  $("#tapply").disabled = true; $("#tstat").textContent = "building 6 demonstrations and retraining…";
+  $("#tapply").disabled = true; $("#tstat").textContent = "";
   try {
-    const r = await post(`/api/patient/${P.id}/override`, {trial: -1, context: $("#tctx").value, cue: $("#tcue").value || null, rule: $("#trule").value, n_demos: 6});
+    await new Promise(res => setTimeout(res, 250));
+    const r = D.teach[`${$("#tctx").value}|${$("#trule").value}|${$("#tcue").value}`];
+    if (!r) throw new Error("no precomputed result for that combination"); if (r.error) throw new Error(r.error);
     drawDitto(r);
     const pct = v => v == null ? "–" : Math.round(v * 100) + "%"; const cueName = ($("#tcue").value || "no cue").replace("_", " ");
     const leak = Math.max(r.leak_other_errors || 0, r.leak_after_correct || 0);
     const chip = (ok, text) => `<span class="chip" style="background:${ok ? "color-mix(in srgb, var(--correct) 16%, transparent)" : "color-mix(in srgb, var(--accent-2) 18%, transparent)"}; color:${ok ? "var(--correct)" : "var(--accent-2)"}; font-family:var(--body); margin-right:8px">${text}</span>`;
     const adoptOk = (r.adoption_heldout || 0) >= 0.7, containOk = leak <= 0.1;
     $("#osummary").innerHTML = `<div style="margin-bottom:8px">${chip(adoptOk, `Adopted where meant: ${pct(r.adoption_heldout)} of ${r.n_heldout} unseen matching moments`)}${chip(containOk, `Contained: ${pct(r.leak_other_errors)} after other errors · ${pct(r.leak_after_correct)} after a success`)}</div>` +
-      `<b>Taught</b> with ${r.n_demos} demonstrations (${r.n_demos_total} so far): "whenever she has just ${CTX_LABEL($("#tctx").value)}, ${$("#trule").value === "repeat" ? "retry the word" : "move on"} with ${cueName}". ` +
+      `<b>Taught</b> with ${r.n_demos} demonstrations, starting from the original policy: "whenever the patient has just ${CTX_LABEL($("#tctx").value)}, ${$("#trule").value === "repeat" ? "retry the word" : "move on"} with ${cueName}". ` +
       (adoptOk && containOk ? "The policy now applies the clinician's rule where it applies and nowhere else. That is the loop above, run once, on this patient's recorded course." : adoptOk ? "The rule was adopted but also leaked into other situations; a more specific situation or a few more demonstrations usually fixes that." : "The rule was not adopted broadly; a handful of consistent demonstrations usually fixes that.");
     $("#tstat").textContent = "done"; $("#st5").classList.add("done");
   } catch (e) { $("#tstat").textContent = e.message.slice(0, 200); } finally { $("#tapply").disabled = false; }
 };
 $("#run").onclick = async () => {
-  $("#run").disabled = true; $("#summary").textContent = ""; $("#runstate").textContent = "Running two 160-trial courses on identical copies of her…";
+  $("#run").disabled = true; $("#summary").textContent = ""; $("#runstate").textContent = "Loading two 160-trial courses run on identical copies of the patient…";
   try {
-    const ma = P.models_available || {};
-    const pols = ["spaced_hierarchy"].concat(ma.retention ? ["ppo_retention"] : ["spaced_plain"]);
-    courses = await post(`/api/patient/${P.id}/course`, {policies: pols, teach: "retention"});
+    await new Promise(res => setTimeout(res, 300));
+    courses = JSON.parse(JSON.stringify(D.courses));
     for (const k of Object.keys(courses)) if (courses[k] && courses[k].unavailable) delete courses[k];
     const taught = taughtRun();
     drawChart(); drawStrip(taught || courses.spaced_plain); if (taught) setupTeach(taught);
     const h = courses.spaced_hierarchy, rt = courses.ppo_retention;
     const f = c => c ? `${Math.round(c.final["17"]*100)}% at one week, ${Math.round(c.final["38"]*100)}% at one month` : "–";
     $("#runstate").textContent = "Done."; $("#st4").classList.add("done");
-    $("#summary").innerHTML = `<b>Result.</b> Her 20 words started at ${Math.round(h.start["17"]*100)}% predicted retention. <b>Cueing hierarchy</b>: ${f(h)}. ` + (rt ? `<b>Trained policy</b>: ${f(rt)}. ` : "") + `Both lines are the engine's learning layer predicting unaided naming; the gap between them is the therapy.`;
+    $("#summary").innerHTML = `<b>Result.</b> ${P.name}'s 20 words started at ${Math.round(h.start["17"]*100)}% predicted retention. <b>Cueing hierarchy</b>: ${f(h)}. ` + (rt ? `<b>Trained policy</b>: ${f(rt)}. ` : "") + `Both lines are the engine's learning layer predicting unaided naming; the gap between them is the therapy.`;
   } catch (e) { $("#runstate").textContent = "Failed."; $("#summary").innerHTML = `<b>The course did not run.</b> ${e.message.slice(0, 300)}`; } finally { $("#run").disabled = false; }
 };
 </script>

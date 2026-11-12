@@ -382,29 +382,56 @@ the same loop prices the corrections.
 
 ## 6. The console and the demo
 
-`neurocue/demo/server.py` is a FastAPI service over the engine, with a hand-drawn SVG avatar
-(Marisol, 23) whose mouth follows the phonemes she produced and browser speech synthesis for her
-utterances. Everything on screen is computed by the code the validation ran: the patient is
-`patientmodel.Patient` on the Dell model with the full word realizer; the diagnosis is the grid
-posterior the fitter uses; the retention curves are the fitted learning layer inside the therapy
-environment; the override is `agents/ditto.py` on the trained policy. Nothing is recorded.
+The console comes in two forms that share one page (`neurocue/demo/static/index.html`):
 
-The five steps on the page (rehearsed seeds: AQ 55 phonological seed 3, then AQ 50 semantic seed 3,
-which gives the same pictures with different errors):
+- **Hosted, precomputed.** Six patients spread over severity and lesion type, each with an
+  avatar: Marisol (23, AQ 62, balanced), Harold (74, AQ 34, phonological), Aisha (45, AQ 86,
+  semantic), Kenji (67, AQ 48, semantic), Ruth (79, AQ 72, phonological) and Darnell (38, AQ 28,
+  balanced). For each,
+  `scripts/build_demo_patients.py` calls the console server's own endpoint functions and writes to
+  `neurocue/demo/static/patients/`:
+  - 100 naming responses in order;
+  - the true lesion weights;
+  - both four-session courses;
+  - a DITTO result for every option the teach form offers (situation × word rule × cue, each
+    taught from the original policy with six demonstrations).
 
-1. **Who are you listening to.** Choose AQ, lesion type and seed. Two lesion weights are drawn
-   from the prior fitted to PSST.
-2. **She names pictures.** Name one at a time with sound on, or name 20 instantly. The avatar
-   mouths the phonemes she actually produced, nonwords and false starts included.
-3. **Diagnose.** The posterior heat map over (s, p) from the answers alone; reveal the true lesion
-   and it sits inside the bright region. Switch to a semantic patient and the errors become word
-   substitutions and the posterior moves.
-4. **Two therapists.** Run the four-session course on identical copies of her: the clinic's cueing
-   hierarchy against the trained policy, judged on what is still named a month later, with a strip
-   of which word and which cue, trial by trial.
-5. **Where the physician comes in.** Play one correction, then teach a rule live (for example:
-   after a nonword, retry the word with its first sound). Two chips report adoption where meant and
-   containment elsewhere.
+  The diagnosis posterior is cheap, so the page computes it itself from the fitter's grid table
+  (`table.json`). It matches `server.py` exactly. The page then needs no server compute at all.
+  Rebuilding takes about 70 seconds:
+
+  ```bash
+  uv run python scripts/build_demo_patients.py
+  ```
+
+- **Local, live.** `neurocue/demo/server.py` is a FastAPI service over the engine. Its API
+  (below) samples any patient (AQ, lesion type, seed) and runs DITTO live. `./scripts/run_demo.sh`
+  starts it and serves the same page.
+
+Every number is computed by the code the validation ran:
+
+- the patient is `patientmodel.Patient` on the Dell model with the full word realizer;
+- the diagnosis is the fitter's grid posterior;
+- the retention curves are the fitted learning layer inside the therapy environment;
+- the override is `agents/ditto.py` on the trained policy.
+
+Each avatar is one parametric SVG face, varied by skin, hair, eyes, glasses and beard. Its mouth
+follows the phonemes the patient produced, and browser speech synthesis voices the utterances.
+
+The five steps on the page:
+
+1. **Who are you listening to.** Pick one of the six patients.
+2. **The patient names pictures.** Name one at a time with sound on, or many at once. The avatar
+   mouths the phonemes the patient actually produced, nonwords and false starts included.
+3. **Diagnose.** The posterior heat map over (s, p) comes from the answers alone. Reveal the true
+   lesion and it sits inside the bright region. Switch from Harold (phonological) to Aisha
+   (semantic) and the errors and the posterior move.
+4. **Two therapists.** Two four-session courses run on identical copies of the patient: the
+   clinic's cueing hierarchy against the trained policy. Both are judged on what the patient still
+   names a month later. A strip shows which word and which cue each trial used.
+5. **Where the physician comes in.** Play one correction, then teach a rule (for example: after a
+   nonword, retry the word with its first sound). Two chips report adoption where the rule was
+   meant and containment elsewhere.
 
 API of the console:
 
@@ -424,10 +451,9 @@ API of the console:
 ## 7. Deployment
 
 The hosted demo runs on [Modal](https://modal.com) (serverless containers, free monthly credits, no
-card). `deploy/modal_app.py` builds the image from `pyproject.toml` and `uv.lock` (CPU-only torch
-on Linux via the `pytorch-cpu` index), mounts the repository under the `.dockerignore` rules
-(ignored files such as transcripts never leave the machine) and serves the FastAPI app with
-2 CPUs and 3 GB. Publishing or updating it:
+card). Because the hosted console is precomputed (section 6), `deploy/modal_app.py` is a slim
+Python image with FastAPI serving `neurocue/demo/static/`. It has no torch and no engine, a quarter
+CPU and 256 MB, and a cold start of a few seconds. Publishing or updating it:
 
 ```bash
 uv tool install modal
@@ -441,14 +467,13 @@ modal setup
 modal deploy deploy/modal_app.py
 ```
 
-The first build takes a few minutes (torch); later deploys reuse the image and take seconds. The
-container scales to zero after 20 idle minutes, so the first visit afterwards waits about a minute
-while the engine loads; `min_containers=1` in `deploy/modal_app.py` keeps one warm at the cost of
-credits. To redeploy on every push to `main`, add the repository secrets `MODAL_TOKEN_ID` and
-`MODAL_TOKEN_SECRET` (from https://modal.com/settings/tokens) on GitHub; the workflow in
-`.github/workflows/deploy-modal.yml` then runs the same command.
+A deploy takes seconds. Since the site is static files, any static host (GitHub Pages, Netlify)
+would also serve `neurocue/demo/static/` as it is. To redeploy on every push to `main`, add the
+repository secrets `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` (from
+https://modal.com/settings/tokens) on GitHub. The workflow in `.github/workflows/deploy-modal.yml`
+then runs the same command.
 
-The same server also ships as a container. `Dockerfile` serves it on port 7860:
+The live server (any patient, live DITTO) also ships as a container. `Dockerfile` serves it on port 7860:
 
 ```bash
 docker build -t neurocue-demo . && docker run --rm -p 7860:7860 neurocue-demo

@@ -1,0 +1,122 @@
+{
+ "patients": [
+  {
+   "id": "marisol",
+   "name": "Marisol",
+   "age": 23,
+   "aq": 62,
+   "lesion": "balanced",
+   "seed": 1,
+   "blurb": "Moderate, both connections weakened. Many nonwords, some meaning errors. A graduate student and distance runner: aphasia can follow a stroke at any age.",
+   "avatar": {
+    "skin": "#c48a62",
+    "hair": "#2a1a12",
+    "hairStyle": "long",
+    "top": "#1c6560",
+    "eyes": "#4a2c18",
+    "earrings": true,
+    "slim": true
+   },
+   "expected_accuracy": 0.3586666666666667,
+   "observed_accuracy": 0.33
+  },
+  {
+   "id": "harold",
+   "name": "Harold",
+   "age": 74,
+   "aq": 34,
+   "lesion": "phonological",
+   "seed": 2,
+   "blurb": "Severe, phonological. Finds the word, loses its sounds: about half his answers are nonwords. A former machinist.",
+   "avatar": {
+    "skin": "#e8bfa0",
+    "hair": "#cfcac4",
+    "hairStyle": "bald",
+    "top": "#5b6b7a",
+    "eyes": "#5d7a8c",
+    "glasses": true,
+    "beard": "#d8d3cc"
+   },
+   "expected_accuracy": 0.25700000000000006,
+   "observed_accuracy": 0.21
+  },
+  {
+   "id": "aisha",
+   "name": "Aisha",
+   "age": 45,
+   "aq": 86,
+   "lesion": "semantic",
+   "seed": 3,
+   "blurb": "Mild, semantic. Names most pictures; when she errs, a word near in meaning or sound wins. Back at work part-time as an accountant.",
+   "avatar": {
+    "skin": "#7a4a2e",
+    "hair": "#1a1210",
+    "hairStyle": "wrap",
+    "wrap": "#a8475a",
+    "top": "#2f4f8a",
+    "eyes": "#2a170c",
+    "earrings": true
+   },
+   "expected_accuracy": 0.6216666666666666,
+   "observed_accuracy": 0.6
+  },
+  {
+   "id": "kenji",
+   "name": "Kenji",
+   "age": 67,
+   "aq": 48,
+   "lesion": "semantic",
+   "seed": 4,
+   "blurb": "Severe-moderate, semantic weight the weaker one. A spread of every error type. Keeps a vegetable garden.",
+   "avatar": {
+    "skin": "#e0b48c",
+    "hair": "#3a3a3a",
+    "hairStyle": "short",
+    "top": "#6e5a3c",
+    "eyes": "#2a1d14"
+   },
+   "expected_accuracy": 0.3373333333333333,
+   "observed_accuracy": 0.4
+  },
+  {
+   "id": "ruth",
+   "name": "Ruth",
+   "age": 79,
+   "aq": 72,
+   "lesion": "phonological",
+   "seed": 5,
+   "blurb": "Moderate-mild, phonological. Nearly every error is a nonword. Sang in a church choir for forty years.",
+   "avatar": {
+    "skin": "#f0cdb4",
+    "hair": "#e6e2dc",
+    "hairStyle": "bun",
+    "top": "#8a4f7d",
+    "eyes": "#4f6f5a",
+    "glasses": true
+   },
+   "expected_accuracy": 0.5071666666666667,
+   "observed_accuracy": 0.47
+  },
+  {
+   "id": "darnell",
+   "name": "Darnell",
+   "age": 38,
+   "aq": 28,
+   "lesion": "balanced",
+   "seed": 6,
+   "blurb": "Severe, the lowest AQ of the six; both connections weakened. Over half his answers are nonwords; about one in four is right. A paramedic and father of two.",
+   "avatar": {
+    "skin": "#5c3a26",
+    "hair": "#151010",
+    "hairStyle": "curly",
+    "top": "#b5552f",
+    "eyes": "#24150c",
+    "beard": "#1d1512"
+   },
+   "expected_accuracy": 0.17116666666666666,
+   "observed_accuracy": 0.26
+  }
+ ],
+ "n_naming": 100,
+ "built": "2026-11-12"
+}

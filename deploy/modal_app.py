@@ -1,42 +1,62 @@
-"""NeuroCue patient console on Modal (https://modal.com): serverless containers, public HTTPS URL.
+"""NeuroCue patient console on Modal (https://modal.com): a public HTTPS URL for the static console.
 
     uv tool install modal            # once per machine
     modal setup                      # once per machine: browser login
     modal deploy deploy/modal_app.py # publish or update; prints the URL (https://burakdonbekci--neurocue-web.modal.run)
 
-The image is built from pyproject.toml and uv.lock, so it is the same dependency set as the local
-environment (on Linux torch comes from the CPU-only index, see pyproject.toml). The repository is
-mounted at /root/neurocue with the .dockerignore rules, so transcripts and other ignored files
-never leave the machine. The FastAPI app in neurocue/demo/server.py loads the engine in its startup
-event; the first request after a cold start waits for that (about a minute), later requests are
-instant. The container stays up for 20 minutes after the last request.
+The hosted console needs no live compute: the five patients it offers, with their naming responses,
+therapy courses and DITTO results, are precomputed by scripts/build_demo_patients.py into
+neurocue/demo/static/patients/. So the image is a slim Python with FastAPI serving that one
+directory: no torch, no engine, a cold start of a few seconds. The full live server
+(neurocue/demo/server.py, any patient, live DITTO) still runs locally with ./scripts/run_demo.sh.
 """
 from pathlib import Path
 
 import modal
 
-ROOT = Path(__file__).resolve().parents[1]
-REMOTE = "/root/neurocue"
+STATIC = Path(__file__).resolve().parents[1] / "neurocue" / "demo" / "static"
+REMOTE = "/root/static"
 
 image = (
     modal.Image.debian_slim(python_version="3.11")
-    .uv_sync(uv_project_dir=str(ROOT), extra_options="--no-dev")
-    .env({"PYTHONUNBUFFERED": "1", "NLTK_DATA": f"{REMOTE}/data/cache/nltk_data"})
-    .add_local_dir(ROOT, remote_path=REMOTE, ignore=modal.FilePatternMatcher.from_file(ROOT / ".dockerignore"))
+    .pip_install("fastapi==0.115.12")
+    .add_local_dir(STATIC, remote_path=REMOTE)
 )
 
 app = modal.App("neurocue", image=image)
 
 
-@app.function(cpu=2, memory=3072, scaledown_window=20 * 60, timeout=600, startup_timeout=600)
-@modal.concurrent(max_inputs=40)
+@app.function(cpu=0.25, memory=256, scaledown_window=5 * 60, timeout=60)
+@modal.concurrent(max_inputs=100)
 @modal.asgi_app()
 def web():
-    import os
-    import sys
+    import hashlib
 
-    os.chdir(REMOTE)
-    sys.path.insert(0, REMOTE)
-    from neurocue.demo.server import app as fastapi_app
+    from fastapi import FastAPI
+    from fastapi.staticfiles import StaticFiles
+    from starlette.datastructures import Headers
+    from starlette.responses import FileResponse
 
-    return fastapi_app
+    class ContentStatic(StaticFiles):
+        """Modal mounts files with a 1970 mtime, and Starlette's ETag is mtime + size, so an edit that
+        keeps a file's size (an age 52 -> 23) would be answered 304 and browsers would keep the old file.
+        Tag each file by its content instead, and ask browsers to revalidate on every load."""
+        _tags: dict[str, str] = {}
+
+        def file_response(self, full_path, stat_result, scope, status_code=200):
+            path = str(full_path)
+            if path not in self._tags:
+                with open(path, "rb") as f:
+                    self._tags[path] = '"' + hashlib.md5(f.read()).hexdigest() + '"'
+            response = FileResponse(full_path, status_code=status_code, stat_result=stat_result)
+            response.headers["etag"] = self._tags[path]
+            response.headers["cache-control"] = "no-cache"
+            del response.headers["last-modified"]
+            if self.is_not_modified(response.headers, Headers(scope=scope)):
+                from starlette.responses import Response
+                return Response(status_code=304, headers={"etag": self._tags[path], "cache-control": "no-cache"})
+            return response
+
+    site = FastAPI(title="NeuroCue patient console", docs_url=None, redoc_url=None, openapi_url=None)
+    site.mount("/", ContentStatic(directory=REMOTE, html=True), name="static")
+    return site

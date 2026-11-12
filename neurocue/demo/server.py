@@ -308,6 +308,7 @@ class OverrideReq(BaseModel):
     scope: str = "same_error"    # one | same_error | any_error
     n_demos: int = 4
     rule: str = "repeat"         # repeat (retry the word she just had) | due (move on to the word due longest) | keep (the policy's own word choice)
+    include_course: bool = True  # also run a full course with the retrained policy (the page does not draw it; the precompute skips it)
 
 
 @app.post("/api/patient/{pid}/override")
@@ -378,8 +379,7 @@ def override(pid: str, req: OverrideReq) -> dict:
     nC = len(CUE_KINDS)
     # adoption = the policy now takes the taught action (word rule AND cue) in those moments
     gives_cue = lambda idx, acts: float(np.mean([acts[i] == taught_action(i) for i in idx])) if idx else None
-    tp = make_patient(d.aq, d.lesion, d.seed)
-    res = run_course(tuned, tp, d.seed)
+    res = run_course(tuned, make_patient(d.aq, d.lesion, d.seed), d.seed) if req.include_course else None
     return {"demo_prob": log[-1]["demo_prob"], "n_demos": len(demos), "n_demos_total": len(d.demos), "scope": scope, "trial": int(t),
             "changed_states": [int(i) for i in np.flatnonzero(before != after)], "n_states": int(len(O)),
             "cue_before": [int(a % nC) for a in before], "cue_after": [int(a % nC) for a in after],
