@@ -13,7 +13,7 @@ all run on that same engine.
 
 | | |
 |---|---|
-| Hosted demo | **https://burakdonbekci--neurocue-web.modal.run** (first visit after idle waits about a minute while the engine loads) |
+| Hosted demo | **https://burakdon.github.io/neurocue/** (six precomputed patients, static, loads instantly) |
 | Video walkthrough | [results/demo/neurocue_demo.mp4](results/demo/neurocue_demo.mp4) (2.5 min, captioned) |
 | Presentation notes | [docs/presentation_talking_points.md](docs/presentation_talking_points.md): every number with its source file |
 | Engine internals | [patientmodel/README.md](patientmodel/README.md): module-by-module grounding |
@@ -99,7 +99,7 @@ configs/        every tunable value, YAML, validated at load time; assumptions a
 data/           item banks, calibration tables, coded PSST rows (raw third-party data is not committed)
 models/         trained policies, committed so results reproduce without retraining
 results/        generated reports (markdown, CSV, PNG) that this README quotes; results/demo/ holds the video
-deploy/         Modal app and the Hugging Face Space scaffold; Dockerfile at the root
+deploy/         Modal app (alternative host) and the Hugging Face Space scaffold; Dockerfile at the root
 frontend/       the CueAgain practice app and clinician view (section 10)
 tests/          pytest suite
 docs/           presentation notes; the original starter scaffold under docs/scaffold/
@@ -450,28 +450,21 @@ API of the console:
 
 ## 7. Deployment
 
-The hosted demo runs on [Modal](https://modal.com) (serverless containers, free monthly credits, no
-card). Because the hosted console is precomputed (section 6), `deploy/modal_app.py` is a slim
-Python image with FastAPI serving `neurocue/demo/static/`. It has no torch and no engine, a quarter
-CPU and 256 MB, and a cold start of a few seconds. Publishing or updating it:
+The hosted demo is on GitHub Pages: **https://burakdon.github.io/neurocue/**. Because the hosted
+console is precomputed (section 6), it is plain static files, `neurocue/demo/static/` served as it is,
+with no compute and no cost. `.github/workflows/deploy-pages.yml` publishes it on every push to `main`
+that touches that directory (or by hand from the Actions tab). After changing the patients, rebuild
+and push:
 
 ```bash
-uv tool install modal
+uv run python scripts/build_demo_patients.py
 ```
 
-```bash
-modal setup
-```
-
-```bash
-modal deploy deploy/modal_app.py
-```
-
-A deploy takes seconds. Since the site is static files, any static host (GitHub Pages, Netlify)
-would also serve `neurocue/demo/static/` as it is. To redeploy on every push to `main`, add the
-repository secrets `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` (from
-https://modal.com/settings/tokens) on GitHub. The workflow in `.github/workflows/deploy-modal.yml`
-then runs the same command.
+`deploy/modal_app.py` serves the same directory from [Modal](https://modal.com) (a slim FastAPI image,
+a quarter CPU, 256 MB) and is kept as an alternative host; it draws on Modal's free monthly credits,
+which is why the demo moved to Pages. Publish it with `modal deploy deploy/modal_app.py`, or run
+`.github/workflows/deploy-modal.yml` by hand once the repository secrets `MODAL_TOKEN_ID` and
+`MODAL_TOKEN_SECRET` (from https://modal.com/settings/tokens) are set.
 
 The live server (any patient, live DITTO) also ships as a container. `Dockerfile` serves it on port 7860:
 
@@ -821,8 +814,8 @@ quote are not committed.
   `feature/cueagain-ditto`, `feature/ditto-training`, `kuba/clinician-real-data` and personal
   branches: teammates' work during the hackathon.
 
-Merges into `dev` went through pull requests on GitHub once the tests passed. On `main`, pushes
-trigger the Modal redeploy when the secrets are set (section 7).
+Merges into `dev` went through pull requests on GitHub once the tests passed. On `main`, pushes that
+touch the console republish it to GitHub Pages (section 7).
 
 ## 13. References
 

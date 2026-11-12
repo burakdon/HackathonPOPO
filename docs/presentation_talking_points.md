@@ -4,7 +4,7 @@ A checklist for the Triangle AI Hackathon (Health track) presentation. Every num
 a results file in this repository (named in brackets). Say the pitch, walk the pipeline in order,
 run the five demo steps, close on the physician loop and the limits. Twelve minutes fits.
 
-Live demo: https://burakdonbekci--neurocue-web.modal.run (first load after idle: about 35 s).
+Live demo: https://burakdon.github.io/neurocue/ (six precomputed patients; loads instantly).
 Repository: https://github.com/burakdon/neurocue. Video: results/demo/neurocue_demo.mp4.
 
 ## The pitch (say it first, in one breath)

@@ -1,0 +1,33 @@
+# Publishes the patient console to GitHub Pages (https://burakdon.github.io/neurocue/) whenever the
+# console or its precomputed patients change on main. The console is static: the six patients are
+# precomputed by scripts/build_demo_patients.py into neurocue/demo/static/patients/, so Pages serves
+# that directory as it is, with no build step and no compute.
+name: Deploy console to GitHub Pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - "neurocue/demo/static/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: neurocue/demo/static
+      - id: deployment
+        uses: actions/deploy-pages@v4

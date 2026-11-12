@@ -1,10 +1,14 @@
-"""NeuroCue patient console on Modal (https://modal.com): a public HTTPS URL for the static console.
+"""NeuroCue patient console on Modal (https://modal.com), an alternative host for the static console.
+
+The hosted demo now lives on GitHub Pages (https://burakdon.github.io/neurocue/, published by
+.github/workflows/deploy-pages.yml), which serves the same directory for free. This app is kept in
+case a server is wanted; it draws on Modal credits while a container is up.
 
     uv tool install modal            # once per machine
     modal setup                      # once per machine: browser login
     modal deploy deploy/modal_app.py # publish or update; prints the URL (https://burakdonbekci--neurocue-web.modal.run)
 
-The hosted console needs no live compute: the five patients it offers, with their naming responses,
+The hosted console needs no live compute: the six patients it offers, with their naming responses,
 therapy courses and DITTO results, are precomputed by scripts/build_demo_patients.py into
 neurocue/demo/static/patients/. So the image is a slim Python with FastAPI serving that one
 directory: no torch, no engine, a cold start of a few seconds. The full live server

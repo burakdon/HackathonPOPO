@@ -1,10 +1,9 @@
-# Redeploys the hosted demo on Modal after every push to main. Needs two repository secrets,
+# Deploys the console to Modal, the alternative host (the hosted demo is on GitHub Pages, see
+# deploy-pages.yml). Run by hand from the Actions tab. Needs two repository secrets,
 # MODAL_TOKEN_ID and MODAL_TOKEN_SECRET (https://modal.com/settings/tokens); until they are set the
 # job exits without doing anything.
 name: Deploy demo to Modal
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 concurrency:
   group: deploy-modal
