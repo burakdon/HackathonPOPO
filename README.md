@@ -26,42 +26,27 @@ data is far too thin to train one on.
 
 ## What we built
 
-<table>
-<tr>
-<td width="33%" valign="top">
-
 ### 1 · Synthetic patients
 A patient engine built on an established cognitive model of word retrieval, fitted to **real patient
 speech** (the PSST corpus) and to a real therapy study, with error labels our team **hand-checked**.
-Each patient has their own severity, errors, learning and forgetting.
-
-</td>
-<td width="33%" valign="top">
+Each patient has their own severity, their own errors, and their own pace of learning and forgetting.
 
 ### 2 · An RL therapist
-A policy trained with **reinforcement learning** (MaskablePPO) on those patients, scored on what
-they can still name a week and a month after therapy. With no hints, it **rediscovered spaced,
+A policy trained with **reinforcement learning** (MaskablePPO) on those patients and scored on what
+they can still name a week and a month after therapy. Given no hints, it **rediscovered spaced,
 uncued retrieval practice**, the best-supported approach clinicians use.
-
-</td>
-<td width="33%" valign="top">
 
 ### 3 · A clinician in the loop
 Healthcare needs humans in charge. With **DITTO**, a lightweight form of learning from human
 feedback, a clinician corrects the therapist with **four to six examples**, and the new rule applies
 where they meant it **and nowhere else**.
 
-</td>
-</tr>
-</table>
-
 ```mermaid
-flowchart LR
-  A["Real patient speech<br/>PSST corpus"] --> B["Error labels<br/>checked by our team"]
-  B --> C["Synthetic patient engine<br/>words, errors, learning, forgetting"]
-  C --> D["RL therapist<br/>trained on simulated patients"]
-  D --> E["Clinician corrects it<br/>DITTO, a few examples"]
-  E -- "new rule, applied only where meant" --> D
+flowchart TD
+  A["Real patient speech (PSST)<br/>+ error labels checked by our team"] --> B["Synthetic patient engine<br/>words, errors, learning, forgetting"]
+  B --> C["RL therapist<br/>trained on simulated patients"]
+  C --> D["Clinician corrects it<br/>DITTO, a few examples"]
+  D -- "new rule, applied only where meant" --> C
 ```
 
 ## See it in action
@@ -70,28 +55,21 @@ The [live console](https://burakdon.github.io/neurocue/) lets you pick one of si
 to them name pictures, diagnose them from their errors, watch two therapists treat them, and teach
 the therapist a rule of your own. No install, nothing to sign up for.
 
-<table>
-<tr>
-<td width="50%" valign="top">
-<img src="docs/images/demo-naming.png" alt="Marisol, a synthetic patient, looks at a picture of a castle and says 'floor'">
-<p><b>Hear them.</b> Marisol sees a castle and says "floor". Every answer, pause and false start
-comes from the engine, framed the way real patients framed theirs.</p>
-</td>
-<td width="50%" valign="top">
-<img src="docs/images/demo-treat.png" alt="Predicted retention over a four-session course: the trained policy ends above the clinic's cueing hierarchy">
-<p><b>Treat them.</b> Two therapists run the same four-session course on identical copies of the
-patient. The gap between the lines is the therapy.</p>
-</td>
-</tr>
-<tr>
-<td colspan="2">
-<img src="docs/images/demo-ditto.png" alt="Before and after a clinician's correction: the policy now gives the first sound after nonword errors, and nowhere else">
-<p><b>Correct the therapist.</b> Say "after a nonword error, move on and give the first sound." Six
+**Hear them.** Marisol sees a castle and says "floor". Every answer, pause and false start comes from
+the engine, framed the way real patients framed theirs.
+
+<p align="center"><img src="docs/images/demo-naming.png" width="560" alt="Marisol, a synthetic patient, looks at a picture of a castle and says 'floor'"></p>
+
+**Treat them.** Two therapists run the same four-session course on identical copies of the patient.
+The gap between the lines is the therapy.
+
+<p align="center"><img src="docs/images/demo-treat.png" width="720" alt="Predicted retention over a four-session course: the trained policy ends above the clinic's cueing hierarchy"></p>
+
+**Correct the therapist.** Say "after a nonword error, move on and give the first sound." Six
 demonstrations later the therapist follows the rule on 97% of matching moments it never saw, and
-changes nothing after other errors or after successes.</p>
-</td>
-</tr>
-</table>
+changes nothing after other errors or after successes.
+
+<p align="center"><img src="docs/images/demo-ditto.png" alt="Before and after a clinician's correction: the policy now gives the first sound after nonword errors, and nowhere else"></p>
 
 ## Results at a glance
 
