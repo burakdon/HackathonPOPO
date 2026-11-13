@@ -290,7 +290,7 @@ footer b { color:var(--fg); display:block; font:600 12.5px var(--display); margi
       <label class="counter">corrections the clinician makes per week <input id="slCorr" type="range" min="1" max="10" value="4" style="width:160px"> <b id="slCorrV">4</b></label>
       <label class="counter">how consistent the clinician's practice is <input id="slCons" type="range" min="60" max="100" value="90" style="width:160px"> <b id="slConsV">90%</b></label>
     </div>
-    <svg id="loopChart" class="chart" viewBox="0 0 760 280" width="100%" role="img" aria-label="Illustration: alignment of the agent with the clinician rises over weeks while corrections needed fall"></svg>
+    <svg id="loopChart" class="chart" viewBox="0 0 760 280" width="100%" style="max-width:760px; display:block" role="img" aria-label="Illustration: alignment of the agent with the clinician rises over weeks while corrections needed fall"></svg>
     <div class="ll"><span><i style="background:var(--accent)"></i>decisions that match this clinician's practice</span><span><i style="background:var(--accent-2)"></i>corrections the clinician still makes per week</span><span><i style="background:#9b7bdc"></i>patient-specific rules the agent carries</span></div>
   </div>
 
@@ -554,7 +554,7 @@ $("#reveal").onclick = () => { truth = D.truth; truthShown = true; $("#st3").cla
 function taughtRun() { return courses.ppo_retention || courses.ppo || null; }
 function drawChart() {
   const svg = $("#chart"); svg.innerHTML = "";
-  const W = 640, H = 260, L = 44, R = 70, T = 14, B = 34; const names = Object.keys(courses).filter(k => courses[k] && courses[k].trials);
+  const W = 640, H = 260, L = 44, R = 130, T = 14, B = 34; const names = Object.keys(courses).filter(k => courses[k] && courses[k].trials);
   if (!names.length) return;
   const n = courses[names[0]].trials.length; const x = i => L + (W - L - R) * i / Math.max(n - 1, 1); const y = v => T + (H - T - B) * (1 - v);
   const ns = (s, a) => { const e = document.createElementNS("http://www.w3.org/2000/svg", s); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; };
@@ -591,7 +591,7 @@ function drawLoopChart() {
   const align = [], corr = [], rules = []; let carried = 0;
   for (let t = 0; t <= weeks; t++) { const a = a0 + (cons - a0) * (1 - Math.exp(-k * c * t)); align.push(a); const need = c * (1 - a) / (1 - a0); corr.push(need); carried += need * cons * 0.6; rules.push(carried); }
   const svg = $("#loopChart"); svg.innerHTML = "";
-  const W = 760, H = 280, L = 52, R = 56, T = 16, B = 40; const ns = (t, at, txt) => { const e = document.createElementNS("http://www.w3.org/2000/svg", t); for (const k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+  const W = 760, H = 280, L = 52, R = 72, T = 16, B = 40; const ns = (t, at, txt) => { const e = document.createElementNS("http://www.w3.org/2000/svg", t); for (const k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
   const x = w => L + (W - L - R) * w / weeks, yP = v => T + (H - T - B) * (1 - v), yR = v => T + (H - T - B) * (1 - Math.min(1, v / Math.max(rules[weeks], 1)));
   [0, .25, .5, .75, 1].forEach(v => { ns("line", {x1: L, x2: W - R, y1: yP(v), y2: yP(v), stroke: "var(--line)"}); ns("text", {x: L - 6, y: yP(v) + 4, "text-anchor": "end"}, Math.round(v * 100) + "%"); });
   [0, 4, 8, 12, 16, 20, 24].forEach(w => ns("text", {x: x(w), y: H - 18, "text-anchor": "middle"}, `week ${w}`));
@@ -601,7 +601,7 @@ function drawLoopChart() {
   ns("text", {x: x(weeks) + 6, y: yP(align[weeks]) + 4, fill: "var(--accent)"}, Math.round(align[weeks] * 100) + "%");
   ns("text", {x: x(weeks) + 6, y: yP(corr[weeks] / 10) + 4, fill: "var(--accent-2)"}, corr[weeks].toFixed(1) + "/wk");
   ns("text", {x: x(weeks) + 6, y: yR(rules[weeks]) + 4, fill: "#9b7bdc"}, Math.round(rules[weeks]) + " rules");
-  ns("text", {x: W - R, y: yP(1) - 4, "text-anchor": "end", fill: "var(--muted)", "font-size": 10}, "corrections drawn on a 0–10 per week scale");
+  ns("text", {x: L + 4, y: yP(1) - 5, fill: "var(--muted)", "font-size": 10}, "corrections drawn on a 0–10 per week scale");
 }
 ["#slCorr", "#slCons"].forEach(sel => $(sel).oninput = drawLoopChart); drawLoopChart();
 // ---- the mechanism, live

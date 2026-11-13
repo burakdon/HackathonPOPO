@@ -1,15 +1,130 @@
-# NeuroCue
+<p align="center">
+  <a href="https://burakdon.github.io/neurocue/"><img src="docs/images/banner.png" alt="NeuroCue: six synthetic aphasia patients, each with their own severity and lesion type" width="100%"></a>
+</p>
 
-**A clinically grounded synthetic aphasia patient, a therapist policy trained against it, and a loop
-that lets the clinician correct that policy.** Winner of the Health track and 3rd overall at the
-Triangle AI Hackathon (November 2026).
+<p align="center">
+  <a href="https://burakdon.github.io/neurocue/"><img alt="Live demo" src="https://img.shields.io/badge/live%20demo-open%20the%20console-5fc2b3?style=for-the-badge"></a>
+  <a href="results/demo/neurocue_demo.mp4"><img alt="Video walkthrough" src="https://img.shields.io/badge/video-2.5%20min%20walkthrough-f0a05a?style=for-the-badge"></a>
+  <a href="#technical-documentation"><img alt="Technical documentation" src="https://img.shields.io/badge/docs-technical%20details-9b7bdc?style=for-the-badge"></a>
+</p>
 
-Anomia therapy is a sequence of decisions: which word next, which cue, retry or move on, how to space
-practice. Reinforcement learning could optimise those decisions, but it needs a patient to practise
-on, and no simulator existed that was grounded in real naming errors and real retention data.
-NeuroCue builds one. Every layer of the patient is fitted to published data and checked on held-out
-data; the therapy environment, the trained policy, the clinician-feedback loop and the live console
-all run on that same engine.
+<p align="center">
+  <b>Winner, Health track · 3rd overall</b> at the Triangle AI Hackathon, November 2026
+</p>
+
+## The problem
+
+**Aphasia** is a language disorder, most often caused by a stroke, that makes it hard to find and
+say words. Someone with aphasia may look at a picture of a castle, know exactly what it is, and say
+"floor", or a scrambled nonword, instead. Speech therapy helps, and every session is a chain of small
+decisions: which word to practise next, whether to give a hint, retry or move on, how to space
+practice over days.
+
+Reinforcement learning is good at exactly that kind of decision-making, and could personalise it to
+each patient. But an RL therapist has to practise on someone, thousands of times, and public aphasia
+data is far too thin to train one on.
+
+## What we built
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### 1 · Synthetic patients
+A patient engine built on an established cognitive model of word retrieval, fitted to **real patient
+speech** (the PSST corpus) and to a real therapy study, with error labels our team **hand-checked**.
+Each patient has their own severity, errors, learning and forgetting.
+
+</td>
+<td width="33%" valign="top">
+
+### 2 · An RL therapist
+A policy trained with **reinforcement learning** (MaskablePPO) on those patients, scored on what
+they can still name a week and a month after therapy. With no hints, it **rediscovered spaced,
+uncued retrieval practice**, the best-supported approach clinicians use.
+
+</td>
+<td width="33%" valign="top">
+
+### 3 · A clinician in the loop
+Healthcare needs humans in charge. With **DITTO**, a lightweight form of learning from human
+feedback, a clinician corrects the therapist with **four to six examples**, and the new rule applies
+where they meant it **and nowhere else**.
+
+</td>
+</tr>
+</table>
+
+```mermaid
+flowchart LR
+  A["Real patient speech<br/>PSST corpus"] --> B["Error labels<br/>checked by our team"]
+  B --> C["Synthetic patient engine<br/>words, errors, learning, forgetting"]
+  C --> D["RL therapist<br/>trained on simulated patients"]
+  D --> E["Clinician corrects it<br/>DITTO, a few examples"]
+  E -- "new rule, applied only where meant" --> D
+```
+
+## See it in action
+
+The [live console](https://burakdon.github.io/neurocue/) lets you pick one of six patients, listen
+to them name pictures, diagnose them from their errors, watch two therapists treat them, and teach
+the therapist a rule of your own. No install, nothing to sign up for.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+<img src="docs/images/demo-naming.png" alt="Marisol, a synthetic patient, looks at a picture of a castle and says 'floor'">
+<p><b>Hear them.</b> Marisol sees a castle and says "floor". Every answer, pause and false start
+comes from the engine, framed the way real patients framed theirs.</p>
+</td>
+<td width="50%" valign="top">
+<img src="docs/images/demo-treat.png" alt="Predicted retention over a four-session course: the trained policy ends above the clinic's cueing hierarchy">
+<p><b>Treat them.</b> Two therapists run the same four-session course on identical copies of the
+patient. The gap between the lines is the therapy.</p>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<img src="docs/images/demo-ditto.png" alt="Before and after a clinician's correction: the policy now gives the first sound after nonword errors, and nowhere else">
+<p><b>Correct the therapist.</b> Say "after a nonword error, move on and give the first sound." Six
+demonstrations later the therapist follows the rule on 97% of matching moments it never saw, and
+changes nothing after other errors or after successes.</p>
+</td>
+</tr>
+</table>
+
+## Results at a glance
+
+| | |
+|---|---|
+| **The patient is realistic** | Reproduces published patients' error patterns (RMSD .002 to .011). On real patients held out from fitting, 56% of synthetic errors are nonwords against 53% real. |
+| **It learns like a real patient** | Fitted to a real therapy study (Middleton et al. 2019): reproduces the spacing effect, the benefit of retrieval practice, and forgetting between one week and one month. |
+| **The RL therapist beats clinic practice** | On 80 unseen patients it improves one-week retention by +0.022 over the standard cueing hierarchy (95% CI +0.020 to +0.026), matching the best clinical baseline. |
+| **Clinicians can steer it** | Corrections are adopted on 96% of matching unseen situations while 99% of other decisions stay unchanged. |
+
+> [!IMPORTANT]
+> **A research prototype, not a clinical tool.** No real patient is simulated and no real patient
+> data is used in the demo; the patients are models fitted to population data. The results are the
+> engine's predictions under stated assumptions, not a verdict on any therapy.
+
+## Team
+
+Built by **Burak Donbekci**, **Sabrina Grewal Requena**, **Alberto Gómez Soteres** and **Kuba
+Romanczuk** at the Triangle AI Hackathon. The project continues as research.
+
+---
+
+## Technical documentation
+
+Everything below is for readers who want the details: how each layer is built, what it is fitted
+to, how it was checked, and how to reproduce every number.
+
+**In one paragraph.** Anomia therapy is a sequence of decisions: which word next, which cue, retry or
+move on, how to space practice. Reinforcement learning could optimise those decisions, but it needs a
+patient to practise on, and no simulator existed that was grounded in real naming errors and real
+retention data. NeuroCue builds one. Every layer of the patient is fitted to published data and
+checked on held-out data; the therapy environment, the trained policy, the clinician-feedback loop
+and the console all run on that same engine.
 
 | | |
 |---|---|
@@ -20,10 +135,6 @@ all run on that same engine.
 | Data sources | [data/README.md](data/README.md): what each dataset is for, licences, what could not be obtained |
 | Repository | https://github.com/burakdon/neurocue (`main`; the original scaffold is `legacy-main`) |
 
-> **Prototype, not a clinical tool.** No claim of clinical effectiveness, diagnosis or assessment of
-> impaired speech is made. No real patient is simulated: the patient is a model fitted to population
-> data. The policy's results are the engine's current opinion under stated assumptions, not a verdict
-> on any therapy. No real patient data is used in the demo.
 
 ## Contents
 
