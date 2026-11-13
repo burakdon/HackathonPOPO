@@ -73,12 +73,17 @@ changes nothing after other errors or after successes.
 
 ## Results at a glance
 
-| | |
-|---|---|
-| **The patient is realistic** | Reproduces published patients' error patterns (RMSD .002 to .011). On real patients held out from fitting, 56% of synthetic errors are nonwords against 53% real. |
-| **It learns like a real patient** | Fitted to a real therapy study (Middleton et al. 2019): reproduces the spacing effect, the benefit of retrieval practice, and forgetting between one week and one month. |
-| **The RL therapist beats clinic practice** | On 80 unseen patients it improves one-week retention by +0.022 over the standard cueing hierarchy (95% CI +0.020 to +0.026), matching the best clinical baseline. |
-| **Clinicians can steer it** | Corrections are adopted on 96% of matching unseen situations while 99% of other decisions stay unchanged. |
+- **The patients are realistic.** The engine reproduces published patients' error patterns (RMSD .002
+  to .011). On real patients held out from fitting, 56% of synthetic errors are nonwords, against 53%
+  real.
+- **They learn like real patients.** Fitted to a real therapy study (Middleton et al. 2019), the engine
+  reproduces the spacing effect, the benefit of retrieval practice, and forgetting between one week
+  and one month.
+- **The RL therapist beats standard clinic practice.** On 80 unseen patients it improves one-week
+  retention by +0.022 over the cueing hierarchy clinics use (95% CI +0.020 to +0.026), matching the
+  best clinical baseline.
+- **Clinicians can steer it.** A correction is adopted on 96% of matching situations the therapist
+  never saw, while 99% of its other decisions stay unchanged.
 
 > [!IMPORTANT]
 > **A research prototype, not a clinical tool.** No real patient is simulated and no real patient
